@@ -3,12 +3,8 @@ package plub.plubserver.domain.archive.model;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import plub.plubserver.common.model.BaseTimeEntity;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 
 @Entity
@@ -18,7 +14,13 @@ public class ArchiveImage {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "archive_image_id")
     private Long id;
 
     private String archiveImg;
+
+    // 아카이브 사진(다) - 아카이브(1)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "archive_id")
+    private Archive archive;
 }
