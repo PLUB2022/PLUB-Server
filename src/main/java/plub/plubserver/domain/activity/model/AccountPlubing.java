@@ -4,7 +4,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import plub.plubserver.domain.account.model.Account;
-import plub.plubserver.domain.archive.model.Archive;
+import plub.plubserver.domain.archive.model.PlubingArchive;
 import plub.plubserver.domain.plubing.model.Plubing;
 
 import javax.persistence.*;
@@ -36,5 +36,5 @@ public class AccountPlubing {
 
     // 회원_모임페이지(1) - 아카이브(다)
     @OneToMany(mappedBy = "accountPlubing", cascade = CascadeType.ALL)
-    private List<Archive> archives = new ArrayList<>();
+    private List<PlubingArchive> archives = new ArrayList<>();
 }

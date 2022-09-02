@@ -13,7 +13,7 @@ import java.util.List;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Archive extends BaseTimeEntity {
+public class PlubingArchive extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,5 +31,5 @@ public class Archive extends BaseTimeEntity {
 
     // 아카이브(1) - 아카이브 사진(다)
     @OneToMany(mappedBy = "archive", cascade = CascadeType.ALL)
-    private List<ArchiveImage> archiveImageList = new ArrayList<>();
+    private List<PlubingArchiveImage> archiveImageList = new ArrayList<>();
 }

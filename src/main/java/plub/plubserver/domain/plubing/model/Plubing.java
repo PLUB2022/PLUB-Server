@@ -40,6 +40,6 @@ public class Plubing extends BaseTimeEntity {
 
     // 모임(1) - 플러빙 공지(다)
     @OneToMany(mappedBy = "plubing", cascade = CascadeType.ALL)
-    private List<Notice> notices = new ArrayList<>();
+    private List<PlubingNotice> notices = new ArrayList<>();
 
 }
