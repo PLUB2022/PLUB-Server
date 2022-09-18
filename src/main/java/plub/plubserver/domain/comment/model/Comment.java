@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import plub.plubserver.common.model.BaseTimeEntity;
 import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.plubing.model.PlubingNotice;
+import plub.plubserver.domain.todo.model.PlubingTodo;
 
 import javax.persistence.*;
 
@@ -33,4 +34,9 @@ public class Comment extends BaseTimeEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "notice_id")
     private PlubingNotice notice;
+
+    // 댓글(다) - 투두(1)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "todo_id")
+    private PlubingTodo todo;
 }
