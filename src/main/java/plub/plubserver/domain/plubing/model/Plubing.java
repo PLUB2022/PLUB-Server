@@ -5,7 +5,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import plub.plubserver.common.model.BaseTimeEntity;
 import plub.plubserver.domain.activity.model.AccountPlubing;
+import plub.plubserver.domain.category.model.Category;
 import plub.plubserver.domain.recruit.model.Board;
+import plub.plubserver.domain.timeline.model.PlubingTimeline;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -41,5 +43,15 @@ public class Plubing extends BaseTimeEntity {
     // 모임(1) - 플러빙 공지(다)
     @OneToMany(mappedBy = "plubing", cascade = CascadeType.ALL)
     private List<PlubingNotice> notices = new ArrayList<>();
+
+    // 모임(다) - 카테고리(1)
+    @ManyToOne
+    @JoinColumn(name = "category_id")
+    private Category category;
+
+    // 모임(1) - 타임라인(다)
+    @OneToMany(mappedBy = "plubing", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PlubingTimeline> timeLineList = new ArrayList<>();
+
 
 }

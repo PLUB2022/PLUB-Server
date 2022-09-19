@@ -1,4 +1,4 @@
-package plub.plubserver.domain.archive.model;
+package plub.plubserver.domain.feed.model;
 
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -10,17 +10,17 @@ import javax.persistence.*;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class PlubingArchiveImage {
+public class PlubingFeedImage {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "archive_image_id")
+    @Column(name = "feed_image_id")
     private Long id;
 
     private String archiveImg;
 
-    // 아카이브 사진(다) - 아카이브(1)
+    // 피드 사진(다) - 피드(1)
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "archive_id")
-    private PlubingArchive archive;
+    @JoinColumn(name = "feed_id")
+    private PlubingFeed feed;
 }

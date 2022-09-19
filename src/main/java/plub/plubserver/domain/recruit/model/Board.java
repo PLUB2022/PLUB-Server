@@ -4,6 +4,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import plub.plubserver.common.model.BaseTimeEntity;
+import plub.plubserver.domain.category.model.Category;
 import plub.plubserver.domain.plubing.model.Plubing;
 import plub.plubserver.domain.plubing.model.PlubingCommon;
 
@@ -45,4 +46,10 @@ public class Board extends BaseTimeEntity {
     // 모집(1) - 질문(다)
     @OneToMany(mappedBy = "board", cascade = CascadeType.ALL)
     private List<Question> questions = new ArrayList<>();
+
+    // 모집(1) - 카테고리(1) # 카테고리가 자식 -> 외래키는 모집이 관리
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id")
+    private Category category;
+
 }
