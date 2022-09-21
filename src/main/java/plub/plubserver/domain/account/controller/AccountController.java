@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import plub.plubserver.common.dto.ApiResponse;
 import plub.plubserver.domain.account.dto.LoginRequest;
+import plub.plubserver.domain.account.dto.SignUpRequest;
 import plub.plubserver.domain.account.service.AccountService;
 
 import javax.validation.Valid;
@@ -21,7 +22,12 @@ public class AccountController {
     private final AccountService accountService;
 
     @PostMapping("/login")
-    public ApiResponse<String> login(@Valid @RequestBody LoginRequest loginRequest) {
-        return success(accountService.loginAccess(loginRequest), "로그인");
+    public ApiResponse<String> login(@Valid @RequestBody LoginRequest loginDto) {
+        return success(accountService.loginAccess(loginDto), "로그인");
+    }
+
+    @PostMapping("/signup")
+    public ApiResponse<String> signUp(@Valid @RequestBody SignUpRequest signUpDto) {
+        return success(accountService.signUp(signUpDto), "회원가입");
     }
 }
