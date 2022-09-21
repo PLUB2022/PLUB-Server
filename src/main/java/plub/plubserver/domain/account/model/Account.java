@@ -1,6 +1,7 @@
 package plub.plubserver.domain.account.model;
 
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import plub.plubserver.common.model.BaseTimeEntity;
@@ -18,6 +19,7 @@ import java.util.List;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Builder
 public class Account extends BaseTimeEntity {
 
     @Id
@@ -27,11 +29,12 @@ public class Account extends BaseTimeEntity {
 
     private String email;
     private String password;
-    private String name;
+    private String nickname;
     private int age;
     private String birthday;
     private String gender;
     private String phone;
+    private String introduce;
     private SocialType socialType;
     private String profile; // saved_path
     private String lastLogin;
