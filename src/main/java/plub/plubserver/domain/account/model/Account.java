@@ -26,6 +26,7 @@ public class Account extends BaseTimeEntity {
     private Long id;
 
     private String email;
+    private String password;
     private String name;
     private int age;
     private String birthday;
@@ -35,6 +36,8 @@ public class Account extends BaseTimeEntity {
     private String profile; // saved_path
     private String lastLogin;
     private String fcmToken;
+
+    private Role role;
 
     // 회원(1) - 차단 사용자(다)
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
