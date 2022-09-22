@@ -20,6 +20,7 @@ import java.util.List;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Builder
 public class Account extends BaseTimeEntity {
 
     @Id
@@ -29,16 +30,16 @@ public class Account extends BaseTimeEntity {
 
     private String email;
     private String password;
-    private String name;
+    private String nickname;
     private int age;
     private String birthday;
     private String gender;
     private String phone;
-    private String provider;
+    private String introduce;
+    private SocialType socialType;
     private String profile; // saved_path
     private String lastLogin;
     private String fcmToken;
-
     private Role role;
 
     // 회원(1) - 차단 사용자(다)
