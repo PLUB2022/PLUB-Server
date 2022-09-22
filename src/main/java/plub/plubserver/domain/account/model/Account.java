@@ -1,11 +1,9 @@
 package plub.plubserver.domain.account.model;
 
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import plub.plubserver.common.model.BaseTimeEntity;
 import plub.plubserver.config.jwt.RefreshToken;
+import plub.plubserver.domain.account.dto.AccountDto;
 import plub.plubserver.domain.activity.model.AccountPlubing;
 import plub.plubserver.domain.alarm.model.Alarm;
 import plub.plubserver.domain.category.model.Category;
@@ -19,6 +17,7 @@ import java.util.List;
 
 @Entity
 @Getter
+@AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Account extends BaseTimeEntity {
 
@@ -69,6 +68,9 @@ public class Account extends BaseTimeEntity {
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Category> categories = new ArrayList<>();
 
+    @OneToOne(mappedBy = "account", cascade = CascadeType.ALL)
+    private RefreshToken refreshToken;
+
     @Builder
     public Account(String email, String password, String nickname, int age, String birthday, String gender, String phone, SocialType socialType, String profile, String lastLogin, String fcmToken, Role role, String introduce) {
         this.email = email;
@@ -86,6 +88,8 @@ public class Account extends BaseTimeEntity {
         this.role = role;
     }
 
-    @OneToOne(mappedBy = "account", cascade = CascadeType.ALL)
-    private RefreshToken refreshToken;
+
+    public AccountDto.MemberRequest toAccountRequestDto(){
+        return new AccountDto.MemberRequest(email,email+"plub",nickname, socialType.getSocialName());
+    }
 }

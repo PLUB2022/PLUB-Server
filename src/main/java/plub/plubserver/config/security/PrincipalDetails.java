@@ -1,6 +1,7 @@
 package plub.plubserver.config.security;
 
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import plub.plubserver.domain.account.model.Account;
@@ -8,6 +9,7 @@ import plub.plubserver.domain.account.model.Account;
 import java.util.ArrayList;
 import java.util.Collection;
 
+@Getter
 @AllArgsConstructor
 public class PrincipalDetails implements UserDetails {
 

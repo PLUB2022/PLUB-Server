@@ -28,25 +28,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             SecurityContextHolder.getContext().setAuthentication(authentication);
         }
         filterChain.doFilter(request, response);
-//        String path = request.getRequestURI();
-//        // jwt filter 처리 안 할 URI 인지 검사
-//        if (Arrays.stream(excludePaths).noneMatch(path::equals)) {
-//
-//            String accessToken = jwtProvider.resolveToken(request);
-//            if (accessToken == null)
-//                servletResponseManager.sendError(response, "jwt 토큰이 없습니다.");
-//            else {
-//                // 토큰 유효성 검증
-//                //case DENIED, EXPIRED -> servletResponseManager.sendError(response, "유효하지 않음");
-//                if (jwtProvider.validate(accessToken) == JwtCode.ACCESS) {
-//                    Authentication authentication = jwtProvider.getAuthentication(accessToken);
-//                    SecurityContextHolder.getContext().setAuthentication(authentication);
-//                    filterChain.doFilter(request, response);
-//                }
-//            }
-//        } // jwt filter 가 처리할 URI 가 아니라면 그냥 흘려보낸다
-//        else {
-//            filterChain.doFilter(request, response);
-//        }
+
     }
 }
