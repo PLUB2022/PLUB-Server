@@ -29,7 +29,7 @@ import static plub.plubserver.domain.account.dto.AuthDto.*;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class AccountService {
+public class AuthService {
 
     private final JwtProvider jwtProvider;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
@@ -68,8 +68,8 @@ public class AccountService {
 
     @Transactional
     public String signUp(SignUpRequest signUpDto) {
-        String email = signUpDto.getEmail();
-        String nickname = signUpDto.getNickname();
+        String email = signUpDto.email();
+        String nickname = signUpDto.nickname();
         duplicateEmailAndNickName(email, nickname);
         Account account = signUpDto.toAccount(passwordEncoder);
         accountRepository.save(account);
@@ -87,11 +87,11 @@ public class AccountService {
     }
 
     private String fetchSocialEmail(SocialLoginRequest loginRequestDto) {
-        String provider = loginRequestDto.getProvider();
+        String provider = loginRequestDto.provider();
         if (provider.equalsIgnoreCase("Google")) {
-            return getGoogleId(loginRequestDto.getAccessToken());
+            return getGoogleId(loginRequestDto.accessToken());
         } else if (provider.equalsIgnoreCase("Kakao")) {
-            return getKakaoId(loginRequestDto.getAccessToken());
+            return getKakaoId(loginRequestDto.accessToken());
         } else {
             return "getAppleId";
         }
@@ -126,5 +126,9 @@ public class AccountService {
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
         headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
         return headers;
+    }
+
+    public JwtDto reissue(ReissueRequest reissueDto) {
+        return jwtProvider.reIssue(reissueDto.refreshToken());
     }
 }
