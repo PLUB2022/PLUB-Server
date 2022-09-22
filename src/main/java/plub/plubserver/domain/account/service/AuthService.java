@@ -14,6 +14,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import plub.plubserver.config.jwt.JwtDto;
 import plub.plubserver.config.jwt.JwtProvider;
+import plub.plubserver.config.jwt.RefreshTokenRepository;
 import plub.plubserver.config.security.PrincipalDetails;
 import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.account.model.SocialType;
@@ -31,50 +32,52 @@ import static plub.plubserver.domain.account.dto.AuthDto.*;
 @RequiredArgsConstructor
 public class AuthService {
 
+    private final RefreshTokenRepository refreshTokenRepository;
     private final JwtProvider jwtProvider;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final PasswordEncoder passwordEncoder;
     private final RestTemplate restTemplate;
     private final AccountRepository accountRepository;
 
-    public String loginAccess(SocialLoginRequest loginDto) {
+    public AuthMessage loginAccess(SocialLoginRequest loginDto) {
         // 1. access token 검증
         String email = fetchSocialEmail(loginDto);
 
         // 2. repository 확인
         Optional<Account> account = accountRepository.findByEmail(email);
 
+        AuthMessage loginMessage;
+
         // 3. 있으면 로그인 진행 없으면 회원가입
         if (account.isPresent()) {
-             login(account.get().toAccountRequestDto().toLoginRequest());
-            // 앱한테 로그인 됐다고 메시지 전달
+//            JwtDto jwtDto = login(account.get().toAccountRequestDto().toLoginRequest(account.get().getPassword()));
+            JwtDto jwtDto = login(account.get().toAccountRequestDto().toLoginRequest());
+            loginMessage = new AuthMessage(jwtDto, "로그인");
         } else {
-            // 앱한테 신규가입이라고 메시지 전달
+            SigningAccount signingAccount = new SigningAccount(email, loginDto.socialType());
+            loginMessage = new AuthMessage(signingAccount,"신규가입");
         }
-
-        return email;
+        return loginMessage;
     }
 
 
-
-    private void login(LoginRequest loginRequest) {
+    private JwtDto login(LoginRequest loginRequest) {
         UsernamePasswordAuthenticationToken authenticationToken = loginRequest.toAuthentication();
         Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
         PrincipalDetails principal = (PrincipalDetails) authentication.getPrincipal();
         Account account = principal.getAccount();
-        JwtDto issue = jwtProvider.issue(account);
-        // 리프레시토큰 값 생성
+        return jwtProvider.issue(account);
     }
 
     @Transactional
-    public String signUp(SignUpRequest signUpDto) {
+    public AuthMessage signUp(SignUpRequest signUpDto) {
         String email = signUpDto.email();
         String nickname = signUpDto.nickname();
         duplicateEmailAndNickName(email, nickname);
         Account account = signUpDto.toAccount(passwordEncoder);
         accountRepository.save(account);
-        // login(account)
-        return "회원가입 완료";
+        JwtDto jwtDto = login(account.toAccountRequestDto().toLoginRequest());
+        return new AuthMessage(jwtDto, "회원가입 완료");
     }
 
     private void duplicateEmailAndNickName(String email, String nickname) {
@@ -87,7 +90,7 @@ public class AuthService {
     }
 
     private String fetchSocialEmail(SocialLoginRequest loginRequestDto) {
-        String provider = loginRequestDto.provider();
+        String provider = loginRequestDto.socialType();
         if (provider.equalsIgnoreCase("Google")) {
             return getGoogleId(loginRequestDto.accessToken());
         } else if (provider.equalsIgnoreCase("Kakao")) {
@@ -101,8 +104,7 @@ public class AuthService {
         String socialUrl = SocialType.GOOGLE.getSocialUrl();
         HttpMethod httpMethod = SocialType.GOOGLE.getHttpMethod();
         ResponseEntity<Map<String, Object>> response = validAccessToken(accessToken, socialUrl, httpMethod);
-        String googlePK = (String) Objects.requireNonNull(response.getBody()).get("email");
-        return googlePK;
+        return (String) Objects.requireNonNull(response.getBody()).get("email");
     }
 
     private String getKakaoId(String accessToken) {

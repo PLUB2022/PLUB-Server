@@ -11,6 +11,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Arrays;
 
 @RequiredArgsConstructor
 @Slf4j
@@ -18,16 +19,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtProvider jwtProvider;
 
-    private final String[] excludePaths = {"/issue"};
+    private final String[] excludePaths = {"/api/v1/auth/login", "/api/v1/auth/signup", "/api/v1/auth/reissue"};
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        String accessToken = jwtProvider.resolveToken(request);
-        if (jwtProvider.validate(accessToken)) {
-            Authentication authentication = jwtProvider.getAuthentication(accessToken);
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+        String path = request.getRequestURI();
+        if (Arrays.stream(excludePaths).noneMatch(path::equals)) {
+            String accessToken = jwtProvider.resolveToken(request);
+            if (jwtProvider.validate(accessToken)) {
+                Authentication authentication = jwtProvider.getAuthentication(accessToken);
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+            }
         }
         filterChain.doFilter(request, response);
-
     }
 }

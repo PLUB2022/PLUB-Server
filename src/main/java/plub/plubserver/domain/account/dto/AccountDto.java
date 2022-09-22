@@ -1,7 +1,7 @@
 package plub.plubserver.domain.account.dto;
 
 public class AccountDto {
-    public record MemberRequest(
+    public record AccountRequest(
             String email,
             String password,
             String nickname,
@@ -13,5 +13,8 @@ public class AccountDto {
                     .password(password)
                     .build();
         }
+    }
+
+    public record AccountResponse(Object data,  String msg) {
     }
 }

@@ -34,10 +34,12 @@ public class Account extends BaseTimeEntity {
     private String gender;
     private String phone;
     private String introduce;
+    @Enumerated(EnumType.STRING)
     private SocialType socialType;
     private String profile; // saved_path
     private String lastLogin;
     private String fcmToken;
+    @Enumerated(EnumType.STRING)
     private Role role;
 
     // 회원(1) - 차단 사용자(다)
@@ -89,7 +91,7 @@ public class Account extends BaseTimeEntity {
     }
 
 
-    public AccountDto.MemberRequest toAccountRequestDto(){
-        return new AccountDto.MemberRequest(email,email+"plub",nickname, socialType.getSocialName());
+    public AccountDto.AccountRequest toAccountRequestDto(){
+        return new AccountDto.AccountRequest(email,email+"plub",nickname, socialType.getSocialName());
     }
 }

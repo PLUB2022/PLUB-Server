@@ -1,14 +1,17 @@
 package plub.plubserver.domain.account.dto;
 
 import lombok.Builder;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import plub.plubserver.domain.account.model.Account;
+import plub.plubserver.domain.account.model.Role;
 import plub.plubserver.domain.account.model.SocialType;
 
+@Slf4j
 public class AuthDto {
 
-    public record SocialLoginRequest(String accessToken, String provider) {}
+    public record SocialLoginRequest(String accessToken, String socialType) {}
 
     @Builder
     public record LoginRequest(String email, String password) {
@@ -41,10 +44,17 @@ public class AuthDto {
                     .birthday(birthday)
                     .gender(gender)
                     .introduce(introduce)
+                    .role(Role.ROLE_USER)
                     .build();
         }
     }
 
     public record ReissueRequest(String refreshToken) {}
 
+    public record AuthMessage(Object detailData, String detailMessage) {
+    }
+
+    public record SigningAccount(String email, String socialType) {
+
+    }
 }
