@@ -20,7 +20,6 @@ import java.util.List;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Builder
 public class Account extends BaseTimeEntity {
 
     @Id
@@ -71,18 +70,19 @@ public class Account extends BaseTimeEntity {
     private List<Category> categories = new ArrayList<>();
 
     @Builder
-    public Account(String email, String password, String name, int age, String birthday, String gender, String phone, String provider, String profile, String lastLogin, String fcmToken, Role role) {
+    public Account(String email, String password, String nickname, int age, String birthday, String gender, String phone, SocialType socialType, String profile, String lastLogin, String fcmToken, Role role, String introduce) {
         this.email = email;
         this.password = password;
-        this.name = name;
+        this.nickname = nickname;
         this.age = age;
         this.birthday = birthday;
         this.gender = gender;
         this.phone = phone;
-        this.provider = provider;
+        this.socialType = socialType;
         this.profile = profile;
         this.lastLogin = lastLogin;
         this.fcmToken = fcmToken;
+        this.introduce = introduce;
         this.role = role;
     }
 

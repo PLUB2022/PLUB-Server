@@ -11,16 +11,24 @@ import plub.plubserver.domain.account.model.SocialType;
 @NoArgsConstructor
 public class SignUpRequest {
     private String email;
-    private String socialType; // 대문자로 받아야함
+    private String socialType;
     private String nickname;
     private String birthday;
     private String gender;
     private String introduce;
 
+    public SocialType getSocialType() {
+        if (socialType.equalsIgnoreCase(SocialType.GOOGLE.name())) {
+            return SocialType.GOOGLE;
+        } else {
+            return SocialType.KAKAO;
+        }
+    }
+
     public Account toAccount() {
         return Account.builder()
                 .email(email)
-                .socialType(SocialType.valueOf(socialType))
+                .socialType(getSocialType())
                 .nickname(nickname)
                 .birthday(birthday)
                 .gender(gender)
