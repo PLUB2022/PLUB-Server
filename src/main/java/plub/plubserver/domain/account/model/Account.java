@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import plub.plubserver.common.model.BaseTimeEntity;
+import plub.plubserver.config.jwt.RefreshToken;
 import plub.plubserver.domain.activity.model.AccountPlubing;
 import plub.plubserver.domain.alarm.model.Alarm;
 import plub.plubserver.domain.category.model.Category;
@@ -68,4 +69,23 @@ public class Account extends BaseTimeEntity {
     // 회원(1) - 카테고리(다)
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Category> categories = new ArrayList<>();
+
+    @Builder
+    public Account(String email, String password, String name, int age, String birthday, String gender, String phone, String provider, String profile, String lastLogin, String fcmToken, Role role) {
+        this.email = email;
+        this.password = password;
+        this.name = name;
+        this.age = age;
+        this.birthday = birthday;
+        this.gender = gender;
+        this.phone = phone;
+        this.provider = provider;
+        this.profile = profile;
+        this.lastLogin = lastLogin;
+        this.fcmToken = fcmToken;
+        this.role = role;
+    }
+
+    @OneToOne(mappedBy = "account", cascade = CascadeType.ALL)
+    private RefreshToken refreshToken;
 }
