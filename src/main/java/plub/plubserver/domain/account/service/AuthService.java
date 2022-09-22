@@ -19,6 +19,7 @@ import plub.plubserver.config.security.PrincipalDetails;
 import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.account.model.SocialType;
 import plub.plubserver.domain.account.repository.AccountRepository;
+import plub.plubserver.exception.AccountException;
 
 import java.util.Collections;
 import java.util.Map;
@@ -82,10 +83,10 @@ public class AuthService {
 
     private void duplicateEmailAndNickName(String email, String nickname) {
         if (accountRepository.existsByEmail(email)) {
-            // 예외처리
+            throw new AccountException("email 중복 입니다.");
         }
         if (accountRepository.existsByNickname(nickname)) {
-            // 예외처리
+            throw new AccountException("nickname 중복 입니다.");
         }
     }
 
