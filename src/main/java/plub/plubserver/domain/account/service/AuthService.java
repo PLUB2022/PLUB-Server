@@ -1,5 +1,12 @@
 package plub.plubserver.domain.account.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.security.SignatureException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.ParameterizedTypeReference;
@@ -16,16 +23,22 @@ import plub.plubserver.config.jwt.JwtDto;
 import plub.plubserver.config.jwt.JwtProvider;
 import plub.plubserver.config.jwt.RefreshTokenRepository;
 import plub.plubserver.config.security.PrincipalDetails;
+import plub.plubserver.domain.account.dto.AppleDto;
 import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.account.model.SocialType;
 import plub.plubserver.domain.account.repository.AccountRepository;
 import plub.plubserver.exception.AccountException;
 
-import java.util.Collections;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
+import java.security.KeyFactory;
+import java.security.NoSuchAlgorithmException;
+import java.security.PublicKey;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.RSAPublicKeySpec;
+import java.util.*;
 
+import static plub.plubserver.domain.account.dto.AppleDto.ApplePublicKeyResponse.*;
 import static plub.plubserver.domain.account.dto.AuthDto.*;
 
 @Slf4j
@@ -51,7 +64,6 @@ public class AuthService {
 
         // 3. 있으면 로그인 진행 없으면 회원가입
         if (account.isPresent()) {
-//            JwtDto jwtDto = login(account.get().toAccountRequestDto().toLoginRequest(account.get().getPassword()));
             JwtDto jwtDto = login(account.get().toAccountRequestDto().toLoginRequest());
             loginMessage = new AuthMessage(jwtDto, "로그인");
         } else {
@@ -97,7 +109,7 @@ public class AuthService {
         } else if (provider.equalsIgnoreCase("Kakao")) {
             return getKakaoId(loginRequestDto.accessToken());
         } else {
-            return "getAppleId";
+            return getAppleId(loginRequestDto.accessToken());
         }
     }
 
@@ -114,6 +126,41 @@ public class AuthService {
         ResponseEntity<Map<String, Object>> response = validAccessToken(accessToken, socialUrl, httpMethod);
         Map<String, Object> googlePK = (Map<String, Object>) response.getBody().get("kakao_account");
         return (String) googlePK.get("email");
+    }
+
+    private AppleDto.ApplePublicKeyResponse getAppleAuthPublicKey(){
+        String socialUrl = SocialType.APPLE.getSocialUrl();
+        HttpMethod httpMethod = SocialType.APPLE.getHttpMethod();
+        HttpHeaders headers = new HttpHeaders();
+        HttpEntity<MultiValueMap<String,String>> request = new HttpEntity<>(headers);
+        ResponseEntity<AppleDto.ApplePublicKeyResponse> response = restTemplate.exchange(socialUrl, httpMethod, request, AppleDto.ApplePublicKeyResponse.class);
+        return response.getBody();
+    }
+
+    private String getAppleId(String identityToken) {
+        AppleDto.ApplePublicKeyResponse appleKeyStorage = getAppleAuthPublicKey();
+        try {
+            String headerToken = identityToken.substring(0,identityToken.indexOf("."));
+            Map<String, String> header = new ObjectMapper().readValue(new String(Base64.getDecoder().decode(headerToken), StandardCharsets.UTF_8), Map.class);
+            AppleKey key = appleKeyStorage.getMatchedKeyBy(header.get("kid"), header.get("alg")).orElseThrow();
+
+            byte[] nBytes = Base64.getUrlDecoder().decode(key.getN());
+            byte[] eBytes = Base64.getUrlDecoder().decode(key.getE());
+
+            BigInteger n = new BigInteger(1, nBytes);
+            BigInteger e = new BigInteger(1, eBytes);
+
+            RSAPublicKeySpec publicKeySpec = new RSAPublicKeySpec(n, e);
+            KeyFactory keyFactory = KeyFactory.getInstance(key.getKty());
+            PublicKey publicKey = keyFactory.generatePublic(publicKeySpec);
+
+            Claims claims = Jwts.parserBuilder().setSigningKey(publicKey).build().parseClaimsJws(identityToken).getBody();
+            return claims.getSubject();
+        } catch (JsonProcessingException | NoSuchAlgorithmException | InvalidKeySpecException | SignatureException |
+                MalformedJwtException | ExpiredJwtException | IllegalArgumentException e) {
+            // 예외처리
+            throw new RuntimeException();
+        }
     }
 
     private ResponseEntity<Map<String, Object>> validAccessToken(String accessToken, String socialUrl, HttpMethod httpMethod) {

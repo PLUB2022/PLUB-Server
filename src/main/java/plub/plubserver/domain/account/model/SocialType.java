@@ -16,7 +16,14 @@ public enum SocialType {
             "google",
             "https://www.googleapis.com/oauth2/v3/userinfo",
             HttpMethod.GET
+    ),
+
+    APPLE(
+            "apple",
+            "https://appleid.apple.com/auth/keys",
+            HttpMethod.GET
     );
+
 
     private String socialName;
     private String socialUrl;
