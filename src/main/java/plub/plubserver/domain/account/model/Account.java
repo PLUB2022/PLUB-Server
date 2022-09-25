@@ -94,4 +94,8 @@ public class Account extends BaseTimeEntity {
     public AccountDto.AccountRequest toAccountRequestDto(){
         return new AccountDto.AccountRequest(email,email+"plub",nickname, socialType.getSocialName());
     }
+
+    public void setIdForTest(Long id) {
+        this.id = id;
+    }
 }
