@@ -38,7 +38,6 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.RSAPublicKeySpec;
 import java.util.*;
 
-import static plub.plubserver.domain.account.dto.AppleDto.ApplePublicKeyResponse.*;
 import static plub.plubserver.domain.account.dto.AuthDto.*;
 
 @Slf4j
@@ -74,7 +73,7 @@ public class AuthService {
     }
 
 
-    private JwtDto login(LoginRequest loginRequest) {
+    public JwtDto login(LoginRequest loginRequest) {
         UsernamePasswordAuthenticationToken authenticationToken = loginRequest.toAuthentication();
         Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
         PrincipalDetails principal = (PrincipalDetails) authentication.getPrincipal();
@@ -83,14 +82,14 @@ public class AuthService {
     }
 
     @Transactional
-    public AuthMessage signUp(SignUpRequest signUpDto) {
+    public SignAuthMessage signUp(SignUpRequest signUpDto) {
         String email = signUpDto.email();
         String nickname = signUpDto.nickname();
         duplicateEmailAndNickName(email, nickname);
         Account account = signUpDto.toAccount(passwordEncoder);
         accountRepository.save(account);
         JwtDto jwtDto = login(account.toAccountRequestDto().toLoginRequest());
-        return new AuthMessage(jwtDto, "회원가입 완료");
+        return new SignAuthMessage(jwtDto, "회원가입 완료");
     }
 
     private void duplicateEmailAndNickName(String email, String nickname) {
@@ -128,30 +127,30 @@ public class AuthService {
         return (String) googlePK.get("email");
     }
 
-    private AppleDto.ApplePublicKeyResponse getAppleAuthPublicKey(){
+    private AppleDto getAppleAuthPublicKey(){
         String socialUrl = SocialType.APPLE.getSocialUrl();
         HttpMethod httpMethod = SocialType.APPLE.getHttpMethod();
         HttpHeaders headers = new HttpHeaders();
         HttpEntity<MultiValueMap<String,String>> request = new HttpEntity<>(headers);
-        ResponseEntity<AppleDto.ApplePublicKeyResponse> response = restTemplate.exchange(socialUrl, httpMethod, request, AppleDto.ApplePublicKeyResponse.class);
+        ResponseEntity<AppleDto> response = restTemplate.exchange(socialUrl, httpMethod, request, AppleDto.class);
         return response.getBody();
     }
 
     private String getAppleId(String identityToken) {
-        AppleDto.ApplePublicKeyResponse appleKeyStorage = getAppleAuthPublicKey();
+        AppleDto appleKeyStorage = getAppleAuthPublicKey();
         try {
             String headerToken = identityToken.substring(0,identityToken.indexOf("."));
             Map<String, String> header = new ObjectMapper().readValue(new String(Base64.getDecoder().decode(headerToken), StandardCharsets.UTF_8), Map.class);
-            AppleKey key = appleKeyStorage.getMatchedKeyBy(header.get("kid"), header.get("alg")).orElseThrow();
+            AppleDto.AppleKey key = appleKeyStorage.getMatchedKeyBy(header.get("kid"), header.get("alg")).orElseThrow();
 
-            byte[] nBytes = Base64.getUrlDecoder().decode(key.getN());
-            byte[] eBytes = Base64.getUrlDecoder().decode(key.getE());
+            byte[] nBytes = Base64.getUrlDecoder().decode(key.n());
+            byte[] eBytes = Base64.getUrlDecoder().decode(key.e());
 
             BigInteger n = new BigInteger(1, nBytes);
             BigInteger e = new BigInteger(1, eBytes);
 
             RSAPublicKeySpec publicKeySpec = new RSAPublicKeySpec(n, e);
-            KeyFactory keyFactory = KeyFactory.getInstance(key.getKty());
+            KeyFactory keyFactory = KeyFactory.getInstance(key.kty());
             PublicKey publicKey = keyFactory.generatePublic(publicKeySpec);
 
             Claims claims = Jwts.parserBuilder().setSigningKey(publicKey).build().parseClaimsJws(identityToken).getBody();
@@ -159,6 +158,7 @@ public class AuthService {
         } catch (JsonProcessingException | NoSuchAlgorithmException | InvalidKeySpecException | SignatureException |
                 MalformedJwtException | ExpiredJwtException | IllegalArgumentException e) {
             // 예외처리
+            e.printStackTrace();
             throw new RuntimeException();
         }
     }

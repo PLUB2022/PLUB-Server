@@ -27,7 +27,7 @@ public class AuthController {
     }
 
     @PostMapping("/signup")
-    public ApiResponse<AuthMessage> signUp(@Valid @RequestBody SignUpRequest signUpDto) {
+    public ApiResponse<SignAuthMessage> signUp(@Valid @RequestBody SignUpRequest signUpDto) {
         return success(accountService.signUp(signUpDto), "회원가입");
     }
 

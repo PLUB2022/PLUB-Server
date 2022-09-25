@@ -4,6 +4,7 @@ import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import plub.plubserver.config.jwt.JwtDto;
 import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.account.model.Role;
 import plub.plubserver.domain.account.model.SocialType;
@@ -13,8 +14,8 @@ public class AuthDto {
 
     public record SocialLoginRequest(String accessToken, String socialType) {}
 
-    @Builder
     public record LoginRequest(String email, String password) {
+        @Builder public LoginRequest{}
         public UsernamePasswordAuthenticationToken toAuthentication() {
             return new UsernamePasswordAuthenticationToken(email,password);
         }
@@ -28,6 +29,7 @@ public class AuthDto {
             String gender,
             String introduce
     ) {
+        @Builder public SignUpRequest{}
         public SocialType getSocialType() {
             if (socialType.equalsIgnoreCase(SocialType.GOOGLE.name())) {
                 return SocialType.GOOGLE;
@@ -54,7 +56,9 @@ public class AuthDto {
     public record AuthMessage(Object detailData, String detailMessage) {
     }
 
-    public record SigningAccount(String email, String socialType) {
+    public record SignAuthMessage(JwtDto detailData, String detailMessage) {
+    }
 
+    public record SigningAccount(String email, String socialType) {
     }
 }
