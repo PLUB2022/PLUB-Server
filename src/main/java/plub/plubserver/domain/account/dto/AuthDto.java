@@ -12,7 +12,13 @@ import plub.plubserver.domain.account.model.SocialType;
 @Slf4j
 public class AuthDto {
 
-    public record SocialLoginRequest(String accessToken, String socialType) {}
+    public record SocialLoginRequest(
+            String socialType,
+            String accessToken,
+            String identityToken,
+            String authorizationCode,
+            String userId
+    ) {}
 
     public record LoginRequest(String email, String password) {
         @Builder public LoginRequest{}
@@ -61,4 +67,12 @@ public class AuthDto {
 
     public record SigningAccount(String email, String socialType) {
     }
+
+    public record RevokeAccount(
+            String email,
+            String socialType,
+            String authorizationCode
+    ) {
+    }
+
 }

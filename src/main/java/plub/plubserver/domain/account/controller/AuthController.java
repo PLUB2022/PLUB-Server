@@ -22,7 +22,7 @@ public class AuthController {
     private final AuthService accountService;
 
     @PostMapping("/login")
-    public ApiResponse<AuthMessage> login(@Valid @RequestBody SocialLoginRequest loginDto) {
+    public ApiResponse<AuthMessage> login(@RequestBody SocialLoginRequest loginDto) {
         return success(accountService.loginAccess(loginDto), "로그인");
     }
 
