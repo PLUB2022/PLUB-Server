@@ -29,6 +29,7 @@ import plub.plubserver.domain.account.model.SocialType;
 import plub.plubserver.domain.account.repository.AccountRepository;
 import plub.plubserver.exception.AccountException;
 
+import java.io.IOException;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.security.KeyFactory;
@@ -51,17 +52,13 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final RestTemplate restTemplate;
     private final AccountRepository accountRepository;
+    private final AppleService appleService;
 
     public AuthMessage loginAccess(SocialLoginRequest loginDto) {
-        // 1. access token 검증
         String email = fetchSocialEmail(loginDto);
-
-        // 2. repository 확인
         Optional<Account> account = accountRepository.findByEmail(email);
-
         AuthMessage loginMessage;
 
-        // 3. 있으면 로그인 진행 없으면 회원가입
         if (account.isPresent()) {
             JwtDto jwtDto = login(account.get().toAccountRequestDto().toLoginRequest());
             loginMessage = new AuthMessage(jwtDto, "로그인");
@@ -180,5 +177,27 @@ public class AuthService {
 
     public JwtDto reissue(ReissueRequest reissueDto) {
         return jwtProvider.reIssue(reissueDto.refreshToken());
+    }
+
+    public void loginAccessWithRevoke(LoginRequest loginRequest) {
+        // 나중에 추가
+    }
+
+    public AuthMessage revoke(RevokeAccount revokeAccount) throws IOException {
+
+        String email = revokeAccount.email();
+        Optional<Account> account = accountRepository.findByEmail(email);
+
+        if (revokeAccount.socialType().equalsIgnoreCase("Google")) {
+
+        } else if (revokeAccount.socialType().equalsIgnoreCase("Kakao")) {
+
+        } else {
+            // apple 한 번 로그인 후 authorization_code 가져오기
+            // apple 연결 해제
+            appleService.revokeApple(account.get(), "authorization_code");
+            // 삭제
+        }
+        return new AuthMessage("d", "탈퇴완료");
     }
 }
