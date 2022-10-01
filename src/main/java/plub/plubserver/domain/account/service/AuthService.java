@@ -61,10 +61,10 @@ public class AuthService {
 
         if (account.isPresent()) {
             JwtDto jwtDto = login(account.get().toAccountRequestDto().toLoginRequest());
-            loginMessage = new AuthMessage(jwtDto, "로그인");
+            loginMessage = new AuthMessage(jwtDto, "로그인 완료. 토큰 발행");
         } else {
             SigningAccount signingAccount = new SigningAccount(email, loginDto.socialType());
-            loginMessage = new AuthMessage(signingAccount,"신규가입");
+            loginMessage = new AuthMessage(signingAccount,"신규가입 필요");
         }
         return loginMessage;
     }
@@ -86,7 +86,7 @@ public class AuthService {
         Account account = signUpDto.toAccount(passwordEncoder);
         accountRepository.save(account);
         JwtDto jwtDto = login(account.toAccountRequestDto().toLoginRequest());
-        return new SignAuthMessage(jwtDto, "회원가입 완료");
+        return new SignAuthMessage(jwtDto, "회원가입 완료. 토큰 발행");
     }
 
     private void duplicateEmailAndNickName(String email, String nickname) {

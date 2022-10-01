@@ -15,20 +15,22 @@ import static plub.plubserver.common.dto.ApiResponse.success;
 import static plub.plubserver.domain.account.dto.AuthDto.*;
 
 @RestController
-@RequestMapping("api/v1/auth/")
+@RequestMapping("api/auth")
 @RequiredArgsConstructor
 public class AuthController {
 
     private final AuthService accountService;
 
     @PostMapping("/login")
-    public ApiResponse<AuthMessage> login(@RequestBody SocialLoginRequest loginDto) {
-        return success(accountService.loginAccess(loginDto), "로그인");
+    public ApiResponse<?> login(@RequestBody SocialLoginRequest loginDto) {
+        AuthMessage authMessage = accountService.loginAccess(loginDto);
+        return success(authMessage.detailData(), authMessage.detailMessage());
     }
 
     @PostMapping("/signup")
-    public ApiResponse<SignAuthMessage> signUp(@Valid @RequestBody SignUpRequest signUpDto) {
-        return success(accountService.signUp(signUpDto), "회원가입");
+    public ApiResponse<?> signUp(@Valid @RequestBody SignUpRequest signUpDto) {
+        SignAuthMessage signAuthMessage = accountService.signUp(signUpDto);
+        return success(signAuthMessage.detailData(), signAuthMessage.detailMessage());
     }
 
     @PostMapping("/reissue")
