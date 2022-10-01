@@ -44,13 +44,14 @@ dependencies {
 tasks.named('test') {
 	useJUnitPlatform()
 }
-compileKotlin {
-    kotlinOptions {
-        jvmTarget = "1.8"
-    }
+
+// 빌드시 -plain.jar 생기는 설정 끄기 (for Github Actions)
+jar {
+	enabled = false
 }
-compileTestKotlin {
-    kotlinOptions {
-        jvmTarget = "1.8"
-    }
+
+// jar 빌드 파일 이름 변경
+bootJar {
+	archiveFileName = "plub-server.jar"
+
 }
