@@ -1,0 +1,57 @@
+name: CI/CD Pipeline using Docker Hub
+
+on:
+  push:
+    branches: [ "develop" ]
+#  pull_request:
+#    branches: [ "master" ]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Set up yml secrets file
+        env:
+          YAML_SECRET: ${{ secrets.YML_SECRET }}
+          YAML_DIR: src/main/resources
+          YAML_FILE_NAME: application-secret.yml
+        run: echo $YAML_SECRET | base64 --decode > $YAML_DIR/$YAML_FILE_NAME
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+      - name: Build with Gradle
+        run: ./gradlew bootJar
+
+        ## 3) Docker Hub에 이미지 push 하기
+      - name: Docker build
+        run: |
+          docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/plub-server .
+          docker tag ${{ secrets.DOCKER_USERNAME }}/plub-server ${{ secrets.DOCKER_USERNAME }}/plub-server:${GITHUB_SHA::7}
+          docker push ${{ secrets.DOCKER_USERNAME }}/plub-server:${GITHUB_SHA::7}
+      
+        ## 4) Docker Hub에 Push한 이미지를 리눅스 서버에 받아와서 run
+      - name: Deploy
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.EC2_IP }}
+          username: ubuntu
+          key: ${{ secrets.EC2_PEM_KEY }}
+          envs: GITHUB_SHA
+          script: |
+            docker pull ${{ secrets.DOCKER_USERNAME }}/plub-server:${GITHUB_SHA::7}
+            docker tag ${{ secrets.DOCKER_USERNAME }}/plub-server:${GITHUB_SHA::7} plub-server
+            docker stop server
+            docker run -d --rm --name server -p 8080:8080 plub-server
