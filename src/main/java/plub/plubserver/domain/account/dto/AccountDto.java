@@ -1,5 +1,6 @@
 package plub.plubserver.domain.account.dto;
 
+import lombok.Builder;
 import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.account.model.SocialType;
 
@@ -31,9 +32,16 @@ public class AccountDto {
             String gender,
             String introduce
     ){
-
+        @Builder public AccountInfo{}
         public static AccountInfo of(Account account) {
-            return new AccountInfo(account.getEmail(), account.getNickname(),account.getSocialType(), account.getBirthday(), account.getGender(), account.getIntroduce());
+           return AccountInfo.builder()
+                    .email(account.getEmail())
+                    .nickname(account.getNickname())
+                    .socialType(account.getSocialType())
+                    .gender(account.getGender())
+                    .birthday(account.getBirthday())
+                    .introduce(account.getIntroduce())
+                    .build();
         }
     }
 

@@ -41,10 +41,10 @@ public class AppleService {
     private Object appleSignKeyId = " Apple Developer 페이지에 명시되어있는 Key ID (10-character, Sign In with Apple)";
     private String appleSignKeyFilePath = "Apple Developer → Certificates, Identifiers & Profiles → Keys → + click";
 
-    public void revokeApple(Account account, String authorization_code) throws IOException {
+    public void revokeApple(Account account, String authorizationCode) throws IOException {
 
         // accessToken 생성
-        AppleDto.AppleAuthTokenResponse appleAuthToken = GenerateAuthToken(account, authorization_code);
+        AppleDto.AppleAuthTokenResponse appleAuthToken = GenerateAuthToken(account, authorizationCode);
 
         if (appleAuthToken.accessToken() != null) {
             RestTemplate restTemplate = new RestTemplateBuilder().build();
@@ -65,7 +65,7 @@ public class AppleService {
 
     }
 
-    public AppleDto.AppleAuthTokenResponse GenerateAuthToken(Account account, String authorization_code) throws IOException {
+    public AppleDto.AppleAuthTokenResponse GenerateAuthToken(Account account, String authorizationCode) throws IOException {
         RestTemplate restTemplate = new RestTemplateBuilder().build();
         String authUrl = "https://appleid.apple.com/auth/token";
 
@@ -73,7 +73,7 @@ public class AppleService {
 //        params.add("code", account.getThirdPartyCode());
         params.add("client_id", appleBundleId);
         params.add("client_secret", createClientSecret());
-        params.add("grant_type", authorization_code);
+        params.add("grant_type", authorizationCode);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);

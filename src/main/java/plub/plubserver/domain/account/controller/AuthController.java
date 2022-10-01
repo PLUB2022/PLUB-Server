@@ -15,7 +15,7 @@ import static plub.plubserver.common.dto.ApiResponse.success;
 import static plub.plubserver.domain.account.dto.AuthDto.*;
 
 @RestController
-@RequestMapping("api/auth")
+@RequestMapping("/api/auth")
 @RequiredArgsConstructor
 public class AuthController {
 

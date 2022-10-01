@@ -12,7 +12,7 @@ import static plub.plubserver.common.dto.ApiResponse.success;
 import static plub.plubserver.domain.account.dto.AccountDto.AccountInfo;
 
 @RestController
-@RequestMapping("api/account")
+@RequestMapping("/api/account")
 @RequiredArgsConstructor
 public class AccountController {
 
@@ -28,12 +28,12 @@ public class AccountController {
         return success(accountService.getAccount(nickname), "유저 정보 조회");
     }
 
-    @PostMapping("/update/nickname")
+    @PutMapping("/nickname")
     public ApiResponse<AccountInfo> updateNickname(@Valid @RequestBody AccountDto.AccountNicknameRequest request) {
         return success(accountService.updateNickname(request), "내 정보 조회");
     }
 
-    @PostMapping("/update/introduce")
+    @PutMapping("/introduce")
     public ApiResponse<AccountInfo> updateIntroduce(@Valid @RequestBody AccountDto.AccountIntroduceRequest request) {
         return success(accountService.updateIntroduce(request), "내 정보 조회");
     }
