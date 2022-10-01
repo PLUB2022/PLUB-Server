@@ -1,9 +1,9 @@
 package plub.plubserver.domain.account.model;
 
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import plub.plubserver.common.model.BaseTimeEntity;
+import plub.plubserver.config.jwt.RefreshToken;
+import plub.plubserver.domain.account.dto.AccountDto;
 import plub.plubserver.domain.activity.model.AccountPlubing;
 import plub.plubserver.domain.alarm.model.Alarm;
 import plub.plubserver.domain.category.model.Category;
@@ -17,6 +17,7 @@ import java.util.List;
 
 @Entity
 @Getter
+@AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Account extends BaseTimeEntity {
 
@@ -26,15 +27,20 @@ public class Account extends BaseTimeEntity {
     private Long id;
 
     private String email;
-    private String name;
+    private String password;
+    private String nickname;
     private int age;
     private String birthday;
     private String gender;
     private String phone;
-    private String provider;
+    private String introduce;
+    @Enumerated(EnumType.STRING)
+    private SocialType socialType;
     private String profile; // saved_path
     private String lastLogin;
     private String fcmToken;
+    @Enumerated(EnumType.STRING)
+    private Role role;
 
     // 회원(1) - 차단 사용자(다)
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -63,4 +69,41 @@ public class Account extends BaseTimeEntity {
     // 회원(1) - 카테고리(다)
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Category> categories = new ArrayList<>();
+
+    @OneToOne(mappedBy = "account", cascade = CascadeType.ALL)
+    private RefreshToken refreshToken;
+
+    @Builder
+    public Account(String email, String password, String nickname, int age, String birthday, String gender, String phone, SocialType socialType, String profile, String lastLogin, String fcmToken, Role role, String introduce) {
+        this.email = email;
+        this.password = password;
+        this.nickname = nickname;
+        this.age = age;
+        this.birthday = birthday;
+        this.gender = gender;
+        this.phone = phone;
+        this.socialType = socialType;
+        this.profile = profile;
+        this.lastLogin = lastLogin;
+        this.fcmToken = fcmToken;
+        this.introduce = introduce;
+        this.role = role;
+    }
+
+
+    public AccountDto.AccountRequest toAccountRequestDto(){
+        return new AccountDto.AccountRequest(email,email+"plub",nickname, socialType.getSocialName());
+    }
+
+    public void setIdForTest(Long id) {
+        this.id = id;
+    }
+
+    public void updateNickname(String nickname) {
+        this.nickname = nickname;
+    }
+
+    public void updateIntroduce(String introduce) {
+        this.introduce = introduce;
+    }
 }
