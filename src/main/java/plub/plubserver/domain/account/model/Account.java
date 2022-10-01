@@ -98,4 +98,12 @@ public class Account extends BaseTimeEntity {
     public void setIdForTest(Long id) {
         this.id = id;
     }
+
+    public void updateNickname(String nickname) {
+        this.nickname = nickname;
+    }
+
+    public void updateIntroduce(String introduce) {
+        this.introduce = introduce;
+    }
 }
