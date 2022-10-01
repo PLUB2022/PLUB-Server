@@ -27,7 +27,7 @@ spring:
         default-page-size: 15
   
   profiles:
-    active: db
+    active: secret
 
 # 에러 응답 설정
 server:
