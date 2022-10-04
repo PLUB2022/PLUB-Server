@@ -19,22 +19,24 @@ import static plub.plubserver.domain.account.dto.AuthDto.*;
 @RequiredArgsConstructor
 public class AuthController {
 
-    private final AuthService accountService;
+    private final AuthService authService;
 
     @PostMapping("/login")
     public ApiResponse<?> login(@RequestBody SocialLoginRequest loginDto) {
-        AuthMessage authMessage = accountService.loginAccess(loginDto);
+        AuthMessage authMessage = authService.loginAccess(loginDto);
         return success(authMessage.detailData(), authMessage.detailMessage());
     }
 
     @PostMapping("/signup")
     public ApiResponse<?> signUp(@Valid @RequestBody SignUpRequest signUpDto) {
-        SignAuthMessage signAuthMessage = accountService.signUp(signUpDto);
+        SignAuthMessage signAuthMessage = authService.signUp(signUpDto);
         return success(signAuthMessage.detailData(), signAuthMessage.detailMessage());
     }
 
     @PostMapping("/reissue")
     public ApiResponse<JwtDto> reissue(@RequestBody ReissueRequest reissueDto) {
-        return success(accountService.reissue(reissueDto), "JWT 재발급");
+        return success(authService.reissue(reissueDto), "JWT 재발급");
     }
+
+
 }

@@ -68,9 +68,10 @@ public class AuthDto {
     public record SigningAccount(String email, String socialType) {
     }
 
-    public record RevokeAccount(
+    public record RevokeRequest(
             String email,
             String socialType,
+            String accessToken,
             String authorizationCode
     ) {
     }

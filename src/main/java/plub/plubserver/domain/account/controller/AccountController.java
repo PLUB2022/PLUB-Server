@@ -4,9 +4,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import plub.plubserver.common.dto.ApiResponse;
 import plub.plubserver.domain.account.dto.AccountDto;
+import plub.plubserver.domain.account.dto.AuthDto;
 import plub.plubserver.domain.account.service.AccountService;
 
 import javax.validation.Valid;
+
+import java.io.IOException;
 
 import static plub.plubserver.common.dto.ApiResponse.success;
 import static plub.plubserver.domain.account.dto.AccountDto.AccountInfo;
@@ -36,5 +39,11 @@ public class AccountController {
     @PutMapping("/introduce")
     public ApiResponse<AccountInfo> updateIntroduce(@Valid @RequestBody AccountDto.AccountIntroduceRequest request) {
         return success(accountService.updateIntroduce(request), "내 정보 조회");
+    }
+
+    @PostMapping("/revoke")
+    public ApiResponse<?> revoke(@RequestBody AuthDto.RevokeRequest revokeDto) throws IOException {
+        AuthDto.AuthMessage revoke = accountService.revoke(revokeDto);
+        return success(revoke.detailData(), revoke.detailMessage());
     }
 }

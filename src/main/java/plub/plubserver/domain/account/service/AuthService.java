@@ -29,7 +29,6 @@ import plub.plubserver.domain.account.model.SocialType;
 import plub.plubserver.domain.account.repository.AccountRepository;
 import plub.plubserver.exception.AccountException;
 
-import java.io.IOException;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.security.KeyFactory;
@@ -52,7 +51,7 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final RestTemplate restTemplate;
     private final AccountRepository accountRepository;
-    private final AppleService appleService;
+
 
     public AuthMessage loginAccess(SocialLoginRequest loginDto) {
         String email = fetchSocialEmail(loginDto);
@@ -183,21 +182,5 @@ public class AuthService {
         // 나중에 추가
     }
 
-    public AuthMessage revoke(RevokeAccount revokeAccount) throws IOException {
 
-        String email = revokeAccount.email();
-        Optional<Account> account = accountRepository.findByEmail(email);
-
-        if (revokeAccount.socialType().equalsIgnoreCase("Google")) {
-
-        } else if (revokeAccount.socialType().equalsIgnoreCase("Kakao")) {
-
-        } else {
-            // apple 한 번 로그인 후 authorization_code 가져오기
-            // apple 연결 해제
-            appleService.revokeApple(account.get(), "authorization_code");
-            // 삭제
-        }
-        return new AuthMessage("d", "탈퇴완료");
-    }
 }

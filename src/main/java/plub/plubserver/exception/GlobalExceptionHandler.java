@@ -1,4 +1,4 @@
-package plub.plubserver.common;
+package plub.plubserver.exception;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -17,5 +17,4 @@ public class GlobalExceptionHandler {
         log.error("예외 발생 및 처리 = {} : {}", ex.getClass().getName(), ex.getMessage());
         return ApiResponse.error(ex.getMessage());
     }
-
 }
