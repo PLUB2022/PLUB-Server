@@ -13,6 +13,7 @@ import plub.plubserver.domain.account.model.Account;
 import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
 import java.util.Date;
+import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
@@ -93,10 +94,17 @@ public class JwtProvider {
      *  Access, Refresh 최초 발행
      */
     public JwtDto issue(Account account) {
-        System.out.println("issue 호출");
         String access = createAccessToken(account);
         String refresh = createRefreshToken();
-        refreshTokenRepository.save(new RefreshToken(null, account, refresh));
+
+        Optional<RefreshToken> findToken = refreshTokenRepository.findByAccount(account);
+
+        if (findToken.isEmpty()) {
+            refreshTokenRepository.save(new RefreshToken(null, account, refresh));
+        } else {
+            findToken.get().replace(refresh);
+        }
+
         return new JwtDto(access, refresh);
     }
 
