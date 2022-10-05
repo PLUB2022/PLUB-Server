@@ -29,6 +29,7 @@ import plub.plubserver.domain.account.model.SocialType;
 import plub.plubserver.domain.account.repository.AccountRepository;
 import plub.plubserver.exception.AccountException;
 
+import java.io.IOException;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.security.KeyFactory;
@@ -51,9 +52,10 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final RestTemplate restTemplate;
     private final AccountRepository accountRepository;
+    private final AppleService appleService;
 
 
-    public AuthMessage loginAccess(SocialLoginRequest loginDto) {
+    public AuthMessage loginAccess(SocialLoginRequest loginDto) throws IOException {
         String email = fetchSocialEmail(loginDto);
         Optional<Account> account = accountRepository.findByEmail(email);
         AuthMessage loginMessage;
@@ -97,14 +99,20 @@ public class AuthService {
         }
     }
 
-    private String fetchSocialEmail(SocialLoginRequest loginRequestDto) {
+    private String fetchSocialEmail(SocialLoginRequest loginRequestDto) throws IOException {
         String provider = loginRequestDto.socialType();
         if (provider.equalsIgnoreCase("Google")) {
             return getGoogleId(loginRequestDto.accessToken());
         } else if (provider.equalsIgnoreCase("Kakao")) {
             return getKakaoId(loginRequestDto.accessToken());
         } else {
-            return getAppleId(loginRequestDto.accessToken());
+            String appleId = getAppleId(loginRequestDto.accessToken());
+            try {
+                appleService.GenerateAuthToken(loginRequestDto.authorizationCode());
+            } catch (Exception e) {
+                log.info(e.getMessage());
+            }
+            return appleId;
         }
     }
 
@@ -177,10 +185,4 @@ public class AuthService {
     public JwtDto reissue(ReissueRequest reissueDto) {
         return jwtProvider.reIssue(reissueDto.refreshToken());
     }
-
-    public void loginAccessWithRevoke(LoginRequest loginRequest) {
-        // 나중에 추가
-    }
-
-
 }

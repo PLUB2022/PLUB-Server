@@ -72,7 +72,21 @@ public class AuthDto {
             String email,
             String socialType,
             String accessToken,
-            String authorizationCode
+            String authorizationCode,
+            String userId
+    ) {
+    }
+
+    public record RevokeResponseKakao(
+            String id
+    ){}
+
+    public record getTokenResponse(
+            String token_type,
+            String access_token,
+            int expires_in,
+            String refresh_token,
+            int refresh_token_expires_in
     ) {
     }
 

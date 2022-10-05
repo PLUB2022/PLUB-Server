@@ -14,6 +14,8 @@ import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.account.repository.AccountRepository;
 import plub.plubserver.exception.AccountException;
 
+import java.io.IOException;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static plub.plubserver.domain.account.AccountTemplate.*;
 import static plub.plubserver.domain.account.dto.AuthDto.SignAuthMessage;
@@ -34,7 +36,7 @@ class AuthServiceTest {
 
 
     @Test
-    void signUp_성공() {
+    void signUp_성공() throws IOException {
         // given
         SignUpRequest signUpRequest = makeSignUpRequest();
         // when

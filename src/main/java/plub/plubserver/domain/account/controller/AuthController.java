@@ -11,6 +11,8 @@ import plub.plubserver.domain.account.service.AuthService;
 
 import javax.validation.Valid;
 
+import java.io.IOException;
+
 import static plub.plubserver.common.dto.ApiResponse.success;
 import static plub.plubserver.domain.account.dto.AuthDto.*;
 
@@ -22,7 +24,7 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/login")
-    public ApiResponse<?> login(@RequestBody SocialLoginRequest loginDto) {
+    public ApiResponse<?> login(@RequestBody SocialLoginRequest loginDto) throws IOException {
         AuthMessage authMessage = authService.loginAccess(loginDto);
         return success(authMessage.detailData(), authMessage.detailMessage());
     }
