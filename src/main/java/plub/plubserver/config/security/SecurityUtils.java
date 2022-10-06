@@ -9,7 +9,7 @@ public class SecurityUtils {
 
     public static String getCurrentAccountEmail() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || authentication.getName() ==null){
+        if (authentication == null || authentication.getName() == null){
             throw new AccountException("Authentication 정보가 없습니다.");
         }
         return authentication.getName();
