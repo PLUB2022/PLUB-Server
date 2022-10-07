@@ -37,7 +37,9 @@ public class AwsS3Service {
         return tempFile;
     }
 
-    public String upload(MultipartFile multipartFile, S3SaveDir savePath, Account owner) {
+    public record S3FileDto(String fileName, String savedPath){}
+
+    public S3FileDto upload(MultipartFile multipartFile, S3SaveDir savePath, Account owner) {
         // 로컬에 임시 저장
         File tempFile = tempSave(multipartFile, owner);
 
@@ -51,13 +53,14 @@ public class AwsS3Service {
 
         // 로컬에 저장했던 임시 파일 삭제
         if (!tempFile.delete()) log.warn("임시 파일 삭제 실패");
-        return amazonS3Client.getUrl(bucketPath, tempFile.getName()).toString();
+        String savedPath = amazonS3Client.getUrl(bucketPath, tempFile.getName()).toString();
+        return new S3FileDto(tempFile.getName(), savedPath);
     }
 
     public boolean delete(S3SaveDir savePath, String s3SavedFileName) {
         try {
             amazonS3Client.deleteObject(
-                    new DeleteObjectRequest(bucket + savePath, s3SavedFileName)
+                    new DeleteObjectRequest(bucket + savePath.path, s3SavedFileName)
             );
         } catch (Exception e) {
             log.warn("S3 파일 삭제 실패 = {}", e.getMessage());
@@ -67,7 +70,7 @@ public class AwsS3Service {
     }
 
     public String getFile(S3SaveDir savePath, String fileName) {
-        return amazonS3Client.getUrl(bucket + savePath, fileName).toString();
+        return amazonS3Client.getUrl(bucket + savePath.path, fileName).toString();
     }
 
     private String generateFileName(MultipartFile multipartFile, Account owner) {
