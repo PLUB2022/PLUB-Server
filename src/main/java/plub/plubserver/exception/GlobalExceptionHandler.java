@@ -15,6 +15,6 @@ public class GlobalExceptionHandler {
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
     public ApiResponse<?> errorHandle(Exception ex) {
         log.error("예외 발생 및 처리 = {} : {}", ex.getClass().getName(), ex.getMessage());
-        return ApiResponse.error(ex.getMessage());
+        return ApiResponse.error(ErrorCode.INVALID_INPUT_VALUE, ex.getMessage());
     }
 }

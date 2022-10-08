@@ -4,6 +4,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.validation.BindingResult;
+import plub.plubserver.exception.ErrorCode;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -37,12 +38,12 @@ public class ApiResponse<T> {
         bindingResult.getFieldErrors().forEach(error ->
                 errors.put(error.getField(), error.getDefaultMessage())
         );
-        return new ApiResponse<>(FAIL_STATUS, errors, null);
+        return new ApiResponse<>(ErrorCode.INVALID_INPUT_VALUE.getCode(), errors, null);
     }
 
     // 예외 발생
-    public static ApiResponse<?> error(String message) {
-        return new ApiResponse<>(ERROR_STATUS, null, message);
+    public static ApiResponse<?> error(ErrorCode errorCode, String message) {
+        return new ApiResponse<>(errorCode.getCode(), null, message);
     }
 
     private ApiResponse(String status, T data, String message) {

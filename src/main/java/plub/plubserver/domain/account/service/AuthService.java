@@ -27,7 +27,9 @@ import plub.plubserver.domain.account.dto.AppleDto;
 import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.account.model.SocialType;
 import plub.plubserver.domain.account.repository.AccountRepository;
-import plub.plubserver.exception.AccountException;
+import plub.plubserver.exception.account.AppleException;
+import plub.plubserver.exception.account.EmailDuplicateException;
+import plub.plubserver.exception.account.NickNameDuplicateException;
 
 import java.io.IOException;
 import java.math.BigInteger;
@@ -92,14 +94,14 @@ public class AuthService {
 
     private void duplicateEmailAndNickName(String email, String nickname) {
         if (accountRepository.existsByEmail(email)) {
-            throw new AccountException("email 중복 입니다.");
+            throw new EmailDuplicateException();
         }
         if (accountRepository.existsByNickname(nickname)) {
-            throw new AccountException("nickname 중복 입니다.");
+            throw new NickNameDuplicateException();
         }
     }
 
-    private String fetchSocialEmail(SocialLoginRequest loginRequestDto) throws IOException {
+    private String fetchSocialEmail(SocialLoginRequest loginRequestDto){
         String provider = loginRequestDto.socialType();
         if (provider.equalsIgnoreCase("Google")) {
             return getGoogleId(loginRequestDto.accessToken());
@@ -110,7 +112,7 @@ public class AuthService {
             try {
                 appleService.GenerateAuthToken(loginRequestDto.authorizationCode());
             } catch (Exception e) {
-                log.info(e.getMessage());
+                throw new AppleException();
             }
             return appleId;
         }
@@ -161,9 +163,7 @@ public class AuthService {
             return claims.getSubject();
         } catch (JsonProcessingException | NoSuchAlgorithmException | InvalidKeySpecException | SignatureException |
                 MalformedJwtException | ExpiredJwtException | IllegalArgumentException e) {
-            // 예외처리
-            e.printStackTrace();
-            throw new RuntimeException();
+            throw new AppleException();
         }
     }
 

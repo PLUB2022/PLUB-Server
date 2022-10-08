@@ -8,7 +8,7 @@ import org.springframework.security.test.context.support.WithMockUser;
 import plub.plubserver.domain.account.AccountTemplate;
 import plub.plubserver.domain.account.dto.AccountDto;
 import plub.plubserver.domain.account.repository.AccountRepository;
-import plub.plubserver.exception.AccountException;
+import plub.plubserver.exception.account.NotFoundAccountException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static plub.plubserver.domain.account.AccountTemplate.*;
@@ -40,6 +40,6 @@ class AccountServiceTest {
     @Test
     void getAccount_실패() {
         accountRepository.save(AccountTemplate.makeAccount2());
-        Assertions.assertThrows(AccountException.class, () -> accountService.getAccount(NICKNAME2));
+        Assertions.assertThrows(NotFoundAccountException.class, () -> accountService.getAccount(NICKNAME2));
     }
 }

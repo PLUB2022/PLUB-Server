@@ -10,12 +10,14 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
+import plub.plubserver.config.jwt.RefreshTokenRepository;
 import plub.plubserver.config.security.SecurityUtils;
 import plub.plubserver.domain.account.dto.AccountDto;
 import plub.plubserver.domain.account.dto.AuthDto;
 import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.account.repository.AccountRepository;
-import plub.plubserver.exception.AccountException;
+import plub.plubserver.exception.account.NickNameDuplicateException;
+import plub.plubserver.exception.account.NotFoundAccountException;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -27,6 +29,7 @@ import static plub.plubserver.domain.account.dto.AccountDto.AccountInfo;
 public class AccountService {
 
     private final AccountRepository accountRepository;
+    private final RefreshTokenRepository refreshTokenRepository;
     private final AppleService appleService;
     private final RestTemplate restTemplate;
 
@@ -37,20 +40,20 @@ public class AccountService {
     @Transactional(readOnly = true)
     public AccountInfo getMyAccount() {
         return accountRepository.findByEmail(SecurityUtils.getCurrentAccountEmail())
-                .map(AccountInfo::of).orElseThrow(()-> new AccountException("회원 정보 없음"));
+                .map(AccountInfo::of).orElseThrow(NotFoundAccountException::new);
     }
 
     @Transactional(readOnly = true)
     public AccountInfo getAccount(String nickname) {
         return accountRepository.findByNickname(nickname)
-                .map(AccountInfo::of).orElseThrow(() -> new AccountException("회원 정보 없음"));
+                .map(AccountInfo::of).orElseThrow(NotFoundAccountException::new);
     }
 
     // 회원 정보 수정
     @Transactional
     public AccountInfo updateNickname(AccountDto.AccountNicknameRequest request) {
         Account myAccount = accountRepository.findByEmail(SecurityUtils.getCurrentAccountEmail())
-                .orElseThrow(() -> new AccountException("회원 정보 없음"));
+                .orElseThrow(NotFoundAccountException::new);
         duplicateNickname(request.nickname());
         myAccount.updateNickname(request.nickname());
         return AccountInfo.of(myAccount);
@@ -58,14 +61,14 @@ public class AccountService {
 
     private void duplicateNickname(String nickname) {
         if (accountRepository.existsByNickname(nickname)) {
-            throw new AccountException("nickname 중복 입니다.");
+            throw new NickNameDuplicateException();
         }
     }
 
     @Transactional
     public AccountInfo updateIntroduce(AccountDto.AccountIntroduceRequest request) {
         Account myAccount = accountRepository.findByEmail(SecurityUtils.getCurrentAccountEmail())
-                .orElseThrow(() -> new AccountException("회원 정보 없음"));
+                .orElseThrow(NotFoundAccountException::new);
         myAccount.updateIntroduce(request.introduce());
         return AccountInfo.of(myAccount);
     }
@@ -73,7 +76,7 @@ public class AccountService {
     @Transactional
     public AuthDto.AuthMessage revoke(AuthDto.RevokeRequest revokeAccount) throws IOException {
         Account myAccount = accountRepository.findByEmail(SecurityUtils.getCurrentAccountEmail())
-                .orElseThrow(() -> new AccountException("회원 정보 없음"));
+                .orElseThrow(NotFoundAccountException::new);
         String socialName = myAccount.getSocialType().getSocialName();
 
         if (socialName.equalsIgnoreCase("Google")) {
@@ -104,5 +107,19 @@ public class AccountService {
         HttpEntity<MultiValueMap<String, String>> httpEntity = new HttpEntity<>(params, headers);
         restTemplate.postForEntity("https://kapi.kakao.com/v1/user/unlink", httpEntity, AuthDto.RevokeResponseKakao.class);
     }
+
+//    @Transactional
+//    public AuthDto.AuthMessage logout() {
+//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+//        String loginAccount = authentication.getName();
+//        if (accountRepository.findByEmail(loginAccount).isPresent()){
+//            // 리프레시 토큰 삭제
+//            RefreshToken refreshToken = refreshTokenRepository.findByAccount(authentication.getName()).get();
+//            refreshTokenRepository.delete(refreshToken);
+//        }else{
+//            throw new NotFoundUserInformationException();
+//        }
+//        return Message.of("로그아웃 성공");
+//    }
 
 }
