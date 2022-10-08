@@ -39,7 +39,6 @@ public class AccountService {
         myAccount.updateNickname(request.nickname());
         return AccountInfo.of(myAccount);
     }
-
     private void duplicateNickname(String nickname) {
         if (accountRepository.existsByNickname(nickname)) {
             throw new AccountException("nickname 중복 입니다.");
