@@ -1,4 +1,4 @@
-package plub.plubserver.common;
+package plub.plubserver.exception;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -14,7 +14,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
     public ApiResponse<?> errorHandle(Exception ex) {
-        log.error("예외 발생 및 처리 = {} : {}", ex.getClass().getName(), ex.getMessage());
+        log.warn("예외 발생 {} = {}", ex.getClass().getSimpleName(), ex.getMessage());
         return ApiResponse.error(ex.getMessage());
     }
 

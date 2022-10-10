@@ -19,7 +19,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtProvider jwtProvider;
 
-    private final String[] excludePaths = {"/api/auth/login", "/api/auth/signup", "/api/auth/reissue"};
+    private final String[] excludePaths = {"/api/auth/login", "/api/auth/signup", "/api/auth/reissue", "/test/upload", "/docs"};
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
