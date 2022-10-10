@@ -12,6 +12,7 @@ import plub.plubserver.domain.message.model.Message;
 import plub.plubserver.domain.recruit.model.AccountBoard;
 
 import javax.persistence.*;
+import javax.validation.constraints.Pattern;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,6 +29,9 @@ public class Account extends BaseTimeEntity {
 
     private String email;
     private String password;
+
+    @Pattern(regexp="^([0-9|a-z|A-Z|ㄱ-ㅎ|ㅏ-ㅣ|가-힣]*$)",
+            message = "닉네임에 공백과 특수문자가 포함될 수 없습니다.")
     private String nickname;
     private int age;
     private String birthday;

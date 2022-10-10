@@ -31,6 +31,11 @@ public class AccountController {
         return success(accountService.getAccount(nickname), "유저 정보 조회");
     }
 
+    @GetMapping("/check/nickname/{nickname}")
+    public ApiResponse<Boolean> checkNickname(@Valid @PathVariable String nickname) {
+        return success(accountService.checkNickname(nickname), "check nickname");
+    }
+
     @PutMapping("/nickname")
     public ApiResponse<AccountInfo> updateNickname(@Valid @RequestBody AccountDto.AccountNicknameRequest request) {
         return success(accountService.updateNickname(request), "내 정보 조회");

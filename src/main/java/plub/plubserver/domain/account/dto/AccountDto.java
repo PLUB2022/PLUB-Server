@@ -21,7 +21,7 @@ public class AccountDto {
         }
     }
 
-    public record AccountResponse(Object data,  String msg) {
+    public record AccountResponse(Object data, String msg) {
     }
 
     public record AccountInfo(
@@ -34,7 +34,7 @@ public class AccountDto {
     ){
         @Builder public AccountInfo{}
         public static AccountInfo of(Account account) {
-           return AccountInfo.builder()
+            return AccountInfo.builder()
                     .email(account.getEmail())
                     .nickname(account.getNickname())
                     .socialType(account.getSocialType())

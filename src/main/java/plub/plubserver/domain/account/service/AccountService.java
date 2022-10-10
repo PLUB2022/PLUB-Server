@@ -17,10 +17,12 @@ import plub.plubserver.domain.account.dto.AuthDto;
 import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.account.repository.AccountRepository;
 import plub.plubserver.exception.account.NickNameDuplicateException;
+import plub.plubserver.exception.account.NicknameRuleException;
 import plub.plubserver.exception.account.NotFoundAccountException;
 
 import java.io.IOException;
 import java.util.Collections;
+import java.util.regex.Pattern;
 
 import static plub.plubserver.domain.account.dto.AccountDto.AccountInfo;
 
@@ -49,21 +51,27 @@ public class AccountService {
                 .map(AccountInfo::of).orElseThrow(NotFoundAccountException::new);
     }
 
+    @Transactional(readOnly = true)
+    public boolean checkNickname(String nickname) {
+        String pattern = "^[0-9|a-z|A-Z|ㄱ-ㅎ|ㅏ-ㅣ|가-힣]*$";
+        if(!Pattern.matches(pattern, nickname)){
+            throw new NicknameRuleException();
+        }
+        return accountRepository.existsByNickname(nickname);
+    }
+
     // 회원 정보 수정
     @Transactional
     public AccountInfo updateNickname(AccountDto.AccountNicknameRequest request) {
         Account myAccount = accountRepository.findByEmail(SecurityUtils.getCurrentAccountEmail())
                 .orElseThrow(NotFoundAccountException::new);
-        duplicateNickname(request.nickname());
+        if (checkNickname(request.nickname())) {
+            throw new NickNameDuplicateException();
+        }
         myAccount.updateNickname(request.nickname());
         return AccountInfo.of(myAccount);
     }
 
-    private void duplicateNickname(String nickname) {
-        if (accountRepository.existsByNickname(nickname)) {
-            throw new NickNameDuplicateException();
-        }
-    }
 
     @Transactional
     public AccountInfo updateIntroduce(AccountDto.AccountIntroduceRequest request) {
