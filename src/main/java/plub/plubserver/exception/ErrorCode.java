@@ -19,7 +19,8 @@ public enum ErrorCode {
     NICKNAME_DUPLICATION(400, "ACCOUNT-002", "Nickname is Duplication"),
     EMAIL_DUPLICATION(400, "ACCOUNT-003", "Email is Duplication"),
     APPLE_LOGIN_ERROR(400, "APPLE-001", "Apple Login Error"),
-    NICKNAME_RULE_ERROR(400, "ACCOUNT-004", "Nickname Rule Error");
+    NICKNAME_RULE_ERROR(400, "ACCOUNT-004", "Nickname Rule Error"),
+    SOCIAL_TYPE_ERROR(400, "ACCOUNT-005", "SocialType Error");
 
     private final String code;
     private final String message;

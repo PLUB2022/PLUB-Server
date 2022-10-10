@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.client.HttpClientErrorException;
 import plub.plubserver.common.dto.ApiResponse;
 
+import javax.validation.ValidationException;
 import java.io.IOException;
 
 @RestControllerAdvice
@@ -35,4 +36,12 @@ public class GlobalExceptionHandler {
         log.error("예외 발생 및 처리 = {} : {}", ex.getClass().getName(), ex.getMessage());
         return ApiResponse.error(ErrorCode.HTTP_CLIENT_ERROR, ex.getMessage());
     }
+
+    @ExceptionHandler(ValidationException.class)
+    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+    protected ApiResponse<?> ValidationException(final ValidationException ex) {
+        log.error("예외 발생 및 처리 = {} : {}", ex.getMessage(), ex.getMessage());
+        return ApiResponse.error(ErrorCode.INVALID_INPUT_VALUE, ex.getMessage());
+    }
+
 }
