@@ -32,7 +32,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(HttpClientErrorException.class)
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
-    public ApiResponse<?> errorHandle(HttpClientErrorException ex) {
+    public ApiResponse<?> HttpClientErrorException(HttpClientErrorException ex) {
         log.error("예외 발생 및 처리 = {} : {}", ex.getClass().getName(), ex.getMessage());
         return ApiResponse.error(ErrorCode.HTTP_CLIENT_ERROR, ex.getMessage());
     }

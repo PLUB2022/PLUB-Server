@@ -73,6 +73,23 @@ public class AuthDto {
             String refreshToken
     ) {}
 
+    public record RevokeRequest(
+            @ApiModelProperty(value = "이메일",example = "plub@example.com")
+            String email,
+            @ApiModelProperty(value = "소셜타입", example = "GOOGLE/KAKAO/APPLE")
+            String socialType,
+            @ApiModelProperty(value = "소셜 액세스 토큰", example = "ya29.a0Aa4xrXNXkiDBMm7MtSneVejzvupPun8S8EHorgvrt-nlCNy83PA9TI")
+            String accessToken,
+            @ApiModelProperty(value = "소셜 인증 토큰", example = "eyJraWQiOiJmaDZCczhDIiwiYWxnIjoiUlMyNTYif")
+            String authorizationCode,
+            @ApiModelProperty(value = "카카오 전용 값", example = "1293127391230")
+            String userId
+    ) {
+
+    }
+    public record RevokeKakaoResponse(String id) {
+
+    }
     public record AuthMessage(Object detailData, String detailMessage) {
     }
 
@@ -81,28 +98,4 @@ public class AuthDto {
 
     public record SigningAccount(String email, String socialType) {
     }
-
-    public record RevokeRequest(
-            @ApiModelProperty(value = "이메일",example = "plub@example.com")
-            String email,
-            @ApiModelProperty(value = "소셜타입", example = "GOOGLE/KAKAO/APPLE")
-            String socialType,
-            String accessToken,
-            String authorizationCode,
-            String userId
-    ) {
-    }
-
-    public record RevokeResponseKakao(String id) {
-    }
-
-    public record getTokenResponse(
-            String token_type,
-            String access_token,
-            int expires_in,
-            String refresh_token,
-            int refresh_token_expires_in
-    ) {
-    }
-
 }

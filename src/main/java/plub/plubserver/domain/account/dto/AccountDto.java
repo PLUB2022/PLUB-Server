@@ -26,9 +26,6 @@ public class AccountDto {
         }
     }
 
-    public record AccountResponse(Object data, String msg) {
-    }
-
     public record AccountInfo(
             @ApiModelProperty(value = "이메일",example = "plub@example.com")
             String email,

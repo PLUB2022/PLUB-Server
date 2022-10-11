@@ -5,6 +5,7 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
 import org.bouncycastle.openssl.PEMParser;
 import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpEntity;
@@ -16,7 +17,6 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
-import plub.plubserver.domain.account.model.Account;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -37,23 +37,25 @@ import static plub.plubserver.domain.account.dto.AppleDto.AppleCodeResponse;
 public class AppleService {
 
     // 아래는 yml에 저장
-    private String appleBundleId = "appleBundleId";
-    private String appleTeamId = "appleTeamId";
-    private Object appleSignKeyId = "appleSignKeyId";
-    private String appleSignKeyFilePath = "appleSignKeyFilePath.p8";
-    public void revokeApple(Account account, String authorizationCode) throws IOException {
+    @Value("${apple.appleBundleId}")
+    private String appleBundleId;
+    @Value("${apple.appleTeamId}")
+    private String appleTeamId;
+    @Value("${apple.appleSignKeyId}")
+    private Object appleSignKeyId;
+    @Value("${apple.appleSignKeyFilePath}")
+    private String appleSignKeyFilePath;
 
-        // accessToken 생성
+    public void revokeApple(String authorizationCode) throws IOException {
         AppleCodeResponse appleAuthToken = GenerateAuthToken(authorizationCode);
-
-        if (appleAuthToken.accessToken() != null) {
+        if (appleAuthToken.access_token() != null) {
             RestTemplate restTemplate = new RestTemplateBuilder().build();
             String revokeUrl = "https://appleid.apple.com/auth/revoke";
 
             LinkedMultiValueMap<String, String> params = new LinkedMultiValueMap<>();
             params.add("client_id", appleBundleId);
             params.add("client_secret", createClientSecret());
-            params.add("token", appleAuthToken.accessToken());
+            params.add("token", appleAuthToken.access_token());
 
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
@@ -75,8 +77,7 @@ public class AppleService {
         params.add("code", authorizationCode);
 
         HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+        headers.setContentType(MediaType.valueOf(MediaType.APPLICATION_FORM_URLENCODED_VALUE));
         HttpEntity<MultiValueMap<String, String>> httpEntity = new HttpEntity<>(params, headers);
 
         try {

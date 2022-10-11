@@ -1,4 +1,4 @@
-package plub.plubserver.config;
+package plub.plubserver.config.security;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;

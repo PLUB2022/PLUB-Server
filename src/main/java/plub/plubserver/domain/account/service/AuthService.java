@@ -21,15 +21,14 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import plub.plubserver.config.jwt.JwtDto;
 import plub.plubserver.config.jwt.JwtProvider;
+import plub.plubserver.config.jwt.RefreshToken;
 import plub.plubserver.config.jwt.RefreshTokenRepository;
 import plub.plubserver.config.security.PrincipalDetails;
 import plub.plubserver.domain.account.dto.AppleDto;
 import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.account.model.SocialType;
 import plub.plubserver.domain.account.repository.AccountRepository;
-import plub.plubserver.exception.account.AppleException;
-import plub.plubserver.exception.account.EmailDuplicateException;
-import plub.plubserver.exception.account.NickNameDuplicateException;
+import plub.plubserver.exception.account.*;
 
 import java.io.IOException;
 import java.math.BigInteger;
@@ -41,6 +40,7 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.RSAPublicKeySpec;
 import java.util.*;
 
+import static plub.plubserver.config.security.SecurityUtils.getCurrentAccountEmail;
 import static plub.plubserver.domain.account.dto.AuthDto.*;
 
 @Slf4j
@@ -184,5 +184,16 @@ public class AuthService {
 
     public JwtDto reissue(ReissueRequest reissueDto) {
         return jwtProvider.reIssue(reissueDto.refreshToken());
+    }
+
+    @Transactional
+    public String logout() {
+        Account account = accountRepository.findByEmail(getCurrentAccountEmail())
+                .orElseThrow(NotFoundAccountException::new);
+        RefreshToken refreshToken = refreshTokenRepository.findByAccount(account)
+                .orElseThrow(NotFountRefreshTokenException::new);
+        refreshTokenRepository.delete(refreshToken);
+        refreshTokenRepository.flush();
+        return "로그아웃 완료";
     }
 }

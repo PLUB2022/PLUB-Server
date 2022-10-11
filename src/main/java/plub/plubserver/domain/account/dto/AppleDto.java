@@ -29,7 +29,7 @@ public class AppleDto {
     }
 
     public record AppleCodeResponse(
-            String accessToken,
+            String access_token,
             int expires_in,
             String id_token,
             String refresh_token,

@@ -3,10 +3,7 @@ package plub.plubserver.domain.account.controller;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import plub.plubserver.common.dto.ApiResponse;
 import plub.plubserver.config.jwt.JwtDto;
 import plub.plubserver.domain.account.service.AuthService;
@@ -43,6 +40,12 @@ public class AuthController {
     @PostMapping("/reissue")
     public ApiResponse<JwtDto> reissue(@RequestBody ReissueRequest reissueDto) {
         return success(authService.reissue(reissueDto), "JWT 재발급");
+    }
+
+    @ApiOperation(value = "로그아웃", tags = "일반 회원 절차")
+    @GetMapping("/logout")
+    public ApiResponse<String> logout() {
+        return success(authService.logout(), "로그아웃");
     }
 
 
