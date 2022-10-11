@@ -61,4 +61,4 @@ jobs:
             docker pull ${{ secrets.DOCKER_USERNAME }}/plub-server:${GITHUB_SHA::7}
             docker tag ${{ secrets.DOCKER_USERNAME }}/plub-server:${GITHUB_SHA::7} plub-server
             docker stop server
-            docker run -d --rm --name server -p 8085:8085 plub-server
+            docker run -d --rm --name server -p 80:8085 plub-server
