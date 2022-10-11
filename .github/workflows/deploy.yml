@@ -28,6 +28,13 @@ jobs:
           YAML_DIR: src/main/resources
           YAML_FILE_NAME: application-secret.yml
         run: echo $YAML_SECRET | base64 --decode > $YAML_DIR/$YAML_FILE_NAME
+        
+      - name: Set up apple sign key file
+        env:
+          APPLE_SIGN_KEY: ${{ secrets.APPLE_SIGN_KEY }}
+          KEY_DIR: src/main/resources
+          KEY_FILE_NAME: apple_sign_key.p8
+        run: echo $APPLE_SIGN_KEY | base64 --decode > $KEY_DIR/$KEY_FILE_NAME
 
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
