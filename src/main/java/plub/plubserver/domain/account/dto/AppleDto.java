@@ -28,13 +28,11 @@ public class AppleDto {
                 .findFirst();
     }
 
-
-    public record AppleAuthTokenResponse(
-            String accessToken,
-            String expiresIn,
-            String idToken,
-            String refreshToken,
-            String tokenType
-    ){
-    }
+    public record AppleCodeResponse(
+            String access_token,
+            int expires_in,
+            String id_token,
+            String refresh_token,
+            String token_type
+    ){}
 }

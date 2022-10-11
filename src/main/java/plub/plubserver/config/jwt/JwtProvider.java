@@ -26,8 +26,8 @@ public class JwtProvider {
 
     private static final String secret = "plubingplubingplubingplubingplubingplubingplubingplubingplubingplubingplubingplubingplubingplubingplubingplubingplubingplubingplubingplubingplubingplubing";
     
-    public static final long ACCESS_VALID_DURATION = 30 * 1000L; // 60초 (mile sec)
-    public static final long REFRESH_VALID_DURATION = 60 * 1000L; // 60초
+    public static final long ACCESS_VALID_DURATION = 3000 * 1000L; // 60초 (mile sec)
+    public static final long REFRESH_VALID_DURATION = 6000 * 1000L; // 60초
 
     // Request 헤더에서 토큰을 파싱한다
     public String resolveToken(HttpServletRequest request) {
@@ -96,7 +96,6 @@ public class JwtProvider {
     public JwtDto issue(Account account) {
         String access = createAccessToken(account);
         String refresh = createRefreshToken();
-
         Optional<RefreshToken> findToken = refreshTokenRepository.findByAccount(account);
 
         if (findToken.isEmpty()) {

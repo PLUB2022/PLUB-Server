@@ -1,4 +1,4 @@
-package plub.plubserver.config;
+package plub.plubserver.config.swagger;
 
 
 import org.springframework.context.annotation.Bean;

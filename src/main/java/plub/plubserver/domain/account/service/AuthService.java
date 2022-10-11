@@ -21,13 +21,14 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import plub.plubserver.config.jwt.JwtDto;
 import plub.plubserver.config.jwt.JwtProvider;
+import plub.plubserver.config.jwt.RefreshToken;
 import plub.plubserver.config.jwt.RefreshTokenRepository;
 import plub.plubserver.config.security.PrincipalDetails;
 import plub.plubserver.domain.account.dto.AppleDto;
 import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.account.model.SocialType;
 import plub.plubserver.domain.account.repository.AccountRepository;
-import plub.plubserver.exception.AccountException;
+import plub.plubserver.exception.account.*;
 
 import java.io.IOException;
 import java.math.BigInteger;
@@ -39,6 +40,7 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.RSAPublicKeySpec;
 import java.util.*;
 
+import static plub.plubserver.config.security.SecurityUtils.getCurrentAccountEmail;
 import static plub.plubserver.domain.account.dto.AuthDto.*;
 
 @Slf4j
@@ -54,7 +56,8 @@ public class AuthService {
     private final AccountRepository accountRepository;
     private final AppleService appleService;
 
-    public AuthMessage loginAccess(SocialLoginRequest loginDto) {
+
+    public AuthMessage loginAccess(SocialLoginRequest loginDto) throws IOException {
         String email = fetchSocialEmail(loginDto);
         Optional<Account> account = accountRepository.findByEmail(email);
         AuthMessage loginMessage;
@@ -91,21 +94,27 @@ public class AuthService {
 
     private void duplicateEmailAndNickName(String email, String nickname) {
         if (accountRepository.existsByEmail(email)) {
-            throw new AccountException("email 중복 입니다.");
+            throw new EmailDuplicateException();
         }
         if (accountRepository.existsByNickname(nickname)) {
-            throw new AccountException("nickname 중복 입니다.");
+            throw new NickNameDuplicateException();
         }
     }
 
-    private String fetchSocialEmail(SocialLoginRequest loginRequestDto) {
+    private String fetchSocialEmail(SocialLoginRequest loginRequestDto){
         String provider = loginRequestDto.socialType();
         if (provider.equalsIgnoreCase("Google")) {
             return getGoogleId(loginRequestDto.accessToken());
         } else if (provider.equalsIgnoreCase("Kakao")) {
             return getKakaoId(loginRequestDto.accessToken());
         } else {
-            return getAppleId(loginRequestDto.accessToken());
+            String appleId = getAppleId(loginRequestDto.accessToken());
+            try {
+                appleService.GenerateAuthToken(loginRequestDto.authorizationCode());
+            } catch (Exception e) {
+                throw new AppleException();
+            }
+            return appleId;
         }
     }
 
@@ -154,9 +163,7 @@ public class AuthService {
             return claims.getSubject();
         } catch (JsonProcessingException | NoSuchAlgorithmException | InvalidKeySpecException | SignatureException |
                 MalformedJwtException | ExpiredJwtException | IllegalArgumentException e) {
-            // 예외처리
-            e.printStackTrace();
-            throw new RuntimeException();
+            throw new AppleException();
         }
     }
 
@@ -179,25 +186,14 @@ public class AuthService {
         return jwtProvider.reIssue(reissueDto.refreshToken());
     }
 
-    public void loginAccessWithRevoke(LoginRequest loginRequest) {
-        // 나중에 추가
-    }
-
-    public AuthMessage revoke(RevokeAccount revokeAccount) throws IOException {
-
-        String email = revokeAccount.email();
-        Optional<Account> account = accountRepository.findByEmail(email);
-
-        if (revokeAccount.socialType().equalsIgnoreCase("Google")) {
-
-        } else if (revokeAccount.socialType().equalsIgnoreCase("Kakao")) {
-
-        } else {
-            // apple 한 번 로그인 후 authorization_code 가져오기
-            // apple 연결 해제
-            appleService.revokeApple(account.get(), "authorization_code");
-            // 삭제
-        }
-        return new AuthMessage("d", "탈퇴완료");
+    @Transactional
+    public String logout() {
+        Account account = accountRepository.findByEmail(getCurrentAccountEmail())
+                .orElseThrow(NotFoundAccountException::new);
+        RefreshToken refreshToken = refreshTokenRepository.findByAccount(account)
+                .orElseThrow(NotFountRefreshTokenException::new);
+        refreshTokenRepository.delete(refreshToken);
+        refreshTokenRepository.flush();
+        return "로그아웃 완료";
     }
 }
