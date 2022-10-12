@@ -1,5 +1,6 @@
 package plub.plubserver.domain.account.service;
 
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,16 +37,23 @@ class AuthServiceTest {
     private AuthService authService;
 
 
+    @NotNull
+    private String getHeader() {
+        String header = jwtProvider.createSignToken(EMAIL);
+        return "Bearer " + header;
+    }
+
     @Test
     void signUp_성공() throws IOException {
         // given
         SignUpRequest signUpRequest = makeSignUpRequest();
+        String header = getHeader();
         // when
-        SignAuthMessage signAuthMessage = authService.signUp(signUpRequest);
+        SignAuthMessage signAuthMessage = authService.signUp(signUpRequest, header);
         String accessToken = signAuthMessage.detailData().accessToken();
         String refreshToken = signAuthMessage.detailData().refreshToken();
         // then
-        assertThat(signAuthMessage.detailMessage()).isEqualTo("회원가입 완료");
+        assertThat(signAuthMessage.detailMessage()).isEqualTo("회원가입 완료. 토큰 발행");
         assertThat(jwtProvider.validate(accessToken)).isTrue();
         assertThat(jwtProvider.validate(refreshToken)).isTrue();
     }
@@ -53,23 +61,25 @@ class AuthServiceTest {
     @Test
     void signUp_중복가입_이메일() {
         // given
+        String header = getHeader();
         Account account = makeAccount1();
         accountRepository.save(account);
         SignUpRequest signUpRequest = makeSignUpRequest();
         // when
         // then
-        Assertions.assertThrows(EmailDuplicateException.class, () -> authService.signUp(signUpRequest));
+        Assertions.assertThrows(EmailDuplicateException.class, () -> authService.signUp(signUpRequest, header));
     }
 
     @Test
     void signUp_중복가입_닉네임() {
         // given
+        String header = getHeader();
         Account account = makeAccount2();
         accountRepository.save(account);
         SignUpRequest signUpRequest = makeSignUpRequest();
         // when
         // then
-        Assertions.assertThrows(NickNameDuplicateException.class, () -> authService.signUp(signUpRequest));
+        Assertions.assertThrows(NickNameDuplicateException.class, () -> authService.signUp(signUpRequest, header));
     }
 
     @Test
