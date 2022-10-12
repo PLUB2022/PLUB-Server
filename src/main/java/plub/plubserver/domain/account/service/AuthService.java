@@ -30,7 +30,6 @@ import plub.plubserver.domain.account.model.SocialType;
 import plub.plubserver.domain.account.repository.AccountRepository;
 import plub.plubserver.exception.account.*;
 
-import java.io.IOException;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.security.KeyFactory;
@@ -56,8 +55,7 @@ public class AuthService {
     private final AccountRepository accountRepository;
     private final AppleService appleService;
 
-
-    public AuthMessage loginAccess(SocialLoginRequest loginDto) throws IOException {
+    public AuthMessage loginAccess(SocialLoginRequest loginDto) {
         String email = fetchSocialEmail(loginDto);
         Optional<Account> account = accountRepository.findByEmail(email);
         AuthMessage loginMessage;
@@ -66,8 +64,8 @@ public class AuthService {
             JwtDto jwtDto = login(account.get().toAccountRequestDto().toLoginRequest());
             loginMessage = new AuthMessage(jwtDto, "로그인 완료. 토큰 발행");
         } else {
-            SigningAccount signingAccount = new SigningAccount(email, loginDto.socialType());
-            loginMessage = new AuthMessage(signingAccount,"신규가입 필요");
+            String signToken = jwtProvider.createSignToken(email);
+            loginMessage = new AuthMessage(signToken, "신규 가입 필요");
         }
         return loginMessage;
     }
@@ -82,11 +80,14 @@ public class AuthService {
     }
 
     @Transactional
-    public SignAuthMessage signUp(SignUpRequest signUpDto) {
-        String email = signUpDto.email();
+    public SignAuthMessage signUp(SignUpRequest signUpDto, String header) {
+        String signToken = jwtProvider.resolveSignToken(header);
+        SigningAccount signKey = jwtProvider.getSignKey(signToken);
+        String email = signKey.email();
+        String socialType = signKey.socialType();
         String nickname = signUpDto.nickname();
         duplicateEmailAndNickName(email, nickname);
-        Account account = signUpDto.toAccount(passwordEncoder);
+        Account account = signUpDto.toAccount(email, socialType, passwordEncoder);
         accountRepository.save(account);
         JwtDto jwtDto = login(account.toAccountRequestDto().toLoginRequest());
         return new SignAuthMessage(jwtDto, "회원가입 완료. 토큰 발행");
@@ -122,15 +123,17 @@ public class AuthService {
         String socialUrl = SocialType.GOOGLE.getSocialUrl();
         HttpMethod httpMethod = SocialType.GOOGLE.getHttpMethod();
         ResponseEntity<Map<String, Object>> response = validAccessToken(accessToken, socialUrl, httpMethod);
-        return (String) Objects.requireNonNull(response.getBody()).get("email");
+        String sub = (String) Objects.requireNonNull(response.getBody()).get("sub");
+        return sub+"@GOOGLE";
     }
 
     private String getKakaoId(String accessToken) {
         String socialUrl = SocialType.KAKAO.getSocialUrl();
         HttpMethod httpMethod = SocialType.KAKAO.getHttpMethod();
         ResponseEntity<Map<String, Object>> response = validAccessToken(accessToken, socialUrl, httpMethod);
-        Map<String, Object> googlePK = (Map<String, Object>) response.getBody().get("kakao_account");
-        return (String) googlePK.get("email");
+        Map<String, Object> googlePK = (Map) response.getBody();
+        String id = String.valueOf(googlePK.get("id"));
+        return id+"@KAKAO";
     }
 
     private AppleDto getAppleAuthPublicKey(){
@@ -160,7 +163,8 @@ public class AuthService {
             PublicKey publicKey = keyFactory.generatePublic(publicKeySpec);
 
             Claims claims = Jwts.parserBuilder().setSigningKey(publicKey).build().parseClaimsJws(identityToken).getBody();
-            return claims.getSubject();
+            String subject = claims.getSubject();
+            return subject+"@APPLE";
         } catch (JsonProcessingException | NoSuchAlgorithmException | InvalidKeySpecException | SignatureException |
                 MalformedJwtException | ExpiredJwtException | IllegalArgumentException e) {
             throw new AppleException();

@@ -21,6 +21,7 @@ public enum ErrorCode {
     EMAIL_DUPLICATION(400, "ACCOUNT-003", "Email is Duplication"),
     NICKNAME_RULE_ERROR(400, "ACCOUNT-004", "Nickname Rule Error"),
     SOCIAL_TYPE_ERROR(400, "ACCOUNT-005", "SocialType Error"),
+    SIGNUP_ERROR(400, "ACCOUNT-006", "SignUp Error"),
 
     APPLE_LOGIN_ERROR(400, "APPLE-001", "Apple Login Error"),
     AUTH_ERROR(400, "AUTH-001", "Auth Error"),

@@ -31,12 +31,8 @@ public class AuthDto {
     }
 
     public record SignUpRequest(
-            @ApiModelProperty(value = "이메일",example = "plub@example.com")
-            String email,
             @ApiModelProperty(value = "닉네임", example = "플럽")
             String nickname,
-            @ApiModelProperty(value = "소셜타입", example = "GOOGLE/KAKAO/APPLE")
-            String socialType,
             @ApiModelProperty(value = "생년월일", example = "19971012")
             String birthday,
             @ApiModelProperty(value = "성별정보", example = "M/F")
@@ -45,7 +41,7 @@ public class AuthDto {
             String introduce
     ) {
         @Builder public SignUpRequest{}
-        public SocialType getSocialType() {
+        public SocialType getSocialType(String socialType) {
             if (socialType.equalsIgnoreCase(SocialType.GOOGLE.name())) {
                 return SocialType.GOOGLE;
             } else if (socialType.equalsIgnoreCase(SocialType.KAKAO.name())) {
@@ -54,11 +50,11 @@ public class AuthDto {
                 return SocialType.APPLE;
             } else throw new SocialTypeException();
         }
-        public Account toAccount(PasswordEncoder passwordEncoder) {
+        public Account toAccount(String email, String socialType, PasswordEncoder passwordEncoder) {
             return Account.builder()
                     .email(email)
                     .password(passwordEncoder.encode(email+"plub"))
-                    .socialType(getSocialType())
+                    .socialType(getSocialType(socialType))
                     .nickname(nickname)
                     .birthday(birthday)
                     .gender(gender)
