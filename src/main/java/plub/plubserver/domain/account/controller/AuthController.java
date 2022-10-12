@@ -42,7 +42,7 @@ public class AuthController {
         return success(authService.reissue(reissueDto), "JWT 재발급");
     }
 
-    @ApiOperation(value = "로그아웃", tags = "일반 회원 절차")
+    @ApiOperation(value = "로그아웃")
     @GetMapping("/logout")
     public ApiResponse<String> logout() {
         return success(authService.logout(), "로그아웃");
