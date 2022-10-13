@@ -2,6 +2,7 @@ package plub.plubserver.domain.account.dto;
 
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Builder;
+import org.springframework.web.multipart.MultipartFile;
 import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.account.model.SocialType;
 
@@ -9,7 +10,7 @@ import static plub.plubserver.domain.account.dto.AuthDto.LoginRequest;
 
 public class AccountDto {
     public record AccountRequest(
-            @ApiModelProperty(value = "이메일",example = "plub@example.com")
+            @ApiModelProperty(value = "이메일", example = "plub@example.com")
             String email,
             @ApiModelProperty(value = "비밀번호", example = "비밀번호")
             String password,
@@ -26,7 +27,7 @@ public class AccountDto {
         }
     }
 
-    public record AccountInfo(
+    public record AccountInfoResponse(
             @ApiModelProperty(value = "이메일",example = "plub@example.com")
             String email,
             @ApiModelProperty(value = "닉네임", example = "플럽")
@@ -38,29 +39,28 @@ public class AccountDto {
             @ApiModelProperty(value = "성별정보", example = "M/F")
             String gender,
             @ApiModelProperty(value = "자기소개", example = "안녕하세요! 저는 플럽이에요")
-            String introduce
+            String introduce,
+            @ApiModelProperty(value = "프로필 이미지", example = "https://s3.ap-northeast-2.amazonaws.com/plub/account/profile/test_profile.jpg")
+            String profileImage
     ){
-        @Builder public AccountInfo{}
-        public static AccountInfo of(Account account) {
-            return AccountInfo.builder()
+        @Builder public AccountInfoResponse {}
+        public static AccountInfoResponse of(Account account) {
+            return AccountInfoResponse.builder()
                     .email(account.getEmail())
                     .nickname(account.getNickname())
                     .socialType(account.getSocialType())
                     .gender(account.getGender())
                     .birthday(account.getBirthday())
                     .introduce(account.getIntroduce())
+                    .profileImage(account.getProfileImage())
                     .build();
         }
     }
 
-    public record AccountNicknameRequest(
-            @ApiModelProperty(value = "닉네임", example = "플럽")
-            String nickname
-    ) {}
-
-    public record AccountIntroduceRequest(
-            @ApiModelProperty(value = "자기소개", example = "안녕하세요! 저는 플럽이에요")
-            String introduce
+    public record AccountProfileRequest(
+            String nickname,
+            String introduce,
+            MultipartFile profileImage
     ) {}
 
 }

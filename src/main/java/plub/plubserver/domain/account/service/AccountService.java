@@ -10,20 +10,22 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
-import plub.plubserver.domain.account.dto.AccountDto;
 import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.account.repository.AccountRepository;
 import plub.plubserver.exception.account.AuthException;
-import plub.plubserver.exception.account.NickNameDuplicateException;
-import plub.plubserver.exception.account.NicknameRuleException;
+import plub.plubserver.exception.account.InvalidNicknameRuleException;
+import plub.plubserver.exception.account.NicknameDuplicateException;
 import plub.plubserver.exception.account.NotFoundAccountException;
+import plub.plubserver.util.s3.AwsS3Uploader;
+import plub.plubserver.util.s3.S3SaveDir;
 
 import java.io.IOException;
 import java.util.Collections;
 import java.util.regex.Pattern;
 
 import static plub.plubserver.config.security.SecurityUtils.getCurrentAccountEmail;
-import static plub.plubserver.domain.account.dto.AccountDto.AccountInfo;
+import static plub.plubserver.domain.account.dto.AccountDto.AccountInfoResponse;
+import static plub.plubserver.domain.account.dto.AccountDto.AccountProfileRequest;
 import static plub.plubserver.domain.account.dto.AuthDto.*;
 
 @Service
@@ -34,47 +36,42 @@ public class AccountService {
     private final AccountRepository accountRepository;
     private final AppleService appleService;
     private final RestTemplate restTemplate;
+    private final AwsS3Uploader awsS3Uploader;
 
     @Value("${kakao.appAdminKey}")
     private String appAdminKey;
 
     // 회원 정보 조회
-    public AccountInfo getMyAccount() {
+    public AccountInfoResponse getMyAccount() {
         return accountRepository.findByEmail(getCurrentAccountEmail())
-                .map(AccountInfo::of).orElseThrow(NotFoundAccountException::new);
+                .map(AccountInfoResponse::of).orElseThrow(NotFoundAccountException::new);
     }
 
-    public AccountInfo getAccount(String nickname) {
+    public AccountInfoResponse getAccount(String nickname) {
         return accountRepository.findByNickname(nickname)
-                .map(AccountInfo::of).orElseThrow(NotFoundAccountException::new);
+                .map(AccountInfoResponse::of).orElseThrow(NotFoundAccountException::new);
     }
 
-    public boolean checkNickname(String nickname) {
+    public boolean isDuplicateNickname(String nickname) {
         String pattern = "^[0-9|a-z|A-Z|ㄱ-ㅎ|ㅏ-ㅣ|가-힣]*$";
         if (!Pattern.matches(pattern, nickname)) {
-            throw new NicknameRuleException();
+            throw new InvalidNicknameRuleException();
         }
         return accountRepository.existsByNickname(nickname);
     }
 
     // 회원 정보 수정
     @Transactional
-    public AccountInfo updateNickname(AccountDto.AccountNicknameRequest request) {
+    public AccountInfoResponse updateProfile(AccountProfileRequest form) {
         Account myAccount = accountRepository.findByEmail(getCurrentAccountEmail())
                 .orElseThrow(NotFoundAccountException::new);
-        if (checkNickname(request.nickname())) {
-            throw new NickNameDuplicateException();
-        }
-        myAccount.updateNickname(request.nickname());
-        return AccountInfo.of(myAccount);
-    }
+        if (isDuplicateNickname(form.nickname())) throw new NicknameDuplicateException();
 
-    @Transactional
-    public AccountInfo updateIntroduce(AccountDto.AccountIntroduceRequest request) {
-        Account myAccount = accountRepository.findByEmail(getCurrentAccountEmail())
-                .orElseThrow(NotFoundAccountException::new);
-        myAccount.updateIntroduce(request.introduce());
-        return AccountInfo.of(myAccount);
+        AwsS3Uploader.S3FileDto newProfileImage =
+                awsS3Uploader.upload(form.profileImage(), S3SaveDir.ACCOUNT_PROFILE, myAccount);
+
+        myAccount.updateProfile(form.nickname(), form.introduce(), newProfileImage.savedPath());
+        return AccountInfoResponse.of(myAccount);
     }
 
     @Transactional

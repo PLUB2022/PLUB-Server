@@ -40,7 +40,7 @@ public class Account extends BaseTimeEntity {
     private String introduce;
     @Enumerated(EnumType.STRING)
     private SocialType socialType;
-    private String profile; // saved_path
+    private String profileImage;
     private String lastLogin;
     private String fcmToken;
     @Enumerated(EnumType.STRING)
@@ -87,7 +87,7 @@ public class Account extends BaseTimeEntity {
         this.gender = gender;
         this.phone = phone;
         this.socialType = socialType;
-        this.profile = profile;
+        this.profileImage = profile;
         this.lastLogin = lastLogin;
         this.fcmToken = fcmToken;
         this.introduce = introduce;
@@ -103,11 +103,9 @@ public class Account extends BaseTimeEntity {
         this.id = id;
     }
 
-    public void updateNickname(String nickname) {
-        this.nickname = nickname;
-    }
-
-    public void updateIntroduce(String introduce) {
-        this.introduce = introduce;
+    public void updateProfile(String newNickname, String newIntroduce, String newProfileImage) {
+        this.nickname = newNickname;
+        this.profileImage = newProfileImage;
+        this.introduce = newIntroduce;
     }
 }
