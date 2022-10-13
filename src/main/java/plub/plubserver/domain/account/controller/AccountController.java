@@ -43,7 +43,6 @@ public class AccountController {
         return success(accountService.isDuplicateNickname(nickname), "닉네임 중복 체크");
     }
 
-
     @ApiOperation(value = "회원 프로필 수정 (프로필 사진, 인사말, 닉네임)")
     @PostMapping("/profile")
     public ApiResponse<AccountInfoResponse> updateProfile(@Valid @ModelAttribute AccountProfileRequest accountProfileRequest) {

@@ -79,7 +79,7 @@ class AuthServiceTest {
         SignUpRequest signUpRequest = makeSignUpRequest();
         // when
         // then
-        Assertions.assertThrows(NickNameDuplicateException.class, () -> authService.signUp(signUpRequest, header));
+        Assertions.assertThrows(NicknameDuplicateException.class, () -> authService.signUp(signUpRequest, header));
     }
 
     @Test
