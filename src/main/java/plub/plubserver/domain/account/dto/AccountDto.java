@@ -8,6 +8,7 @@ import plub.plubserver.domain.account.model.SocialType;
 
 import static plub.plubserver.domain.account.dto.AuthDto.LoginRequest;
 
+// TODO : 검증 로직 추가할 것 (길이제한 등등)
 public class AccountDto {
     public record AccountRequest(
             @ApiModelProperty(value = "이메일", example = "plub@example.com")
@@ -58,8 +59,11 @@ public class AccountDto {
     }
 
     public record AccountProfileRequest(
+            @ApiModelProperty(value = "새로운 닉네임", example = "변경닉네임")
             String nickname,
+            @ApiModelProperty(value = "새로운 자기소개", example = "변경자기소개")
             String introduce,
+            @ApiModelProperty(value = "새로운 프로필 이미지", example = "디바이스 사진첩에서 가져온 이미지 파일")
             MultipartFile profileImage
     ) {}
 
