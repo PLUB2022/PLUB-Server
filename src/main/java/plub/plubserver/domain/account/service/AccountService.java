@@ -92,17 +92,17 @@ public class AccountService {
         return new AuthMessage("", "탈퇴완료");
     }
 
-    private void revokeGoogle(RevokeRequest revokeAccount) {
-        String accessToken = revokeAccount.accessToken();
+    private void revokeGoogle(RevokeRequest revokeRequest) {
+        String accessToken = revokeRequest.accessToken();
         MultiValueMap<String, String> parameters = new LinkedMultiValueMap<>();
         parameters.add("token", accessToken);
         restTemplate.postForEntity("https://oauth2.googleapis.com/revoke", parameters, String.class);
     }
 
-    private void revokeKakao(RevokeRequest revokeAccount) {
+    private void revokeKakao(RevokeRequest revokeRequest) {
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("target_id_type", "user_id");
-        params.add("target_id", revokeAccount.userId());
+        params.add("target_id", revokeRequest.userId());
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "KakaoAK " + appAdminKey);
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);

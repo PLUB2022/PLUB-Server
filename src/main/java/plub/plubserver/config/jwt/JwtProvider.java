@@ -8,7 +8,10 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import plub.plubserver.config.security.PrincipalDetailService;
+import plub.plubserver.domain.account.dto.AuthDto;
 import plub.plubserver.domain.account.model.Account;
+import plub.plubserver.domain.account.model.Role;
+import plub.plubserver.exception.account.SignTokenException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
@@ -35,6 +38,24 @@ public class JwtProvider {
         if (rawToken != null && rawToken.startsWith("Bearer "))
             return rawToken.replace("Bearer ", "");
         else return null;
+    }
+
+    public String resolveSignToken(String rawToken) {
+        if (rawToken != null && rawToken.startsWith("Bearer "))
+            return rawToken.replace("Bearer ", "");
+        else throw new SignTokenException();
+    }
+
+    // Sign Token 생성
+    public String createSignToken(String email) {
+        Date now = new Date(System.currentTimeMillis());
+        return Jwts.builder()
+                .setSubject(email)
+                .claim("sign", Role.ROLE_USER)
+                .setIssuedAt(now)
+                .setExpiration(new Date(now.getTime() + ACCESS_VALID_DURATION))
+                .signWith(SignatureAlgorithm.HS256, secret)
+                .compact();
     }
 
     // Access Token 생성
@@ -90,8 +111,19 @@ public class JwtProvider {
         return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
     }
 
+    public AuthDto.SigningAccount getSignKey(String signToken) {
+        Claims body = Jwts.parserBuilder()
+                .setSigningKey(secret)
+                .build()
+                .parseClaimsJws(signToken)
+                .getBody();
+        String email = body.getSubject();
+        String[] split = email.split("@");
+        return new AuthDto.SigningAccount(email, split[1]);
+    }
+
     /**
-     *  Access, Refresh 최초 발행
+     * Access, Refresh 최초 발행
      */
     public JwtDto issue(Account account) {
         String access = createAccessToken(account);

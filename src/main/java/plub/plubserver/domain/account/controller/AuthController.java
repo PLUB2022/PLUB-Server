@@ -24,22 +24,23 @@ public class AuthController {
 
     @ApiOperation(value = "소셜 로그인 접근")
     @PostMapping("/login")
-    public ApiResponse<?> login(@RequestBody SocialLoginRequest loginDto) throws IOException {
-        AuthMessage authMessage = authService.loginAccess(loginDto);
+    public ApiResponse<?> login(@RequestBody SocialLoginRequest socialLoginRequest) throws IOException {
+        AuthMessage authMessage = authService.loginAccess(socialLoginRequest);
         return success(authMessage.detailData(), authMessage.detailMessage());
     }
 
     @ApiOperation(value = "소셜 회원가입 및 로그인")
     @PostMapping("/signup")
-    public ApiResponse<JwtDto> signUp(@Valid @RequestBody SignUpRequest signUpDto) {
-        SignAuthMessage signAuthMessage = authService.signUp(signUpDto);
+    public ApiResponse<JwtDto> signUp(@RequestHeader("X-ACCESS-TOKEN") String header,
+                                      @Valid @RequestBody SignUpRequest signUpRequest) {
+        SignAuthMessage signAuthMessage = authService.signUp(signUpRequest, header);
         return success(signAuthMessage.detailData(), signAuthMessage.detailMessage());
     }
 
     @ApiOperation(value = "토큰 재발행")
     @PostMapping("/reissue")
-    public ApiResponse<JwtDto> reissue(@RequestBody ReissueRequest reissueDto) {
-        return success(authService.reissue(reissueDto), "JWT 재발급");
+    public ApiResponse<JwtDto> reissue(@RequestBody ReissueRequest reissueRequest) {
+        return success(authService.reissue(reissueRequest), "JWT 재발급");
     }
 
     @ApiOperation(value = "로그아웃")

@@ -5,15 +5,17 @@ import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import plub.plubserver.common.dto.ApiResponse;
-import plub.plubserver.domain.account.dto.AuthDto;
 import plub.plubserver.domain.account.service.AccountService;
 
 import javax.validation.Valid;
 import java.io.IOException;
 
 import static plub.plubserver.common.dto.ApiResponse.success;
+import static plub.plubserver.domain.account.dto.AuthDto.AuthMessage;
+import static plub.plubserver.domain.account.dto.AuthDto.RevokeRequest;
 import static plub.plubserver.domain.account.dto.AccountDto.AccountInfoResponse;
 import static plub.plubserver.domain.account.dto.AccountDto.AccountProfileRequest;
+
 
 @RestController
 @RequestMapping("/api/account")
@@ -43,14 +45,14 @@ public class AccountController {
 
     @ApiOperation(value = "회원 프로필 수정 (프로필 사진, 인사말, 닉네임)")
     @PostMapping("/profile")
-    public ApiResponse<AccountInfoResponse> updateProfile(@Valid @ModelAttribute AccountProfileRequest form) {
-        return success(accountService.updateProfile(form), "내 정보 수정");
+    public ApiResponse<AccountInfoResponse> updateProfile(@Valid @ModelAttribute AccountProfileRequest accountProfileRequest) {
+        return success(accountService.updateProfile(accountProfileRequest), "내 정보 수정");
     }
-    
+
     @ApiOperation(value = "회원 탈퇴")
     @PostMapping("/revoke")
-    public ApiResponse<?> revoke(@RequestBody AuthDto.RevokeRequest revokeDto) throws IOException {
-        AuthDto.AuthMessage revoke = accountService.revoke(revokeDto);
+    public ApiResponse<?> revoke(@RequestBody RevokeRequest revokeRequest) throws IOException {
+        AuthMessage revoke = accountService.revoke(revokeRequest);
         return success(revoke.detailData(), revoke.detailMessage());
     }
 }

@@ -12,8 +12,8 @@ public class AccountTemplate {
     private static final BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
 
     private static Long id = 10000L;
-    public static final String EMAIL = "sectionr0@example.com";
-    public static final String EMAIL2 = "sectionr01@example.com";
+    public static final String EMAIL = "sectionr0@google";
+    public static final String EMAIL2 = "sectionr01@google";
     public static final String PASSWORD = "password";
     public static final String PASSWORD2 = "password";
     public static final String NICKNAME = "nickname123";
@@ -42,9 +42,7 @@ public class AccountTemplate {
 
     public static AuthDto.SignUpRequest makeSignUpRequest() {
         return AuthDto.SignUpRequest.builder()
-                .email(EMAIL)
                 .nickname(NICKNAME)
-                .socialType(SOCIAL_TYPE.toString())
                 .birthday(BIRTHDAY)
                 .gender(GENDER)
                 .introduce(INTRODUCE)
