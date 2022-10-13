@@ -62,15 +62,15 @@ public class AccountService {
 
     // 회원 정보 수정
     @Transactional
-    public AccountInfoResponse updateProfile(AccountProfileRequest form) {
+    public AccountInfoResponse updateProfile(AccountProfileRequest profileRequest) {
         Account myAccount = accountRepository.findByEmail(getCurrentAccountEmail())
                 .orElseThrow(NotFoundAccountException::new);
-        if (isDuplicateNickname(form.nickname())) throw new NicknameDuplicateException();
+        if (isDuplicateNickname(profileRequest.nickname())) throw new NicknameDuplicateException();
 
         AwsS3Uploader.S3FileDto newProfileImage =
-                awsS3Uploader.upload(form.profileImage(), S3SaveDir.ACCOUNT_PROFILE, myAccount);
+                awsS3Uploader.upload(profileRequest.profileImage(), S3SaveDir.ACCOUNT_PROFILE, myAccount);
 
-        myAccount.updateProfile(form.nickname(), form.introduce(), newProfileImage.savedPath());
+        myAccount.updateProfile(profileRequest.nickname(), profileRequest.introduce(), newProfileImage.savedPath());
         return AccountInfoResponse.of(myAccount);
     }
 
