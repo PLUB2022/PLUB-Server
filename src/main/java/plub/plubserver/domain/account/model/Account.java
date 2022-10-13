@@ -41,7 +41,7 @@ public class Account extends BaseTimeEntity {
     private String introduce;
     @Enumerated(EnumType.STRING)
     private SocialType socialType;
-    private String profile; // saved_path
+    private String profileImage;
     private String lastLogin;
     private String fcmToken;
     @Enumerated(EnumType.STRING)
@@ -79,7 +79,7 @@ public class Account extends BaseTimeEntity {
     private RefreshToken refreshToken;
 
     @Builder
-    public Account(String email, String password, String nickname, int age, String birthday, String gender, String phone, SocialType socialType, String profile, String lastLogin, String fcmToken, Role role, String introduce) {
+    public Account(String email, String password, String nickname, int age, String birthday, String gender, String phone, SocialType socialType, String profileImage, String lastLogin, String fcmToken, Role role, String introduce) {
         this.email = email;
         this.password = password;
         this.nickname = nickname;
@@ -88,14 +88,14 @@ public class Account extends BaseTimeEntity {
         this.gender = gender;
         this.phone = phone;
         this.socialType = socialType;
-        this.profile = profile;
+        this.profileImage = profileImage;
         this.lastLogin = lastLogin;
         this.fcmToken = fcmToken;
         this.introduce = introduce;
         this.role = role;
     }
 
-
+    // TODO : DTO에 변환로직이 가도록 수정해야함
     public AccountRequest toAccountRequestDto(){
         return new AccountRequest(email,email+"plub", nickname, socialType.getSocialName());
     }
@@ -104,11 +104,9 @@ public class Account extends BaseTimeEntity {
         this.id = id;
     }
 
-    public void updateNickname(String nickname) {
-        this.nickname = nickname;
-    }
-
-    public void updateIntroduce(String introduce) {
-        this.introduce = introduce;
+    public void updateProfile(String newNickname, String newIntroduce, String newProfileImage) {
+        this.nickname = newNickname;
+        this.profileImage = newProfileImage;
+        this.introduce = newIntroduce;
     }
 }

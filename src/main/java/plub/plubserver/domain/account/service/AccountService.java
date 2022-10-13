@@ -13,16 +13,19 @@ import org.springframework.web.client.RestTemplate;
 import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.account.repository.AccountRepository;
 import plub.plubserver.exception.account.AuthException;
-import plub.plubserver.exception.account.NickNameDuplicateException;
-import plub.plubserver.exception.account.NicknameRuleException;
+import plub.plubserver.exception.account.InvalidNicknameRuleException;
+import plub.plubserver.exception.account.NicknameDuplicateException;
 import plub.plubserver.exception.account.NotFoundAccountException;
+import plub.plubserver.util.s3.AwsS3Uploader;
+import plub.plubserver.util.s3.S3SaveDir;
 
 import java.io.IOException;
 import java.util.Collections;
 import java.util.regex.Pattern;
 
 import static plub.plubserver.config.security.SecurityUtils.getCurrentAccountEmail;
-import static plub.plubserver.domain.account.dto.AccountDto.*;
+import static plub.plubserver.domain.account.dto.AccountDto.AccountInfoResponse;
+import static plub.plubserver.domain.account.dto.AccountDto.AccountProfileRequest;
 import static plub.plubserver.domain.account.dto.AuthDto.*;
 
 @Service
@@ -33,6 +36,7 @@ public class AccountService {
     private final AccountRepository accountRepository;
     private final AppleService appleService;
     private final RestTemplate restTemplate;
+    private final AwsS3Uploader awsS3Uploader;
 
     @Value("${kakao.appAdminKey}")
     private String appAdminKey;
@@ -48,31 +52,25 @@ public class AccountService {
                 .map(AccountInfoResponse::of).orElseThrow(NotFoundAccountException::new);
     }
 
-    public boolean checkNickname(String nickname) {
+    public boolean isDuplicateNickname(String nickname) {
         String pattern = "^[0-9|a-z|A-Z|ㄱ-ㅎ|ㅏ-ㅣ|가-힣]*$";
         if (!Pattern.matches(pattern, nickname)) {
-            throw new NicknameRuleException();
+            throw new InvalidNicknameRuleException();
         }
         return accountRepository.existsByNickname(nickname);
     }
 
     // 회원 정보 수정
     @Transactional
-    public AccountInfoResponse updateNickname(AccountNicknameRequest accountNicknameRequest) {
+    public AccountInfoResponse updateProfile(AccountProfileRequest profileRequest) {
         Account myAccount = accountRepository.findByEmail(getCurrentAccountEmail())
                 .orElseThrow(NotFoundAccountException::new);
-        if (checkNickname(accountNicknameRequest.nickname())) {
-            throw new NickNameDuplicateException();
-        }
-        myAccount.updateNickname(accountNicknameRequest.nickname());
-        return AccountInfoResponse.of(myAccount);
-    }
+        if (isDuplicateNickname(profileRequest.nickname())) throw new NicknameDuplicateException();
 
-    @Transactional
-    public AccountInfoResponse updateIntroduce(AccountIntroduceRequest accountIntroduceRequest) {
-        Account myAccount = accountRepository.findByEmail(getCurrentAccountEmail())
-                .orElseThrow(NotFoundAccountException::new);
-        myAccount.updateIntroduce(accountIntroduceRequest.introduce());
+        AwsS3Uploader.S3FileDto newProfileImage =
+                awsS3Uploader.upload(profileRequest.profileImage(), S3SaveDir.ACCOUNT_PROFILE, myAccount);
+
+        myAccount.updateProfile(profileRequest.nickname(), profileRequest.introduce(), newProfileImage.savedPath());
         return AccountInfoResponse.of(myAccount);
     }
 

@@ -11,9 +11,11 @@ import javax.validation.Valid;
 import java.io.IOException;
 
 import static plub.plubserver.common.dto.ApiResponse.success;
-import static plub.plubserver.domain.account.dto.AccountDto.*;
 import static plub.plubserver.domain.account.dto.AuthDto.AuthMessage;
 import static plub.plubserver.domain.account.dto.AuthDto.RevokeRequest;
+import static plub.plubserver.domain.account.dto.AccountDto.AccountInfoResponse;
+import static plub.plubserver.domain.account.dto.AccountDto.AccountProfileRequest;
+
 
 @RestController
 @RequestMapping("/api/account")
@@ -37,18 +39,15 @@ public class AccountController {
 
     @ApiOperation(value = "닉네임 검증 API")
     @GetMapping("/check/nickname/{nickname}")
-    public ApiResponse<Boolean> checkNickname(@Valid @PathVariable String nickname) {
-        return success(accountService.checkNickname(nickname), "check nickname");
+    public ApiResponse<Boolean> isDuplicateNickname(@Valid @PathVariable String nickname) {
+        return success(accountService.isDuplicateNickname(nickname), "닉네임 중복 체크");
     }
 
-    @PutMapping("/nickname")
-    public ApiResponse<AccountInfoResponse> updateNickname(@Valid @RequestBody AccountNicknameRequest request) {
-        return success(accountService.updateNickname(request), "내 정보 조회");
-    }
 
-    @PutMapping("/introduce")
-    public ApiResponse<AccountInfoResponse> updateIntroduce(@Valid @RequestBody AccountIntroduceRequest request) {
-        return success(accountService.updateIntroduce(request), "내 정보 조회");
+    @ApiOperation(value = "회원 프로필 수정 (프로필 사진, 인사말, 닉네임)")
+    @PostMapping("/profile")
+    public ApiResponse<AccountInfoResponse> updateProfile(@Valid @ModelAttribute AccountProfileRequest accountProfileRequest) {
+        return success(accountService.updateProfile(accountProfileRequest), "내 정보 수정");
     }
 
     @ApiOperation(value = "회원 탈퇴")

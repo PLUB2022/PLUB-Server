@@ -9,8 +9,14 @@ import plub.plubserver.common.dto.ApiResponse;
 @RestControllerAdvice
 public class AccountExceptionHandler {
 
-    @ExceptionHandler(NickNameDuplicateException.class)
-    public ApiResponse<?> handle(NickNameDuplicateException ex){
+    @ExceptionHandler(InvalidNicknameRuleException.class)
+    public ApiResponse<?> handle(InvalidNicknameRuleException ex){
+        log.error("예외 발생 및 처리 = {} : {}", ex.getClass().getName(), ex.getMessage());
+        return ApiResponse.error(ex.getErrorCode(), ex.getMessage());
+    }
+
+    @ExceptionHandler(NicknameDuplicateException.class)
+    public ApiResponse<?> handle(NicknameDuplicateException ex){
         log.error("예외 발생 및 처리 = {} : {}", ex.getClass().getName(), ex.getMessage());
         return ApiResponse.error(ex.getErrorCode(), ex.getMessage());
     }

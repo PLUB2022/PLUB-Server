@@ -98,7 +98,7 @@ public class AuthService {
             throw new EmailDuplicateException();
         }
         if (accountRepository.existsByNickname(nickname)) {
-            throw new NickNameDuplicateException();
+            throw new NicknameDuplicateException();
         }
     }
 

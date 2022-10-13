@@ -14,7 +14,7 @@ import plub.plubserver.domain.account.dto.AccountDto;
 import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.account.repository.AccountRepository;
 import plub.plubserver.exception.account.EmailDuplicateException;
-import plub.plubserver.exception.account.NickNameDuplicateException;
+import plub.plubserver.exception.account.NicknameDuplicateException;
 
 import java.io.IOException;
 
