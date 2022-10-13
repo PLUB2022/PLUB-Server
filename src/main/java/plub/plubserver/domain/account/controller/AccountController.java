@@ -5,16 +5,15 @@ import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import plub.plubserver.common.dto.ApiResponse;
-import plub.plubserver.domain.account.dto.AccountDto;
-import plub.plubserver.domain.account.dto.AuthDto;
 import plub.plubserver.domain.account.service.AccountService;
 
 import javax.validation.Valid;
-
 import java.io.IOException;
 
 import static plub.plubserver.common.dto.ApiResponse.success;
-import static plub.plubserver.domain.account.dto.AccountDto.AccountInfo;
+import static plub.plubserver.domain.account.dto.AccountDto.*;
+import static plub.plubserver.domain.account.dto.AuthDto.AuthMessage;
+import static plub.plubserver.domain.account.dto.AuthDto.RevokeRequest;
 
 @RestController
 @RequestMapping("/api/account")
@@ -26,13 +25,13 @@ public class AccountController {
 
     @ApiOperation(value = "회원 정보")
     @GetMapping("/me")
-    public ApiResponse<AccountInfo> getMyAccountInfo() {
+    public ApiResponse<AccountInfoResponse> getMyAccountInfo() {
         return success(accountService.getMyAccount(), "내 정보 조회");
     }
 
     @ApiOperation(value = "닉네임으로 회원 조회")
     @GetMapping("/{nickname}")
-    public ApiResponse<AccountInfo> getAccountInfo(@Valid @PathVariable String nickname) {
+    public ApiResponse<AccountInfoResponse> getAccountInfo(@Valid @PathVariable String nickname) {
         return success(accountService.getAccount(nickname), "유저 정보 조회");
     }
 
@@ -43,19 +42,19 @@ public class AccountController {
     }
 
     @PutMapping("/nickname")
-    public ApiResponse<AccountInfo> updateNickname(@Valid @RequestBody AccountDto.AccountNicknameRequest request) {
+    public ApiResponse<AccountInfoResponse> updateNickname(@Valid @RequestBody AccountNicknameRequest request) {
         return success(accountService.updateNickname(request), "내 정보 조회");
     }
 
     @PutMapping("/introduce")
-    public ApiResponse<AccountInfo> updateIntroduce(@Valid @RequestBody AccountDto.AccountIntroduceRequest request) {
+    public ApiResponse<AccountInfoResponse> updateIntroduce(@Valid @RequestBody AccountIntroduceRequest request) {
         return success(accountService.updateIntroduce(request), "내 정보 조회");
     }
 
     @ApiOperation(value = "회원 탈퇴")
     @PostMapping("/revoke")
-    public ApiResponse<?> revoke(@RequestBody AuthDto.RevokeRequest revokeDto) throws IOException {
-        AuthDto.AuthMessage revoke = accountService.revoke(revokeDto);
+    public ApiResponse<?> revoke(@RequestBody RevokeRequest revokeRequest) throws IOException {
+        AuthMessage revoke = accountService.revoke(revokeRequest);
         return success(revoke.detailData(), revoke.detailMessage());
     }
 }

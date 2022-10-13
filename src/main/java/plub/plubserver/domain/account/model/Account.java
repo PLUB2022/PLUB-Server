@@ -3,7 +3,6 @@ package plub.plubserver.domain.account.model;
 import lombok.*;
 import plub.plubserver.common.model.BaseTimeEntity;
 import plub.plubserver.config.jwt.RefreshToken;
-import plub.plubserver.domain.account.dto.AccountDto;
 import plub.plubserver.domain.activity.model.AccountPlubing;
 import plub.plubserver.domain.alarm.model.Alarm;
 import plub.plubserver.domain.category.model.Category;
@@ -15,6 +14,8 @@ import javax.persistence.*;
 import javax.validation.constraints.Pattern;
 import java.util.ArrayList;
 import java.util.List;
+
+import static plub.plubserver.domain.account.dto.AccountDto.AccountRequest;
 
 @Entity
 @Getter
@@ -95,8 +96,8 @@ public class Account extends BaseTimeEntity {
     }
 
 
-    public AccountDto.AccountRequest toAccountRequestDto(){
-        return new AccountDto.AccountRequest(email,email+"plub",nickname, socialType.getSocialName());
+    public AccountRequest toAccountRequestDto(){
+        return new AccountRequest(email,email+"plub", nickname, socialType.getSocialName());
     }
 
     public void setIdForTest(Long id) {

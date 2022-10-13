@@ -10,7 +10,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
-import plub.plubserver.domain.account.dto.AccountDto;
 import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.account.repository.AccountRepository;
 import plub.plubserver.exception.account.AuthException;
@@ -23,7 +22,7 @@ import java.util.Collections;
 import java.util.regex.Pattern;
 
 import static plub.plubserver.config.security.SecurityUtils.getCurrentAccountEmail;
-import static plub.plubserver.domain.account.dto.AccountDto.AccountInfo;
+import static plub.plubserver.domain.account.dto.AccountDto.*;
 import static plub.plubserver.domain.account.dto.AuthDto.*;
 
 @Service
@@ -39,14 +38,14 @@ public class AccountService {
     private String appAdminKey;
 
     // 회원 정보 조회
-    public AccountInfo getMyAccount() {
+    public AccountInfoResponse getMyAccount() {
         return accountRepository.findByEmail(getCurrentAccountEmail())
-                .map(AccountInfo::of).orElseThrow(NotFoundAccountException::new);
+                .map(AccountInfoResponse::of).orElseThrow(NotFoundAccountException::new);
     }
 
-    public AccountInfo getAccount(String nickname) {
+    public AccountInfoResponse getAccount(String nickname) {
         return accountRepository.findByNickname(nickname)
-                .map(AccountInfo::of).orElseThrow(NotFoundAccountException::new);
+                .map(AccountInfoResponse::of).orElseThrow(NotFoundAccountException::new);
     }
 
     public boolean checkNickname(String nickname) {
@@ -59,22 +58,22 @@ public class AccountService {
 
     // 회원 정보 수정
     @Transactional
-    public AccountInfo updateNickname(AccountDto.AccountNicknameRequest request) {
+    public AccountInfoResponse updateNickname(AccountNicknameRequest accountNicknameRequest) {
         Account myAccount = accountRepository.findByEmail(getCurrentAccountEmail())
                 .orElseThrow(NotFoundAccountException::new);
-        if (checkNickname(request.nickname())) {
+        if (checkNickname(accountNicknameRequest.nickname())) {
             throw new NickNameDuplicateException();
         }
-        myAccount.updateNickname(request.nickname());
-        return AccountInfo.of(myAccount);
+        myAccount.updateNickname(accountNicknameRequest.nickname());
+        return AccountInfoResponse.of(myAccount);
     }
 
     @Transactional
-    public AccountInfo updateIntroduce(AccountDto.AccountIntroduceRequest request) {
+    public AccountInfoResponse updateIntroduce(AccountIntroduceRequest accountIntroduceRequest) {
         Account myAccount = accountRepository.findByEmail(getCurrentAccountEmail())
                 .orElseThrow(NotFoundAccountException::new);
-        myAccount.updateIntroduce(request.introduce());
-        return AccountInfo.of(myAccount);
+        myAccount.updateIntroduce(accountIntroduceRequest.introduce());
+        return AccountInfoResponse.of(myAccount);
     }
 
     @Transactional
@@ -95,17 +94,17 @@ public class AccountService {
         return new AuthMessage("", "탈퇴완료");
     }
 
-    private void revokeGoogle(RevokeRequest revokeAccount) {
-        String accessToken = revokeAccount.accessToken();
+    private void revokeGoogle(RevokeRequest revokeRequest) {
+        String accessToken = revokeRequest.accessToken();
         MultiValueMap<String, String> parameters = new LinkedMultiValueMap<>();
         parameters.add("token", accessToken);
         restTemplate.postForEntity("https://oauth2.googleapis.com/revoke", parameters, String.class);
     }
 
-    private void revokeKakao(RevokeRequest revokeAccount) {
+    private void revokeKakao(RevokeRequest revokeRequest) {
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("target_id_type", "user_id");
-        params.add("target_id", revokeAccount.userId());
+        params.add("target_id", revokeRequest.userId());
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "KakaoAK " + appAdminKey);
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);

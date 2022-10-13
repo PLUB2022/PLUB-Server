@@ -55,8 +55,8 @@ public class AuthService {
     private final AccountRepository accountRepository;
     private final AppleService appleService;
 
-    public AuthMessage loginAccess(SocialLoginRequest loginDto) {
-        String email = fetchSocialEmail(loginDto);
+    public AuthMessage loginAccess(SocialLoginRequest socialLoginRequest) {
+        String email = fetchSocialEmail(socialLoginRequest);
         Optional<Account> account = accountRepository.findByEmail(email);
         AuthMessage loginMessage;
 
@@ -80,14 +80,14 @@ public class AuthService {
     }
 
     @Transactional
-    public SignAuthMessage signUp(SignUpRequest signUpDto, String header) {
+    public SignAuthMessage signUp(SignUpRequest signUpRequest, String header) {
         String signToken = jwtProvider.resolveSignToken(header);
         SigningAccount signKey = jwtProvider.getSignKey(signToken);
         String email = signKey.email();
         String socialType = signKey.socialType();
-        String nickname = signUpDto.nickname();
+        String nickname = signUpRequest.nickname();
         duplicateEmailAndNickName(email, nickname);
-        Account account = signUpDto.toAccount(email, socialType, passwordEncoder);
+        Account account = signUpRequest.toAccount(email, socialType, passwordEncoder);
         accountRepository.save(account);
         JwtDto jwtDto = login(account.toAccountRequestDto().toLoginRequest());
         return new SignAuthMessage(jwtDto, "회원가입 완료. 토큰 발행");
@@ -102,16 +102,16 @@ public class AuthService {
         }
     }
 
-    private String fetchSocialEmail(SocialLoginRequest loginRequestDto){
-        String provider = loginRequestDto.socialType();
+    private String fetchSocialEmail(SocialLoginRequest socialLoginRequest){
+        String provider = socialLoginRequest.socialType();
         if (provider.equalsIgnoreCase("Google")) {
-            return getGoogleId(loginRequestDto.accessToken());
+            return getGoogleId(socialLoginRequest.accessToken());
         } else if (provider.equalsIgnoreCase("Kakao")) {
-            return getKakaoId(loginRequestDto.accessToken());
+            return getKakaoId(socialLoginRequest.accessToken());
         } else {
-            String appleId = getAppleId(loginRequestDto.accessToken());
+            String appleId = getAppleId(socialLoginRequest.accessToken());
             try {
-                appleService.GenerateAuthToken(loginRequestDto.authorizationCode());
+                appleService.GenerateAuthToken(socialLoginRequest.authorizationCode());
             } catch (Exception e) {
                 throw new AppleException();
             }

@@ -26,7 +26,7 @@ public class AccountDto {
         }
     }
 
-    public record AccountInfo(
+    public record AccountInfoResponse(
             @ApiModelProperty(value = "이메일",example = "plub@example.com")
             String email,
             @ApiModelProperty(value = "닉네임", example = "플럽")
@@ -40,9 +40,9 @@ public class AccountDto {
             @ApiModelProperty(value = "자기소개", example = "안녕하세요! 저는 플럽이에요")
             String introduce
     ){
-        @Builder public AccountInfo{}
-        public static AccountInfo of(Account account) {
-            return AccountInfo.builder()
+        @Builder public AccountInfoResponse {}
+        public static AccountInfoResponse of(Account account) {
+            return AccountInfoResponse.builder()
                     .email(account.getEmail())
                     .nickname(account.getNickname())
                     .socialType(account.getSocialType())

@@ -40,7 +40,6 @@ public class JwtProvider {
         else return null;
     }
 
-    // Request 헤더에서 토큰을 파싱한다
     public String resolveSignToken(String rawToken) {
         if (rawToken != null && rawToken.startsWith("Bearer "))
             return rawToken.replace("Bearer ", "");
@@ -111,7 +110,7 @@ public class JwtProvider {
         UserDetails userDetails = principalDetailService.loadUserByUsername(email);
         return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
     }
-    
+
     public AuthDto.SigningAccount getSignKey(String signToken) {
         Claims body = Jwts.parserBuilder()
                 .setSigningKey(secret)
