@@ -31,7 +31,7 @@ public class AuthController {
 
     @ApiOperation(value = "소셜 회원가입 및 로그인")
     @PostMapping("/signup")
-    public ApiResponse<JwtDto> signUp(@RequestHeader("X-ACCESS_TOKEN") String header,
+    public ApiResponse<JwtDto> signUp(@RequestHeader("X-ACCESS-TOKEN") String header,
                                       @Valid @RequestBody SignUpRequest signUpRequest) {
         SignAuthMessage signAuthMessage = authService.signUp(signUpRequest, header);
         return success(signAuthMessage.detailData(), signAuthMessage.detailMessage());
