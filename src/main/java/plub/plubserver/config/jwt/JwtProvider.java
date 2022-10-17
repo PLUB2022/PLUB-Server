@@ -11,7 +11,7 @@ import plub.plubserver.config.security.PrincipalDetailService;
 import plub.plubserver.domain.account.dto.AuthDto;
 import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.account.model.Role;
-import plub.plubserver.exception.account.SignTokenException;
+import plub.plubserver.domain.account.exception.SignTokenException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
@@ -43,7 +43,7 @@ public class JwtProvider {
     public String resolveSignToken(String rawToken) {
         if (rawToken != null && rawToken.startsWith("Bearer "))
             return rawToken.replace("Bearer ", "");
-        else throw new SignTokenException();
+        else throw new SignTokenException(rawToken);
     }
 
     // Sign Token 생성

@@ -25,10 +25,10 @@ import plub.plubserver.config.jwt.RefreshToken;
 import plub.plubserver.config.jwt.RefreshTokenRepository;
 import plub.plubserver.config.security.PrincipalDetails;
 import plub.plubserver.domain.account.dto.AppleDto;
+import plub.plubserver.domain.account.exception.*;
 import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.account.model.SocialType;
 import plub.plubserver.domain.account.repository.AccountRepository;
-import plub.plubserver.exception.account.*;
 
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
@@ -95,10 +95,10 @@ public class AuthService {
 
     private void duplicateEmailAndNickName(String email, String nickname) {
         if (accountRepository.existsByEmail(email)) {
-            throw new EmailDuplicateException();
+            throw new DuplicateEmailException();
         }
         if (accountRepository.existsByNickname(nickname)) {
-            throw new NicknameDuplicateException();
+            throw new DuplicateNicknameException();
         }
     }
 
@@ -113,7 +113,7 @@ public class AuthService {
             try {
                 appleService.GenerateAuthToken(socialLoginRequest.authorizationCode());
             } catch (Exception e) {
-                throw new AppleException();
+                throw new AppleLoginException(); // TODO : Apple 로그인 중 어떨때 발생하는 것인지?
             }
             return appleId;
         }
@@ -167,7 +167,7 @@ public class AuthService {
             return subject+"@APPLE";
         } catch (JsonProcessingException | NoSuchAlgorithmException | InvalidKeySpecException | SignatureException |
                 MalformedJwtException | ExpiredJwtException | IllegalArgumentException e) {
-            throw new AppleException();
+            throw new AppleLoginException(); // TODO : 위에 있는 모든 예외를 다 캐치?
         }
     }
 
@@ -193,9 +193,9 @@ public class AuthService {
     @Transactional
     public String logout() {
         Account account = accountRepository.findByEmail(getCurrentAccountEmail())
-                .orElseThrow(NotFoundAccountException::new);
+                .orElseThrow(AccountNotFoundException::new);
         RefreshToken refreshToken = refreshTokenRepository.findByAccount(account)
-                .orElseThrow(NotFountRefreshTokenException::new);
+                .orElseThrow(RefreshTokenNotFoundException::new);
         refreshTokenRepository.delete(refreshToken);
         refreshTokenRepository.flush();
         return "로그아웃 완료";

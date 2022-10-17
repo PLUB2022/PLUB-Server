@@ -9,7 +9,7 @@ import plub.plubserver.config.jwt.JwtDto;
 import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.account.model.Role;
 import plub.plubserver.domain.account.model.SocialType;
-import plub.plubserver.exception.account.InvalidSocialTypeException;
+import plub.plubserver.domain.account.exception.InvalidSocialTypeException;
 
 @Slf4j
 public class AuthDto {
@@ -48,7 +48,7 @@ public class AuthDto {
                 return SocialType.KAKAO;
             } else if (socialType.equalsIgnoreCase(SocialType.APPLE.name())) {
                 return SocialType.APPLE;
-            } else throw new InvalidSocialTypeException();
+            } else throw new InvalidSocialTypeException(socialType);
         }
         public Account toAccount(String email, String socialType, PasswordEncoder passwordEncoder) {
             return Account.builder()

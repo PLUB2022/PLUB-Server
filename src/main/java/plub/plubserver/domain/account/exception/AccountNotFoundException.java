@@ -1,13 +1,13 @@
-package plub.plubserver.exception.account;
+package plub.plubserver.domain.account.exception;
 
 import lombok.Getter;
 import plub.plubserver.exception.ErrorCode;
 
 @Getter
-public class NotFoundAccountException extends RuntimeException {
+public class AccountNotFoundException extends RuntimeException {
     private final ErrorCode errorCode;
 
-    public NotFoundAccountException(){
+    public AccountNotFoundException(){
         super("유저 정보를 찾을 수 없습니다.");
         this.errorCode = ErrorCode.NOT_FOUND_ACCOUNT;
     }

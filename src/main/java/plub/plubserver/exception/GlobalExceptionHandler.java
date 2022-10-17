@@ -2,6 +2,7 @@ package plub.plubserver.exception;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.BindException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -40,6 +41,14 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ValidationException.class)
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
     protected ApiResponse<?> ValidationException(final ValidationException ex) {
+        log.error("예외 발생 및 처리 = {} : {}", ex.getMessage(), ex.getMessage());
+        return ApiResponse.error(ErrorCode.INVALID_INPUT_VALUE, ex.getMessage());
+    }
+
+    // @Valid 실패시 이 예외가 터져서 잡아줘야 함
+    @ExceptionHandler(BindException.class)
+    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+    protected ApiResponse<?> ValidationException(final BindException ex) {
         log.error("예외 발생 및 처리 = {} : {}", ex.getMessage(), ex.getMessage());
         return ApiResponse.error(ErrorCode.INVALID_INPUT_VALUE, ex.getMessage());
     }

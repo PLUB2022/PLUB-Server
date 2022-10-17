@@ -10,12 +10,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
+import plub.plubserver.domain.account.exception.*;
 import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.account.repository.AccountRepository;
-import plub.plubserver.exception.account.AuthException;
-import plub.plubserver.exception.account.InvalidNicknameRuleException;
-import plub.plubserver.exception.account.NicknameDuplicateException;
-import plub.plubserver.exception.account.NotFoundAccountException;
 import plub.plubserver.util.s3.AwsS3Uploader;
 import plub.plubserver.util.s3.S3SaveDir;
 
@@ -44,18 +41,18 @@ public class AccountService {
     // 회원 정보 조회
     public AccountInfoResponse getMyAccount() {
         return accountRepository.findByEmail(getCurrentAccountEmail())
-                .map(AccountInfoResponse::of).orElseThrow(NotFoundAccountException::new);
+                .map(AccountInfoResponse::of).orElseThrow(AccountNotFoundException::new);
     }
 
     public AccountInfoResponse getAccount(String nickname) {
         return accountRepository.findByNickname(nickname)
-                .map(AccountInfoResponse::of).orElseThrow(NotFoundAccountException::new);
+                .map(AccountInfoResponse::of).orElseThrow(AccountNotFoundException::new);
     }
 
     public boolean isDuplicateNickname(String nickname) {
         String pattern = "^[0-9|a-z|A-Z|ㄱ-ㅎ|ㅏ-ㅣ|가-힣]*$";
         if (!Pattern.matches(pattern, nickname)) {
-            throw new InvalidNicknameRuleException();
+            throw new InvalidNicknameRuleException(nickname);
         }
         return accountRepository.existsByNickname(nickname);
     }
@@ -64,8 +61,8 @@ public class AccountService {
     @Transactional
     public AccountInfoResponse updateProfile(AccountProfileRequest profileRequest) {
         Account myAccount = accountRepository.findByEmail(getCurrentAccountEmail())
-                .orElseThrow(NotFoundAccountException::new);
-        if (isDuplicateNickname(profileRequest.nickname())) throw new NicknameDuplicateException();
+                .orElseThrow(AccountNotFoundException::new);
+        if (isDuplicateNickname(profileRequest.nickname())) throw new DuplicateNicknameException();
 
         AwsS3Uploader.S3FileDto newProfileImage =
                 awsS3Uploader.upload(profileRequest.profileImage(), S3SaveDir.ACCOUNT_PROFILE, myAccount);
@@ -77,7 +74,7 @@ public class AccountService {
     @Transactional
     public AuthMessage revoke(RevokeRequest revokeAccount) throws IOException {
         Account myAccount = accountRepository.findByEmail(getCurrentAccountEmail())
-                .orElseThrow(NotFoundAccountException::new);
+                .orElseThrow(AccountNotFoundException::new);
         String socialName = myAccount.getSocialType().getSocialName();
 
         if (socialName.equalsIgnoreCase("Google")) {
@@ -87,7 +84,7 @@ public class AccountService {
         } else if (socialName.equalsIgnoreCase("Apple")) {
             appleService.revokeApple(revokeAccount.authorizationCode());
         } else {
-            throw new AuthException();
+            throw new InvalidSocialTypeException(socialName);
         }
         return new AuthMessage("", "탈퇴완료");
     }

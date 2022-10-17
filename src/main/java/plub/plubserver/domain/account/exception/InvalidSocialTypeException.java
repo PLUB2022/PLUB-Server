@@ -1,4 +1,4 @@
-package plub.plubserver.exception.account;
+package plub.plubserver.domain.account.exception;
 
 import lombok.Getter;
 import plub.plubserver.exception.ErrorCode;
@@ -7,8 +7,8 @@ import plub.plubserver.exception.ErrorCode;
 public class InvalidSocialTypeException extends RuntimeException {
     private final ErrorCode errorCode;
 
-    public InvalidSocialTypeException(){
-        super("소셜 정보를 찾을 수 없습니다.");
+    public InvalidSocialTypeException(String socialType){
+        super("[" + socialType + "] 해당 소셜 정보는 지원하지 않습니다.");
         this.errorCode = ErrorCode.NOT_FOUND_ACCOUNT;
     }
 }

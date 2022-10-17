@@ -12,8 +12,8 @@ import org.springframework.security.test.context.support.WithMockUser;
 import plub.plubserver.domain.account.AccountTemplate;
 import plub.plubserver.domain.account.dto.AccountDto.AccountProfileRequest;
 import plub.plubserver.domain.account.repository.AccountRepository;
-import plub.plubserver.exception.account.InvalidNicknameRuleException;
-import plub.plubserver.exception.account.NotFoundAccountException;
+import plub.plubserver.domain.account.exception.InvalidNicknameRuleException;
+import plub.plubserver.domain.account.exception.AccountNotFoundException;
 import plub.plubserver.util.AwsS3MockConfig;
 import plub.plubserver.util.s3.AwsS3Uploader;
 
@@ -63,7 +63,7 @@ class AccountServiceTest {
     @Test
     void getAccount_실패() {
         accountRepository.save(AccountTemplate.makeAccount2());
-        assertThrows(NotFoundAccountException.class, () -> accountService.getAccount(NICKNAME2));
+        assertThrows(AccountNotFoundException.class, () -> accountService.getAccount(NICKNAME2));
     }
 
     @Test @DisplayName("updateProfile 성공")

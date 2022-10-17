@@ -1,4 +1,4 @@
-package plub.plubserver.exception.account;
+package plub.plubserver.domain.account.exception;
 
 import lombok.Getter;
 import plub.plubserver.exception.ErrorCode;
@@ -7,8 +7,8 @@ import plub.plubserver.exception.ErrorCode;
 public class SignTokenException extends RuntimeException {
     private final ErrorCode errorCode;
 
-    public SignTokenException(){
-        super("회원 가입 정보를 찾을 수 없습니다.");
+    public SignTokenException(String rawToken){
+        super("[" + rawToken + "]\n토큰 헤더 정보가 잘못 되었습니다.");
         this.errorCode = ErrorCode.NOT_FOUND_REFRESH_TOKEN;
     }
 }
