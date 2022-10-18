@@ -6,10 +6,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import plub.plubserver.config.jwt.JwtDto;
+import plub.plubserver.domain.account.exception.AccountError;
+import plub.plubserver.domain.account.exception.AccountException;
 import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.account.model.Role;
 import plub.plubserver.domain.account.model.SocialType;
-import plub.plubserver.domain.account.exception.InvalidSocialTypeException;
 
 @Slf4j
 public class AuthDto {
@@ -48,7 +49,7 @@ public class AuthDto {
                 return SocialType.KAKAO;
             } else if (socialType.equalsIgnoreCase(SocialType.APPLE.name())) {
                 return SocialType.APPLE;
-            } else throw new InvalidSocialTypeException(socialType);
+            } else throw new AccountException(AccountError.SOCIAL_TYPE_ERROR);
         }
         public Account toAccount(String email, String socialType, PasswordEncoder passwordEncoder) {
             return Account.builder()

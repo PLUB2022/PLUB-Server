@@ -9,7 +9,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.stereotype.Component;
 import plub.plubserver.common.dto.ApiResponse;
-import plub.plubserver.exception.ErrorCode;
+import plub.plubserver.domain.account.exception.AccountError;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -29,7 +29,9 @@ public class JwtAccessDeniedHandler implements AccessDeniedHandler {
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setCharacterEncoding("utf-8");
         response.setStatus(HttpStatus.FORBIDDEN.value());
-        String body = objectMapper.writeValueAsString(ApiResponse.error(ErrorCode.FILTER_ROLE_FORBIDDEN, "접근 거부 : 해당 자원에 접근할 권한이 없습니다."));
+        String body = objectMapper.writeValueAsString(
+                ApiResponse.error(AccountError.FILTER_ROLE_FORBIDDEN.getCode(), AccountError.FILTER_ROLE_FORBIDDEN.getMessage())
+        );
         response.getWriter().write(body);
     }
 }

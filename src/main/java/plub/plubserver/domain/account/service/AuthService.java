@@ -84,7 +84,7 @@ public class AuthService {
         String signToken = jwtProvider.resolveSignToken(header);
 
         if (!jwtProvider.validate(signToken))
-            throw new SignTokenException(signToken);
+            throw new AccountException(AccountError.SIGNUP_TOKEN_ERROR);
 
         SigningAccount signKey = jwtProvider.getSignKey(signToken);
         String email = signKey.email();
@@ -99,10 +99,10 @@ public class AuthService {
 
     private void duplicateEmailAndNickName(String email, String nickname) {
         if (accountRepository.existsByEmail(email)) {
-            throw new DuplicateEmailException();
+            throw new AccountException(AccountError.EMAIL_DUPLICATION);
         }
         if (accountRepository.existsByNickname(nickname)) {
-            throw new DuplicateNicknameException();
+            throw new AccountException(AccountError.NICKNAME_DUPLICATION);
         }
     }
 
@@ -117,7 +117,7 @@ public class AuthService {
             try {
                 appleService.GenerateAuthToken(socialLoginRequest.authorizationCode());
             } catch (Exception e) {
-                throw new AppleLoginException(); // TODO : Apple 로그인 중 어떨때 발생하는 것인지?
+                throw new AccountException(AccountError.APPLE_LOGIN_ERROR); // TODO : Apple 로그인 중 어떨때 발생하는 것인지?
             }
             return appleId;
         }
@@ -171,7 +171,7 @@ public class AuthService {
             return subject+"@APPLE";
         } catch (JsonProcessingException | NoSuchAlgorithmException | InvalidKeySpecException | SignatureException |
                 MalformedJwtException | ExpiredJwtException | IllegalArgumentException e) {
-            throw new AppleLoginException(); // TODO : 위에 있는 모든 예외를 다 캐치?
+            throw new AccountException(AccountError.APPLE_LOGIN_ERROR); // TODO : 위에 있는 모든 예외를 다 캐치?
         }
     }
 
@@ -191,15 +191,17 @@ public class AuthService {
     }
 
     public JwtDto reissue(ReissueRequest reissueDto) {
-        return jwtProvider.reIssue(reissueDto.refreshToken());
+        return jwtProvider.reissue(reissueDto.refreshToken());
     }
 
     @Transactional
     public String logout() {
-        Account account = accountRepository.findByEmail(getCurrentAccountEmail())
-                .orElseThrow(NotFoundAccountException::new);
-        RefreshToken refreshToken = refreshTokenRepository.findByAccount(account)
-                .orElseThrow(NotFoundRefreshTokenException::new);
+        Account account = accountRepository
+                .findByEmail(getCurrentAccountEmail())
+                .orElseThrow(() -> new AccountException(AccountError.NOT_FOUND_ACCOUNT));
+        RefreshToken refreshToken = refreshTokenRepository
+                .findByAccount(account)
+                .orElseThrow(() -> new AccountException(AccountError.NOT_FOUND_REFRESH_TOKEN));
         refreshTokenRepository.delete(refreshToken);
         refreshTokenRepository.flush();
         return "로그아웃 완료";

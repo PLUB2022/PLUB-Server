@@ -9,7 +9,6 @@ import plub.plubserver.config.jwt.JwtDto;
 import plub.plubserver.domain.account.service.AuthService;
 
 import javax.validation.Valid;
-import java.io.IOException;
 
 import static plub.plubserver.common.dto.ApiResponse.success;
 import static plub.plubserver.domain.account.dto.AuthDto.*;
@@ -24,7 +23,7 @@ public class AuthController {
 
     @ApiOperation(value = "소셜 로그인 접근")
     @PostMapping("/login")
-    public ApiResponse<?> login(@RequestBody SocialLoginRequest socialLoginRequest) throws IOException {
+    public ApiResponse<?> login(@RequestBody SocialLoginRequest socialLoginRequest) {
         AuthMessage authMessage = authService.loginAccess(socialLoginRequest);
         return success(authMessage.detailData(), authMessage.detailMessage());
     }
