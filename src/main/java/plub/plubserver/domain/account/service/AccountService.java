@@ -41,12 +41,12 @@ public class AccountService {
     // 회원 정보 조회
     public AccountInfoResponse getMyAccount() {
         return accountRepository.findByEmail(getCurrentAccountEmail())
-                .map(AccountInfoResponse::of).orElseThrow(AccountNotFoundException::new);
+                .map(AccountInfoResponse::of).orElseThrow(NotFoundAccountException::new);
     }
 
     public AccountInfoResponse getAccount(String nickname) {
         return accountRepository.findByNickname(nickname)
-                .map(AccountInfoResponse::of).orElseThrow(AccountNotFoundException::new);
+                .map(AccountInfoResponse::of).orElseThrow(NotFoundAccountException::new);
     }
 
     public boolean isDuplicateNickname(String nickname) {
@@ -61,7 +61,7 @@ public class AccountService {
     @Transactional
     public AccountInfoResponse updateProfile(AccountProfileRequest profileRequest) {
         Account myAccount = accountRepository.findByEmail(getCurrentAccountEmail())
-                .orElseThrow(AccountNotFoundException::new);
+                .orElseThrow(NotFoundAccountException::new);
         if (isDuplicateNickname(profileRequest.nickname())) throw new DuplicateNicknameException();
 
         AwsS3Uploader.S3FileDto newProfileImage =
@@ -74,7 +74,7 @@ public class AccountService {
     @Transactional
     public AuthMessage revoke(RevokeRequest revokeAccount) throws IOException {
         Account myAccount = accountRepository.findByEmail(getCurrentAccountEmail())
-                .orElseThrow(AccountNotFoundException::new);
+                .orElseThrow(NotFoundAccountException::new);
         String socialName = myAccount.getSocialType().getSocialName();
 
         if (socialName.equalsIgnoreCase("Google")) {

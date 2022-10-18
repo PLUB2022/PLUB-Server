@@ -82,6 +82,10 @@ public class AuthService {
     @Transactional
     public SignAuthMessage signUp(SignUpRequest signUpRequest, String header) {
         String signToken = jwtProvider.resolveSignToken(header);
+
+        if (!jwtProvider.validate(signToken))
+            throw new SignTokenException(signToken);
+
         SigningAccount signKey = jwtProvider.getSignKey(signToken);
         String email = signKey.email();
         String socialType = signKey.socialType();
@@ -193,9 +197,9 @@ public class AuthService {
     @Transactional
     public String logout() {
         Account account = accountRepository.findByEmail(getCurrentAccountEmail())
-                .orElseThrow(AccountNotFoundException::new);
+                .orElseThrow(NotFoundAccountException::new);
         RefreshToken refreshToken = refreshTokenRepository.findByAccount(account)
-                .orElseThrow(RefreshTokenNotFoundException::new);
+                .orElseThrow(NotFoundRefreshTokenException::new);
         refreshTokenRepository.delete(refreshToken);
         refreshTokenRepository.flush();
         return "로그아웃 완료";

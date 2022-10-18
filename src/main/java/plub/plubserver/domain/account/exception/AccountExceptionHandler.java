@@ -9,8 +9,8 @@ import plub.plubserver.common.dto.ApiResponse;
 @RestControllerAdvice
 public class AccountExceptionHandler {
 
-    @ExceptionHandler(AccountNotFoundException.class)
-    public ApiResponse<?> handle(AccountNotFoundException ex){
+    @ExceptionHandler(NotFoundAccountException.class)
+    public ApiResponse<?> handle(NotFoundAccountException ex){
         log.error("예외 발생 및 처리 = {} : {}", ex.getClass().getName(), ex.getMessage());
         return ApiResponse.error(ex.getErrorCode(), ex.getMessage());
     }
@@ -45,8 +45,8 @@ public class AccountExceptionHandler {
         return ApiResponse.error(ex.getErrorCode(), ex.getMessage());
     }
 
-    @ExceptionHandler(RefreshTokenNotFoundException.class)
-    public ApiResponse<?> handle(RefreshTokenNotFoundException ex){
+    @ExceptionHandler(NotFoundRefreshTokenException.class)
+    public ApiResponse<?> handle(NotFoundRefreshTokenException ex){
         log.error("예외 발생 및 처리 = {} : {}", ex.getClass().getName(), ex.getMessage());
         return ApiResponse.error(ex.getErrorCode(), ex.getMessage());
     }
