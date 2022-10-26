@@ -30,8 +30,8 @@ public class JwtProvider {
     private final RefreshTokenRepository refreshTokenRepository;
 
     @Value("${jwt.secret-key}")
-    private String secretKey;
-    private final Key privateKey;
+    private String secretKey; // 사용 금지
+    private final Key privateKey; // 이것만 사용할 것
 
     public JwtProvider(@Value("${jwt.secret-key}") String secretKey,
                        PrincipalDetailService principalDetailService,
@@ -101,7 +101,10 @@ public class JwtProvider {
     // Access, Refresh Token 검증 (만료 여부 검사)
     public boolean validate(String token) {
         try {
-            Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(token);
+            Jwts.parserBuilder()
+                    .setSigningKey(privateKey)
+                    .build()
+                    .parseClaimsJws(token);
             return true;
         } catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException e) {
             log.warn("잘못된 JWT 서명입니다.");
@@ -120,7 +123,7 @@ public class JwtProvider {
      */
     public Authentication getAuthentication(String accessToken) {
         Claims body = Jwts.parserBuilder()
-                .setSigningKey(secretKey)
+                .setSigningKey(privateKey)
                 .build()
                 .parseClaimsJws(accessToken)
                 .getBody();
@@ -131,7 +134,7 @@ public class JwtProvider {
 
     public AuthDto.SigningAccount getSignKey(String signToken) {
         Claims body = Jwts.parserBuilder()
-                .setSigningKey(secretKey)
+                .setSigningKey(privateKey)
                 .build()
                 .parseClaimsJws(signToken)
                 .getBody();
