@@ -28,10 +28,7 @@ public class JwtProvider {
 
     private final PrincipalDetailService principalDetailService;
     private final RefreshTokenRepository refreshTokenRepository;
-
-    @Value("${jwt.secret-key}")
-    private String secretKey; // 사용 금지
-    private final Key privateKey; // 이것만 사용할 것
+    private final Key privateKey;
 
     public JwtProvider(@Value("${jwt.secret-key}") String secretKey,
                        PrincipalDetailService principalDetailService,
