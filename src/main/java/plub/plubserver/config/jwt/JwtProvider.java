@@ -1,36 +1,51 @@
 package plub.plubserver.config.jwt;
 
 import io.jsonwebtoken.*;
-import lombok.RequiredArgsConstructor;
+import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import plub.plubserver.config.security.PrincipalDetailService;
 import plub.plubserver.domain.account.dto.AuthDto;
+import plub.plubserver.domain.account.exception.AccountError;
+import plub.plubserver.domain.account.exception.AccountException;
 import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.account.model.Role;
-import plub.plubserver.exception.account.SignTokenException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
+import java.security.Key;
 import java.util.Date;
 import java.util.Optional;
 
 @Component
-@RequiredArgsConstructor
 @Slf4j
 @Transactional
 public class JwtProvider {
 
     private final PrincipalDetailService principalDetailService;
     private final RefreshTokenRepository refreshTokenRepository;
+    private final Key privateKey;
 
-    private static final String secret = "plubingplubingplubingplubingplubingplubingplubingplubingplubingplubingplubingplubingplubingplubingplubingplubingplubingplubingplubingplubingplubingplubing";
-    
-    public static final long ACCESS_VALID_DURATION = 3000 * 1000L; // 60초 (mile sec)
-    public static final long REFRESH_VALID_DURATION = 6000 * 1000L; // 60초
+    public JwtProvider(@Value("${jwt.secret-key}") String secretKey,
+                       PrincipalDetailService principalDetailService,
+                       RefreshTokenRepository refreshTokenRepository) {
+        this.privateKey = Keys.hmacShaKeyFor(secretKey.getBytes());
+        this.principalDetailService = principalDetailService;
+        this.refreshTokenRepository = refreshTokenRepository;
+    }
+
+
+    // milliseconds
+    @Value("${jwt.access-duration}")
+    public long accessDuration;
+
+    // milliseconds
+    @Value("${jwt.refresh-duration}")
+    public long refreshDuration;
 
     // Request 헤더에서 토큰을 파싱한다
     public String resolveToken(HttpServletRequest request) {
@@ -43,7 +58,7 @@ public class JwtProvider {
     public String resolveSignToken(String rawToken) {
         if (rawToken != null && rawToken.startsWith("Bearer "))
             return rawToken.replace("Bearer ", "");
-        else throw new SignTokenException();
+        else throw new AccountException(AccountError.SIGNUP_TOKEN_ERROR);
     }
 
     // Sign Token 생성
@@ -53,8 +68,8 @@ public class JwtProvider {
                 .setSubject(email)
                 .claim("sign", Role.ROLE_USER)
                 .setIssuedAt(now)
-                .setExpiration(new Date(now.getTime() + ACCESS_VALID_DURATION))
-                .signWith(SignatureAlgorithm.HS256, secret)
+                .setExpiration(new Date(now.getTime() + accessDuration))
+                .signWith(privateKey)
                 .compact();
     }
 
@@ -65,8 +80,8 @@ public class JwtProvider {
                 .setSubject(account.getEmail())
                 .claim("role", account.getRole())
                 .setIssuedAt(now)
-                .setExpiration(new Date(now.getTime() + ACCESS_VALID_DURATION))
-                .signWith(SignatureAlgorithm.HS256, secret)
+                .setExpiration(new Date(now.getTime() + accessDuration))
+                .signWith(privateKey)
                 .compact();
     }
 
@@ -75,15 +90,18 @@ public class JwtProvider {
         Date now = new Date(System.currentTimeMillis());
         return Jwts.builder()
                 .setIssuedAt(now)
-                .setExpiration(new Date(now.getTime() + REFRESH_VALID_DURATION))
-                .signWith(SignatureAlgorithm.HS256, secret)
+                .setExpiration(new Date(now.getTime() + refreshDuration))
+                .signWith(privateKey)
                 .compact();
     }
 
     // Access, Refresh Token 검증 (만료 여부 검사)
     public boolean validate(String token) {
         try {
-            Jwts.parserBuilder().setSigningKey(secret).build().parseClaimsJws(token);
+            Jwts.parserBuilder()
+                    .setSigningKey(privateKey)
+                    .build()
+                    .parseClaimsJws(token);
             return true;
         } catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException e) {
             log.warn("잘못된 JWT 서명입니다.");
@@ -102,7 +120,7 @@ public class JwtProvider {
      */
     public Authentication getAuthentication(String accessToken) {
         Claims body = Jwts.parserBuilder()
-                .setSigningKey(secret)
+                .setSigningKey(privateKey)
                 .build()
                 .parseClaimsJws(accessToken)
                 .getBody();
@@ -113,7 +131,7 @@ public class JwtProvider {
 
     public AuthDto.SigningAccount getSignKey(String signToken) {
         Claims body = Jwts.parserBuilder()
-                .setSigningKey(secret)
+                .setSigningKey(privateKey)
                 .build()
                 .parseClaimsJws(signToken)
                 .getBody();
@@ -142,7 +160,7 @@ public class JwtProvider {
     /**
      * Refresh Token 으로 Access Token 재발급 (Access, Refresh 둘 다 재발급)
      */
-    public JwtDto reIssue(String refreshToken) {
+    public JwtDto reissue(String refreshToken) {
         RefreshToken findRefreshToken = refreshTokenRepository
                 .findByRefreshToken(refreshToken)
                 .orElseThrow(

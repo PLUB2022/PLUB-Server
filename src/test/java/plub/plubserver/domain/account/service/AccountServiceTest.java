@@ -12,8 +12,8 @@ import org.springframework.security.test.context.support.WithMockUser;
 import plub.plubserver.domain.account.AccountTemplate;
 import plub.plubserver.domain.account.dto.AccountDto.AccountProfileRequest;
 import plub.plubserver.domain.account.repository.AccountRepository;
-import plub.plubserver.exception.account.InvalidNicknameRuleException;
-import plub.plubserver.exception.account.NotFoundAccountException;
+import plub.plubserver.domain.account.exception.InvalidNicknameRuleException;
+import plub.plubserver.domain.account.exception.NotFoundAccountException;
 import plub.plubserver.util.AwsS3MockConfig;
 import plub.plubserver.util.s3.AwsS3Uploader;
 

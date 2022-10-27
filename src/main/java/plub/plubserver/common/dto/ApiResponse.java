@@ -1,8 +1,7 @@
 package plub.plubserver.common.dto;
 
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.BindingResult;
 import plub.plubserver.exception.ErrorCode;
 
@@ -11,6 +10,7 @@ import java.util.Map;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Slf4j
 public class ApiResponse<T> {
 
     private static final String SUCCESS_STATUS = "success";
@@ -42,8 +42,8 @@ public class ApiResponse<T> {
     }
 
     // 예외 발생
-    public static ApiResponse<?> error(ErrorCode errorCode, String message) {
-        return new ApiResponse<>(errorCode.getCode(), null, message);
+    public static ApiResponse<?> error(String errorCode, String message) {
+        return new ApiResponse<>(errorCode, null, message);
     }
 
     private ApiResponse(String status, T data, String message) {

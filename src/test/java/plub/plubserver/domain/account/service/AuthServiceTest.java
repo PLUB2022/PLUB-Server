@@ -13,8 +13,8 @@ import plub.plubserver.config.jwt.JwtProvider;
 import plub.plubserver.domain.account.dto.AccountDto;
 import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.account.repository.AccountRepository;
-import plub.plubserver.exception.account.EmailDuplicateException;
-import plub.plubserver.exception.account.NicknameDuplicateException;
+import plub.plubserver.domain.account.exception.DuplicateEmailException;
+import plub.plubserver.domain.account.exception.DuplicateNicknameException;
 
 import java.io.IOException;
 
@@ -67,7 +67,7 @@ class AuthServiceTest {
         SignUpRequest signUpRequest = makeSignUpRequest();
         // when
         // then
-        Assertions.assertThrows(EmailDuplicateException.class, () -> authService.signUp(signUpRequest, header));
+        Assertions.assertThrows(DuplicateEmailException.class, () -> authService.signUp(signUpRequest, header));
     }
 
     @Test
@@ -79,7 +79,7 @@ class AuthServiceTest {
         SignUpRequest signUpRequest = makeSignUpRequest();
         // when
         // then
-        Assertions.assertThrows(NicknameDuplicateException.class, () -> authService.signUp(signUpRequest, header));
+        Assertions.assertThrows(DuplicateNicknameException.class, () -> authService.signUp(signUpRequest, header));
     }
 
     @Test

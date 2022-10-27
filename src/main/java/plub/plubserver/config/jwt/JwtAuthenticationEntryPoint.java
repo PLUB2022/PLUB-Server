@@ -9,7 +9,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
 import plub.plubserver.common.dto.ApiResponse;
-import plub.plubserver.exception.ErrorCode;
+import plub.plubserver.domain.account.exception.AccountError;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -29,7 +29,9 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setCharacterEncoding("utf-8");
         response.setStatus(HttpStatus.UNAUTHORIZED.value());
-        String body = objectMapper.writeValueAsString(ApiResponse.error(ErrorCode.FILTER_ACCESS_DENIED, "인증 실패 : 비인가 사용자 입니다. 로그인 해주세요."));
+        String body = objectMapper.writeValueAsString(
+                ApiResponse.error(AccountError.FILTER_ACCESS_DENIED.getCode(), AccountError.FILTER_ACCESS_DENIED.getMessage())
+        );
         response.getWriter().write(body);
     }
 }

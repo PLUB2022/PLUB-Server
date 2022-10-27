@@ -25,10 +25,10 @@ import plub.plubserver.config.jwt.RefreshToken;
 import plub.plubserver.config.jwt.RefreshTokenRepository;
 import plub.plubserver.config.security.PrincipalDetails;
 import plub.plubserver.domain.account.dto.AppleDto;
+import plub.plubserver.domain.account.exception.*;
 import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.account.model.SocialType;
 import plub.plubserver.domain.account.repository.AccountRepository;
-import plub.plubserver.exception.account.*;
 
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
@@ -82,6 +82,10 @@ public class AuthService {
     @Transactional
     public SignAuthMessage signUp(SignUpRequest signUpRequest, String header) {
         String signToken = jwtProvider.resolveSignToken(header);
+
+        if (!jwtProvider.validate(signToken))
+            throw new AccountException(AccountError.SIGNUP_TOKEN_ERROR);
+
         SigningAccount signKey = jwtProvider.getSignKey(signToken);
         String email = signKey.email();
         String socialType = signKey.socialType();
@@ -95,10 +99,10 @@ public class AuthService {
 
     private void duplicateEmailAndNickName(String email, String nickname) {
         if (accountRepository.existsByEmail(email)) {
-            throw new EmailDuplicateException();
+            throw new AccountException(AccountError.EMAIL_DUPLICATION);
         }
         if (accountRepository.existsByNickname(nickname)) {
-            throw new NicknameDuplicateException();
+            throw new AccountException(AccountError.NICKNAME_DUPLICATION);
         }
     }
 
@@ -113,7 +117,7 @@ public class AuthService {
             try {
                 appleService.GenerateAuthToken(socialLoginRequest.authorizationCode());
             } catch (Exception e) {
-                throw new AppleException();
+                throw new AccountException(AccountError.APPLE_LOGIN_ERROR); // TODO : Apple 로그인 중 어떨때 발생하는 것인지?
             }
             return appleId;
         }
@@ -167,7 +171,7 @@ public class AuthService {
             return subject+"@APPLE";
         } catch (JsonProcessingException | NoSuchAlgorithmException | InvalidKeySpecException | SignatureException |
                 MalformedJwtException | ExpiredJwtException | IllegalArgumentException e) {
-            throw new AppleException();
+            throw new AccountException(AccountError.APPLE_LOGIN_ERROR); // TODO : 위에 있는 모든 예외를 다 캐치?
         }
     }
 
@@ -187,15 +191,17 @@ public class AuthService {
     }
 
     public JwtDto reissue(ReissueRequest reissueDto) {
-        return jwtProvider.reIssue(reissueDto.refreshToken());
+        return jwtProvider.reissue(reissueDto.refreshToken());
     }
 
     @Transactional
     public String logout() {
-        Account account = accountRepository.findByEmail(getCurrentAccountEmail())
-                .orElseThrow(NotFoundAccountException::new);
-        RefreshToken refreshToken = refreshTokenRepository.findByAccount(account)
-                .orElseThrow(NotFountRefreshTokenException::new);
+        Account account = accountRepository
+                .findByEmail(getCurrentAccountEmail())
+                .orElseThrow(() -> new AccountException(AccountError.NOT_FOUND_ACCOUNT));
+        RefreshToken refreshToken = refreshTokenRepository
+                .findByAccount(account)
+                .orElseThrow(() -> new AccountException(AccountError.NOT_FOUND_REFRESH_TOKEN));
         refreshTokenRepository.delete(refreshToken);
         refreshTokenRepository.flush();
         return "로그아웃 완료";
