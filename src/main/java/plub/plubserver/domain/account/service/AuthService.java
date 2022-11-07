@@ -24,6 +24,7 @@ import plub.plubserver.config.jwt.JwtProvider;
 import plub.plubserver.config.jwt.RefreshToken;
 import plub.plubserver.config.jwt.RefreshTokenRepository;
 import plub.plubserver.config.security.PrincipalDetails;
+import plub.plubserver.domain.account.config.AccountCode;
 import plub.plubserver.domain.account.dto.AppleDto;
 import plub.plubserver.domain.account.exception.*;
 import plub.plubserver.domain.account.model.Account;
@@ -59,13 +60,20 @@ public class AuthService {
         String email = fetchSocialEmail(socialLoginRequest);
         Optional<Account> account = accountRepository.findByEmail(email);
         AuthMessage loginMessage;
-
         if (account.isPresent()) {
             JwtDto jwtDto = login(account.get().toAccountRequestDto().toLoginRequest());
-            loginMessage = new AuthMessage(jwtDto, "로그인 완료. 토큰 발행");
+            loginMessage = new AuthMessage(
+                    AccountCode.LOGIN.getStatusCode(),
+                    jwtDto,
+                    AccountCode.LOGIN.getMessage()
+            );
         } else {
             String signToken = jwtProvider.createSignToken(email);
-            loginMessage = new AuthMessage(signToken, "신규 가입 필요");
+            loginMessage = new AuthMessage(
+                    AccountCode.NEED_TO_SIGNUP.getStatusCode(),
+                    signToken,
+                    AccountCode.NEED_TO_SIGNUP.getMessage()
+            );
         }
         return loginMessage;
     }
@@ -84,7 +92,7 @@ public class AuthService {
         String signToken = jwtProvider.resolveSignToken(header);
 
         if (!jwtProvider.validate(signToken))
-            throw new AccountException(AccountError.SIGNUP_TOKEN_ERROR);
+            throw new AccountException(AccountCode.SIGNUP_TOKEN_ERROR);
 
         SigningAccount signKey = jwtProvider.getSignKey(signToken);
         String email = signKey.email();
@@ -94,15 +102,20 @@ public class AuthService {
         Account account = signUpRequest.toAccount(email, socialType, passwordEncoder);
         accountRepository.save(account);
         JwtDto jwtDto = login(account.toAccountRequestDto().toLoginRequest());
-        return new SignAuthMessage(jwtDto, "회원가입 완료. 토큰 발행");
+
+        return new SignAuthMessage(
+                AccountCode.SIGNUP_COMPLETE.getStatusCode(),
+                jwtDto,
+                AccountCode.SIGNUP_COMPLETE.getMessage()
+        );
     }
 
     private void duplicateEmailAndNickName(String email, String nickname) {
         if (accountRepository.existsByEmail(email)) {
-            throw new AccountException(AccountError.EMAIL_DUPLICATION);
+            throw new AccountException(AccountCode.EMAIL_DUPLICATION);
         }
         if (accountRepository.existsByNickname(nickname)) {
-            throw new AccountException(AccountError.NICKNAME_DUPLICATION);
+            throw new AccountException(AccountCode.NICKNAME_DUPLICATION);
         }
     }
 
@@ -117,7 +130,7 @@ public class AuthService {
             try {
                 appleService.GenerateAuthToken(socialLoginRequest.authorizationCode());
             } catch (Exception e) {
-                throw new AccountException(AccountError.APPLE_LOGIN_ERROR); // TODO : Apple 로그인 중 어떨때 발생하는 것인지?
+                throw new AccountException(AccountCode.APPLE_LOGIN_ERROR); // TODO : Apple 로그인 중 어떨때 발생하는 것인지?
             }
             return appleId;
         }
@@ -171,7 +184,7 @@ public class AuthService {
             return subject+"@APPLE";
         } catch (JsonProcessingException | NoSuchAlgorithmException | InvalidKeySpecException | SignatureException |
                 MalformedJwtException | ExpiredJwtException | IllegalArgumentException e) {
-            throw new AccountException(AccountError.APPLE_LOGIN_ERROR); // TODO : 위에 있는 모든 예외를 다 캐치?
+            throw new AccountException(AccountCode.APPLE_LOGIN_ERROR); // TODO : 위에 있는 모든 예외를 다 캐치?
         }
     }
 
@@ -198,10 +211,10 @@ public class AuthService {
     public String logout() {
         Account account = accountRepository
                 .findByEmail(getCurrentAccountEmail())
-                .orElseThrow(() -> new AccountException(AccountError.NOT_FOUND_ACCOUNT));
+                .orElseThrow(() -> new AccountException(AccountCode.NOT_FOUND_ACCOUNT));
         RefreshToken refreshToken = refreshTokenRepository
                 .findByAccount(account)
-                .orElseThrow(() -> new AccountException(AccountError.NOT_FOUND_REFRESH_TOKEN));
+                .orElseThrow(() -> new AccountException(AccountCode.NOT_FOUND_REFRESH_TOKEN));
         refreshTokenRepository.delete(refreshToken);
         refreshTokenRepository.flush();
         return "로그아웃 완료";

@@ -10,7 +10,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import plub.plubserver.config.security.PrincipalDetailService;
 import plub.plubserver.domain.account.dto.AuthDto;
-import plub.plubserver.domain.account.exception.AccountError;
+import plub.plubserver.domain.account.config.AccountCode;
 import plub.plubserver.domain.account.exception.AccountException;
 import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.account.model.Role;
@@ -58,7 +58,7 @@ public class JwtProvider {
     public String resolveSignToken(String rawToken) {
         if (rawToken != null && rawToken.startsWith("Bearer "))
             return rawToken.replace("Bearer ", "");
-        else throw new AccountException(AccountError.SIGNUP_TOKEN_ERROR);
+        else throw new AccountException(AccountCode.SIGNUP_TOKEN_ERROR);
     }
 
     // Sign Token 생성
