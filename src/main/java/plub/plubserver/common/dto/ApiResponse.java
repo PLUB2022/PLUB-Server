@@ -51,4 +51,6 @@ public class ApiResponse<T> {
         this.data = data;
         this.message = message;
     }
+
+    //cicd test
 }
