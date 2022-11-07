@@ -4,15 +4,15 @@ import lombok.Getter;
 
 @Getter
 public enum CategoryError {
-    NOT_FOUND_CATEGORY(404, "CATEGORY-001", "not found category error");
+    NOT_FOUND_CATEGORY(404, "04010", "not found category error.");
 
-    private final int status;
-    private final String code;
+    private final int HttpCode;
+    private final String statusCode;
     private final String message;
 
-    CategoryError (int status, String code, String message) {
-        this.status = status;
-        this.code = code;
+    CategoryError (int HttpCode, String statusCode, String message) {
+        this.HttpCode = HttpCode;
+        this.statusCode = statusCode;
         this.message = message;
     }
 }

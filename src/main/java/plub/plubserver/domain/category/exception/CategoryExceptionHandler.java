@@ -14,6 +14,6 @@ public class CategoryExceptionHandler {
     @ExceptionHandler(CategoryException.class)
     public ApiResponse<?> handle(CategoryException ex){
         log.warn("예외 발생 및 처리 = {} : {}", ex.getClass().getName(), ex.getMessage());
-        return ApiResponse.error(ex.categoryError.getCode(), ex.getMessage());
+        return ApiResponse.error(ex.categoryError.getStatusCode(), ex.getMessage());
     }
 }

@@ -30,7 +30,7 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
         response.setCharacterEncoding("utf-8");
         response.setStatus(HttpStatus.UNAUTHORIZED.value());
         String body = objectMapper.writeValueAsString(
-                ApiResponse.error(AccountError.FILTER_ACCESS_DENIED.getCode(), AccountError.FILTER_ACCESS_DENIED.getMessage())
+                ApiResponse.error(AccountError.FILTER_ACCESS_DENIED.getStatusCode(), AccountError.FILTER_ACCESS_DENIED.getMessage())
         );
         response.getWriter().write(body);
     }

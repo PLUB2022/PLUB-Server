@@ -14,6 +14,6 @@ public class AccountExceptionHandler {
     @ExceptionHandler(AccountException.class)
     public ApiResponse<?> handle(AccountException ex){
         log.warn("예외 발생 및 처리 = {} : {}", ex.getClass().getName(), ex.getMessage());
-        return ApiResponse.error(ex.accountError.getCode(), ex.getMessage());
+        return ApiResponse.error(ex.accountError.getStatusCode(), ex.getMessage());
     }
 }
