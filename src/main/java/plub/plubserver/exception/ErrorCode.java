@@ -6,10 +6,10 @@ import lombok.Getter;
 public enum ErrorCode {
     // Common
     COMMON_BAD_REQUEST(400, "COMMON-001", ""),
-    INVALID_INPUT_VALUE(400, "COMMON-002", "Invalid Input Value"),
-    METHOD_NOT_ALLOWED(405, "COMMON-003", "Invalid Input Value"),
-    INTERNAL_SERVER_ERROR(500, "COMMON-004", "Server Error"),
-    HTTP_CLIENT_ERROR(400, "COMMON-005", "Http Client Error");
+    INVALID_INPUT_VALUE(400, "COMMON-002", "Invalid Input Value."),
+    METHOD_NOT_ALLOWED(405, "COMMON-003", "Invalid Input Value."),
+    INTERNAL_SERVER_ERROR(500, "COMMON-004", "Server Error."),
+    HTTP_CLIENT_ERROR(400, "COMMON-005", "Http Client Error.");
 
 //    // Filter
 //    FILTER_ACCESS_DENIED(401, "FILTER-001", "Access is Denied"),
@@ -29,13 +29,13 @@ public enum ErrorCode {
 //    // Token
 //    NOT_FOUND_REFRESH_TOKEN(404, "TOKEN-001", "Not Fount RefreshToken");
 
-    private final String code;
+    private final String statusCode;
     private final String message;
-    private final int status;
+    private final int HttpCode;
 
-    ErrorCode(final int status, final String code, final String message) {
-        this.status = status;
+    ErrorCode(final int HttpCode, final String statusCode, final String message) {
+        this.HttpCode = HttpCode;
         this.message = message;
-        this.code = code;
+        this.statusCode = statusCode;
     }
 }

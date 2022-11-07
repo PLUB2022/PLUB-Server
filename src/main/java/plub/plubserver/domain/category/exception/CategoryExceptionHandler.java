@@ -1,4 +1,4 @@
-package plub.plubserver.domain.account.exception;
+package plub.plubserver.domain.category.exception;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -10,10 +10,10 @@ import plub.plubserver.common.dto.ApiResponse;
 @Slf4j
 @RestControllerAdvice
 @ResponseStatus(value = HttpStatus.BAD_REQUEST)
-public class AccountExceptionHandler {
-    @ExceptionHandler(AccountException.class)
-    public ApiResponse<?> handle(AccountException ex){
+public class CategoryExceptionHandler {
+    @ExceptionHandler(CategoryException.class)
+    public ApiResponse<?> handle(CategoryException ex){
         log.warn("예외 발생 및 처리 = {} : {}", ex.getClass().getName(), ex.getMessage());
-        return ApiResponse.error(ex.accountError.getStatusCode(), ex.getMessage());
+        return ApiResponse.error(ex.categoryError.getStatusCode(), ex.getMessage());
     }
 }

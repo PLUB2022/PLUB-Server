@@ -5,7 +5,7 @@ import plub.plubserver.common.model.BaseTimeEntity;
 import plub.plubserver.config.jwt.RefreshToken;
 import plub.plubserver.domain.activity.model.AccountPlubing;
 import plub.plubserver.domain.alarm.model.Alarm;
-import plub.plubserver.domain.category.model.Category;
+import plub.plubserver.domain.category.model.AccountCategory;
 import plub.plubserver.domain.comment.model.Comment;
 import plub.plubserver.domain.message.model.Message;
 import plub.plubserver.domain.recruit.model.AccountBoard;
@@ -71,9 +71,9 @@ public class Account extends BaseTimeEntity {
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<AccountPlubing> accountPlubingList = new ArrayList<>();
 
-    // 회원(1) - 카테고리(다)
+    // 회원(1) - 회원_카테고리(다)
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Category> categories = new ArrayList<>();
+    private List<AccountCategory> accountCategories = new ArrayList<>();
 
     @OneToOne(mappedBy = "account", cascade = CascadeType.ALL)
     private RefreshToken refreshToken;

@@ -38,7 +38,7 @@ public class ApiResponse<T> {
         bindingResult.getFieldErrors().forEach(error ->
                 errors.put(error.getField(), error.getDefaultMessage())
         );
-        return new ApiResponse<>(ErrorCode.INVALID_INPUT_VALUE.getCode(), errors, null);
+        return new ApiResponse<>(ErrorCode.INVALID_INPUT_VALUE.getStatusCode(), errors, null);
     }
 
     // 예외 발생
