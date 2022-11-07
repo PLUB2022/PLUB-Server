@@ -1,21 +1,18 @@
 package plub.plubserver.domain.category.model;
 
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import plub.plubserver.common.model.BaseTimeEntity;
 import plub.plubserver.domain.recruit.model.Board;
 
 import javax.persistence.*;
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Getter
-@AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class CategorySub {
+public class CategorySub extends BaseTimeEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "category_Sub_id")
@@ -23,8 +20,6 @@ public class CategorySub {
 
     private int sequence;
     private String name;
-    @Column(columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
-    private Timestamp modifiedAt;
 
     // 카테고리(1) - 서브 카테고리(다)
     @ManyToOne(fetch = FetchType.LAZY)

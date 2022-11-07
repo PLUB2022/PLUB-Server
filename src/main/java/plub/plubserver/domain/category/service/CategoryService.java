@@ -9,7 +9,6 @@ import plub.plubserver.domain.category.exception.CategoryException;
 import plub.plubserver.domain.category.repository.CategoryRepository;
 import plub.plubserver.domain.category.repository.CategorySubRepository;
 
-import java.sql.Timestamp;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -33,14 +32,14 @@ public class CategoryService {
     }
 
     public CategoryVersionResponse getCategoryVersion() {
-       Timestamp categoryLatestDate = categoryRepository.getLatestDate()
+        String categoryLatestDate = categoryRepository.getLatestDate()
                 .orElseThrow(()->new CategoryException(CategoryError.NOT_FOUND_CATEGORY));
-       Timestamp categorySubLatestDate = categorySubRepository.getLatestDate()
+        String categorySubLatestDate = categorySubRepository.getLatestDate()
                 .orElseThrow(()->new CategoryException(CategoryError.NOT_FOUND_CATEGORY));
 
-       if(categoryLatestDate.before(categorySubLatestDate))
-           return CategoryVersionResponse.of(categorySubLatestDate.toString(), "categorySub");
+       if(categoryLatestDate.compareTo(categorySubLatestDate)<0)
+           return CategoryVersionResponse.of(categorySubLatestDate, "categorySub");
        else
-           return CategoryVersionResponse.of(categoryLatestDate.toString(), "category");
+           return CategoryVersionResponse.of(categoryLatestDate, "category");
     }
 }

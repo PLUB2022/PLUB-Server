@@ -13,7 +13,7 @@ public class CategoryDto {
             int sequence,
             @ApiModelProperty(value = "아이콘 이미지", example = "https://plub.s3.ap-northeast-2.amazonaws.com/category/categoryTest.png")
             String icon,
-            @ApiModelProperty(value = "수정 날짜", example = "2022-10-31 20:19:56.937473")
+            @ApiModelProperty(value = "수정 날짜", example = "2022-10-31 20:19:56")
             String modifiedAt
     ){
         @Builder
@@ -23,7 +23,7 @@ public class CategoryDto {
                     .name(category.getName())
                     .sequence(category.getSequence())
                     .icon(category.getIcon())
-                    .modifiedAt(String.valueOf(category.getModifiedAt()))
+                    .modifiedAt(category.getModifiedAt())
                     .build();
         }
     }
@@ -41,12 +41,12 @@ public class CategoryDto {
             return CategorySubListResponse.builder()
                     .sequence(categorySub.getSequence())
                     .name(categorySub.getName())
-                    .modifiedAt(String.valueOf(categorySub.getModifiedAt()))
+                    .modifiedAt(categorySub.getModifiedAt())
                     .build();
         }
     }
     public record CategoryVersionResponse(
-            @ApiModelProperty(value = "가장 최근 수정 날짜", example = "2022-10-31 20:19:56.937473")
+            @ApiModelProperty(value = "가장 최근 수정 날짜", example = "2022-10-31 20:19:56")
             String lastModifiedAt,
             @ApiModelProperty(value = "카테고리 종류(메인/서브)", example = "category")
             String categoryType
@@ -55,7 +55,7 @@ public class CategoryDto {
         public CategoryVersionResponse {}
         public static CategoryVersionResponse of(String modifiedAt, String categoryType) {
             return CategoryVersionResponse.builder()
-                    .lastModifiedAt(String.valueOf(modifiedAt))
+                    .lastModifiedAt(modifiedAt)
                     .categoryType(categoryType)
                     .build();
         }

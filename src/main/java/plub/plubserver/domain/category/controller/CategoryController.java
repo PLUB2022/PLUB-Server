@@ -29,7 +29,7 @@ public class CategoryController {
     }
 
     @ApiOperation(value = "카테고리 전체 조회")
-    @GetMapping("")
+    @GetMapping
     public ApiResponse<List<CategoryListResponse>> getAllCategory() {
         return success(categoryService.getAllCategory(), "카테고리 전체 조회");
     }
