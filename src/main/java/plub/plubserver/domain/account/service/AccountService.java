@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
+import plub.plubserver.domain.account.config.AccountCode;
 import plub.plubserver.domain.account.exception.*;
 import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.account.repository.AccountRepository;
@@ -42,24 +43,24 @@ public class AccountService {
     public AccountInfoResponse getMyAccount() {
         return accountRepository.findByEmail(getCurrentAccountEmail())
                 .map(AccountInfoResponse::of)
-                .orElseThrow(() -> new AccountException(AccountError.NOT_FOUND_ACCOUNT));
+                .orElseThrow(() -> new AccountException(AccountCode.NOT_FOUND_ACCOUNT));
     }
 
     public AccountInfoResponse getAccount(String nickname) {
         return accountRepository.findByNickname(nickname)
                 .map(AccountInfoResponse::of)
-                .orElseThrow(() -> new AccountException(AccountError.NOT_FOUND_ACCOUNT));
+                .orElseThrow(() -> new AccountException(AccountCode.NOT_FOUND_ACCOUNT));
     }
 
     private Account getCurrentAccount() {
         return accountRepository.findByEmail(getCurrentAccountEmail())
-                .orElseThrow(() -> new AccountException(AccountError.NOT_FOUND_ACCOUNT));
+                .orElseThrow(() -> new AccountException(AccountCode.NOT_FOUND_ACCOUNT));
     }
 
     public boolean isDuplicateNickname(String nickname) {
         String pattern = "^[0-9|a-z|A-Z|ㄱ-ㅎ|ㅏ-ㅣ|가-힣]*$";
         if (!Pattern.matches(pattern, nickname)) {
-            throw new AccountException(AccountError.NICKNAME_DUPLICATION);
+            throw new AccountException(AccountCode.NICKNAME_DUPLICATION);
         }
         return accountRepository.existsByNickname(nickname);
     }
@@ -69,7 +70,7 @@ public class AccountService {
     public AccountInfoResponse updateProfile(AccountProfileRequest profileRequest) {
         Account myAccount = getCurrentAccount();
         if (isDuplicateNickname(profileRequest.nickname()))
-            throw new AccountException(AccountError.NICKNAME_DUPLICATION);
+            throw new AccountException(AccountCode.NICKNAME_DUPLICATION);
 
         AwsS3Uploader.S3FileDto newProfileImage =
                 awsS3Uploader.upload(profileRequest.profileImage(), S3SaveDir.ACCOUNT_PROFILE, myAccount);
@@ -90,9 +91,13 @@ public class AccountService {
         } else if (socialName.equalsIgnoreCase("Apple")) {
             appleService.revokeApple(revokeAccount.authorizationCode());
         } else {
-            throw new AccountException(AccountError.SOCIAL_TYPE_ERROR);
+            throw new AccountException(AccountCode.SOCIAL_TYPE_ERROR);
         }
-        return new AuthMessage("", "탈퇴완료");
+        return new AuthMessage(
+                AccountCode.ACCOUNT_SUCCESS.getStatusCode(),
+                "",
+                "revoke complete."
+        );
     }
 
     private void revokeGoogle(RevokeRequest revokeRequest) {
