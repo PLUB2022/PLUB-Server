@@ -9,6 +9,7 @@ import plub.plubserver.domain.category.exception.CategoryException;
 import plub.plubserver.domain.category.repository.CategoryRepository;
 import plub.plubserver.domain.category.repository.CategorySubRepository;
 
+import javax.validation.Valid;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -25,8 +26,8 @@ public class CategoryService {
                 .collect(Collectors.toList());
     }
 
-    public List<CategorySubListResponse> getAllCategorySub() {
-        return categorySubRepository.findAll()
+    public List<CategorySubListResponse> getAllCategorySub(Long category_id) {
+        return categorySubRepository.findAllByCategoryId(category_id)
                 .stream().map(CategorySubListResponse::of)
                 .collect(Collectors.toList());
     }

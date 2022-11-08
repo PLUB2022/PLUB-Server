@@ -7,6 +7,8 @@ import plub.plubserver.domain.category.model.CategorySub;
 
 public class CategoryDto {
     public record CategoryListResponse(
+            @ApiModelProperty(value = "카테고리 id", example = "1")
+            Long id,
             @ApiModelProperty(value = "이름", example = "예술")
             String name,
             @ApiModelProperty(value = "순서", example = "1")
@@ -20,6 +22,7 @@ public class CategoryDto {
         public CategoryListResponse {}
         public static CategoryListResponse of(Category category) {
             return CategoryListResponse.builder()
+                    .id(category.getId())
                     .name(category.getName())
                     .sequence(category.getSequence())
                     .icon(category.getIcon())
@@ -30,8 +33,10 @@ public class CategoryDto {
     public record CategorySubListResponse(
             @ApiModelProperty(value = "순서", example = "1")
             int sequence,
-            @ApiModelProperty(value = "이름", example = "예술")
+            @ApiModelProperty(value = "세부 카테고리 이름", example = "미술")
             String name,
+            @ApiModelProperty(value = "카테고리 이름", example = "예술")
+            String categoryName,
             @ApiModelProperty(value = "수정 날짜", example = "2022-10-31 20:19:56.937473")
             String modifiedAt
     ){
@@ -41,6 +46,7 @@ public class CategoryDto {
             return CategorySubListResponse.builder()
                     .sequence(categorySub.getSequence())
                     .name(categorySub.getName())
+                    .categoryName(categorySub.getCategory().getName())
                     .modifiedAt(categorySub.getModifiedAt())
                     .build();
         }
