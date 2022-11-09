@@ -5,6 +5,7 @@ import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import plub.plubserver.common.dto.ApiResponse;
+import plub.plubserver.domain.account.config.AccountCode;
 import plub.plubserver.domain.account.service.AccountService;
 
 import javax.validation.Valid;
@@ -22,37 +23,58 @@ import static plub.plubserver.domain.account.dto.AccountDto.AccountProfileReques
 @RequiredArgsConstructor
 @Api(tags = "회원 API", hidden = true)
 public class AccountController {
-
     private final AccountService accountService;
 
     @ApiOperation(value = "회원 정보")
     @GetMapping("/me")
     public ApiResponse<AccountInfoResponse> getMyAccountInfo() {
-        return success(accountService.getMyAccount(), "내 정보 조회");
+        return success(
+                AccountCode.ACCOUNT_SUCCESS.getStatusCode(),
+                accountService.getMyAccount(),
+                "get my account info."
+        );
     }
 
     @ApiOperation(value = "닉네임으로 회원 조회")
     @GetMapping("/{nickname}")
     public ApiResponse<AccountInfoResponse> getAccountInfo(@Valid @PathVariable String nickname) {
-        return success(accountService.getAccount(nickname), "유저 정보 조회");
+        return success(
+                AccountCode.ACCOUNT_SUCCESS.getStatusCode(),
+                accountService.getAccount(nickname),
+                "get account info."
+        );
     }
 
     @ApiOperation(value = "닉네임 검증 API")
     @GetMapping("/check/nickname/{nickname}")
     public ApiResponse<Boolean> isDuplicateNickname(@Valid @PathVariable String nickname) {
-        return success(accountService.isDuplicateNickname(nickname), "닉네임 중복 체크");
+        return success(
+                AccountCode.ACCOUNT_SUCCESS.getStatusCode(),
+                accountService.isDuplicateNickname(nickname),
+                "check duplicate nickname."
+        );
     }
 
     @ApiOperation(value = "회원 프로필 수정 (프로필 사진, 인사말, 닉네임)")
     @PostMapping("/profile")
-    public ApiResponse<AccountInfoResponse> updateProfile(@Valid @ModelAttribute AccountProfileRequest accountProfileRequest) {
-        return success(accountService.updateProfile(accountProfileRequest), "내 정보 수정");
+    public ApiResponse<AccountInfoResponse> updateProfile(
+            @Valid @ModelAttribute AccountProfileRequest accountProfileRequest
+    ) {
+        return success(
+                AccountCode.ACCOUNT_SUCCESS.getStatusCode(),
+                accountService.updateProfile(accountProfileRequest),
+                "update my account info."
+        );
     }
 
     @ApiOperation(value = "회원 탈퇴")
     @PostMapping("/revoke")
     public ApiResponse<?> revoke(@RequestBody RevokeRequest revokeRequest) throws IOException {
         AuthMessage revoke = accountService.revoke(revokeRequest);
-        return success(revoke.detailData(), revoke.detailMessage());
+        return success(
+                AccountCode.ACCOUNT_SUCCESS.getStatusCode(),
+                revoke.detailData(),
+                revoke.detailMessage()
+        );
     }
 }

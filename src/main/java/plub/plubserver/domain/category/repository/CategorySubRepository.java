@@ -12,4 +12,5 @@ public interface CategorySubRepository extends JpaRepository<CategorySub, Long> 
     Optional<String> getLatestDate();
 
     List<CategorySub> findAllByCategoryId(Long categoryId);
+
 }

@@ -1,6 +1,9 @@
 package plub.plubserver.domain.account.model;
 
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import plub.plubserver.common.model.BaseTimeEntity;
 import plub.plubserver.config.jwt.RefreshToken;
 import plub.plubserver.domain.activity.model.AccountPlubing;
@@ -11,7 +14,6 @@ import plub.plubserver.domain.message.model.Message;
 import plub.plubserver.domain.recruit.model.AccountBoard;
 
 import javax.persistence.*;
-import javax.validation.constraints.Pattern;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,7 +21,6 @@ import static plub.plubserver.domain.account.dto.AccountDto.AccountRequest;
 
 @Entity
 @Getter
-@AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Account extends BaseTimeEntity {
 
@@ -30,9 +31,6 @@ public class Account extends BaseTimeEntity {
 
     private String email;
     private String password;
-
-    @Pattern(regexp="^([0-9|a-z|A-Z|ㄱ-ㅎ|ㅏ-ㅣ|가-힣]*$)",
-            message = "닉네임에 공백과 특수문자가 포함될 수 없습니다.")
     private String nickname;
     private int age;
     private String birthday;
@@ -97,7 +95,7 @@ public class Account extends BaseTimeEntity {
 
     // TODO : DTO에 변환로직이 가도록 수정해야함
     public AccountRequest toAccountRequestDto(){
-        return new AccountRequest(email,email+"plub", nickname, socialType.getSocialName());
+        return new AccountRequest(email,email + "plub", nickname, socialType.getSocialName());
     }
 
     public void setIdForTest(Long id) {

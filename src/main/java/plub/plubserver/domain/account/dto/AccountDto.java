@@ -6,6 +6,8 @@ import org.springframework.web.multipart.MultipartFile;
 import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.account.model.SocialType;
 
+import javax.validation.constraints.Pattern;
+
 import static plub.plubserver.domain.account.dto.AuthDto.LoginRequest;
 
 // TODO : 검증 로직 추가할 것 (길이제한 등등)
@@ -16,6 +18,8 @@ public class AccountDto {
             @ApiModelProperty(value = "비밀번호", example = "비밀번호")
             String password,
             @ApiModelProperty(value = "닉네임", example = "플럽")
+            @Pattern(regexp="^([0-9|a-z|A-Z|ㄱ-ㅎ|ㅏ-ㅣ|가-힣]*$)",
+                    message = "닉네임에 공백과 특수문자가 포함될 수 없습니다.")
             String nickname,
             @ApiModelProperty(value = "소셜타입", example = "GOOGLE/KAKAO/APPLE")
             String socialType

@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import plub.plubserver.common.dto.ApiResponse;
 import plub.plubserver.config.jwt.JwtDto;
+import plub.plubserver.domain.account.config.AccountCode;
 import plub.plubserver.domain.account.service.AuthService;
 
 import javax.validation.Valid;
@@ -25,7 +26,11 @@ public class AuthController {
     @PostMapping("/login")
     public ApiResponse<?> login(@RequestBody SocialLoginRequest socialLoginRequest) {
         AuthMessage authMessage = authService.loginAccess(socialLoginRequest);
-        return success(authMessage.detailData(), authMessage.detailMessage());
+        return success(
+                authMessage.statusCode(),
+                authMessage.detailData(),
+                authMessage.detailMessage()
+        );
     }
 
     @ApiOperation(value = "소셜 회원가입 및 로그인")
@@ -33,19 +38,31 @@ public class AuthController {
     public ApiResponse<JwtDto> signUp(@RequestHeader("X-ACCESS-TOKEN") String header,
                                       @Valid @RequestBody SignUpRequest signUpRequest) {
         SignAuthMessage signAuthMessage = authService.signUp(signUpRequest, header);
-        return success(signAuthMessage.detailData(), signAuthMessage.detailMessage());
+        return success(
+                signAuthMessage.statusCode(),
+                signAuthMessage.detailData(),
+                signAuthMessage.detailMessage()
+        );
     }
 
     @ApiOperation(value = "토큰 재발행")
     @PostMapping("/reissue")
     public ApiResponse<JwtDto> reissue(@RequestBody ReissueRequest reissueRequest) {
-        return success(authService.reissue(reissueRequest), "JWT 재발급");
+        return success(
+                AccountCode.ACCOUNT_SUCCESS.getStatusCode(),
+                authService.reissue(reissueRequest),
+                "access token reissued."
+        );
     }
 
     @ApiOperation(value = "로그아웃")
     @GetMapping("/logout")
     public ApiResponse<String> logout() {
-        return success(authService.logout(), "로그아웃");
+        return success(
+                AccountCode.ACCOUNT_SUCCESS.getStatusCode(),
+                authService.logout(),
+                "logout."
+        );
     }
 
 

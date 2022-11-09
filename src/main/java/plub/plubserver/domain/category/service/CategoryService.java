@@ -24,7 +24,6 @@ public class CategoryService {
                 .stream().map(CategoryListResponse::of)
                 .collect(Collectors.toList());
     }
-
     public List<CategorySubListResponse> getAllCategorySub(Long categoryId) {
         return categorySubRepository.findAllByCategoryId(categoryId)
                 .stream().map(CategorySubListResponse::of)
@@ -37,9 +36,9 @@ public class CategoryService {
         String categorySubLatestDate = categorySubRepository.getLatestDate()
                 .orElseThrow(()->new CategoryException(CategoryCode.NOT_FOUND_CATEGORY));
 
-       if(categoryLatestDate.compareTo(categorySubLatestDate)<0)
-           return CategoryVersionResponse.of(categorySubLatestDate, "categorySub");
-       else
-           return CategoryVersionResponse.of(categoryLatestDate, "category");
+        if(categoryLatestDate.compareTo(categorySubLatestDate)<0)
+            return CategoryVersionResponse.of(categorySubLatestDate, "categorySub");
+        else
+            return CategoryVersionResponse.of(categoryLatestDate, "category");
     }
 }

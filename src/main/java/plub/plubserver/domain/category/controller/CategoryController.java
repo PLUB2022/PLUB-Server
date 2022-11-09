@@ -44,10 +44,10 @@ public class CategoryController {
     @ApiOperation(value = "서브 카테고리 조회")
     @GetMapping("/sub")
     public ApiResponse<List<CategorySubListResponse>> getAllCategorySub(@RequestParam Long categoryId) {
-            return success(
-                    CategoryCode.CATEGORY_SUCCESS.getStatusCode(),
-                    categoryService.getAllCategorySub(categoryId),
-                    "get all sub categories."
-            );
+        return success(
+                CategoryCode.CATEGORY_SUCCESS.getStatusCode(),
+                categoryService.getAllCategorySub(categoryId),
+                "get all sub categories."
+        );
     }
 }
