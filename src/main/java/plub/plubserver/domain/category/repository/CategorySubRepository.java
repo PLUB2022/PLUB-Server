@@ -11,5 +11,5 @@ public interface CategorySubRepository extends JpaRepository<CategorySub, Long> 
     @Query(value = "SELECT MAX(modifiedAt) FROM CategorySub")
     Optional<String> getLatestDate();
 
-    List<CategorySub> findAllByCategoryId(Long category_id);
+    List<CategorySub> findAllByCategoryId(Long categoryId);
 }

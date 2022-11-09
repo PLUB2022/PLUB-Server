@@ -37,7 +37,7 @@ public class CategoryDto {
             String name,
             @ApiModelProperty(value = "카테고리 이름", example = "예술")
             String categoryName,
-            @ApiModelProperty(value = "수정 날짜", example = "2022-10-31 20:19:56.937473")
+            @ApiModelProperty(value = "수정 날짜", example = "2022-10-31 20:19:56")
             String modifiedAt
     ){
         @Builder
