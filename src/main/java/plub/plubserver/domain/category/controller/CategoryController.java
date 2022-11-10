@@ -3,9 +3,7 @@ package plub.plubserver.domain.category.controller;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import plub.plubserver.common.dto.ApiResponse;
 import plub.plubserver.domain.category.config.CategoryCode;
@@ -43,12 +41,12 @@ public class CategoryController {
         );
     }
 
-   @ApiOperation(value = "서브 카테고리 조회")
+    @ApiOperation(value = "서브 카테고리 조회")
     @GetMapping("/sub")
-    public ApiResponse<List<CategorySubListResponse>> getAllCategorySub() {
+    public ApiResponse<List<CategorySubListResponse>> getAllCategorySub(@RequestParam Long categoryId) {
         return success(
                 CategoryCode.CATEGORY_SUCCESS.getStatusCode(),
-                categoryService.getAllCategorySub(),
+                categoryService.getAllCategorySub(categoryId),
                 "get all sub categories."
         );
     }
