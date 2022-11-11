@@ -32,7 +32,7 @@ public class CategorySub extends BaseTimeEntity {
 
     // 서브카테고리(1) - 모임 카테고리(다)
     @OneToMany(mappedBy = "categorySub", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<PlubingCategory> plubingCategories = new ArrayList<>();
+    private List<PlubbingCategory> plubbingCategories = new ArrayList<>();
 
     // 서브카테고리(1) - 회원 카테고리(다)
     @OneToMany(mappedBy = "categorySub", cascade = CascadeType.ALL, orphanRemoval = true)

@@ -5,7 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.feed.model.PlubingFeed;
-import plub.plubserver.domain.plubing.model.Plubing;
+import plub.plubserver.domain.plubbing.model.Plubbing;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -32,7 +32,7 @@ public class AccountPlubing {
     // 회원_모임페이지(다) - 모임(1)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "plubing_id")
-    private Plubing plubing;
+    private Plubbing plubbing;
 
     // 회원_모임페이지(1) - 아카이브(다)
     @OneToMany(mappedBy = "accountPlubing", cascade = CascadeType.ALL)

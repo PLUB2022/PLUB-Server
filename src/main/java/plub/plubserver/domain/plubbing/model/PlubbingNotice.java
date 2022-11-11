@@ -1,4 +1,4 @@
-package plub.plubserver.domain.plubing.model;
+package plub.plubserver.domain.plubbing.model;
 
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -13,11 +13,11 @@ import java.util.List;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class PlubingNotice extends BaseTimeEntity {
+public class PlubbingNotice extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "notice_id")
+    @Column(name = "plubbing_notice_id")
     private Long id;
 
     private String title;
@@ -25,8 +25,8 @@ public class PlubingNotice extends BaseTimeEntity {
 
     // 공지(다) - 모임(1)
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "plubing_id")
-    private Plubing plubing;
+    @JoinColumn(name = "plubbing_id")
+    private Plubbing plubbing;
 
     // 공지(1) - 댓글(다)
     @OneToMany(mappedBy = "notice", cascade = CascadeType.ALL)

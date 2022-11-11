@@ -1,4 +1,4 @@
-package plub.plubserver.domain.plubing.model;
+package plub.plubserver.domain.plubbing.model;
 
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -12,11 +12,11 @@ import javax.persistence.*;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class PlubingCommon extends BaseTimeEntity {
+public class PlubbingCommon extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "plubing_common_id")
+    @Column(name = "plubbing_common_id")
     private Long id;
 
     private String name;
@@ -31,6 +31,6 @@ public class PlubingCommon extends BaseTimeEntity {
 
     // 플러빙 공통(1) - 모임(1) # 공통이 부모 : 외래키 관리
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "plubing_id")
-    private Plubing plubing;
+    @JoinColumn(name = "plubbing_id")
+    private Plubbing plubbing;
 }

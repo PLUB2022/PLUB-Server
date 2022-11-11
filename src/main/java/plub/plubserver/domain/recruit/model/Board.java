@@ -4,10 +4,9 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import plub.plubserver.common.model.BaseTimeEntity;
-import plub.plubserver.domain.category.model.Category;
 import plub.plubserver.domain.category.model.CategorySub;
-import plub.plubserver.domain.plubing.model.Plubing;
-import plub.plubserver.domain.plubing.model.PlubingCommon;
+import plub.plubserver.domain.plubbing.model.Plubbing;
+import plub.plubserver.domain.plubbing.model.PlubbingCommon;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -38,11 +37,11 @@ public class Board extends BaseTimeEntity {
 
     // 모집(1) - 모임(1) # 모집이 자식 -> 외래키는 모임이 관리
     @OneToOne(mappedBy = "board", cascade = CascadeType.ALL)
-    private Plubing plubing;
+    private Plubbing plubbing;
 
     // 모집(1) - 플러빙 공통(1) # 모집이 자식 -> 외래키는 공통이 관리
     @OneToOne(mappedBy = "board", cascade = CascadeType.ALL)
-    private PlubingCommon plubingCommon;
+    private PlubbingCommon plubbingCommon;
 
     // 모집(1) - 질문(다)
     @OneToMany(mappedBy = "board", cascade = CascadeType.ALL)
