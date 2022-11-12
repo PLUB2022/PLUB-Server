@@ -21,16 +21,6 @@ import static plub.plubserver.common.dto.ApiResponse.success;
 public class CategoryController {
     private final CategoryService categoryService;
 
-    @ApiOperation(value = "카테고리 버전 체크")
-    @GetMapping("/check/version")
-    public ApiResponse<CategoryVersionResponse> getCategoryVersion() {
-        return success(
-                CategoryCode.CATEGORY_SUCCESS.getStatusCode(),
-                categoryService.getCategoryVersion(),
-                "get category version."
-        );
-    }
-
     @ApiOperation(value = "카테고리 전체 조회")
     @GetMapping
     public ApiResponse<List<CategoryListResponse>> getAllCategory() {
@@ -50,4 +40,14 @@ public class CategoryController {
                 "get all sub categories."
         );
     }
+
+     /*@ApiOperation(value = "카테고리 버전 체크")
+    @GetMapping("/check/version")
+    public ApiResponse<CategoryVersionResponse> getCategoryVersion() {
+        return success(
+                CategoryCode.CATEGORY_SUCCESS.getStatusCode(),
+                categoryService.getCategoryVersion(),
+                "get category version."
+        );
+    }*/
 }

@@ -7,6 +7,6 @@ import plub.plubserver.domain.category.model.Category;
 import java.util.Optional;
 
 public interface CategoryRepository extends JpaRepository<Category, Long> {
-    @Query(value = "SELECT MAX(modifiedAt) FROM Category")
-    Optional<String> getLatestDate();
+    /*@Query(value = "SELECT MAX(modifiedAt) FROM Category")
+    Optional<String> getLatestDate();*/
 }

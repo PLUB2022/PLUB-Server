@@ -15,7 +15,7 @@ public class CategoryDto {
             int sequence,
             @ApiModelProperty(value = "아이콘 이미지", example = "https://plub.s3.ap-northeast-2.amazonaws.com/category/categoryTest.png")
             String icon,
-            @ApiModelProperty(value = "수정 날짜", example = "2022-10-31 20:19:56")
+            @ApiModelProperty(value = "수정 날짜", example = "2022/11/12 16:42:38")
             String modifiedAt
     ){
         @Builder
@@ -37,7 +37,7 @@ public class CategoryDto {
             String name,
             @ApiModelProperty(value = "카테고리 이름", example = "예술")
             String categoryName,
-            @ApiModelProperty(value = "수정 날짜", example = "2022-10-31 20:19:56")
+            @ApiModelProperty(value = "수정 날짜", example = "2022/11/12 16:42:38")
             String modifiedAt
     ){
         @Builder
@@ -51,8 +51,8 @@ public class CategoryDto {
                     .build();
         }
     }
-    public record CategoryVersionResponse(
-            @ApiModelProperty(value = "가장 최근 수정 날짜", example = "2022-10-31 20:19:56")
+    /*public record CategoryVersionResponse(
+            @ApiModelProperty(value = "가장 최근 수정 날짜", example = "2022/11/12 16:42:38")
             String lastModifiedAt,
             @ApiModelProperty(value = "카테고리 종류(메인/서브)", example = "category")
             String categoryType
@@ -65,5 +65,5 @@ public class CategoryDto {
                     .categoryType(categoryType)
                     .build();
         }
-    }
+    }*/
 }

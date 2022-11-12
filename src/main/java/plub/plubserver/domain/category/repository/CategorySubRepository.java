@@ -8,8 +8,8 @@ import java.util.List;
 import java.util.Optional;
 
 public interface CategorySubRepository extends JpaRepository<CategorySub, Long> {
-    @Query(value = "SELECT MAX(modifiedAt) FROM CategorySub")
-    Optional<String> getLatestDate();
+    /*@Query(value = "SELECT MAX(modifiedAt) FROM CategorySub")
+    Optional<String> getLatestDate();*/
 
     List<CategorySub> findAllByCategoryId(Long categoryId);
 
