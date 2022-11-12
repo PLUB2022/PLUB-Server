@@ -22,4 +22,19 @@ public class Category extends BaseTimeEntity {
     // 카테고리(1) - 서브 카테고리(다)
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CategorySub> categorySubs = new ArrayList<>();
+
+    @Builder
+    public Category(String name, int sequence, String icon) {
+        this.name = name;
+        this.sequence = sequence;
+        this.icon = icon;
+    }
+
+    public static Category toCategory(String name, int sequence, String icon){
+        return Category.builder()
+                .name(name)
+                .sequence(sequence)
+                .icon(icon)
+                .build();
+    }
 }

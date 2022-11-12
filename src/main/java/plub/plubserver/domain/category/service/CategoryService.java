@@ -6,6 +6,8 @@ import org.springframework.transaction.annotation.Transactional;
 import plub.plubserver.domain.category.dto.CategoryDto.*;
 import plub.plubserver.domain.category.config.CategoryCode;
 import plub.plubserver.domain.category.exception.CategoryException;
+import plub.plubserver.domain.category.model.Category;
+import plub.plubserver.domain.category.model.CategorySub;
 import plub.plubserver.domain.category.repository.CategoryRepository;
 import plub.plubserver.domain.category.repository.CategorySubRepository;
 
@@ -14,7 +16,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
+@Transactional
 public class CategoryService {
     private final CategoryRepository categoryRepository;
     private final CategorySubRepository categorySubRepository;
@@ -30,7 +32,7 @@ public class CategoryService {
                 .collect(Collectors.toList());
     }
 
-    public CategoryVersionResponse getCategoryVersion() {
+    /*public CategoryVersionResponse getCategoryVersion() {
         String categoryLatestDate = categoryRepository.getLatestDate()
                 .orElseThrow(()->new CategoryException(CategoryCode.NOT_FOUND_CATEGORY));
         String categorySubLatestDate = categorySubRepository.getLatestDate()
@@ -40,5 +42,19 @@ public class CategoryService {
             return CategoryVersionResponse.of(categorySubLatestDate, "categorySub");
         else
             return CategoryVersionResponse.of(categoryLatestDate, "category");
+    }*/
+
+    public boolean createCategory(String name, int sequence, String icon) {
+        Category category = Category.toCategory(name, sequence, icon);
+        categoryRepository.save(category);
+        return true;
+    }
+
+    public boolean createCategorySub(String name, int sequence, Long categoryId) {
+        Category category = categoryRepository.findById(categoryId)
+                .orElseThrow(()->new CategoryException(CategoryCode.NOT_FOUND_CATEGORY));
+        CategorySub categorySub = CategorySub.toCategorySub(name, sequence, category);
+        categorySubRepository.save(categorySub);
+        return true;
     }
 }

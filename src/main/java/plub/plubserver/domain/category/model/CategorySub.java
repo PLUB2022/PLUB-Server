@@ -37,4 +37,19 @@ public class CategorySub extends BaseTimeEntity {
     // 서브카테고리(1) - 회원 카테고리(다)
     @OneToMany(mappedBy = "categorySub", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<AccountCategory> accountCategories = new ArrayList<>();
+
+    @Builder
+    public CategorySub(int sequence, String name, Category category) {
+        this.sequence = sequence;
+        this.name = name;
+        this.category = category;
+    }
+
+    public static CategorySub toCategorySub(String name, int sequence, Category category){
+        return CategorySub.builder()
+                .name(name)
+                .sequence(sequence)
+                .category(category)
+                .build();
+    }
 }
