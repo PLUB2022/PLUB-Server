@@ -6,12 +6,11 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import plub.plubserver.common.model.BaseTimeEntity;
 import plub.plubserver.config.jwt.RefreshToken;
-import plub.plubserver.domain.activity.model.AccountPlubing;
 import plub.plubserver.domain.alarm.model.Alarm;
 import plub.plubserver.domain.category.model.AccountCategory;
 import plub.plubserver.domain.comment.model.Comment;
 import plub.plubserver.domain.message.model.Message;
-import plub.plubserver.domain.recruit.model.AccountBoard;
+import plub.plubserver.domain.recruit.model.AccountRecruit;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -63,11 +62,11 @@ public class Account extends BaseTimeEntity {
 
     // 회원(1) - 회원_모집페이지(다) # 다대다 용
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<AccountBoard> accountBoardList = new ArrayList<>();
+    private List<AccountRecruit> accountRecruitList = new ArrayList<>();
 
     // 회원(1) - 회원_모임페이지(다) # 다대다 용
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<AccountPlubing> accountPlubingList = new ArrayList<>();
+    private List<AccountPlubbing> accountPlubbingList = new ArrayList<>();
 
     // 회원(1) - 회원_카테고리(다)
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)

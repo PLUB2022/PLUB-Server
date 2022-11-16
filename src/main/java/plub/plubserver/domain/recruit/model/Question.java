@@ -24,5 +24,5 @@ public class Question extends BaseTimeEntity {
     // 질문(다) - 모집(1)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "board_id")
-    private Board board;
+    private Recruit recruit;
 }
