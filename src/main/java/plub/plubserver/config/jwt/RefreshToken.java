@@ -1,26 +1,19 @@
 package plub.plubserver.config.jwt;
 
-import lombok.AccessLevel;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
-import plub.plubserver.domain.account.model.Account;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.redis.core.RedisHash;
+import org.springframework.data.redis.core.index.Indexed;
 
-import javax.persistence.*;
-
-@Entity
-@AllArgsConstructor
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
+@RedisHash(value = "refreshToken")
+@AllArgsConstructor
 public class RefreshToken {
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "refresh_token_id")
-    private Long id;
-
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "account_id")
-    private Account account;
-
+    @Id
+    private String accountId;
+    @Indexed
     private String refreshToken;
 
     public void replace(String refreshToken) {

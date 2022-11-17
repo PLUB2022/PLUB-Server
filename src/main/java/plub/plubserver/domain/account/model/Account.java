@@ -73,9 +73,6 @@ public class Account extends BaseTimeEntity {
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<AccountCategory> accountCategories = new ArrayList<>();
 
-    @OneToOne(mappedBy = "account", cascade = CascadeType.ALL)
-    private RefreshToken refreshToken;
-
     @Builder
     public Account(String email, String password, String nickname, int age, String birthday, String gender, String phone, SocialType socialType, String profileImage, String lastLogin, String fcmToken, Role role, String introduce) {
         this.email = email;

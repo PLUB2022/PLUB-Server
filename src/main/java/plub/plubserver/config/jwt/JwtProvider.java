@@ -14,6 +14,7 @@ import plub.plubserver.domain.account.config.AccountCode;
 import plub.plubserver.domain.account.exception.AccountException;
 import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.account.model.Role;
+import plub.plubserver.domain.account.repository.AccountRepository;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
@@ -27,17 +28,19 @@ import java.util.Optional;
 public class JwtProvider {
 
     private final PrincipalDetailService principalDetailService;
-    private final RefreshTokenRepository refreshTokenRepository;
+    private final RedisRepository redisRepository;
+    private final AccountRepository accountRepository;
     private final Key privateKey;
 
     public JwtProvider(@Value("${jwt.secret-key}") String secretKey,
                        PrincipalDetailService principalDetailService,
-                       RefreshTokenRepository refreshTokenRepository) {
+                       RedisRepository redisRepository,
+                       AccountRepository accountRepository) {
         this.privateKey = Keys.hmacShaKeyFor(secretKey.getBytes());
         this.principalDetailService = principalDetailService;
-        this.refreshTokenRepository = refreshTokenRepository;
+        this.redisRepository = redisRepository;
+        this.accountRepository = accountRepository;
     }
-
 
     // milliseconds
     @Value("${jwt.access-duration}")
@@ -146,14 +149,14 @@ public class JwtProvider {
     public JwtDto issue(Account account) {
         String access = createAccessToken(account);
         String refresh = createRefreshToken();
-        Optional<RefreshToken> findToken = refreshTokenRepository.findByAccount(account);
+        Optional<RefreshToken> findToken = redisRepository.findById(String.valueOf(account.getId()));
 
         if (findToken.isEmpty()) {
-            refreshTokenRepository.save(new RefreshToken(null, account, refresh));
+            redisRepository.save(new RefreshToken(String.valueOf(account.getId()), refresh));
         } else {
             findToken.get().replace(refresh);
+            redisRepository.save(findToken.get());
         }
-
         return new JwtDto(access, refresh);
     }
 
@@ -161,18 +164,19 @@ public class JwtProvider {
      * Refresh Token 으로 Access Token 재발급 (Access, Refresh 둘 다 재발급)
      */
     public JwtDto reissue(String refreshToken) {
-        RefreshToken findRefreshToken = refreshTokenRepository
+        RefreshToken findRefreshToken = redisRepository
                 .findByRefreshToken(refreshToken)
-                .orElseThrow(
-                        () -> new JwtException("Refresh Token 을 찾을 수 없습니다.")
-                );
+                .orElseThrow( () -> new JwtException("Refresh Token 을 찾을 수 없습니다."));
 
-        Account account = findRefreshToken.getAccount();
+        Account account = accountRepository.findById(Long.valueOf(findRefreshToken.getAccountId()))
+                .orElseThrow(() -> new AccountException(AccountCode.NOT_FOUND_ACCOUNT));
+
         String newAccessToken = createAccessToken(account);
         String newRefreshToken = createRefreshToken();
 
         // 기존 refresh 토큰 값 변경
         findRefreshToken.replace(newRefreshToken);
+        redisRepository.save(findRefreshToken);
         return new JwtDto(newAccessToken, newRefreshToken);
     }
 
