@@ -9,6 +9,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import plub.plubserver.config.security.PrincipalDetailService;
+import plub.plubserver.config.security.PrincipalDetails;
 import plub.plubserver.domain.account.dto.AuthDto;
 import plub.plubserver.domain.account.config.AccountCode;
 import plub.plubserver.domain.account.exception.AccountException;
@@ -28,18 +29,15 @@ import java.util.Optional;
 public class JwtProvider {
 
     private final PrincipalDetailService principalDetailService;
-    private final RedisRepository redisRepository;
-    private final AccountRepository accountRepository;
+    private final RedisService redisService;
     private final Key privateKey;
 
     public JwtProvider(@Value("${jwt.secret-key}") String secretKey,
                        PrincipalDetailService principalDetailService,
-                       RedisRepository redisRepository,
-                       AccountRepository accountRepository) {
+                       RedisService redisService) {
         this.privateKey = Keys.hmacShaKeyFor(secretKey.getBytes());
         this.principalDetailService = principalDetailService;
-        this.redisRepository = redisRepository;
-        this.accountRepository = accountRepository;
+        this.redisService = redisService;
     }
 
     // milliseconds
@@ -89,9 +87,10 @@ public class JwtProvider {
     }
 
     // Refresh Token 생성
-    private String createRefreshToken() {
+    private String createRefreshToken(Account account) {
         Date now = new Date(System.currentTimeMillis());
         return Jwts.builder()
+                .setSubject(account.getEmail())
                 .setIssuedAt(now)
                 .setExpiration(new Date(now.getTime() + refreshDuration))
                 .signWith(privateKey)
@@ -148,14 +147,10 @@ public class JwtProvider {
      */
     public JwtDto issue(Account account) {
         String access = createAccessToken(account);
-        String refresh = createRefreshToken();
-        Optional<RefreshToken> findToken = redisRepository.findById(String.valueOf(account.getId()));
-
-        if (findToken.isEmpty()) {
-            redisRepository.save(new RefreshToken(String.valueOf(account.getId()), refresh));
-        } else {
-            findToken.get().replace(refresh);
-            redisRepository.save(findToken.get());
+        String refresh = createRefreshToken(account);
+        String findToken = redisService.getRefreshToken(account.getId());
+        if(findToken==null){
+            redisService.setRefreshToken(account.getId(), refresh);
         }
         return new JwtDto(access, refresh);
     }
@@ -164,19 +159,20 @@ public class JwtProvider {
      * Refresh Token 으로 Access Token 재발급 (Access, Refresh 둘 다 재발급)
      */
     public JwtDto reissue(String refreshToken) {
-        RefreshToken findRefreshToken = redisRepository
-                .findByRefreshToken(refreshToken)
+        Authentication authentication = getAuthentication(refreshToken);
+        PrincipalDetails principal = (PrincipalDetails) authentication.getPrincipal();
+        Account account = principal.getAccount();
+
+        Optional.ofNullable(redisService
+                .getRefreshToken(account.getId()))
                 .orElseThrow( () -> new JwtException("Refresh Token 을 찾을 수 없습니다."));
 
-        Account account = accountRepository.findById(Long.valueOf(findRefreshToken.getAccountId()))
-                .orElseThrow(() -> new AccountException(AccountCode.NOT_FOUND_ACCOUNT));
-
         String newAccessToken = createAccessToken(account);
-        String newRefreshToken = createRefreshToken();
+        String newRefreshToken = createRefreshToken(account);
 
         // 기존 refresh 토큰 값 변경
-        findRefreshToken.replace(newRefreshToken);
-        redisRepository.save(findRefreshToken);
+        redisService.setRefreshToken(account.getId(),newRefreshToken);
+
         return new JwtDto(newAccessToken, newRefreshToken);
     }
 

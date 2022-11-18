@@ -5,7 +5,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import plub.plubserver.common.model.BaseTimeEntity;
-import plub.plubserver.config.jwt.RefreshToken;
 import plub.plubserver.domain.activity.model.AccountPlubing;
 import plub.plubserver.domain.alarm.model.Alarm;
 import plub.plubserver.domain.category.model.AccountCategory;
