@@ -13,7 +13,7 @@ public class AccountCategory {
     // 서브 카테고리(1) - 회원 카테고리(다)
     @ManyToOne
     @JoinColumn(name = "category_sub_id")
-    private CategorySub categorySub;
+    private SubCategory categorySub;
 
     // 회원(1) - 회원 카테고리(다)
     @ManyToOne

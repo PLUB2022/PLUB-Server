@@ -4,7 +4,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import plub.plubserver.common.model.BaseTimeEntity;
-import plub.plubserver.domain.activity.model.AccountPlubing;
+import plub.plubserver.domain.account.model.AccountPlubbing;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -13,7 +13,7 @@ import java.util.List;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class PlubingFeed extends BaseTimeEntity {
+public class PlubbingFeed extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,10 +26,10 @@ public class PlubingFeed extends BaseTimeEntity {
 
     // 피드(다) - 회원_모임페이지(1)
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "account_plubing_id")
-    private AccountPlubing accountPlubing;
+    @JoinColumn(name = "account_plubbing_id")
+    private AccountPlubbing accountPlubbing;
 
     // 피드(1) - 피드 사진(다)
     @OneToMany(mappedBy = "feed", cascade = CascadeType.ALL)
-    private List<PlubingFeedImage> feedImageList = new ArrayList<>();
+    private List<PlubbingFeedImage> feedImageList = new ArrayList<>();
 }

@@ -1,16 +1,17 @@
 package plub.plubserver.domain.category.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import plub.plubserver.domain.category.model.CategorySub;
+import plub.plubserver.domain.category.model.SubCategory;
 
 import java.util.List;
 import java.util.Optional;
 
-public interface CategorySubRepository extends JpaRepository<CategorySub, Long> {
+public interface SubCategoryRepository extends JpaRepository<SubCategory, Long> {
     /*@Query(value = "SELECT MAX(modifiedAt) FROM CategorySub")
     Optional<String> getLatestDate();*/
 
-    List<CategorySub> findAllByCategoryId(Long categoryId);
+    List<SubCategory> findAllByCategoryId(Long categoryId);
+
+    Optional<SubCategory> findByName(String name);
 
 }

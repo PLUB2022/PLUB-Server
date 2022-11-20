@@ -25,91 +25,85 @@ public class InitDummyData {
         categoryService.createCategory("컴퓨터",  8, "https://plub.s3.ap-northeast-2.amazonaws.com/category/workIcon.png");
 
         //예술 세부 카테고리
-        categoryService.createCategorySub("미술", 1, Long.valueOf(1));
-        categoryService.createCategorySub("켈라그래피", 2, Long.valueOf(1));
-        categoryService.createCategorySub("공예", 3, Long.valueOf(1));
-        categoryService.createCategorySub("DIY", 4, Long.valueOf(1));
-        categoryService.createCategorySub("사진", 5, Long.valueOf(1));
-        categoryService.createCategorySub("영상제작", 6, Long.valueOf(1));
-        categoryService.createCategorySub("춤", 7, Long.valueOf(1));
-        categoryService.createCategorySub("연기", 8, Long.valueOf(1));
-        categoryService.createCategorySub("뮤지컬", 9, Long.valueOf(1));
-        categoryService.createCategorySub("음악", 10, Long.valueOf(1));
-        categoryService.createCategorySub("악기", 11, Long.valueOf(1));
-        categoryService.createCategorySub("기타", 12, Long.valueOf(1));
+        categoryService.createSubCategory("미술", 1, Long.valueOf(1));
+        categoryService.createSubCategory("켈라그래피", 2, Long.valueOf(1));
+        categoryService.createSubCategory("공예", 3, Long.valueOf(1));
+        categoryService.createSubCategory("DIY", 4, Long.valueOf(1));
+        categoryService.createSubCategory("사진", 5, Long.valueOf(1));
+        categoryService.createSubCategory("영상제작", 6, Long.valueOf(1));
+        categoryService.createSubCategory("춤", 7, Long.valueOf(1));
+        categoryService.createSubCategory("연기", 8, Long.valueOf(1));
+        categoryService.createSubCategory("뮤지컬", 9, Long.valueOf(1));
+        categoryService.createSubCategory("음악", 10, Long.valueOf(1));
+        categoryService.createSubCategory("악기", 11, Long.valueOf(1));
+        categoryService.createSubCategory("기타", 12, Long.valueOf(1));
 
         // 스포츠/피트니스 세부 카테고리
-        categoryService.createCategorySub("등산", 1, Long.valueOf(2));
-        categoryService.createCategorySub("산책", 2, Long.valueOf(2));
-        categoryService.createCategorySub("자전거", 3, Long.valueOf(2));
-        categoryService.createCategorySub("배드민턴", 4, Long.valueOf(2));
-        categoryService.createCategorySub("볼링", 5, Long.valueOf(2));
-        categoryService.createCategorySub("테니스", 6, Long.valueOf(2));
-        categoryService.createCategorySub("계절스포츠", 7, Long.valueOf(2));
-        categoryService.createCategorySub("골프", 8, Long.valueOf(2));
-        categoryService.createCategorySub("클라이밍", 9, Long.valueOf(2));
-        categoryService.createCategorySub("헬스", 10, Long.valueOf(2));
-        categoryService.createCategorySub("크로스핏", 11, Long.valueOf(2));
-        categoryService.createCategorySub("요가", 12, Long.valueOf(2));
-        categoryService.createCategorySub("필라테스", 13, Long.valueOf(2));
-        categoryService.createCategorySub("탁구", 14, Long.valueOf(2));
-        categoryService.createCategorySub("당구", 15, Long.valueOf(2));
-        categoryService.createCategorySub("러닝", 16, Long.valueOf(2));
-        categoryService.createCategorySub("수영", 17, Long.valueOf(2));
-        categoryService.createCategorySub("축구", 18, Long.valueOf(2));
-        categoryService.createCategorySub("농구", 19, Long.valueOf(2));
-        categoryService.createCategorySub("야구", 20, Long.valueOf(2));
-        categoryService.createCategorySub("배구", 21, Long.valueOf(2));
-        categoryService.createCategorySub("격투기", 22, Long.valueOf(2));
-        categoryService.createCategorySub("스포츠관람", 23, Long.valueOf(2));
+        categoryService.createSubCategory("등산", 1, Long.valueOf(2));
+        categoryService.createSubCategory("산책", 2, Long.valueOf(2));
+        categoryService.createSubCategory("자전거", 3, Long.valueOf(2));
+        categoryService.createSubCategory("배드민턴", 4, Long.valueOf(2));
+        categoryService.createSubCategory("볼링", 5, Long.valueOf(2));
+        categoryService.createSubCategory("테니스", 6, Long.valueOf(2));
+        categoryService.createSubCategory("계절스포츠", 7, Long.valueOf(2));
+        categoryService.createSubCategory("골프", 8, Long.valueOf(2));
+        categoryService.createSubCategory("클라이밍", 9, Long.valueOf(2));
+        categoryService.createSubCategory("헬스", 10, Long.valueOf(2));
+        categoryService.createSubCategory("크로스핏", 11, Long.valueOf(2));
+        categoryService.createSubCategory("요가", 12, Long.valueOf(2));
+        categoryService.createSubCategory("필라테스", 13, Long.valueOf(2));
+        categoryService.createSubCategory("탁구", 14, Long.valueOf(2));
+        categoryService.createSubCategory("당구", 15, Long.valueOf(2));
+        categoryService.createSubCategory("러닝", 16, Long.valueOf(2));
+        categoryService.createSubCategory("수영", 17, Long.valueOf(2));
+        categoryService.createSubCategory("축구", 18, Long.valueOf(2));
+        categoryService.createSubCategory("농구", 19, Long.valueOf(2));
+        categoryService.createSubCategory("야구", 20, Long.valueOf(2));
+        categoryService.createSubCategory("배구", 21, Long.valueOf(2));
+        categoryService.createSubCategory("격투기", 22, Long.valueOf(2));
+        categoryService.createSubCategory("스포츠관람", 23, Long.valueOf(2));
 
         // 제테크/투자 세부 카테고리
-        categoryService.createCategorySub("주식", 1, Long.valueOf(3));
-        categoryService.createCategorySub("부동산", 2, Long.valueOf(3));
-        categoryService.createCategorySub("파생상품", 3, Long.valueOf(3));
-        categoryService.createCategorySub("코인/NFT", 4, Long.valueOf(3));
-        categoryService.createCategorySub("기타", 5, Long.valueOf(3));
+        categoryService.createSubCategory("주식", 1, Long.valueOf(3));
+        categoryService.createSubCategory("부동산", 2, Long.valueOf(3));
+        categoryService.createSubCategory("파생상품", 3, Long.valueOf(3));
+        categoryService.createSubCategory("코인/NFT", 4, Long.valueOf(3));
+        categoryService.createSubCategory("기타", 5, Long.valueOf(3));
 
         // 어학 세부 카테고리리
-        categoryService.createCategorySub("영어", 1, Long.valueOf(4));
-        categoryService.createCategorySub("중국어", 2, Long.valueOf(4));
-        categoryService.createCategorySub("일본어", 3, Long.valueOf(4));
-        categoryService.createCategorySub("스페인어", 4, Long.valueOf(4));
-        categoryService.createCategorySub("프랑스어", 5, Long.valueOf(4));
-        categoryService.createCategorySub("베트남어", 6, Long.valueOf(4));
-        categoryService.createCategorySub("기타", 7, Long.valueOf(4));
+        categoryService.createSubCategory("영어", 1, Long.valueOf(4));
+        categoryService.createSubCategory("중국어", 2, Long.valueOf(4));
+        categoryService.createSubCategory("일본어", 3, Long.valueOf(4));
+        categoryService.createSubCategory("스페인어", 4, Long.valueOf(4));
+        categoryService.createSubCategory("프랑스어", 5, Long.valueOf(4));
+        categoryService.createSubCategory("베트남어", 6, Long.valueOf(4));
+        categoryService.createSubCategory("기타", 7, Long.valueOf(4));
 
         // 문화 세부 카테고리
-        categoryService.createCategorySub("전시", 1, Long.valueOf(5));
-        categoryService.createCategorySub("공연", 2, Long.valueOf(5));
-        categoryService.createCategorySub("패션", 3, Long.valueOf(5));
-        categoryService.createCategorySub("뷰티", 4, Long.valueOf(5));
-        categoryService.createCategorySub("기타", 5, Long.valueOf(5));
+        categoryService.createSubCategory("전시", 1, Long.valueOf(5));
+        categoryService.createSubCategory("공연", 2, Long.valueOf(5));
+        categoryService.createSubCategory("패션", 3, Long.valueOf(5));
+        categoryService.createSubCategory("뷰티", 4, Long.valueOf(5));
+        categoryService.createSubCategory("기타", 5, Long.valueOf(5));
 
         // 음식 세부 카테고리
-        categoryService.createCategorySub("요리", 1, Long.valueOf(6));
-        categoryService.createCategorySub("음료", 2, Long.valueOf(6));
-        categoryService.createCategorySub("주류", 3, Long.valueOf(6));
-        categoryService.createCategorySub("맛집", 4, Long.valueOf(6));
-        categoryService.createCategorySub("기타", 5, Long.valueOf(6));
+        categoryService.createSubCategory("요리", 1, Long.valueOf(6));
+        categoryService.createSubCategory("음료", 2, Long.valueOf(6));
+        categoryService.createSubCategory("주류", 3, Long.valueOf(6));
+        categoryService.createSubCategory("맛집", 4, Long.valueOf(6));
+        categoryService.createSubCategory("기타", 5, Long.valueOf(6));
 
         // 취업/창업 세부 카테고리
-        categoryService.createCategorySub("데이터분석", 1, Long.valueOf(7));
-        categoryService.createCategorySub("마케팅", 2, Long.valueOf(7));
-        categoryService.createCategorySub("파이낸스", 3, Long.valueOf(7));
-        categoryService.createCategorySub("비즈니스", 4, Long.valueOf(7));
-        categoryService.createCategorySub("기타", 5, Long.valueOf(7));
+        categoryService.createSubCategory("데이터분석", 1, Long.valueOf(7));
+        categoryService.createSubCategory("마케팅", 2, Long.valueOf(7));
+        categoryService.createSubCategory("파이낸스", 3, Long.valueOf(7));
+        categoryService.createSubCategory("비즈니스", 4, Long.valueOf(7));
+        categoryService.createSubCategory("기타", 5, Long.valueOf(7));
 
         // 컴퓨터 세부 카테고리
-        categoryService.createCategorySub("컴퓨터", 1, Long.valueOf(8));
-        categoryService.createCategorySub("디자인툴", 2, Long.valueOf(8));
-        categoryService.createCategorySub("코딩", 3, Long.valueOf(8));
-        categoryService.createCategorySub("프로그래밍", 4, Long.valueOf(8));
-
-
-
-
-
-
+        categoryService.createSubCategory("컴퓨터", 1, Long.valueOf(8));
+        categoryService.createSubCategory("디자인툴", 2, Long.valueOf(8));
+        categoryService.createSubCategory("코딩", 3, Long.valueOf(8));
+        categoryService.createSubCategory("프로그래밍", 4, Long.valueOf(8));
     }
-    }
+}

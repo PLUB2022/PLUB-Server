@@ -3,7 +3,7 @@ package plub.plubserver.domain.category.dto;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Builder;
 import plub.plubserver.domain.category.model.Category;
-import plub.plubserver.domain.category.model.CategorySub;
+import plub.plubserver.domain.category.model.SubCategory;
 
 public class CategoryDto {
     public record CategoryListResponse(
@@ -42,7 +42,7 @@ public class CategoryDto {
     ){
         @Builder
         public CategorySubListResponse {}
-        public static CategorySubListResponse of(CategorySub categorySub) {
+        public static CategorySubListResponse of(SubCategory categorySub) {
             return CategorySubListResponse.builder()
                     .sequence(categorySub.getSequence())
                     .name(categorySub.getName())

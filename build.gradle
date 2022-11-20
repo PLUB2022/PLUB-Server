@@ -28,10 +28,12 @@ dependencies {
 	implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity5'
 	testImplementation 'org.projectlombok:lombok:1.18.22'
 	compileOnly 'org.projectlombok:lombok'
-	runtimeOnly 'org.postgresql:postgresql'
 	annotationProcessor 'org.projectlombok:lombok'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.security:spring-security-test'
+
+	// postgresql
+	implementation group: 'org.postgresql', name: 'postgresql', version: '42.2.26'
 
 	// jjwt
 	implementation 'io.jsonwebtoken:jjwt-api:0.11.2'

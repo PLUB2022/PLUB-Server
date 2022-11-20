@@ -10,7 +10,7 @@ import javax.persistence.*;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class PlubingFeedImage {
+public class PlubbingFeedImage {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,5 +22,5 @@ public class PlubingFeedImage {
     // 피드 사진(다) - 피드(1)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "feed_id")
-    private PlubingFeed feed;
+    private PlubbingFeed feed;
 }

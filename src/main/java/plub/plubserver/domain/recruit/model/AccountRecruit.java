@@ -11,7 +11,7 @@ import javax.persistence.*;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class AccountBoard extends BaseTimeEntity {
+public class AccountRecruit extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,7 +27,7 @@ public class AccountBoard extends BaseTimeEntity {
     // 회원_모집페이지(다) - 모집(1) # 다대다 용
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "board_id")
-    private Board board;
+    private Recruit recruit;
 
 
 }
