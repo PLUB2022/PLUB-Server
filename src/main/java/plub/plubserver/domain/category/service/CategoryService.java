@@ -7,19 +7,26 @@ import plub.plubserver.domain.category.dto.CategoryDto.*;
 import plub.plubserver.domain.category.config.CategoryCode;
 import plub.plubserver.domain.category.exception.CategoryException;
 import plub.plubserver.domain.category.model.Category;
-import plub.plubserver.domain.category.model.CategorySub;
+import plub.plubserver.domain.category.model.SubCategory;
 import plub.plubserver.domain.category.repository.CategoryRepository;
-import plub.plubserver.domain.category.repository.CategorySubRepository;
+import plub.plubserver.domain.category.repository.SubCategoryRepository;
 
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static plub.plubserver.domain.category.config.CategoryCode.NOT_FOUND_CATEGORY;
 
 @Service
 @RequiredArgsConstructor
 @Transactional
 public class CategoryService {
     private final CategoryRepository categoryRepository;
-    private final CategorySubRepository categorySubRepository;
+    private final SubCategoryRepository subCategoryRepository;
+
+    public SubCategory getSubCategory(String categoryName) {
+        return subCategoryRepository.findByName(categoryName)
+                .orElseThrow(() -> new CategoryException(NOT_FOUND_CATEGORY));
+    }
 
     public List<CategoryListResponse> getAllCategory() {
         return categoryRepository.findAll()
@@ -27,7 +34,7 @@ public class CategoryService {
                 .collect(Collectors.toList());
     }
     public List<CategorySubListResponse> getAllCategorySub(Long categoryId) {
-        return categorySubRepository.findAllByCategoryId(categoryId)
+        return subCategoryRepository.findAllByCategoryId(categoryId)
                 .stream().map(CategorySubListResponse::of)
                 .collect(Collectors.toList());
     }
@@ -35,7 +42,7 @@ public class CategoryService {
     /*public CategoryVersionResponse getCategoryVersion() {
         String categoryLatestDate = categoryRepository.getLatestDate()
                 .orElseThrow(()->new CategoryException(CategoryCode.NOT_FOUND_CATEGORY));
-        String categorySubLatestDate = categorySubRepository.getLatestDate()
+        String categorySubLatestDate = subCategoryRepository.getLatestDate()
                 .orElseThrow(()->new CategoryException(CategoryCode.NOT_FOUND_CATEGORY));
 
         if(categoryLatestDate.compareTo(categorySubLatestDate)<0)
@@ -50,11 +57,11 @@ public class CategoryService {
         return true;
     }
 
-    public boolean createCategorySub(String name, int sequence, Long categoryId) {
+    public boolean createSubCategory(String name, int sequence, Long categoryId) {
         Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(()->new CategoryException(CategoryCode.NOT_FOUND_CATEGORY));
-        CategorySub categorySub = CategorySub.toCategorySub(name, sequence, category);
-        categorySubRepository.save(categorySub);
+        SubCategory categorySub = SubCategory.toCategorySub(name, sequence, category);
+        subCategoryRepository.save(categorySub);
         return true;
     }
 }

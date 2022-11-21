@@ -1,8 +1,10 @@
 package plub.plubserver.domain.category.model;
 
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import plub.plubserver.common.model.BaseTimeEntity;
-import plub.plubserver.domain.recruit.model.Board;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -11,7 +13,7 @@ import java.util.List;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class CategorySub extends BaseTimeEntity {
+public class SubCategory extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,27 +28,27 @@ public class CategorySub extends BaseTimeEntity {
     @JoinColumn(name = "category_id")
     private Category category;
 
-    // 서브카테고리(1) - 모집(1) # 카테고리가 자식 -> 외래키는 모집이 관리
-    @OneToOne(mappedBy = "categorySub", cascade = CascadeType.ALL)
-    private Board board;
+//    // 서브카테고리(1) - 모집(1) # 카테고리가 자식 -> 외래키는 모집이 관리
+//    @OneToOne(mappedBy = "subCategory", cascade = CascadeType.ALL)
+//    private Board board;
 
     // 서브카테고리(1) - 모임 카테고리(다)
-    @OneToMany(mappedBy = "categorySub", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<PlubbingCategory> plubbingCategories = new ArrayList<>();
+    @OneToMany(mappedBy = "subCategory", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PlubbingSubCategory> plubbingCategories = new ArrayList<>();
 
     // 서브카테고리(1) - 회원 카테고리(다)
     @OneToMany(mappedBy = "categorySub", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<AccountCategory> accountCategories = new ArrayList<>();
 
     @Builder
-    public CategorySub(int sequence, String name, Category category) {
+    public SubCategory(int sequence, String name, Category category) {
         this.sequence = sequence;
         this.name = name;
         this.category = category;
     }
 
-    public static CategorySub toCategorySub(String name, int sequence, Category category){
-        return CategorySub.builder()
+    public static SubCategory toCategorySub(String name, int sequence, Category category){
+        return SubCategory.builder()
                 .name(name)
                 .sequence(sequence)
                 .category(category)
