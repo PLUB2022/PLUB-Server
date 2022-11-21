@@ -25,7 +25,6 @@ public class CategoryController {
     @GetMapping
     public ApiResponse<List<CategoryListResponse>> getAllCategory() {
         return success(
-                CategoryCode.CATEGORY_SUCCESS.getStatusCode(),
                 categoryService.getAllCategory(),
                 "get all categories."
         );
@@ -35,7 +34,6 @@ public class CategoryController {
     @GetMapping("/sub")
     public ApiResponse<List<CategorySubListResponse>> getAllCategorySub(@RequestParam Long categoryId) {
         return success(
-                CategoryCode.CATEGORY_SUCCESS.getStatusCode(),
                 categoryService.getAllCategorySub(categoryId),
                 "get all sub categories."
         );

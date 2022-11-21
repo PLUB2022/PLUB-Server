@@ -29,7 +29,6 @@ public class AccountController {
     @GetMapping("/me")
     public ApiResponse<AccountInfoResponse> getMyAccountInfo() {
         return success(
-                AccountCode.ACCOUNT_SUCCESS.getStatusCode(),
                 accountService.getMyAccount(),
                 "get my account info."
         );
@@ -39,7 +38,6 @@ public class AccountController {
     @GetMapping("/{nickname}")
     public ApiResponse<AccountInfoResponse> getAccountInfo(@Valid @PathVariable String nickname) {
         return success(
-                AccountCode.ACCOUNT_SUCCESS.getStatusCode(),
                 accountService.getAccount(nickname),
                 "get account info."
         );
@@ -49,7 +47,6 @@ public class AccountController {
     @GetMapping("/check/nickname/{nickname}")
     public ApiResponse<Boolean> isDuplicateNickname(@Valid @PathVariable String nickname) {
         return success(
-                AccountCode.ACCOUNT_SUCCESS.getStatusCode(),
                 accountService.isDuplicateNickname(nickname),
                 "check duplicate nickname."
         );
@@ -61,7 +58,6 @@ public class AccountController {
             @Valid @ModelAttribute AccountProfileRequest accountProfileRequest
     ) {
         return success(
-                AccountCode.ACCOUNT_SUCCESS.getStatusCode(),
                 accountService.updateProfile(accountProfileRequest),
                 "update my account info."
         );
@@ -72,7 +68,6 @@ public class AccountController {
     public ApiResponse<?> revoke(@RequestBody RevokeRequest revokeRequest) throws IOException {
         AuthMessage revoke = accountService.revoke(revokeRequest);
         return success(
-                AccountCode.ACCOUNT_SUCCESS.getStatusCode(),
                 revoke.detailData(),
                 revoke.detailMessage()
         );

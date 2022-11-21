@@ -26,7 +26,6 @@ public class ApiResponse<T> {
     public static <T> ApiResponse<T> success(T data, String message) {
         return new ApiResponse<>(SUCCESS_STATUS_CODE, data, message);
     }
-
     public static ApiResponse<?> success(int statusCode) {
         return new ApiResponse<>(statusCode, null, null);
     }
