@@ -21,7 +21,7 @@ public class Category extends BaseTimeEntity {
 
     // 카테고리(1) - 서브 카테고리(다)
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<CategorySub> categorySubs = new ArrayList<>();
+    private List<SubCategory> categorySubs = new ArrayList<>();
 
     @Builder
     public Category(String name, int sequence, String icon) {

@@ -24,7 +24,8 @@ public enum AccountCode {
     SIGNUP_TOKEN_ERROR(400, 2030, "invalid sign up token error."),
 
     NOT_FOUND_REFRESH_TOKEN(404, 2040, "not found refresh token."),
-
+    ENCRYPTION_FAILURE(400, 2100, "encryption failure"),
+    DECRYPTION_FAILURE(400, 2110, "decryption failed."),
 
     // Account
     NOT_FOUND_ACCOUNT(404, 2050, "not found account error."),

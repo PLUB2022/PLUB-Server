@@ -3,7 +3,7 @@ package plub.plubserver.domain.category.dto;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Builder;
 import plub.plubserver.domain.category.model.Category;
-import plub.plubserver.domain.category.model.CategorySub;
+import plub.plubserver.domain.category.model.SubCategory;
 
 public class CategoryDto {
     public record CategoryListResponse(
@@ -30,7 +30,9 @@ public class CategoryDto {
                     .build();
         }
     }
-    public record CategorySubListResponse(
+    public record SubCategoryListResponse(
+            @ApiModelProperty(value = "서브 카테고리 id", example = "1")
+            Long id,
             @ApiModelProperty(value = "순서", example = "1")
             int sequence,
             @ApiModelProperty(value = "세부 카테고리 이름", example = "미술")
@@ -41,9 +43,10 @@ public class CategoryDto {
             String modifiedAt
     ){
         @Builder
-        public CategorySubListResponse {}
-        public static CategorySubListResponse of(CategorySub categorySub) {
-            return CategorySubListResponse.builder()
+        public SubCategoryListResponse {}
+        public static SubCategoryListResponse of(SubCategory categorySub) {
+            return SubCategoryListResponse.builder()
+                    .id(categorySub.getId())
                     .sequence(categorySub.getSequence())
                     .name(categorySub.getName())
                     .categoryName(categorySub.getCategory().getName())

@@ -36,7 +36,7 @@ public class AccountController {
 
     @ApiOperation(value = "닉네임으로 회원 조회")
     @GetMapping("/{nickname}")
-    public ApiResponse<AccountInfoResponse> getAccountInfo(@Valid @PathVariable String nickname) {
+    public ApiResponse<AccountInfoResponse> getAccountInfo(@PathVariable String nickname) {
         return success(
                 accountService.getAccount(nickname),
                 "get account info."
@@ -45,7 +45,7 @@ public class AccountController {
 
     @ApiOperation(value = "닉네임 검증 API")
     @GetMapping("/check/nickname/{nickname}")
-    public ApiResponse<Boolean> isDuplicateNickname(@Valid @PathVariable String nickname) {
+    public ApiResponse<Boolean> isDuplicateNickname(@PathVariable String nickname) {
         return success(
                 accountService.isDuplicateNickname(nickname),
                 "check duplicate nickname."

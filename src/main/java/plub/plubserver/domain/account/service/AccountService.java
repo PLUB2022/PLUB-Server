@@ -52,7 +52,7 @@ public class AccountService {
                 .orElseThrow(() -> new AccountException(AccountCode.NOT_FOUND_ACCOUNT));
     }
 
-    private Account getCurrentAccount() {
+    public Account getCurrentAccount() {
         return accountRepository.findByEmail(getCurrentAccountEmail())
                 .orElseThrow(() -> new AccountException(AccountCode.NOT_FOUND_ACCOUNT));
     }

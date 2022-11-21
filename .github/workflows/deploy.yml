@@ -3,8 +3,6 @@ name: CI/CD Pipeline using Docker Hub
 on:
   push:
     branches: [ "develop" ]
-#  pull_request:
-#    branches: [ "master" ]
 
 permissions:
   contents: read
@@ -60,5 +58,5 @@ jobs:
           script: |
             docker pull ${{ secrets.DOCKER_USERNAME }}/plub-server:${GITHUB_SHA::7}
             docker tag ${{ secrets.DOCKER_USERNAME }}/plub-server:${GITHUB_SHA::7} plub-server
-            docker stop server
+            docker rm -f $(docker ps -qa)
             docker run -d --rm --name server -p 80:8085 plub-server
