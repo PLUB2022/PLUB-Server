@@ -14,10 +14,10 @@ public class RedisService {
     private final RedisTemplate<String, String> redisTemplate;
 
     public boolean deleteRefreshToken(Long accountId) {
-        if(redisTemplate.hasKey(String.valueOf(accountId))) {
+        if (redisTemplate.hasKey(String.valueOf(accountId))) {
             redisTemplate.delete(String.valueOf(accountId));
             return true;
-        }else {
+        } else {
             return false;
         }
     }
@@ -30,9 +30,9 @@ public class RedisService {
 
     public String getRefreshToken(Long accountId) {
         ValueOperations<String, String> operations = redisTemplate.opsForValue();
-        if(redisTemplate.hasKey(String.valueOf(accountId))){
+        if (redisTemplate.hasKey(String.valueOf(accountId))) {
             return operations.get(String.valueOf(accountId));
-        }else {
+        } else {
             return null;
         }
     }

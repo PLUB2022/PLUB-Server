@@ -15,7 +15,7 @@ import plub.plubserver.domain.account.config.AccountCode;
 import plub.plubserver.domain.account.exception.AccountException;
 import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.account.model.Role;
-import plub.plubserver.domain.account.repository.AccountRepository;
+import plub.plubserver.util.AESUtil;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
@@ -30,14 +30,16 @@ public class JwtProvider {
 
     private final PrincipalDetailService principalDetailService;
     private final RedisService redisService;
+    private final AESUtil aesUtil;
     private final Key privateKey;
 
     public JwtProvider(@Value("${jwt.secret-key}") String secretKey,
                        PrincipalDetailService principalDetailService,
-                       RedisService redisService) {
+                       RedisService redisService, AESUtil aesUtil) {
         this.privateKey = Keys.hmacShaKeyFor(secretKey.getBytes());
         this.principalDetailService = principalDetailService;
         this.redisService = redisService;
+        this.aesUtil = aesUtil;
     }
 
     // milliseconds
@@ -66,7 +68,7 @@ public class JwtProvider {
     public String createSignToken(String email) {
         Date now = new Date(System.currentTimeMillis());
         return Jwts.builder()
-                .setSubject(email)
+                .setSubject(aesUtil.encrypt(email))
                 .claim("sign", Role.ROLE_USER)
                 .setIssuedAt(now)
                 .setExpiration(new Date(now.getTime() + accessDuration))
@@ -78,7 +80,7 @@ public class JwtProvider {
     private String createAccessToken(Account account) {
         Date now = new Date(System.currentTimeMillis());
         return Jwts.builder()
-                .setSubject(account.getEmail())
+                .setSubject(aesUtil.encrypt(account.getEmail()))
                 .claim("role", account.getRole())
                 .setIssuedAt(now)
                 .setExpiration(new Date(now.getTime() + accessDuration))
@@ -90,7 +92,7 @@ public class JwtProvider {
     private String createRefreshToken(Account account) {
         Date now = new Date(System.currentTimeMillis());
         return Jwts.builder()
-                .setSubject(account.getEmail())
+                .setSubject(aesUtil.encrypt(account.getEmail()))
                 .setIssuedAt(now)
                 .setExpiration(new Date(now.getTime() + refreshDuration))
                 .signWith(privateKey)
@@ -126,7 +128,7 @@ public class JwtProvider {
                 .build()
                 .parseClaimsJws(accessToken)
                 .getBody();
-        String email = body.getSubject();
+        String email = aesUtil.decrypt(body.getSubject());
         UserDetails userDetails = principalDetailService.loadUserByUsername(email);
         return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
     }
@@ -137,7 +139,7 @@ public class JwtProvider {
                 .build()
                 .parseClaimsJws(signToken)
                 .getBody();
-        String email = body.getSubject();
+        String email = aesUtil.decrypt(body.getSubject());
         String[] split = email.split("@");
         return new AuthDto.SigningAccount(email, split[1]);
     }
@@ -148,10 +150,7 @@ public class JwtProvider {
     public JwtDto issue(Account account) {
         String access = createAccessToken(account);
         String refresh = createRefreshToken(account);
-        String findToken = redisService.getRefreshToken(account.getId());
-        if(findToken==null){
-            redisService.setRefreshToken(account.getId(), refresh);
-        }
+        redisService.setRefreshToken(account.getId(), refresh);
         return new JwtDto(access, refresh);
     }
 
@@ -164,14 +163,14 @@ public class JwtProvider {
         Account account = principal.getAccount();
 
         Optional.ofNullable(redisService
-                .getRefreshToken(account.getId()))
-                .orElseThrow( () -> new JwtException("Refresh Token 을 찾을 수 없습니다."));
+                        .getRefreshToken(account.getId()))
+                .orElseThrow(() -> new JwtException("Refresh Token 을 찾을 수 없습니다."));
 
         String newAccessToken = createAccessToken(account);
         String newRefreshToken = createRefreshToken(account);
 
         // 기존 refresh 토큰 값 변경
-        redisService.setRefreshToken(account.getId(),newRefreshToken);
+        redisService.setRefreshToken(account.getId(), newRefreshToken);
 
         return new JwtDto(newAccessToken, newRefreshToken);
     }
