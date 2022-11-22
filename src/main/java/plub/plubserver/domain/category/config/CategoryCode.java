@@ -7,7 +7,7 @@ public enum CategoryCode {
     /**
      * success
      */
-    CATEGORY_SUCCESS(200, 3001, "category request complete."),
+    CATEGORY_SUCCESS(200, 1000, "category request complete."),
 
     /**
      * fail

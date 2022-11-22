@@ -7,31 +7,32 @@ public enum AccountCode {
     /**
      * success
      */
-    ACCOUNT_SUCCESS(200, 1001, "account request complete."),
-    NEED_TO_SIGNUP(200, 1011, "need to signup, X-ACCESS-TOKEN is issued."),
-    LOGIN(200, 1021, "account exist, process login."),
-    SIGNUP_COMPLETE(200, 1031, "signup complete, access token is issued."),
+    ACCOUNT_SUCCESS(200, 1000, "account request complete."),
+    NEED_TO_SIGNUP(200, 2001, "need to signup, X-ACCESS-TOKEN is issued."),
+    LOGIN(200, 1000, "account exist, process login."),
+    SIGNUP_COMPLETE(200, 1000, "signup complete, access token is issued."),
 
 
     /**
      * fail
      */
     // Auth
-    FILTER_ACCESS_DENIED(401, 1000, "access denied."),
-    FILTER_ROLE_FORBIDDEN(403, 1010, "role forbidden."),
+    FILTER_ACCESS_DENIED(401, 2000, "access denied."),
+    FILTER_ROLE_FORBIDDEN(403, 2010, "role forbidden."),
 
-    APPLE_LOGIN_ERROR(400, 1020, "apple login error."),
-    SIGNUP_TOKEN_ERROR(400, 1030, "invalid sign up token error."),
+    APPLE_LOGIN_ERROR(400, 2020, "apple login error."),
+    SIGNUP_TOKEN_ERROR(400, 2030, "invalid sign up token error."),
 
-    NOT_FOUND_REFRESH_TOKEN(404, 1040, "not found refresh token."),
-
+    NOT_FOUND_REFRESH_TOKEN(404, 2040, "not found refresh token."),
+    ENCRYPTION_FAILURE(400, 2100, "encryption failure"),
+    DECRYPTION_FAILURE(400, 2110, "decryption failed."),
 
     // Account
-    NOT_FOUND_ACCOUNT(404, 1050, "not found account error."),
-    NICKNAME_DUPLICATION(400, 1060, "duplicated nickname error."),
-    EMAIL_DUPLICATION(400, 1070, "duplicated email error."),
-    NICKNAME_RULE_ERROR(400, 1080, "invalid nickname rule error."),
-    SOCIAL_TYPE_ERROR(400, 1090, "invalid social type error.");
+    NOT_FOUND_ACCOUNT(404, 2050, "not found account error."),
+    NICKNAME_DUPLICATION(400, 2060, "duplicated nickname error."),
+    EMAIL_DUPLICATION(400, 2070, "duplicated email error."),
+    NICKNAME_RULE_ERROR(400, 2080, "invalid nickname rule error."),
+    SOCIAL_TYPE_ERROR(400, 2090, "invalid social type error.");
 
     private final int HttpCode;
     private final int statusCode;

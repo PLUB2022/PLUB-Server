@@ -39,7 +39,6 @@ public class AuthController {
                                       @Valid @RequestBody SignUpRequest signUpRequest) {
         SignAuthMessage signAuthMessage = authService.signUp(signUpRequest, header);
         return success(
-                signAuthMessage.statusCode(),
                 signAuthMessage.detailData(),
                 signAuthMessage.detailMessage()
         );
@@ -49,7 +48,6 @@ public class AuthController {
     @PostMapping("/reissue")
     public ApiResponse<JwtDto> reissue(@RequestBody ReissueRequest reissueRequest) {
         return success(
-                AccountCode.ACCOUNT_SUCCESS.getStatusCode(),
                 authService.reissue(reissueRequest),
                 "access token reissued."
         );
@@ -59,11 +57,8 @@ public class AuthController {
     @GetMapping("/logout")
     public ApiResponse<String> logout() {
         return success(
-                AccountCode.ACCOUNT_SUCCESS.getStatusCode(),
                 authService.logout(),
                 "logout."
         );
     }
-
-
 }

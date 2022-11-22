@@ -12,7 +12,7 @@ import java.util.Map;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Slf4j
 public class ApiResponse<T> {
-
+    final static int SUCCESS_STATUS_CODE = 1000;
     private int statusCode;
     private T data;
     private String message;
@@ -23,7 +23,9 @@ public class ApiResponse<T> {
     public static <T> ApiResponse<T> success(int statusCode, T data, String message) {
         return new ApiResponse<>(statusCode, data, message);
     }
-
+    public static <T> ApiResponse<T> success(T data, String message) {
+        return new ApiResponse<>(SUCCESS_STATUS_CODE, data, message);
+    }
     public static ApiResponse<?> success(int statusCode) {
         return new ApiResponse<>(statusCode, null, null);
     }

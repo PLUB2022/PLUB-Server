@@ -33,9 +33,9 @@ public class CategoryService {
                 .stream().map(CategoryListResponse::of)
                 .collect(Collectors.toList());
     }
-    public List<CategorySubListResponse> getAllCategorySub(Long categoryId) {
+    public List<SubCategoryListResponse> getAllCategorySub(Long categoryId) {
         return subCategoryRepository.findAllByCategoryId(categoryId)
-                .stream().map(CategorySubListResponse::of)
+                .stream().map(SubCategoryListResponse::of)
                 .collect(Collectors.toList());
     }
 

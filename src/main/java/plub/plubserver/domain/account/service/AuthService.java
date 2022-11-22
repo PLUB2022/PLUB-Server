@@ -21,8 +21,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import plub.plubserver.config.jwt.JwtDto;
 import plub.plubserver.config.jwt.JwtProvider;
-import plub.plubserver.config.jwt.RefreshToken;
-import plub.plubserver.config.jwt.RefreshTokenRepository;
+import plub.plubserver.config.jwt.RedisService;
 import plub.plubserver.config.security.PrincipalDetails;
 import plub.plubserver.domain.account.config.AccountCode;
 import plub.plubserver.domain.account.dto.AppleDto;
@@ -48,7 +47,7 @@ import static plub.plubserver.domain.account.dto.AuthDto.*;
 @RequiredArgsConstructor
 public class AuthService {
 
-    private final RefreshTokenRepository refreshTokenRepository;
+    private final RedisService redisService;
     private final JwtProvider jwtProvider;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final PasswordEncoder passwordEncoder;
@@ -119,7 +118,7 @@ public class AuthService {
         }
     }
 
-    private String fetchSocialEmail(SocialLoginRequest socialLoginRequest){
+    private String fetchSocialEmail(SocialLoginRequest socialLoginRequest) {
         String provider = socialLoginRequest.socialType();
         if (provider.equalsIgnoreCase("Google")) {
             return getGoogleId(socialLoginRequest.accessToken());
@@ -141,7 +140,7 @@ public class AuthService {
         HttpMethod httpMethod = SocialType.GOOGLE.getHttpMethod();
         ResponseEntity<Map<String, Object>> response = validAccessToken(accessToken, socialUrl, httpMethod);
         String sub = (String) Objects.requireNonNull(response.getBody()).get("sub");
-        return sub+"@GOOGLE";
+        return sub + "@GOOGLE";
     }
 
     private String getKakaoId(String accessToken) {
@@ -150,14 +149,14 @@ public class AuthService {
         ResponseEntity<Map<String, Object>> response = validAccessToken(accessToken, socialUrl, httpMethod);
         Map<String, Object> googlePK = (Map) response.getBody();
         String id = String.valueOf(googlePK.get("id"));
-        return id+"@KAKAO";
+        return id + "@KAKAO";
     }
 
-    private AppleDto getAppleAuthPublicKey(){
+    private AppleDto getAppleAuthPublicKey() {
         String socialUrl = SocialType.APPLE.getSocialUrl();
         HttpMethod httpMethod = SocialType.APPLE.getHttpMethod();
         HttpHeaders headers = new HttpHeaders();
-        HttpEntity<MultiValueMap<String,String>> request = new HttpEntity<>(headers);
+        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(headers);
         ResponseEntity<AppleDto> response = restTemplate.exchange(socialUrl, httpMethod, request, AppleDto.class);
         return response.getBody();
     }
@@ -165,7 +164,7 @@ public class AuthService {
     private String getAppleId(String identityToken) {
         AppleDto appleKeyStorage = getAppleAuthPublicKey();
         try {
-            String headerToken = identityToken.substring(0,identityToken.indexOf("."));
+            String headerToken = identityToken.substring(0, identityToken.indexOf("."));
             Map<String, String> header = new ObjectMapper().readValue(new String(Base64.getDecoder().decode(headerToken), StandardCharsets.UTF_8), Map.class);
             AppleDto.AppleKey key = appleKeyStorage.getMatchedKeyBy(header.get("kid"), header.get("alg")).orElseThrow();
 
@@ -181,7 +180,7 @@ public class AuthService {
 
             Claims claims = Jwts.parserBuilder().setSigningKey(publicKey).build().parseClaimsJws(identityToken).getBody();
             String subject = claims.getSubject();
-            return subject+"@APPLE";
+            return subject + "@APPLE";
         } catch (JsonProcessingException | NoSuchAlgorithmException | InvalidKeySpecException | SignatureException |
                 MalformedJwtException | ExpiredJwtException | IllegalArgumentException e) {
             throw new AccountException(AccountCode.APPLE_LOGIN_ERROR); // TODO : 위에 있는 모든 예외를 다 캐치?
@@ -191,7 +190,8 @@ public class AuthService {
     private ResponseEntity<Map<String, Object>> validAccessToken(String accessToken, String socialUrl, HttpMethod httpMethod) {
         HttpHeaders headers = setHeaders(accessToken);
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(headers);
-        ParameterizedTypeReference<Map<String, Object>> RESPONSE_TYPE  =  new ParameterizedTypeReference<>(){};
+        ParameterizedTypeReference<Map<String, Object>> RESPONSE_TYPE = new ParameterizedTypeReference<>() {
+        };
         return restTemplate.exchange(socialUrl, httpMethod, request, RESPONSE_TYPE);
     }
 
@@ -212,11 +212,7 @@ public class AuthService {
         Account account = accountRepository
                 .findByEmail(getCurrentAccountEmail())
                 .orElseThrow(() -> new AccountException(AccountCode.NOT_FOUND_ACCOUNT));
-        RefreshToken refreshToken = refreshTokenRepository
-                .findByAccount(account)
-                .orElseThrow(() -> new AccountException(AccountCode.NOT_FOUND_REFRESH_TOKEN));
-        refreshTokenRepository.delete(refreshToken);
-        refreshTokenRepository.flush();
+        redisService.deleteRefreshToken(account.getId());
         return "로그아웃 완료";
     }
 }

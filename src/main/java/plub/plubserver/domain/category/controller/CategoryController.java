@@ -6,7 +6,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import plub.plubserver.common.dto.ApiResponse;
-import plub.plubserver.domain.category.config.CategoryCode;
 import plub.plubserver.domain.category.dto.CategoryDto.*;
 import plub.plubserver.domain.category.service.CategoryService;
 
@@ -25,7 +24,6 @@ public class CategoryController {
     @GetMapping
     public ApiResponse<List<CategoryListResponse>> getAllCategory() {
         return success(
-                CategoryCode.CATEGORY_SUCCESS.getStatusCode(),
                 categoryService.getAllCategory(),
                 "get all categories."
         );
@@ -33,9 +31,8 @@ public class CategoryController {
 
     @ApiOperation(value = "서브 카테고리 조회")
     @GetMapping("/sub")
-    public ApiResponse<List<CategorySubListResponse>> getAllCategorySub(@RequestParam Long categoryId) {
+    public ApiResponse<List<SubCategoryListResponse>> getAllCategorySub(@RequestParam Long categoryId) {
         return success(
-                CategoryCode.CATEGORY_SUCCESS.getStatusCode(),
                 categoryService.getAllCategorySub(categoryId),
                 "get all sub categories."
         );
