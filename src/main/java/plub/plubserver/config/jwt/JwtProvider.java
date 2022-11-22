@@ -162,9 +162,7 @@ public class JwtProvider {
         PrincipalDetails principal = (PrincipalDetails) authentication.getPrincipal();
         Account account = principal.getAccount();
 
-        Optional.ofNullable(redisService
-                        .getRefreshToken(account.getId()))
-                .orElseThrow(() -> new JwtException("Refresh Token 을 찾을 수 없습니다."));
+        redisService.getRefreshToken(account.getId());
 
         String newAccessToken = createAccessToken(account);
         String newRefreshToken = createRefreshToken(account);
