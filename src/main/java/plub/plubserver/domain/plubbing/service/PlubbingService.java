@@ -5,6 +5,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.account.model.AccountPlubbing;
+import plub.plubserver.domain.account.model.AccountPlubbingStatus;
+import plub.plubserver.domain.account.repository.AccountRepository;
 import plub.plubserver.domain.account.service.AccountService;
 import plub.plubserver.domain.category.model.PlubbingSubCategory;
 import plub.plubserver.domain.category.model.SubCategory;
@@ -15,6 +17,8 @@ import plub.plubserver.domain.plubbing.model.Plubbing;
 import plub.plubserver.domain.plubbing.model.PlubbingPlace;
 import plub.plubserver.domain.plubbing.model.PlubbingStatus;
 import plub.plubserver.domain.plubbing.repository.PlubbingRepository;
+import plub.plubserver.domain.recruit.model.Question;
+import plub.plubserver.domain.recruit.model.Recruit;
 import plub.plubserver.util.s3.AwsS3Uploader;
 import plub.plubserver.util.s3.S3SaveDir;
 
@@ -29,6 +33,7 @@ public class PlubbingService {
     private final CategoryService categoryService;
     private final AwsS3Uploader awsS3Uploader;
     private final AccountService accountService;
+    private final AccountRepository accountRepository; // for test
 
     private void mappingCategoriesToPlubbing(CreatePlubbingRequest createPlubbingRequest, Plubbing plubbing) {
         // 서브 카테고리 가져오기
@@ -54,6 +59,7 @@ public class PlubbingService {
     public PlubbingResponse createPlubbing(CreatePlubbingRequest createPlubbingRequest) {
         // 모임 생성자(호스트) 가져오기
         Account owner = accountService.getCurrentAccount();
+//        Account owner = accountRepository.save(Account.builder().email("test@test.com").build()); // for test
 
         // 메인 이미지 업로드 (선택 했을 시)
         String mainImgFileName = null;
@@ -97,11 +103,33 @@ public class PlubbingService {
                 .isHost(true)
                 .account(owner)
                 .plubbing(plubbing)
+                .accountPlubbingStatus(AccountPlubbingStatus.ACTIVE)
                 .build()
         );
 
-        // TODO : 모집글 자동 생성
+        // 모집 질문글 엔티티화
+        List<Question> questionList = createPlubbingRequest.questionTitles().stream()
+                .map(it -> Question.builder()
+                        .questionTitle(it)
+                        .build())
+                .toList();
 
+        // 모집 자동 생성
+        Recruit recruit = Recruit.builder()
+                .title(createPlubbingRequest.title())
+                .introduce(createPlubbingRequest.introduce())
+                .plubbing(plubbing)
+                .questions(questionList)
+                .build();
+        
+        // 질문 - 모집 매핑
+        questionList.forEach(it -> it.addRecruit(recruit));
+        
+        // 모임 - 모집 매핑
+        plubbing.addRecruit(recruit);
+
+        plubbingRepository.flush(); // flush를 안 하면 recruitId가 null로 들어감
+        
         return PlubbingResponse.of(plubbing);
     }
 }

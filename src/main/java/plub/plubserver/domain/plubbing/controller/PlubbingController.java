@@ -21,10 +21,9 @@ public class PlubbingController {
     @PostMapping
     public ApiResponse<PlubbingResponse> createPlubbing(
             @ModelAttribute CreatePlubbingRequest createPlubbingRequest) {
-        log.info("{}", createPlubbingRequest);
         return ApiResponse.success(
-                1,
-                plubbingService.createPlubbing(createPlubbingRequest)
+                plubbingService.createPlubbing(createPlubbingRequest),
+                "plubbing is successfully created."
         );
     }
 }

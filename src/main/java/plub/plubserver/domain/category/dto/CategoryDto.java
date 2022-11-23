@@ -7,7 +7,7 @@ import plub.plubserver.domain.category.model.SubCategory;
 
 public class CategoryDto {
     public record CategoryListResponse(
-            @ApiModelProperty(value = "카테고리 id", example = "1")
+            @ApiModelProperty(value = "카테고리 plubbingId", example = "1")
             Long id,
             @ApiModelProperty(value = "이름", example = "예술")
             String name,
@@ -31,7 +31,7 @@ public class CategoryDto {
         }
     }
     public record SubCategoryListResponse(
-            @ApiModelProperty(value = "서브 카테고리 id", example = "1")
+            @ApiModelProperty(value = "서브 카테고리 plubbingId", example = "1")
             Long id,
             @ApiModelProperty(value = "순서", example = "1")
             int sequence,

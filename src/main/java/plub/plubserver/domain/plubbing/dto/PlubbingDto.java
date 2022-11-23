@@ -58,7 +58,7 @@ public class PlubbingDto {
             int maxAccountNum,
 
             @Size(max = 5)
-            List<Long> questionIds
+            List<String> questionTitles
     ){
         public PlubbingOnOff getOnOff() {
             if (this.onOff.equals("ON")) return PlubbingOnOff.ON;
@@ -66,20 +66,12 @@ public class PlubbingDto {
         }
     }
 
-    @Builder
-    public record QuestionDto(
-
-            @NotBlank
-            @Size(max = 100)
-            String question
-    ){}
-
     /**
      * Response
      */
     @Builder
     public record PlubbingResponse(
-            Long id,
+            Long plubbingId,
             List<String> subCategories,
             String name,
             String goal,
@@ -90,13 +82,14 @@ public class PlubbingDto {
             Double placePositionY,
             int curAccountNum,
             int maxAccountNum,
-            RecruitResponse recruitResponse,
+            RecruitResponse recruit,
             String createdAt,
             String modifiedAt
     ) {
+        @Builder public PlubbingResponse {}
         public static PlubbingResponse of(Plubbing plubbing) {
             return PlubbingResponse.builder()
-                    .id(plubbing.getId())
+                    .plubbingId(plubbing.getId())
                     .subCategories(plubbing.getPlubbingSubCategories().stream()
                             .map(it -> it.getSubCategory().getName())
                             .toList())
@@ -111,7 +104,7 @@ public class PlubbingDto {
                     .maxAccountNum(plubbing.getMaxAccountNum())
                     .createdAt(plubbing.getCreatedAt())
                     .modifiedAt(plubbing.getModifiedAt())
-//                    .recruitResponse(plubbing.getRecruit()) TODO
+                    .recruit(RecruitResponse.of(plubbing.getRecruit()))
                     .build();
         }
     }

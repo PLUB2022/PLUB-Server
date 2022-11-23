@@ -42,20 +42,20 @@ public class Plubbing extends BaseTimeEntity {
     private int curAccountNum; // 현재 인원수
 
     // 모임(1) - 모집(1) # 모임이 부모 : 외래키 관리
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "recruit_id")
     private Recruit recruit;
 
     // 모임(1) - 플러빙 일정(다)
-    @OneToMany(mappedBy = "plubbing", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "plubbing", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PlubbingDate> plubbingDateList = new ArrayList<>();
 
     // 모임(1) - 회원_모임페이지(다) # 다대다 용
-    @OneToMany(mappedBy = "plubbing", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "plubbing", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<AccountPlubbing> accountPlubbingList = new ArrayList<>();
 
     // 모임(1) - 플러빙 공지(다)
-    @OneToMany(mappedBy = "plubbing", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "plubbing", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PlubbingNotice> notices = new ArrayList<>();
 
     // 모임(1) - 모임 카테고리(다)
@@ -100,5 +100,9 @@ public class Plubbing extends BaseTimeEntity {
 
     public void addPlubbingPlace(PlubbingPlace plubbingPlace) {
         this.plubbingPlace = plubbingPlace;
+    }
+
+    public void addRecruit(Recruit recruit) {
+        this.recruit = recruit;
     }
 }
