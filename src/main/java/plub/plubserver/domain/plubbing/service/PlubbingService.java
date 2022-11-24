@@ -77,7 +77,6 @@ public class PlubbingService {
                         .goal(createPlubbingRequest.goal())
                         .mainImageFileName(mainImgFileName)
                         .status(PlubbingStatus.ACTIVE)
-                        .days(createPlubbingRequest.days())
                         .onOff(createPlubbingRequest.getOnOff())
                         .maxAccountNum(createPlubbingRequest.maxAccountNum())
                         .plubbingDateList(new ArrayList<>())
@@ -86,6 +85,10 @@ public class PlubbingService {
                         .timeLineList(new ArrayList<>())
                         .build()
         );
+
+        plubbingRepository.flush();
+        // days 매핑
+        plubbing.addPlubbingMeetingDay(createPlubbingRequest.getPlubbingMeetingDay(plubbing));
         
         // 오프라인이면 장소도 저장 (온라인 이면 기본값 저장)
         switch (plubbing.getOnOff().name()) {

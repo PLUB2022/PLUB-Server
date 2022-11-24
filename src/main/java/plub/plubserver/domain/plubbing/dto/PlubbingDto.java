@@ -3,7 +3,9 @@ package plub.plubserver.domain.plubbing.dto;
 import lombok.Builder;
 import org.springframework.lang.Nullable;
 import org.springframework.web.multipart.MultipartFile;
+import plub.plubserver.domain.plubbing.model.MeetingDay;
 import plub.plubserver.domain.plubbing.model.Plubbing;
+import plub.plubserver.domain.plubbing.model.PlubbingMeetingDay;
 import plub.plubserver.domain.plubbing.model.PlubbingOnOff;
 import plub.plubserver.domain.recruit.dto.RecruitDto.RecruitResponse;
 
@@ -44,7 +46,7 @@ public class PlubbingDto {
             MultipartFile mainImageFile,
 
             @NotBlank
-            String days, // "월 화 수"
+            List<String> days, // MON, TUE, WED, THR, FRI, SAT, SUN, ALL
 
             @NotBlank
             @Pattern(regexp = "^(ON|OFF)$", message = "only permit ON or OFF.")
@@ -65,6 +67,10 @@ public class PlubbingDto {
             if (this.onOff.equals("ON")) return PlubbingOnOff.ON;
             else return PlubbingOnOff.OFF;
         }
+
+        public List<PlubbingMeetingDay> getPlubbingMeetingDay(Plubbing plubbing) {
+            return this.days.stream().map(it -> new PlubbingMeetingDay(it, plubbing)).toList();
+        }
     }
 
     /**
@@ -77,7 +83,7 @@ public class PlubbingDto {
             String name,
             String goal,
             String mainImageFileName,
-            String days,
+            List<MeetingDay> days,
             String onOff,
             String address,
             Double placePositionX,
@@ -98,7 +104,9 @@ public class PlubbingDto {
                     .name(plubbing.getName())
                     .goal(plubbing.getGoal())
                     .mainImageFileName(plubbing.getMainImageFileName())
-                    .days(plubbing.getDays())
+                    .days(plubbing.getDays().stream()
+                            .map(PlubbingMeetingDay::getDay)
+                            .toList())
                     .onOff(plubbing.getOnOff().name())
                     .address(plubbing.getPlubbingPlace().getAddress())
                     .placePositionX(plubbing.getPlubbingPlace().getPlacePositionX())
