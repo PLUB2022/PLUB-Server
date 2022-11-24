@@ -9,7 +9,8 @@ import javax.persistence.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class PlubbingMeetingDay {
 
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "plubbing_meeting_day_id")
     private Long id;
 
@@ -20,7 +21,7 @@ public class PlubbingMeetingDay {
     private MeetingDay day;
 
     public PlubbingMeetingDay(String day, Plubbing plubbing) {
-        this.day = switch(day) {
+        this.day = switch (day) {
             case "MON" -> MeetingDay.MON;
             case "TUE" -> MeetingDay.TUE;
             case "WED" -> MeetingDay.WED;

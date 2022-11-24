@@ -31,8 +31,7 @@ public class Plubbing extends BaseTimeEntity {
     private PlubbingStatus status; // ACTIVE, END
 
     @OneToMany(mappedBy = "plubbing", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<PlubbingMeetingDay> days = new ArrayList<>();
-//    private String days; // 월 화 수 목 금 토 일 무
+    private List<PlubbingMeetingDay> days;
 
     @Enumerated(EnumType.STRING)
     private PlubbingOnOff onOff; // ON, OFF
@@ -49,30 +48,34 @@ public class Plubbing extends BaseTimeEntity {
 
     // 모임(1) - 플러빙 일정(다)
     @OneToMany(mappedBy = "plubbing", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<PlubbingDate> plubbingDateList = new ArrayList<>();
+    private List<PlubbingDate> plubbingDateList;
 
     // 모임(1) - 회원_모임페이지(다) # 다대다 용
     @OneToMany(mappedBy = "plubbing", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<AccountPlubbing> accountPlubbingList = new ArrayList<>();
+    private List<AccountPlubbing> accountPlubbingList;
 
     // 모임(1) - 플러빙 공지(다)
     @OneToMany(mappedBy = "plubbing", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<PlubbingNotice> notices = new ArrayList<>();
+    private List<PlubbingNotice> notices;
 
     // 모임(1) - 모임 카테고리(다)
     @OneToMany(mappedBy = "plubbing", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<PlubbingSubCategory> plubbingSubCategories = new ArrayList<>();
+    private List<PlubbingSubCategory> plubbingSubCategories;
 
     // 모임(1) - 타임라인(다)
     @OneToMany(mappedBy = "plubbing", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<PlubbingTimeline> timeLineList = new ArrayList<>();
+    private List<PlubbingTimeline> timeLineList;
 
     /**
      * methods
      */
     // 모임 생성때 서브 카테고리들을 저장함
     public void addPlubbingSubCategories(List<PlubbingSubCategory> plubbingSubCategories) {
-        this.plubbingSubCategories.addAll(plubbingSubCategories);
+        if (this.plubbingSubCategories == null) {
+            this.plubbingSubCategories = new ArrayList<>(plubbingSubCategories);
+        } else {
+            this.plubbingSubCategories.addAll(plubbingSubCategories);
+        }
     }
 
     public void addPlubbingMeetingDay(List<PlubbingMeetingDay> days) {
@@ -84,6 +87,7 @@ public class Plubbing extends BaseTimeEntity {
     }
 
     public void addAccountPlubbing(AccountPlubbing accountPlubbing) {
+        if (this.accountPlubbingList == null) this.accountPlubbingList = new ArrayList<>();
         this.accountPlubbingList.add(accountPlubbing);
     }
 
