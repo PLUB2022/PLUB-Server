@@ -50,7 +50,8 @@ public class PlubbingDto {
             @Pattern(regexp = "^(ON|OFF)$", message = "only permit ON or OFF.")
             String onOff,
 
-            // 오프라인시 - 장소 좌표 (온라인이면 0, 0)
+            // 오프라인시 - 장소 좌표 (온라인이면 0.0, 0.0)
+            String address,
             Double placePositionX,
             Double placePositionY,
 
@@ -78,6 +79,7 @@ public class PlubbingDto {
             String mainImageFileName,
             String days,
             String onOff,
+            String address,
             Double placePositionX,
             Double placePositionY,
             int curAccountNum,
@@ -98,6 +100,7 @@ public class PlubbingDto {
                     .mainImageFileName(plubbing.getMainImageFileName())
                     .days(plubbing.getDays())
                     .onOff(plubbing.getOnOff().name())
+                    .address(plubbing.getPlubbingPlace().getAddress())
                     .placePositionX(plubbing.getPlubbingPlace().getPlacePositionX())
                     .placePositionY(plubbing.getPlubbingPlace().getPlacePositionY())
                     .curAccountNum(plubbing.getCurAccountNum())

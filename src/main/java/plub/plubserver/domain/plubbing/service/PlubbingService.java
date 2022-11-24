@@ -58,8 +58,8 @@ public class PlubbingService {
     @Transactional
     public PlubbingResponse createPlubbing(CreatePlubbingRequest createPlubbingRequest) {
         // 모임 생성자(호스트) 가져오기
-        Account owner = accountService.getCurrentAccount();
-//        Account owner = accountRepository.save(Account.builder().email("test@test.com").build()); // for test
+//        Account owner = accountService.getCurrentAccount();
+        Account owner = accountRepository.save(Account.builder().email("test@test.com").build()); // for test
 
         // 메인 이미지 업로드 (선택 했을 시)
         String mainImgFileName = null;
@@ -87,12 +87,15 @@ public class PlubbingService {
                         .build()
         );
         
-        // 오프라인이면 장소도 저장
-        if (plubbing.getOnOff().name().equals("OFF")) {
-            plubbing.addPlubbingPlace(PlubbingPlace.builder()
-                            .placePositionX(createPlubbingRequest.placePositionX())
-                            .placePositionY(createPlubbingRequest.placePositionY())
-                            .build());
+        // 오프라인이면 장소도 저장 (온라인 이면 기본값 저장)
+        switch (plubbing.getOnOff().name()) {
+            case "OFF" -> plubbing.addPlubbingPlace(PlubbingPlace.builder()
+                        .address(createPlubbingRequest.address())
+                        .placePositionX(createPlubbingRequest.placePositionX())
+                        .placePositionY(createPlubbingRequest.placePositionY())
+                        .build());
+
+            case "ON" -> plubbing.addPlubbingPlace(new PlubbingPlace());
         }
 
         // Plubbing - PlubbingSubCategory 매핑
