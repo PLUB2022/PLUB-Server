@@ -7,9 +7,15 @@ import javax.persistence.Embeddable;
 @Embeddable
 @AllArgsConstructor
 @Builder
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 public class PlubbingPlace {
+    private String address;
     private Double placePositionX;
     private Double placePositionY;
+
+    public PlubbingPlace() {
+        this.address = "";
+        this.placePositionX = 0.0;
+        this.placePositionY = 0.0;
+    }
 }

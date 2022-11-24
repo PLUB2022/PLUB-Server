@@ -1,6 +1,7 @@
 package plub.plubserver.domain.recruit.model;
 
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import plub.plubserver.common.model.BaseTimeEntity;
@@ -18,7 +19,7 @@ public class Recruit extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "board_id")
+    @Column(name = "recruit_id")
     private Long id;
 
     private String title; // 소개글 제목 - 모집 페이지에서 제일 크게 보여줄 제목
@@ -37,4 +38,13 @@ public class Recruit extends BaseTimeEntity {
     @OneToMany(mappedBy = "recruit", cascade = CascadeType.ALL)
     private List<Question> questions = new ArrayList<>();
 
+    @Builder
+    public Recruit(String title, String introduce, int questionNum, List<AccountRecruit> accountRecruitList, Plubbing plubbing, List<Question> questions) {
+        this.title = title;
+        this.introduce = introduce;
+        this.questionNum = questionNum;
+        this.accountRecruitList = accountRecruitList;
+        this.plubbing = plubbing;
+        this.questions = questions;
+    }
 }
