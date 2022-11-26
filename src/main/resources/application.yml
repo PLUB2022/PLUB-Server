@@ -38,6 +38,8 @@ server:
     session:
       tracking-modes: cookie
   port: 8085
+  tomcat:
+    keep-alive-timeout: 10
 
 # 로깅 레벨 설정
 logging:
