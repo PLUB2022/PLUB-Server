@@ -39,7 +39,7 @@ jobs:
       - name: Build with Gradle
         run: ./gradlew bootJar
 
-        ## 3) Docker Hub에 이미지 push 하기 
+        ## 3) Docker Hub에 이미지 push 하기
       - name: Docker build
         run: |
           docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
