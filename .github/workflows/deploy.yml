@@ -2,7 +2,7 @@ name: CI/CD Pipeline using Docker Hub
 
 on:
   push:
-    branches: [ "develop" ]
+    branches: [ "develop" ] 
 
 permissions:
   contents: read
