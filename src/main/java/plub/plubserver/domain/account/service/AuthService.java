@@ -21,7 +21,8 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import plub.plubserver.config.jwt.JwtDto;
 import plub.plubserver.config.jwt.JwtProvider;
-import plub.plubserver.config.jwt.RedisService;
+import plub.plubserver.config.jwt.RefreshToken;
+import plub.plubserver.config.jwt.RefreshTokenRepository;
 import plub.plubserver.config.security.PrincipalDetails;
 import plub.plubserver.domain.account.config.AccountCode;
 import plub.plubserver.domain.account.dto.AppleDto;
@@ -47,7 +48,7 @@ import static plub.plubserver.domain.account.dto.AuthDto.*;
 @RequiredArgsConstructor
 public class AuthService {
 
-    private final RedisService redisService;
+    private final RefreshTokenRepository refreshTokenRepository;
     private final JwtProvider jwtProvider;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final PasswordEncoder passwordEncoder;
@@ -212,7 +213,11 @@ public class AuthService {
         Account account = accountRepository
                 .findByEmail(getCurrentAccountEmail())
                 .orElseThrow(() -> new AccountException(AccountCode.NOT_FOUND_ACCOUNT));
-        redisService.deleteRefreshToken(account.getId());
+        RefreshToken refreshToken = refreshTokenRepository
+                .findByAccount(account)
+                .orElseThrow(() -> new AccountException(AccountCode.NOT_FOUND_REFRESH_TOKEN));
+        refreshTokenRepository.delete(refreshToken);
+        refreshTokenRepository.flush();
         return "로그아웃 완료";
     }
 }
