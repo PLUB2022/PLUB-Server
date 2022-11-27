@@ -11,11 +11,10 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import plub.plubserver.domain.account.config.AccountCode;
-import plub.plubserver.domain.account.exception.*;
+import plub.plubserver.domain.account.exception.AccountException;
 import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.account.repository.AccountRepository;
-import plub.plubserver.util.s3.AwsS3Uploader;
-import plub.plubserver.util.s3.S3SaveDir;
+import plub.plubserver.util.s3.AwsS3Service;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -23,7 +22,6 @@ import java.util.regex.Pattern;
 
 import static plub.plubserver.config.security.SecurityUtils.getCurrentAccountEmail;
 import static plub.plubserver.domain.account.dto.AccountDto.AccountInfoResponse;
-import static plub.plubserver.domain.account.dto.AccountDto.AccountProfileRequest;
 import static plub.plubserver.domain.account.dto.AuthDto.*;
 
 @Service
@@ -34,7 +32,7 @@ public class AccountService {
     private final AccountRepository accountRepository;
     private final AppleService appleService;
     private final RestTemplate restTemplate;
-    private final AwsS3Uploader awsS3Uploader;
+    private final AwsS3Service awsS3Service;
 
     @Value("${kakao.appAdminKey}")
     private String appAdminKey;
@@ -66,18 +64,18 @@ public class AccountService {
     }
 
     // 회원 정보 수정
-    @Transactional
-    public AccountInfoResponse updateProfile(AccountProfileRequest profileRequest) {
-        Account myAccount = getCurrentAccount();
-        if (isDuplicateNickname(profileRequest.nickname()))
-            throw new AccountException(AccountCode.NICKNAME_DUPLICATION);
-
-        AwsS3Uploader.S3FileDto newProfileImage =
-                awsS3Uploader.upload(profileRequest.profileImage(), S3SaveDir.ACCOUNT_PROFILE, myAccount);
-
-        myAccount.updateProfile(profileRequest.nickname(), profileRequest.introduce(), newProfileImage.savedPath());
-        return AccountInfoResponse.of(myAccount);
-    }
+//    @Transactional
+//    public AccountInfoResponse updateProfile(AccountProfileRequest profileRequest) {
+//        Account myAccount = getCurrentAccount();
+//        if (isDuplicateNickname(profileRequest.nickname()))
+//            throw new AccountException(AccountCode.NICKNAME_DUPLICATION);
+//
+//        AwsS3Service.S3FileDto newProfileImage =
+//                awsS3Service.upload(profileRequest.profileImage(), S3SaveDir.ACCOUNT_PROFILE, myAccount);
+//
+//        myAccount.updateProfile(profileRequest.nickname(), profileRequest.introduce(), newProfileImage.savedPath());
+//        return AccountInfoResponse.of(myAccount);
+//    }
 
     @Transactional
     public AuthMessage revoke(RevokeRequest revokeAccount) throws IOException {
