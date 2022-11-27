@@ -65,6 +65,11 @@ public class AwsS3Service {
         };
     }
 
+    private String getFilename(String url) {
+        String[] parsedUrl = url.split("/");
+        return parsedUrl[parsedUrl.length - 1];
+    }
+
     public FileDto upload(MultipartFile multipartFile, String type, Account owner) {
         // 로컬에 임시 저장
         File tempFile = tempSave(multipartFile, owner);
@@ -93,7 +98,8 @@ public class AwsS3Service {
         return new FileListDto(result);
     }
 
-    public void delete(String type, String filename) {
+    public void delete(String type, String url) {
+        String filename = getFilename(url);
         try {
             amazonS3Client.deleteObject(
                     new DeleteObjectRequest(bucket + getS3SaveDir(type).path, filename)
@@ -106,14 +112,14 @@ public class AwsS3Service {
 
     public void deleteFiles(DeleteFileRequest deleteFileRequest) {
         String type = deleteFileRequest.type();
-        deleteFileRequest.filenames().forEach(filename -> delete(type, filename));
+        deleteFileRequest.urls().forEach(url -> delete(type, url));
     }
 
     public FileListDto updateFiles(UpdateFileRequest updateFileRequest) {
         String type = updateFileRequest.type();
         Account loginUser = getCurrentAccount();
         // 기존꺼 삭제
-        updateFileRequest.toDeleteFilenames().forEach(file -> delete(type, file));
+        updateFileRequest.toDeleteUrls().forEach(file -> delete(type, file));
 
         // 새로운거 업로드
         return new FileListDto(updateFileRequest.newFiles().stream()

@@ -2,7 +2,6 @@ package plub.plubserver.domain.plubbing.dto;
 
 import lombok.Builder;
 import org.springframework.lang.Nullable;
-import org.springframework.web.multipart.MultipartFile;
 import plub.plubserver.domain.plubbing.model.MeetingDay;
 import plub.plubserver.domain.plubbing.model.Plubbing;
 import plub.plubserver.domain.plubbing.model.PlubbingMeetingDay;
@@ -43,7 +42,7 @@ public class PlubbingDto {
             String introduce,
 
             @Nullable
-            MultipartFile mainImageFile,
+            String mainImageUrl,
 
             @NotBlank
             List<String> days, // MON, TUE, WED, THR, FRI, SAT, SUN, ALL
@@ -103,7 +102,7 @@ public class PlubbingDto {
                             .toList())
                     .name(plubbing.getName())
                     .goal(plubbing.getGoal())
-                    .mainImageFileName(plubbing.getMainImageFileName())
+                    .mainImageFileName(plubbing.getMainImageUrl())
                     .days(plubbing.getDays().stream()
                             .map(PlubbingMeetingDay::getDay)
                             .toList())

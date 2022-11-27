@@ -11,12 +11,12 @@ public class AwsS3Dto {
     ) {}
     public record UpdateFileRequest(
             String type,
-            List<String> toDeleteFilenames,
+            List<String> toDeleteUrls,
             List<MultipartFile> newFiles
     ) {}
     public record DeleteFileRequest(
         String type,
-        List<String> filenames
+        List<String> urls
     ) {}
     public record FileDto(
             String filename,

@@ -25,7 +25,7 @@ public class Plubbing extends BaseTimeEntity {
 
     private String name; // 모임 이름
     private String goal;
-    private String mainImageFileName;
+    private String mainImageUrl;
 
     @Enumerated(EnumType.STRING)
     private PlubbingStatus status; // ACTIVE, END
