@@ -5,17 +5,16 @@ import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import plub.plubserver.common.dto.ApiResponse;
-import plub.plubserver.domain.account.config.AccountCode;
+import plub.plubserver.domain.account.dto.AccountDto.AccountProfileRequest;
 import plub.plubserver.domain.account.service.AccountService;
 
 import javax.validation.Valid;
 import java.io.IOException;
 
 import static plub.plubserver.common.dto.ApiResponse.success;
+import static plub.plubserver.domain.account.dto.AccountDto.AccountInfoResponse;
 import static plub.plubserver.domain.account.dto.AuthDto.AuthMessage;
 import static plub.plubserver.domain.account.dto.AuthDto.RevokeRequest;
-import static plub.plubserver.domain.account.dto.AccountDto.AccountInfoResponse;
-import static plub.plubserver.domain.account.dto.AccountDto.AccountProfileRequest;
 
 
 @RestController
@@ -55,7 +54,7 @@ public class AccountController {
     @ApiOperation(value = "회원 프로필 수정 (프로필 사진, 인사말, 닉네임)")
     @PostMapping("/profile")
     public ApiResponse<AccountInfoResponse> updateProfile(
-            @Valid @ModelAttribute AccountProfileRequest accountProfileRequest
+            @Valid @RequestBody AccountProfileRequest accountProfileRequest
     ) {
         return success(
                 accountService.updateProfile(accountProfileRequest),

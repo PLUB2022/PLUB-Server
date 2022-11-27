@@ -1,7 +1,6 @@
 package plub.plubserver.domain.plubbing.service;
 
 import lombok.RequiredArgsConstructor;
-import org.jetbrains.annotations.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import plub.plubserver.domain.account.model.Account;
@@ -20,8 +19,6 @@ import plub.plubserver.domain.plubbing.model.PlubbingStatus;
 import plub.plubserver.domain.plubbing.repository.PlubbingRepository;
 import plub.plubserver.domain.recruit.model.Question;
 import plub.plubserver.domain.recruit.model.Recruit;
-import plub.plubserver.util.s3.AwsS3Uploader;
-import plub.plubserver.util.s3.S3SaveDir;
 
 import java.util.List;
 
@@ -31,22 +28,9 @@ import java.util.List;
 public class PlubbingService {
     private final PlubbingRepository plubbingRepository;
     private final CategoryService categoryService;
-    private final AwsS3Uploader awsS3Uploader;
     private final AccountService accountService;
     private final AccountRepository accountRepository; // for test
 
-    @Nullable
-    private String uploadMainImage(CreatePlubbingRequest createPlubbingRequest, Account owner) {
-        // 메인 이미지 업로드 (선택 했을 시)
-        String mainImgFileName = null;
-        if (createPlubbingRequest.mainImageFile() != null) {
-            AwsS3Uploader.S3FileDto s3FileDto = awsS3Uploader.upload(
-                    createPlubbingRequest.mainImageFile(), S3SaveDir.PLUBBING_MAIN_IMAGE, owner
-            );
-            mainImgFileName = s3FileDto.fileName();
-        }
-        return mainImgFileName;
-    }
 
     private void createRecruit(CreatePlubbingRequest createPlubbingRequest, Plubbing plubbing) {
         // 모집 질문글 엔티티화
@@ -102,7 +86,7 @@ public class PlubbingService {
                 Plubbing.builder()
                         .name(createPlubbingRequest.name())
                         .goal(createPlubbingRequest.goal())
-                        .mainImageFileName(uploadMainImage(createPlubbingRequest, owner))
+                        .mainImageUrl(createPlubbingRequest.mainImageUrl())
                         .status(PlubbingStatus.ACTIVE)
                         .onOff(createPlubbingRequest.getOnOff())
                         .maxAccountNum(createPlubbingRequest.maxAccountNum())
