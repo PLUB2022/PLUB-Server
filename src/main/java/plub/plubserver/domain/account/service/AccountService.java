@@ -11,6 +11,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import plub.plubserver.domain.account.config.AccountCode;
+import plub.plubserver.domain.account.dto.AccountDto.AccountProfileRequest;
 import plub.plubserver.domain.account.exception.AccountException;
 import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.account.repository.AccountRepository;
@@ -64,18 +65,15 @@ public class AccountService {
     }
 
     // 회원 정보 수정
-//    @Transactional
-//    public AccountInfoResponse updateProfile(AccountProfileRequest profileRequest) {
-//        Account myAccount = getCurrentAccount();
-//        if (isDuplicateNickname(profileRequest.nickname()))
-//            throw new AccountException(AccountCode.NICKNAME_DUPLICATION);
-//
-//        AwsS3Service.S3FileDto newProfileImage =
-//                awsS3Service.upload(profileRequest.profileImage(), S3SaveDir.ACCOUNT_PROFILE, myAccount);
-//
-//        myAccount.updateProfile(profileRequest.nickname(), profileRequest.introduce(), newProfileImage.savedPath());
-//        return AccountInfoResponse.of(myAccount);
-//    }
+    @Transactional
+    public AccountInfoResponse updateProfile(AccountProfileRequest profileRequest) {
+        Account myAccount = getCurrentAccount();
+        if (isDuplicateNickname(profileRequest.nickname()))
+            throw new AccountException(AccountCode.NICKNAME_DUPLICATION);
+
+        myAccount.updateProfile(profileRequest.nickname(), profileRequest.introduce(), profileRequest.profileImageUrl());
+        return AccountInfoResponse.of(myAccount);
+    }
 
     @Transactional
     public AuthMessage revoke(RevokeRequest revokeAccount) throws IOException {

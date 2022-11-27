@@ -2,7 +2,6 @@ package plub.plubserver.domain.account.dto;
 
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Builder;
-import org.springframework.web.multipart.MultipartFile;
 import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.account.model.SocialType;
 
@@ -68,7 +67,7 @@ public class AccountDto {
             @ApiModelProperty(value = "새로운 자기소개", example = "변경자기소개")
             String introduce,
             @ApiModelProperty(value = "새로운 프로필 이미지", example = "디바이스 사진첩에서 가져온 이미지 파일")
-            MultipartFile profileImage
+            String profileImageUrl
     ) {}
 
 }

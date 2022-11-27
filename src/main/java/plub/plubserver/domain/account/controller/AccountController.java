@@ -5,8 +5,10 @@ import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import plub.plubserver.common.dto.ApiResponse;
+import plub.plubserver.domain.account.dto.AccountDto.AccountProfileRequest;
 import plub.plubserver.domain.account.service.AccountService;
 
+import javax.validation.Valid;
 import java.io.IOException;
 
 import static plub.plubserver.common.dto.ApiResponse.success;
@@ -49,16 +51,16 @@ public class AccountController {
         );
     }
 
-//    @ApiOperation(value = "회원 프로필 수정 (프로필 사진, 인사말, 닉네임)")
-//    @PostMapping("/profile")
-//    public ApiResponse<AccountInfoResponse> updateProfile(
-//            @Valid @ModelAttribute AccountProfileRequest accountProfileRequest
-//    ) {
-//        return success(
-//                accountService.updateProfile(accountProfileRequest),
-//                "update my account info."
-//        );
-//    }
+    @ApiOperation(value = "회원 프로필 수정 (프로필 사진, 인사말, 닉네임)")
+    @PostMapping("/profile")
+    public ApiResponse<AccountInfoResponse> updateProfile(
+            @Valid @RequestBody AccountProfileRequest accountProfileRequest
+    ) {
+        return success(
+                accountService.updateProfile(accountProfileRequest),
+                "update my account info."
+        );
+    }
 
     @ApiOperation(value = "회원 탈퇴")
     @PostMapping("/revoke")
