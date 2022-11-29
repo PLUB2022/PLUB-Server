@@ -71,16 +71,6 @@ public class AuthDto {
     ) {}
 
     public record RevokeRequest(
-            @ApiModelProperty(value = "이메일",example = "plub@example.com")
-            String email,
-            @ApiModelProperty(value = "소셜타입", example = "GOOGLE/KAKAO/APPLE")
-            String socialType,
-            @ApiModelProperty(value = "소셜 액세스 토큰", example = "ya29.a0Aa4xrXNXkiDBMm7MtSneVejzvupPun8S8EHorgvrt-nlCNy83PA9TI")
-            String accessToken,
-            @ApiModelProperty(value = "소셜 인증 토큰", example = "eyJraWQiOiJmaDZCczhDIiwiYWxnIjoiUlMyNTYif")
-            String authorizationCode,
-            @ApiModelProperty(value = "카카오 전용 값", example = "1293127391230")
-            String userId
     ) {
 
     }
@@ -93,6 +83,15 @@ public class AuthDto {
     public record SignAuthMessage(int statusCode, JwtDto detailData, String detailMessage) {
     }
 
-    public record SigningAccount(String email, String socialType) {
+    public record SigningAccount(String email, String socialType, String refreshToken) {
+    }
+
+    public record OAuthIdAndRefreshTokenResponse(
+            String id,
+            String refreshToken
+    ) {
+        public static OAuthIdAndRefreshTokenResponse to(String userId, String refreshToken) {
+            return new OAuthIdAndRefreshTokenResponse(userId, refreshToken);
+        }
     }
 }

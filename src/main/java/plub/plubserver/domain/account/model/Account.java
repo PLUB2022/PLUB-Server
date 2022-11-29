@@ -42,6 +42,7 @@ public class Account extends BaseTimeEntity {
     private String fcmToken;
     @Enumerated(EnumType.STRING)
     private Role role;
+    private String providerRefreshToken;
 
     // 회원(1) - 차단 사용자(다)
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -101,5 +102,9 @@ public class Account extends BaseTimeEntity {
         this.nickname = newNickname;
         this.profileImage = newProfileImage;
         this.introduce = newIntroduce;
+    }
+
+    public void updateRefreshToken(String refreshToken) {
+        this.providerRefreshToken = refreshToken;
     }
 }

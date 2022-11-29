@@ -9,12 +9,10 @@ import plub.plubserver.domain.account.dto.AccountDto.AccountProfileRequest;
 import plub.plubserver.domain.account.service.AccountService;
 
 import javax.validation.Valid;
-import java.io.IOException;
 
 import static plub.plubserver.common.dto.ApiResponse.success;
 import static plub.plubserver.domain.account.dto.AccountDto.AccountInfoResponse;
 import static plub.plubserver.domain.account.dto.AuthDto.AuthMessage;
-import static plub.plubserver.domain.account.dto.AuthDto.RevokeRequest;
 
 
 @RestController
@@ -64,8 +62,8 @@ public class AccountController {
 
     @ApiOperation(value = "회원 탈퇴")
     @PostMapping("/revoke")
-    public ApiResponse<?> revoke(@RequestBody RevokeRequest revokeRequest) throws IOException {
-        AuthMessage revoke = accountService.revoke(revokeRequest);
+    public ApiResponse<?> revoke(){
+        AuthMessage revoke = accountService.revoke();
         return success(
                 revoke.detailData(),
                 revoke.detailMessage()

@@ -65,10 +65,10 @@ public class JwtProvider {
     }
 
     // Sign Token 생성
-    public String createSignToken(String email) {
+    public String createSignToken(String email, String refreshToken) {
         Date now = new Date(System.currentTimeMillis());
         return Jwts.builder()
-                .setSubject(customEncryptUtil.encrypt(email))
+                .setSubject(customEncryptUtil.encrypt(email+"@"+refreshToken))
                 .claim("sign", Role.ROLE_USER)
                 .setIssuedAt(now)
                 .setExpiration(new Date(now.getTime() + accessDuration))
@@ -141,7 +141,7 @@ public class JwtProvider {
                 .getBody();
         String email = customEncryptUtil.decrypt(body.getSubject());
         String[] split = email.split("@");
-        return new AuthDto.SigningAccount(email, split[1]);
+        return new AuthDto.SigningAccount(split[0], split[1], split[2]);
     }
 
     /**

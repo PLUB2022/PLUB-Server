@@ -44,8 +44,6 @@ public class GoogleService {
 
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
         GoogleTokenResponse response = fetchGoogleToken(request).getBody();
-        System.out.println("response = " + response);
-        System.out.println("response.access_token() = " + response.access_token());
         String googleId = getGoogleId(response.access_token());
         String refreshToken = response.refresh_token();
         return OAuthIdAndRefreshTokenResponse.to(googleId, refreshToken);
