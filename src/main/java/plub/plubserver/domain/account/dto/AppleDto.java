@@ -35,4 +35,11 @@ public class AppleDto {
             String refresh_token,
             String token_type
     ){}
+
+    public record AppleRefreshTokenResponse(
+            String access_token,
+            int expires_in,
+            String token_type,
+            String id_token
+    ){}
 }
