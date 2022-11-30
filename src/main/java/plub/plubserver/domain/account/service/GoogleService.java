@@ -52,42 +52,47 @@ public class GoogleService {
     private MultiValueMap<String, String> generateTokenParams(final String authorizationCode) {
         String code = URLDecoder.decode(authorizationCode, StandardCharsets.UTF_8);
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-        params.add("client_id", googleProperties.CLIENT_ID);
-        params.add("client_secret", googleProperties.CLIENT_SECRET);
+        params.add("client_id", googleProperties.clientId);
+        params.add("client_secret", googleProperties.clientSecret);
         params.add("code", code);
         params.add("grant_type", "authorization_code");
-        params.add("redirect_uri", googleProperties.REDIRECT_URI);
+        params.add("redirect_uri", googleProperties.redirectUri);
         return params;
     }
 
     private ResponseEntity<GoogleTokenResponse> fetchGoogleToken(final HttpEntity<MultiValueMap<String, String>> request) {
         try {
-            return restTemplate.postForEntity("https://oauth2.googleapis.com/token", request, GoogleTokenResponse.class);
+            String tokenUrl = "https://oauth2.googleapis.com/token";
+            return restTemplate.postForEntity(tokenUrl, request, GoogleTokenResponse.class);
         } catch (RestClientException e) {
             throw new RuntimeException(e);
         }
     }
 
     protected boolean revokeGoogle(String refreshToken) {
+        String tokenUrl = "https://oauth2.googleapis.com/token";
+
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-        params.add("client_id", googleProperties.CLIENT_ID);
-        params.add("client_secret", googleProperties.CLIENT_SECRET);
+        params.add("client_id", googleProperties.clientId);
+        params.add("client_secret", googleProperties.clientSecret);
         params.add("grant_type", "refresh_token");
         params.add("refresh_token", refreshToken);
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
 
-        ResponseEntity<GoogleRefreshTokenResponse> response = restTemplate.postForEntity("https://oauth2.googleapis.com/token", request, GoogleRefreshTokenResponse.class);
+        ResponseEntity<GoogleRefreshTokenResponse> response = restTemplate.postForEntity(tokenUrl, request, GoogleRefreshTokenResponse.class);
         String accessToken = response.getBody().access_token();
         int revokeStatusCode = revoke(accessToken);
         return revokeStatusCode == 200;
     }
 
     private int revoke(String accessToken) {
+        String revokeUrl = "https://oauth2.googleapis.com/revoke";
+
         MultiValueMap<String, String> parameters = new LinkedMultiValueMap<>();
         parameters.add("token", accessToken);
-        ResponseEntity<String> response = restTemplate.postForEntity("https://oauth2.googleapis.com/revoke", parameters, String.class);
+        ResponseEntity<String> response = restTemplate.postForEntity(revokeUrl, parameters, String.class);
         return response.getStatusCode().value();
     }
 

@@ -94,6 +94,12 @@ public class AuthService {
         String refreshToken = signKey.refreshToken();
         String nickname = signUpRequest.nickname();
 
+        boolean agePolicy = signUpRequest.agePolicy();
+        boolean personalPolicy = signUpRequest.personalPolicy();
+        boolean placePolicy = signUpRequest.placePolicy();
+        boolean usePolicy = signUpRequest.usePolicy();
+        boolean marketPolicy = signUpRequest.marketPolicy();
+
         checkDuplicationEmailAndNickName(email, nickname);
         Account account = signUpRequest.toAccount(email, socialType, passwordEncoder);
 
