@@ -18,7 +18,15 @@ import plub.plubserver.domain.account.exception.AccountException;
 import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.account.model.Role;
 import plub.plubserver.domain.account.repository.AccountRepository;
+import plub.plubserver.domain.category.config.CategoryCode;
+import plub.plubserver.domain.category.exception.CategoryException;
+import plub.plubserver.domain.category.model.AccountCategory;
+import plub.plubserver.domain.category.model.SubCategory;
+import plub.plubserver.domain.category.repository.SubCategoryRepository;
+import plub.plubserver.domain.policy.repository.PolicyRepository;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import static plub.plubserver.config.security.SecurityUtils.getCurrentAccountEmail;
@@ -37,6 +45,8 @@ public class AuthService {
     private final AppleService appleService;
     private final GoogleService googleService;
     private final KakaoService kakaoService;
+    private final SubCategoryRepository subCategoryRepository;
+    private final PolicyRepository policyRepository;
 
     public AuthMessage loginAccess(SocialLoginRequest socialLoginRequest) {
         OAuthIdAndRefreshTokenResponse response = fetchSocialEmail(socialLoginRequest);
@@ -84,9 +94,25 @@ public class AuthService {
         String refreshToken = signKey.refreshToken();
         String nickname = signUpRequest.nickname();
 
-        duplicateEmailAndNickName(email, nickname);
+        checkDuplicationEmailAndNickName(email, nickname);
         Account account = signUpRequest.toAccount(email, socialType, passwordEncoder);
+
+        // 카테고리 리스트
+        List<String> categoryList = signUpRequest.categoryList();
+        List<AccountCategory> accountCategoryList = new ArrayList<>();
+        for (String id : categoryList) {
+            SubCategory subCategory = subCategoryRepository.findByName(id).orElseThrow(() -> new CategoryException(CategoryCode.NOT_FOUND_CATEGORY));
+            AccountCategory accountCategory = AccountCategory.builder()
+                    .account(account)
+                    .categorySub(subCategory)
+                    .build();
+            accountCategoryList.add(accountCategory);
+        }
+
         accountRepository.save(account);
+
+        account.updateAccountCategory(accountCategoryList);
+
         JwtDto jwtDto = login(account.toAccountRequestDto().toLoginRequest());
         account.updateRefreshToken(refreshToken);
 
@@ -97,7 +123,7 @@ public class AuthService {
         );
     }
 
-    private void duplicateEmailAndNickName(String email, String nickname) {
+    private void checkDuplicationEmailAndNickName(String email, String nickname) {
         if (accountRepository.existsByEmail(email)) {
             throw new AccountException(AccountCode.EMAIL_DUPLICATION);
         }

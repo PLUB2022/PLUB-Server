@@ -73,7 +73,7 @@ public class Account extends BaseTimeEntity {
     private List<AccountCategory> accountCategories = new ArrayList<>();
 
     @Builder
-    public Account(String email, String password, String nickname, int age, String birthday, String gender, String phone, SocialType socialType, String profileImage, String lastLogin, String fcmToken, Role role, String introduce) {
+    public Account(String email, String password, String nickname, int age, String birthday, String gender, String phone, SocialType socialType, String profileImage, String lastLogin, String fcmToken, Role role, String introduce, List<AccountCategory> accountCategories) {
         this.email = email;
         this.password = password;
         this.nickname = nickname;
@@ -87,6 +87,7 @@ public class Account extends BaseTimeEntity {
         this.fcmToken = fcmToken;
         this.introduce = introduce;
         this.role = role;
+        this.accountCategories = accountCategories;
     }
 
     // TODO : DTO에 변환로직이 가도록 수정해야함
@@ -106,5 +107,9 @@ public class Account extends BaseTimeEntity {
 
     public void updateRefreshToken(String refreshToken) {
         this.providerRefreshToken = refreshToken;
+    }
+
+    public void updateAccountCategory(List<AccountCategory> accountCategories) {
+        this.accountCategories = accountCategories;
     }
 }
