@@ -3,7 +3,7 @@ package plub.plubserver.common.dto;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.BindingResult;
-import plub.plubserver.common.CommonErrorCode;
+import plub.plubserver.common.exception.CommonErrorCode;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -6,7 +6,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import plub.plubserver.common.dto.ApiResponse;
 import plub.plubserver.config.jwt.JwtDto;
-import plub.plubserver.domain.account.config.AccountCode;
 import plub.plubserver.domain.account.service.AuthService;
 
 import javax.validation.Valid;
@@ -59,6 +58,17 @@ public class AuthController {
         return success(
                 authService.logout(),
                 "logout."
+        );
+    }
+
+    @ApiOperation(value = "어드민 로그인")
+    @PostMapping("/login/admin")
+    public ApiResponse<?> adminLogin(@RequestBody LoginRequest loginRequest) {
+        AuthMessage authMessage = authService.loginAdmin(loginRequest);
+        return success(
+                authMessage.statusCode(),
+                authMessage.detailData(),
+                authMessage.detailMessage()
         );
     }
 }

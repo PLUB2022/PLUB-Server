@@ -63,6 +63,19 @@ public class AuthDto {
                     .role(Role.ROLE_USER)
                     .build();
         }
+
+        public Account toAdmin(PasswordEncoder passwordEncoder, CharSequence ADMIN_PASSWORD) {
+            return Account.builder()
+                    .email("admin")
+                    .password(passwordEncoder.encode(ADMIN_PASSWORD))
+                    .socialType(SocialType.GOOGLE)
+                    .nickname("admin")
+                    .birthday("birthday admin")
+                    .gender("M")
+                    .introduce("introduce admin")
+                    .role(Role.ROLE_ADMIN)
+                    .build();
+        }
     }
 
     public record ReissueRequest(

@@ -1,4 +1,4 @@
-package plub.plubserver.common;
+package plub.plubserver.common.exception;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.client.HttpClientErrorException;
 import plub.plubserver.common.dto.ApiResponse;
+import plub.plubserver.common.exception.CommonErrorCode;
 import plub.plubserver.util.s3.AwsS3Exception;
 
 import javax.validation.ValidationException;

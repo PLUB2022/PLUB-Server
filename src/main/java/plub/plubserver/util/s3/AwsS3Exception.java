@@ -2,7 +2,7 @@ package plub.plubserver.util.s3;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
-import plub.plubserver.common.CommonErrorCode;
+import plub.plubserver.common.exception.CommonErrorCode;
 
 @ResponseStatus(value = HttpStatus.BAD_REQUEST)
 public class AwsS3Exception extends RuntimeException{

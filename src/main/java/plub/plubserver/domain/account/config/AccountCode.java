@@ -11,6 +11,7 @@ public enum AccountCode {
     NEED_TO_SIGNUP(200, 2001, "need to signup, X-ACCESS-TOKEN is issued."),
     LOGIN(200, 1000, "account exist, process login."),
     SIGNUP_COMPLETE(200, 1000, "signup complete, access token is issued."),
+    ADMIN_LOGIN(200, 1000, "admin check, process login."),
 
 
     /**
@@ -32,7 +33,8 @@ public enum AccountCode {
     NICKNAME_DUPLICATION(400, 2060, "duplicated nickname error."),
     EMAIL_DUPLICATION(400, 2070, "duplicated email error."),
     NICKNAME_RULE_ERROR(400, 2080, "invalid nickname rule error."),
-    SOCIAL_TYPE_ERROR(400, 2090, "invalid social type error.");
+    SOCIAL_TYPE_ERROR(400, 2090, "invalid social type error."),
+    ROLE_ACCESS_ERROR(400, 2120, "role access error.");
 
     private final int HttpCode;
     private final int statusCode;

@@ -16,6 +16,7 @@ import plub.plubserver.config.security.PrincipalDetails;
 import plub.plubserver.domain.account.config.AccountCode;
 import plub.plubserver.domain.account.exception.AccountException;
 import plub.plubserver.domain.account.model.Account;
+import plub.plubserver.domain.account.model.Role;
 import plub.plubserver.domain.account.repository.AccountRepository;
 
 import java.util.Optional;
@@ -131,5 +132,20 @@ public class AuthService {
         refreshTokenRepository.delete(refreshToken);
         refreshTokenRepository.flush();
         return "로그아웃 완료";
+    }
+
+    public AuthMessage loginAdmin(LoginRequest loginRequest){
+        String email = loginRequest.email();
+        Account admin = accountRepository.findByEmail(email).orElseThrow(() -> new AccountException(AccountCode.NOT_FOUND_ACCOUNT));
+        if (!admin.getRole().equals(Role.ROLE_ADMIN)) {
+            throw new AccountException(AccountCode.ROLE_ACCESS_ERROR);
+        }
+        JwtDto jwtDto = login(loginRequest);
+        AuthMessage loginMessage = new AuthMessage(
+                AccountCode.LOGIN.getStatusCode(),
+                jwtDto,
+                AccountCode.LOGIN.getMessage()
+        );
+        return loginMessage;
     }
 }
