@@ -66,7 +66,7 @@ public class AccountService {
     }
 
     @Transactional
-    public AuthMessage revoke(){
+    public AuthMessage revoke() {
         Account myAccount = getCurrentAccount();
         String socialName = myAccount.getSocialType().getSocialName();
         String refreshToken = myAccount.getProviderRefreshToken();

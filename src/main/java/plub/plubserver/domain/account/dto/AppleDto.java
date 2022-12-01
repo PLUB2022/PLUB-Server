@@ -1,5 +1,6 @@
 package plub.plubserver.domain.account.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -14,14 +15,15 @@ public class AppleDto {
     private List<AppleKey> keys;
 
     public record AppleKey(
-          String kty,
-          String kid,
-          String use,
-          String alg,
-          String n,
-          String e
+            String kty,
+            String kid,
+            String use,
+            String alg,
+            String n,
+            String e
     ) {
     }
+
     public Optional<AppleKey> getMatchedKeyBy(String kid, String alg) {
         return keys.stream()
                 .filter(key -> key.kid().equals(kid) && key.alg().equals(alg))
@@ -29,17 +31,28 @@ public class AppleDto {
     }
 
     public record AppleCodeResponse(
-            String access_token,
-            int expires_in,
-            String id_token,
-            String refresh_token,
-            String token_type
-    ){}
+            @JsonProperty("access_token")
+            String accessToken,
+            @JsonProperty("expires_in")
+            int expiresIn,
+            @JsonProperty("id_token")
+            String idToken,
+            @JsonProperty("refresh_token")
+            String refreshToken,
+            @JsonProperty("token_type")
+            String tokenType
+    ) {
+    }
 
     public record AppleRefreshTokenResponse(
-            String access_token,
-            int expires_in,
-            String token_type,
-            String id_token
-    ){}
+            @JsonProperty("access_token")
+            String accessToken,
+            @JsonProperty("expires_in")
+            int expiresIn,
+            @JsonProperty("token_type")
+            String tokenType,
+            @JsonProperty("id_token")
+            String idToken
+    ) {
+    }
 }

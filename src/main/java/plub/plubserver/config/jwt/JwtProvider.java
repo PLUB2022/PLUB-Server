@@ -9,7 +9,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import plub.plubserver.config.security.PrincipalDetailService;
-import plub.plubserver.domain.account.dto.AuthDto;
 import plub.plubserver.domain.account.config.AccountCode;
 import plub.plubserver.domain.account.exception.AccountException;
 import plub.plubserver.domain.account.model.Account;
@@ -21,6 +20,8 @@ import javax.transaction.Transactional;
 import java.security.Key;
 import java.util.Date;
 import java.util.Optional;
+
+import static plub.plubserver.domain.account.dto.AuthDto.SigningAccount;
 
 @Component
 @Slf4j
@@ -68,7 +69,7 @@ public class JwtProvider {
     public String createSignToken(String email, String refreshToken) {
         Date now = new Date(System.currentTimeMillis());
         return Jwts.builder()
-                .setSubject(customEncryptUtil.encrypt(email+"@"+refreshToken))
+                .setSubject(customEncryptUtil.encrypt(email + "@" + refreshToken))
                 .claim("sign", Role.ROLE_USER)
                 .setIssuedAt(now)
                 .setExpiration(new Date(now.getTime() + accessDuration))
@@ -133,7 +134,7 @@ public class JwtProvider {
         return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
     }
 
-    public AuthDto.SigningAccount getSignKey(String signToken) {
+    public SigningAccount getSignKey(String signToken) {
         Claims body = Jwts.parserBuilder()
                 .setSigningKey(privateKey)
                 .build()
@@ -141,7 +142,7 @@ public class JwtProvider {
                 .getBody();
         String email = customEncryptUtil.decrypt(body.getSubject());
         String[] split = email.split("@");
-        return new AuthDto.SigningAccount(split[0], split[1], split[2]);
+        return new SigningAccount(split[0], split[1], split[2]);
     }
 
     /**

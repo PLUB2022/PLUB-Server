@@ -51,7 +51,6 @@ public class AuthService {
     public AuthMessage loginAccess(SocialLoginRequest socialLoginRequest) {
         OAuthIdAndRefreshTokenResponse response = fetchSocialEmail(socialLoginRequest);
         String email = response.id();
-        System.out.println("email = " + email);
         String refreshToken = response.refreshToken();
         Optional<Account> account = accountRepository.findByEmail(email);
         AuthMessage loginMessage;
@@ -65,9 +64,10 @@ public class AuthService {
             );
         } else {
             String signToken = jwtProvider.createSignToken(email, refreshToken);
+            SignToken signTokenResponse = new SignToken(signToken);
             loginMessage = new AuthMessage(
                     AccountCode.NEED_TO_SIGNUP.getStatusCode(),
-                    signToken,
+                    signTokenResponse,
                     AccountCode.NEED_TO_SIGNUP.getMessage()
             );
         }
@@ -90,7 +90,7 @@ public class AuthService {
             throw new AccountException(AccountCode.SIGNUP_TOKEN_ERROR);
 
         SigningAccount signKey = jwtProvider.getSignKey(signToken);
-        String email = signKey.email() + "@" +signKey.socialType();
+        String email = signKey.email() + "@" + signKey.socialType();
         String socialType = signKey.socialType();
         String refreshToken = signKey.refreshToken();
         String nickname = signUpRequest.nickname();
@@ -139,7 +139,7 @@ public class AuthService {
         }
     }
 
-    private OAuthIdAndRefreshTokenResponse fetchSocialEmail(SocialLoginRequest socialLoginRequest){
+    private OAuthIdAndRefreshTokenResponse fetchSocialEmail(SocialLoginRequest socialLoginRequest) {
         String provider = socialLoginRequest.socialType();
         if (provider.equalsIgnoreCase("Google")) {
             return googleService.requestGoogleToken(socialLoginRequest.authorizationCode());
@@ -167,7 +167,7 @@ public class AuthService {
         return "로그아웃 완료";
     }
 
-    public AuthMessage loginAdmin(LoginRequest loginRequest){
+    public AuthMessage loginAdmin(LoginRequest loginRequest) {
         String email = loginRequest.email();
         Account admin = accountRepository.findByEmail(email).orElseThrow(() -> new AccountException(AccountCode.NOT_FOUND_ACCOUNT));
         if (!admin.getRole().equals(Role.ROLE_ADMIN)) {

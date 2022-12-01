@@ -1,19 +1,33 @@
 package plub.plubserver.domain.account.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class GoogleDto {
     public record GoogleTokenResponse(
-            String access_token,
-            int expires_in,
+            @JsonProperty("access_token")
+            String accessToken,
+            @JsonProperty("expires_in")
+            int expiresIn,
+            @JsonProperty("scope")
             String scope,
-            String refresh_token,
-            String token_type,
-            String id_token
-    ) {}
+            @JsonProperty("refresh_token")
+            String refreshToken,
+            @JsonProperty("token_type")
+            String tokenType,
+            @JsonProperty("id_token")
+            String idToken
+    ) {
+    }
 
     public record GoogleRefreshTokenResponse(
-            String access_token,
-            int expires_in,
+            @JsonProperty("access_token")
+            String accessToken,
+            @JsonProperty("expires_in")
+            int expiresIn,
+            @JsonProperty("scope")
             String scope,
-            String token_type
-    ) {}
+            @JsonProperty("token_type")
+            String tokenType
+    ) {
+    }
 }

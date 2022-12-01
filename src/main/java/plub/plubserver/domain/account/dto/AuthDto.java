@@ -24,12 +24,16 @@ public class AuthDto {
             String accessToken,
             @ApiModelProperty(value = "소셜 인증 토큰", example = "eyJraWQiOiJmaDZCczhDIiwiYWxnIjoiUlMyNTYif")
             String authorizationCode
-    ) {}
+    ) {
+    }
 
     public record LoginRequest(String email, String password) {
-        @Builder public LoginRequest{}
+        @Builder
+        public LoginRequest {
+        }
+
         public UsernamePasswordAuthenticationToken toAuthentication() {
-            return new UsernamePasswordAuthenticationToken(email,password);
+            return new UsernamePasswordAuthenticationToken(email, password);
         }
     }
 
@@ -56,7 +60,10 @@ public class AuthDto {
             List<String> categoryList
 
     ) {
-        @Builder public SignUpRequest{}
+        @Builder
+        public SignUpRequest {
+        }
+
         public SocialType getSocialType(String socialType) {
             if (socialType.equalsIgnoreCase(SocialType.GOOGLE.name())) {
                 return SocialType.GOOGLE;
@@ -66,10 +73,11 @@ public class AuthDto {
                 return SocialType.APPLE;
             } else throw new AccountException(AccountCode.SOCIAL_TYPE_ERROR);
         }
+
         public Account toAccount(String email, String socialType, PasswordEncoder passwordEncoder) {
             return Account.builder()
                     .email(email)
-                    .password(passwordEncoder.encode(email+"plub"))
+                    .password(passwordEncoder.encode(email + "plub"))
                     .socialType(getSocialType(socialType))
                     .nickname(nickname)
                     .birthday(birthday)
@@ -94,17 +102,15 @@ public class AuthDto {
     }
 
     public record ReissueRequest(
-            @ApiModelProperty(value = "갱신토큰값",example = "eyJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE2NjQ2")
+            @ApiModelProperty(value = "갱신토큰값", example = "eyJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE2NjQ2")
             String refreshToken
-    ) {}
-
-    public record RevokeRequest(
     ) {
-
     }
+
     public record RevokeKakaoResponse(String id) {
 
     }
+
     public record AuthMessage(int statusCode, Object detailData, String detailMessage) {
     }
 
@@ -112,6 +118,9 @@ public class AuthDto {
     }
 
     public record SigningAccount(String email, String socialType, String refreshToken) {
+    }
+
+    public record SignToken(String signToken) {
     }
 
     public record OAuthIdAndRefreshTokenResponse(

@@ -2,13 +2,12 @@ package plub.plubserver.domain.account.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
-import plub.plubserver.domain.account.config.GoogleProperties;
 import plub.plubserver.domain.account.model.SocialType;
 
 import java.net.URLDecoder;
@@ -25,8 +24,14 @@ import static plub.plubserver.domain.account.dto.GoogleDto.GoogleTokenResponse;
 @RequiredArgsConstructor
 public class GoogleService {
 
+    @Value("${google.client-id}")
+    private String clientId;
+    @Value("${google.client_secret}")
+    private String clientSecret;
+    @Value("${google.redirect_uri}")
+    private String redirectUri;
+
     private final RestTemplate restTemplate;
-    private final GoogleProperties googleProperties;
     private final SocialService socialService;
 
     private String getGoogleId(String accessToken) {
@@ -38,36 +43,31 @@ public class GoogleService {
     }
 
     public OAuthIdAndRefreshTokenResponse requestGoogleToken(final String code) {
+        String tokenUrl = "https://oauth2.googleapis.com/token";
+
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
         MultiValueMap<String, String> params = generateTokenParams(code);
 
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
-        GoogleTokenResponse response = fetchGoogleToken(request).getBody();
-        String googleId = getGoogleId(response.access_token());
-        String refreshToken = response.refresh_token();
+        ResponseEntity<GoogleTokenResponse> response = restTemplate.postForEntity(tokenUrl, request, GoogleTokenResponse.class);
+        GoogleTokenResponse responseBody = response.getBody();
+        String googleId = getGoogleId(responseBody.accessToken());
+        String refreshToken = responseBody.refreshToken();
         return OAuthIdAndRefreshTokenResponse.to(googleId, refreshToken);
     }
 
     private MultiValueMap<String, String> generateTokenParams(final String authorizationCode) {
         String code = URLDecoder.decode(authorizationCode, StandardCharsets.UTF_8);
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-        params.add("client_id", googleProperties.clientId);
-        params.add("client_secret", googleProperties.clientSecret);
+        params.add("client_id", clientId);
+        params.add("client_secret", clientSecret);
         params.add("code", code);
         params.add("grant_type", "authorization_code");
-        params.add("redirect_uri", googleProperties.redirectUri);
+        params.add("redirect_uri", redirectUri);
         return params;
     }
 
-    private ResponseEntity<GoogleTokenResponse> fetchGoogleToken(final HttpEntity<MultiValueMap<String, String>> request) {
-        try {
-            String tokenUrl = "https://oauth2.googleapis.com/token";
-            return restTemplate.postForEntity(tokenUrl, request, GoogleTokenResponse.class);
-        } catch (RestClientException e) {
-            throw new RuntimeException(e);
-        }
-    }
 
     protected boolean revokeGoogle(String refreshToken) {
         String tokenUrl = "https://oauth2.googleapis.com/token";
@@ -75,14 +75,14 @@ public class GoogleService {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-        params.add("client_id", googleProperties.clientId);
-        params.add("client_secret", googleProperties.clientSecret);
+        params.add("client_id", clientId);
+        params.add("client_secret", clientSecret);
         params.add("grant_type", "refresh_token");
         params.add("refresh_token", refreshToken);
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
 
         ResponseEntity<GoogleRefreshTokenResponse> response = restTemplate.postForEntity(tokenUrl, request, GoogleRefreshTokenResponse.class);
-        String accessToken = response.getBody().access_token();
+        String accessToken = response.getBody().accessToken();
         int revokeStatusCode = revoke(accessToken);
         return revokeStatusCode == 200;
     }
@@ -95,6 +95,4 @@ public class GoogleService {
         ResponseEntity<String> response = restTemplate.postForEntity(revokeUrl, parameters, String.class);
         return response.getStatusCode().value();
     }
-
-
 }
