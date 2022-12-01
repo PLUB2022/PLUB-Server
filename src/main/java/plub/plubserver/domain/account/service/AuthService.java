@@ -51,6 +51,7 @@ public class AuthService {
     public AuthMessage loginAccess(SocialLoginRequest socialLoginRequest) {
         OAuthIdAndRefreshTokenResponse response = fetchSocialEmail(socialLoginRequest);
         String email = response.id();
+        System.out.println("email = " + email);
         String refreshToken = response.refreshToken();
         Optional<Account> account = accountRepository.findByEmail(email);
         AuthMessage loginMessage;
@@ -89,7 +90,7 @@ public class AuthService {
             throw new AccountException(AccountCode.SIGNUP_TOKEN_ERROR);
 
         SigningAccount signKey = jwtProvider.getSignKey(signToken);
-        String email = signKey.email();
+        String email = signKey.email() + "@" +signKey.socialType();
         String socialType = signKey.socialType();
         String refreshToken = signKey.refreshToken();
         String nickname = signUpRequest.nickname();
