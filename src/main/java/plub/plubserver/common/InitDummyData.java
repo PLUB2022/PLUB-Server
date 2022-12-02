@@ -1,19 +1,36 @@
-package plub.plubserver.domain.category.repository;
+package plub.plubserver.common;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import plub.plubserver.domain.account.model.Account;
+import plub.plubserver.domain.account.repository.AccountRepository;
 import plub.plubserver.domain.category.service.CategoryService;
 
 import javax.annotation.PostConstruct;
+
+import static plub.plubserver.domain.account.dto.AuthDto.SignUpRequest;
 
 @Component
 @RequiredArgsConstructor
 @Transactional
 public class InitDummyData {
     private final CategoryService categoryService;
+    private final AccountRepository accountRepository;
+    private final PasswordEncoder passwordEncoder;
+    @Value("${admin.secret}")
+    private CharSequence ADMIN_PASSWORD;
+
     @PostConstruct
     public void init() {
+
+        // 테스트용 계정정
+        SignUpRequest adminAccount = SignUpRequest.builder().build();
+        Account account = adminAccount.toAdmin(passwordEncoder, ADMIN_PASSWORD);
+        accountRepository.save(account);
+
         // 전체 카테고리
         categoryService.createCategory("예술",  1, "https://plub.s3.ap-northeast-2.amazonaws.com/category/artIcon.png");
         categoryService.createCategory("스포츠/피트니스",  2, "https://plub.s3.ap-northeast-2.amazonaws.com/category/computerIcon.png");

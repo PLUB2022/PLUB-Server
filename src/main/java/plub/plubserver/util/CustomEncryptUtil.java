@@ -2,8 +2,8 @@ package plub.plubserver.util;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import plub.plubserver.domain.account.config.AccountCode;
-import plub.plubserver.domain.account.exception.AccountException;
+import plub.plubserver.domain.account.config.AuthCode;
+import plub.plubserver.domain.account.exception.AuthException;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
@@ -35,7 +35,7 @@ public class CustomEncryptUtil {
             cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec);
             return encodeBase64(cipher.doFinal(str.getBytes(StandardCharsets.UTF_8)));
         } catch (Exception e) {
-            throw new AccountException(AccountCode.ENCRYPTION_FAILURE);
+            throw new AuthException(AuthCode.ENCRYPTION_FAILURE);
         }
     }
 
@@ -45,7 +45,7 @@ public class CustomEncryptUtil {
             cipher.init(Cipher.DECRYPT_MODE, secretKeySpec);
             return new String(cipher.doFinal(decodeBase64(str)));
         } catch (Exception e) {
-            throw new AccountException(AccountCode.DECRYPTION_FAILURE);
+            throw new AuthException(AuthCode.DECRYPTION_FAILURE);
         }
     }
 

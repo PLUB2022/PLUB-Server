@@ -1,9 +1,17 @@
 package plub.plubserver.domain.category.model;
 
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
 import plub.plubserver.domain.account.model.Account;
+
 import javax.persistence.*;
 
 @Entity
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class AccountCategory {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

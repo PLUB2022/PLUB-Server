@@ -9,9 +9,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import plub.plubserver.config.security.PrincipalDetailService;
-import plub.plubserver.domain.account.dto.AuthDto;
-import plub.plubserver.domain.account.config.AccountCode;
-import plub.plubserver.domain.account.exception.AccountException;
+import plub.plubserver.domain.account.config.AuthCode;
+import plub.plubserver.domain.account.exception.AuthException;
 import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.account.model.Role;
 import plub.plubserver.util.CustomEncryptUtil;
@@ -21,6 +20,8 @@ import javax.transaction.Transactional;
 import java.security.Key;
 import java.util.Date;
 import java.util.Optional;
+
+import static plub.plubserver.domain.account.dto.AuthDto.SigningAccount;
 
 @Component
 @Slf4j
@@ -61,14 +62,14 @@ public class JwtProvider {
     public String resolveSignToken(String rawToken) {
         if (rawToken != null && rawToken.startsWith("Bearer "))
             return rawToken.replace("Bearer ", "");
-        else throw new AccountException(AccountCode.SIGNUP_TOKEN_ERROR);
+        else throw new AuthException(AuthCode.SIGNUP_TOKEN_ERROR);
     }
 
     // Sign Token 생성
-    public String createSignToken(String email) {
+    public String createSignToken(String email, String refreshToken) {
         Date now = new Date(System.currentTimeMillis());
         return Jwts.builder()
-                .setSubject(customEncryptUtil.encrypt(email))
+                .setSubject(customEncryptUtil.encrypt(email + "@" + refreshToken))
                 .claim("sign", Role.ROLE_USER)
                 .setIssuedAt(now)
                 .setExpiration(new Date(now.getTime() + accessDuration))
@@ -133,7 +134,7 @@ public class JwtProvider {
         return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
     }
 
-    public AuthDto.SigningAccount getSignKey(String signToken) {
+    public SigningAccount getSignKey(String signToken) {
         Claims body = Jwts.parserBuilder()
                 .setSigningKey(privateKey)
                 .build()
@@ -141,7 +142,7 @@ public class JwtProvider {
                 .getBody();
         String email = customEncryptUtil.decrypt(body.getSubject());
         String[] split = email.split("@");
-        return new AuthDto.SigningAccount(email, split[1]);
+        return new SigningAccount(split[0], split[1], split[2]);
     }
 
     /**
@@ -166,7 +167,7 @@ public class JwtProvider {
         RefreshToken findRefreshToken = refreshTokenRepository
                 .findByRefreshToken(refreshToken)
                 .orElseThrow(
-                        () -> new JwtException("Refresh Token 을 찾을 수 없습니다.")
+                        () -> new AuthException(AuthCode.NOT_FOUND_REFRESH_TOKEN)
                 );
 
         Account account = findRefreshToken.getAccount();

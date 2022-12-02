@@ -1,4 +1,4 @@
-package plub.plubserver.common;
+package plub.plubserver.common.exception;
 
 import lombok.Getter;
 
