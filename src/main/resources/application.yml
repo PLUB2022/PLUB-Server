@@ -44,4 +44,10 @@ server:
 # 로깅 레벨 설정
 logging:
   level:
-    org.hibernate.SQL: debug
+    org:
+      hibernate:
+        SQL: DEBUG
+      springframework:
+        web:
+          client:
+            RestTemplate: DEBUG
