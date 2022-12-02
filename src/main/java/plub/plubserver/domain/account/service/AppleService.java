@@ -16,9 +16,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
-import plub.plubserver.domain.account.config.AccountCode;
+import plub.plubserver.domain.account.config.AuthCode;
 import plub.plubserver.domain.account.dto.AppleDto;
-import plub.plubserver.domain.account.exception.AccountException;
+import plub.plubserver.domain.account.exception.AuthException;
 import plub.plubserver.domain.account.model.SocialType;
 
 import java.io.Reader;
@@ -116,7 +116,7 @@ public class AppleService {
             PrivateKeyInfo object = (PrivateKeyInfo) pemParser.readObject();
             return converter.getPrivateKey(object);
         } catch (Exception e) {
-            throw new AccountException(AccountCode.APPLE_LOGIN_ERROR);
+            throw new AuthException(AuthCode.APPLE_LOGIN_ERROR);
         }
     }
 
@@ -142,7 +142,7 @@ public class AppleService {
             return subject + "@APPLE";
         } catch (JsonProcessingException | NoSuchAlgorithmException | InvalidKeySpecException | SignatureException |
                 MalformedJwtException | ExpiredJwtException | IllegalArgumentException e) {
-            throw new AccountException(AccountCode.APPLE_LOGIN_ERROR); // TODO : 위에 있는 모든 예외를 다 캐치?
+            throw new AuthException(AuthCode.APPLE_LOGIN_ERROR); // TODO : 위에 있는 모든 예외를 다 캐치?
         }
     }
 

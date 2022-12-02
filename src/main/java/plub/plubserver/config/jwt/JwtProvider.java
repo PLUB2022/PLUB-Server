@@ -9,8 +9,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import plub.plubserver.config.security.PrincipalDetailService;
-import plub.plubserver.domain.account.config.AccountCode;
-import plub.plubserver.domain.account.exception.AccountException;
+import plub.plubserver.domain.account.config.AuthCode;
+import plub.plubserver.domain.account.exception.AuthException;
 import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.account.model.Role;
 import plub.plubserver.util.CustomEncryptUtil;
@@ -62,7 +62,7 @@ public class JwtProvider {
     public String resolveSignToken(String rawToken) {
         if (rawToken != null && rawToken.startsWith("Bearer "))
             return rawToken.replace("Bearer ", "");
-        else throw new AccountException(AccountCode.SIGNUP_TOKEN_ERROR);
+        else throw new AuthException(AuthCode.SIGNUP_TOKEN_ERROR);
     }
 
     // Sign Token 생성
@@ -167,7 +167,7 @@ public class JwtProvider {
         RefreshToken findRefreshToken = refreshTokenRepository
                 .findByRefreshToken(refreshToken)
                 .orElseThrow(
-                        () -> new JwtException("Refresh Token 을 찾을 수 없습니다.")
+                        () -> new AuthException(AuthCode.NOT_FOUND_REFRESH_TOKEN)
                 );
 
         Account account = findRefreshToken.getAccount();

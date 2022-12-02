@@ -9,7 +9,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
 import plub.plubserver.common.dto.ApiResponse;
-import plub.plubserver.domain.account.config.AccountCode;
+import plub.plubserver.domain.account.config.AuthCode;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -30,7 +30,7 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
         response.setCharacterEncoding("utf-8");
         response.setStatus(HttpStatus.UNAUTHORIZED.value());
         String body = objectMapper.writeValueAsString(
-                ApiResponse.error(AccountCode.FILTER_ACCESS_DENIED.getStatusCode(), AccountCode.FILTER_ACCESS_DENIED.getMessage())
+                ApiResponse.error(AuthCode.FILTER_ACCESS_DENIED.getStatusCode(), AuthCode.FILTER_ACCESS_DENIED.getMessage())
         );
         response.getWriter().write(body);
     }

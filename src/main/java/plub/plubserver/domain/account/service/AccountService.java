@@ -8,7 +8,6 @@ import plub.plubserver.domain.account.dto.AccountDto.AccountProfileRequest;
 import plub.plubserver.domain.account.exception.AccountException;
 import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.account.repository.AccountRepository;
-import plub.plubserver.util.s3.AwsS3Service;
 
 import java.util.regex.Pattern;
 
@@ -25,7 +24,6 @@ public class AccountService {
     private final AppleService appleService;
     private final GoogleService googleService;
     private final KakaoService kakaoService;
-    private final AwsS3Service awsS3Service;
 
 
     // 회원 정보 조회

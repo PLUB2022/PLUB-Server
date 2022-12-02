@@ -14,7 +14,9 @@ import plub.plubserver.config.jwt.RefreshToken;
 import plub.plubserver.config.jwt.RefreshTokenRepository;
 import plub.plubserver.config.security.PrincipalDetails;
 import plub.plubserver.domain.account.config.AccountCode;
+import plub.plubserver.domain.account.config.AuthCode;
 import plub.plubserver.domain.account.exception.AccountException;
+import plub.plubserver.domain.account.exception.AuthException;
 import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.account.model.Role;
 import plub.plubserver.domain.account.repository.AccountRepository;
@@ -58,17 +60,17 @@ public class AuthService {
             JwtDto jwtDto = login(account.get().toAccountRequestDto().toLoginRequest());
             account.get().updateRefreshToken(refreshToken);
             loginMessage = new AuthMessage(
-                    AccountCode.LOGIN.getStatusCode(),
+                    AuthCode.LOGIN.getStatusCode(),
                     jwtDto,
-                    AccountCode.LOGIN.getMessage()
+                    AuthCode.LOGIN.getMessage()
             );
         } else {
             String signToken = jwtProvider.createSignToken(email, refreshToken);
             SignToken signTokenResponse = new SignToken(signToken);
             loginMessage = new AuthMessage(
-                    AccountCode.NEED_TO_SIGNUP.getStatusCode(),
+                    AuthCode.NEED_TO_SIGNUP.getStatusCode(),
                     signTokenResponse,
-                    AccountCode.NEED_TO_SIGNUP.getMessage()
+                    AuthCode.NEED_TO_SIGNUP.getMessage()
             );
         }
         return loginMessage;
@@ -87,7 +89,7 @@ public class AuthService {
     public SignAuthMessage signUp(SignUpRequest signUpRequest, String header) {
         String signToken = jwtProvider.resolveSignToken(header);
         if (!jwtProvider.validate(signToken))
-            throw new AccountException(AccountCode.SIGNUP_TOKEN_ERROR);
+            throw new AuthException(AuthCode.SIGNUP_TOKEN_ERROR);
 
         SigningAccount signKey = jwtProvider.getSignKey(signToken);
         String email = signKey.email() + "@" + signKey.socialType();
@@ -124,9 +126,9 @@ public class AuthService {
         account.updateRefreshToken(refreshToken);
 
         return new SignAuthMessage(
-                AccountCode.SIGNUP_COMPLETE.getStatusCode(),
+                AuthCode.SIGNUP_COMPLETE.getStatusCode(),
                 jwtDto,
-                AccountCode.SIGNUP_COMPLETE.getMessage()
+                AuthCode.SIGNUP_COMPLETE.getMessage()
         );
     }
 
@@ -161,7 +163,7 @@ public class AuthService {
                 .orElseThrow(() -> new AccountException(AccountCode.NOT_FOUND_ACCOUNT));
         RefreshToken refreshToken = refreshTokenRepository
                 .findByAccount(account)
-                .orElseThrow(() -> new AccountException(AccountCode.NOT_FOUND_REFRESH_TOKEN));
+                .orElseThrow(() -> new AuthException(AuthCode.NOT_FOUND_REFRESH_TOKEN));
         refreshTokenRepository.delete(refreshToken);
         refreshTokenRepository.flush();
         return "로그아웃 완료";
@@ -175,9 +177,9 @@ public class AuthService {
         }
         JwtDto jwtDto = login(loginRequest);
         AuthMessage loginMessage = new AuthMessage(
-                AccountCode.LOGIN.getStatusCode(),
+                AuthCode.LOGIN.getStatusCode(),
                 jwtDto,
-                AccountCode.LOGIN.getMessage()
+                AuthCode.LOGIN.getMessage()
         );
         return loginMessage;
     }
