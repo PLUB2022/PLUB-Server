@@ -28,10 +28,6 @@ public class SubCategory extends BaseTimeEntity {
     @JoinColumn(name = "category_id")
     private Category category;
 
-//    // 서브카테고리(1) - 모집(1) # 카테고리가 자식 -> 외래키는 모집이 관리
-//    @OneToOne(mappedBy = "subCategory", cascade = CascadeType.ALL)
-//    private Board board;
-
     // 서브카테고리(1) - 모임 카테고리(다)
     @OneToMany(mappedBy = "subCategory", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PlubbingSubCategory> plubbingCategories = new ArrayList<>();
@@ -47,7 +43,7 @@ public class SubCategory extends BaseTimeEntity {
         this.category = category;
     }
 
-    public static SubCategory toCategorySub(String name, int sequence, Category category){
+    public static SubCategory toCategorySub(String name, int sequence, Category category) {
         return SubCategory.builder()
                 .name(name)
                 .sequence(sequence)

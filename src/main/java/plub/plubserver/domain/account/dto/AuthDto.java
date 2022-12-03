@@ -87,9 +87,9 @@ public class AuthDto {
                     .build();
         }
 
-        public Account toAdmin(PasswordEncoder passwordEncoder, CharSequence ADMIN_PASSWORD) {
+        public Account toAdmin(PasswordEncoder passwordEncoder, CharSequence ADMIN_PASSWORD, String email) {
             return Account.builder()
-                    .email("admin")
+                    .email(email)
                     .password(passwordEncoder.encode(ADMIN_PASSWORD))
                     .socialType(SocialType.GOOGLE)
                     .nickname("admin")

@@ -25,7 +25,6 @@ import plub.plubserver.domain.category.exception.CategoryException;
 import plub.plubserver.domain.category.model.AccountCategory;
 import plub.plubserver.domain.category.model.SubCategory;
 import plub.plubserver.domain.category.repository.SubCategoryRepository;
-import plub.plubserver.domain.policy.repository.PolicyRepository;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,7 +47,6 @@ public class AuthService {
     private final GoogleService googleService;
     private final KakaoService kakaoService;
     private final SubCategoryRepository subCategoryRepository;
-    private final PolicyRepository policyRepository;
 
     public AuthMessage loginAccess(SocialLoginRequest socialLoginRequest) {
         OAuthIdAndRefreshTokenResponse response = fetchSocialEmail(socialLoginRequest);

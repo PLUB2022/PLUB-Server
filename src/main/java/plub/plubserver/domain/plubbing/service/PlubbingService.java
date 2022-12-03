@@ -3,24 +3,28 @@ package plub.plubserver.domain.plubbing.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import plub.plubserver.domain.account.config.AccountCode;
+import plub.plubserver.domain.account.exception.AccountException;
 import plub.plubserver.domain.account.model.Account;
-import plub.plubserver.domain.account.model.AccountPlubbing;
-import plub.plubserver.domain.account.model.AccountPlubbingStatus;
-import plub.plubserver.domain.account.repository.AccountRepository;
+import plub.plubserver.domain.plubbing.config.PlubbingCode;
+import plub.plubserver.domain.plubbing.dto.PlubbingDto.*;
+import plub.plubserver.domain.plubbing.exception.PlubbingException;
+import plub.plubserver.domain.plubbing.model.AccountPlubbing;
+import plub.plubserver.domain.plubbing.model.AccountPlubbingStatus;
 import plub.plubserver.domain.account.service.AccountService;
 import plub.plubserver.domain.category.model.PlubbingSubCategory;
 import plub.plubserver.domain.category.model.SubCategory;
 import plub.plubserver.domain.category.service.CategoryService;
-import plub.plubserver.domain.plubbing.dto.PlubbingDto.CreatePlubbingRequest;
-import plub.plubserver.domain.plubbing.dto.PlubbingDto.PlubbingResponse;
 import plub.plubserver.domain.plubbing.model.Plubbing;
 import plub.plubserver.domain.plubbing.model.PlubbingPlace;
 import plub.plubserver.domain.plubbing.model.PlubbingStatus;
-import plub.plubserver.domain.plubbing.repository.PlubbingRepository;
+import plub.plubserver.domain.plubbing.repository.*;
 import plub.plubserver.domain.recruit.model.Question;
 import plub.plubserver.domain.recruit.model.Recruit;
+import plub.plubserver.domain.timeline.repository.PlubbingTimelineRepository;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)
@@ -29,8 +33,8 @@ public class PlubbingService {
     private final PlubbingRepository plubbingRepository;
     private final CategoryService categoryService;
     private final AccountService accountService;
-    private final AccountRepository accountRepository; // for test
-
+    private final AccountPlubbingRepository accountPlubbingRepository;
+    private final PlubbingTimelineRepository plubbingTimelineRepository;
 
     private void createRecruit(CreatePlubbingRequest createPlubbingRequest, Plubbing plubbing) {
         // 모집 질문글 엔티티화
@@ -46,6 +50,7 @@ public class PlubbingService {
                 .introduce(createPlubbingRequest.introduce())
                 .plubbing(plubbing)
                 .questions(questionList)
+                .questionNum(questionList.size())
                 .build();
 
         // 질문 - 모집 매핑
@@ -78,8 +83,7 @@ public class PlubbingService {
     @Transactional
     public PlubbingResponse createPlubbing(CreatePlubbingRequest createPlubbingRequest) {
         // 모임 생성자(호스트) 가져오기
-//        Account owner = accountService.getCurrentAccount();
-        Account owner = accountRepository.save(Account.builder().email("test@test.com").build()); // for test
+        Account owner = accountService.getCurrentAccount();
 
         // Plubbing 엔티티 생성 및 저장
         Plubbing plubbing = plubbingRepository.save(
@@ -90,6 +94,7 @@ public class PlubbingService {
                         .status(PlubbingStatus.ACTIVE)
                         .onOff(createPlubbingRequest.getOnOff())
                         .maxAccountNum(createPlubbingRequest.maxAccountNum())
+                        .visibility(true)
                         .build()
         );
 
@@ -124,8 +129,82 @@ public class PlubbingService {
 
         plubbingRepository.flush(); // flush를 안 하면 recruitId가 null로 들어감
 
+        return plub.plubserver.domain.plubbing.dto.PlubbingDto.PlubbingResponse.of(plubbing);
+    }
+
+    public List<MyPlubbingResponse> getMyPlubbing(Boolean isHost) {
+        Account currentAccount = accountService.getCurrentAccount();
+
+        return accountPlubbingRepository.findAllByAccountAndIsHostAndAccountPlubbingStatus(currentAccount, isHost, AccountPlubbingStatus.ACTIVE)
+                .orElseThrow(() -> new PlubbingException(PlubbingCode.NOT_FOUND_PLUBBING)).stream()
+                .map(MyPlubbingResponse::of).collect(Collectors.toList());
+    }
+
+    public MainPlubbingResponse getMainPlubbing(Long plubbingId) {
+        Account currentAccount = accountService.getCurrentAccount();
+        if (!accountPlubbingRepository.existsByAccountAndPlubbingId(currentAccount, plubbingId))
+            throw new PlubbingException(PlubbingCode.FORBIDDEN_ACCESS_PLUBBING);
+
+        Plubbing plubbing = plubbingRepository.findById(plubbingId).orElseThrow(() -> new PlubbingException(PlubbingCode.NOT_FOUND_PLUBBING));
+        checkPlubbingStatus(plubbing);
+
+        List<Account> accounts = accountPlubbingRepository.findAllByPlubbingId(plubbingId)
+                .orElseThrow(() -> new AccountException(AccountCode.NOT_FOUND_ACCOUNT)).stream()
+                .map(AccountPlubbing::getAccount).collect(Collectors.toList());
+
+        return MainPlubbingResponse.of(plubbing, accounts);
+    }
+
+    @Transactional
+    public PlubbingMessage deletePlubbing(Long plubbingId) {
+        Plubbing plubbing = plubbingRepository.findById(plubbingId).orElseThrow(() -> new PlubbingException(PlubbingCode.NOT_FOUND_PLUBBING));
+        checkPlubbingStatus(plubbing);
+        checkAuthority(plubbing);
+
+        plubbing.deletePlubbing();
+
+        accountPlubbingRepository.findAllByPlubbingId(plubbingId)
+                .orElseThrow(() -> new PlubbingException(PlubbingCode.NOT_FOUND_PLUBBING))
+                .forEach(a -> a.changeStatus(AccountPlubbingStatus.END));
+
+        return new PlubbingMessage(true);
+    }
+
+    @Transactional
+    public PlubbingMessage endPlubbing(Long plubbingId) {
+        Plubbing plubbing = plubbingRepository.findById(plubbingId).orElseThrow(() -> new PlubbingException(PlubbingCode.NOT_FOUND_PLUBBING));
+        checkPlubbingStatus(plubbing);
+        checkAuthority(plubbing);
+        List<AccountPlubbing> accountPlubbingList = accountPlubbingRepository.findAllByPlubbingId(plubbingId)
+                .orElseThrow(() -> new PlubbingException(PlubbingCode.NOT_FOUND_PLUBBING));
+        if (plubbing.getStatus().equals(PlubbingStatus.END)) {
+            plubbing.endPlubbing(PlubbingStatus.ACTIVE);
+            accountPlubbingList.forEach(a -> a.changeStatus(AccountPlubbingStatus.ACTIVE));
+        } else if (plubbing.getStatus().equals(PlubbingStatus.ACTIVE)) {
+            plubbing.endPlubbing(PlubbingStatus.END);
+            accountPlubbingList.forEach(a -> a.changeStatus(AccountPlubbingStatus.END));
+        }
+        return new PlubbingMessage(true);
+    }
+
+    @Transactional
+    public PlubbingResponse updatePlubbing(Long plubbingId, UpdatePlubbingRequest updatePlubbingRequest) {
+        Plubbing plubbing = plubbingRepository.findById(plubbingId).orElseThrow(() -> new PlubbingException(PlubbingCode.NOT_FOUND_PLUBBING));
+        checkPlubbingStatus(plubbing);
+        checkAuthority(plubbing);
+        plubbing.updatePlubbing(updatePlubbingRequest.name(), updatePlubbingRequest.goal(), updatePlubbingRequest.mainImageUrl());
         return PlubbingResponse.of(plubbing);
     }
 
+    private void checkAuthority(Plubbing plubbing) {
+        Account currentAccount = accountService.getCurrentAccount();
+        AccountPlubbing accountPlubbing = accountPlubbingRepository.findByAccountAndPlubbing(currentAccount, plubbing).orElseThrow(() -> new AccountException(AccountCode.NOT_FOUND_ACCOUNT));
+        if (!accountPlubbing.isHost()) throw new PlubbingException(PlubbingCode.NOT_HOST);
+    }
+
+    private void checkPlubbingStatus(Plubbing plubbing) {
+        if (plubbing.getStatus().equals(PlubbingStatus.END) || !plubbing.isVisibility())
+            throw new PlubbingException(PlubbingCode.DELETED_STATUS_PLUBBING);
+    }
 
 }
