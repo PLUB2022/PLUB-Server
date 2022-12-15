@@ -62,7 +62,7 @@ public class AccountController {
 
     @ApiOperation(value = "회원 탈퇴")
     @PostMapping("/revoke")
-    public ApiResponse<?> revoke(){
+    public ApiResponse<?> revoke() {
         AuthMessage revoke = accountService.revoke();
         return success(
                 revoke.detailData(),

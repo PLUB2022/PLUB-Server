@@ -37,14 +37,4 @@ public class CategoryController {
                 "get all sub categories."
         );
     }
-
-     /*@ApiOperation(value = "카테고리 버전 체크")
-    @GetMapping("/check/version")
-    public ApiResponse<CategoryVersionResponse> getCategoryVersion() {
-        return success(
-                CategoryCode.CATEGORY_SUCCESS.getStatusCode(),
-                categoryService.getCategoryVersion(),
-                "get category version."
-        );
-    }*/
 }

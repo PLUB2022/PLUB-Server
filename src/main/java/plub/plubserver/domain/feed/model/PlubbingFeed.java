@@ -4,7 +4,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import plub.plubserver.common.model.BaseTimeEntity;
-import plub.plubserver.domain.account.model.AccountPlubbing;
+import plub.plubserver.domain.plubbing.model.AccountPlubbing;
 
 import javax.persistence.*;
 import java.util.ArrayList;
