@@ -21,7 +21,6 @@ import plub.plubserver.domain.plubbing.model.PlubbingStatus;
 import plub.plubserver.domain.plubbing.repository.*;
 import plub.plubserver.domain.recruit.model.Question;
 import plub.plubserver.domain.recruit.model.Recruit;
-import plub.plubserver.domain.timeline.repository.PlubbingTimelineRepository;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -34,11 +33,10 @@ public class PlubbingService {
     private final CategoryService categoryService;
     private final AccountService accountService;
     private final AccountPlubbingRepository accountPlubbingRepository;
-    private final PlubbingTimelineRepository plubbingTimelineRepository;
 
     private void createRecruit(CreatePlubbingRequest createPlubbingRequest, Plubbing plubbing) {
         // 모집 질문글 엔티티화
-        List<Question> questionList = createPlubbingRequest.questionTitles().stream()
+        List<Question> questionList = createPlubbingRequest.questions().stream()
                 .map(it -> Question.builder()
                         .questionTitle(it)
                         .build())
@@ -62,7 +60,7 @@ public class PlubbingService {
 
     private void connectSubCategories(CreatePlubbingRequest createPlubbingRequest, Plubbing plubbing) {
         // 서브 카테고리 가져오기
-        List<SubCategory> subCategories = createPlubbingRequest.subCategories()
+        List<SubCategory> subCategories = createPlubbingRequest.subCategoryIds()
                 .stream()
                 .map(categoryService::getSubCategory)
                 .toList();
@@ -86,17 +84,7 @@ public class PlubbingService {
         Account owner = accountService.getCurrentAccount();
 
         // Plubbing 엔티티 생성 및 저장
-        Plubbing plubbing = plubbingRepository.save(
-                Plubbing.builder()
-                        .name(createPlubbingRequest.name())
-                        .goal(createPlubbingRequest.goal())
-                        .mainImageUrl(createPlubbingRequest.mainImageUrl())
-                        .status(PlubbingStatus.ACTIVE)
-                        .onOff(createPlubbingRequest.getOnOff())
-                        .maxAccountNum(createPlubbingRequest.maxAccountNum())
-                        .visibility(true)
-                        .build()
-        );
+        Plubbing plubbing = plubbingRepository.save(createPlubbingRequest.toEntity());
 
         // days 매핑
         plubbing.addPlubbingMeetingDay(createPlubbingRequest.getPlubbingMeetingDay(plubbing));
@@ -129,7 +117,7 @@ public class PlubbingService {
 
         plubbingRepository.flush(); // flush를 안 하면 recruitId가 null로 들어감
 
-        return plub.plubserver.domain.plubbing.dto.PlubbingDto.PlubbingResponse.of(plubbing);
+        return PlubbingResponse.of(plubbing);
     }
 
     public List<MyPlubbingResponse> getMyPlubbing(Boolean isHost) {

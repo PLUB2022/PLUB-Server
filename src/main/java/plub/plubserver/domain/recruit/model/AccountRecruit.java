@@ -15,7 +15,7 @@ public class AccountRecruit extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "account_board_id")
+    @Column(name = "account_recruit_id")
     private Long id;
     private boolean isBookmarked;
 
@@ -26,7 +26,7 @@ public class AccountRecruit extends BaseTimeEntity {
 
     // 회원_모집페이지(다) - 모집(1) # 다대다 용
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "board_id")
+    @JoinColumn(name = "recruit_id")
     private Recruit recruit;
 
 
