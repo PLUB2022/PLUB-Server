@@ -18,18 +18,18 @@ public class AwsS3Controller {
 
     @PostMapping("/api/files")
     public ApiResponse<FileListDto> uploadFiles(@ModelAttribute UploadFileRequest uploadFileRequest) {
-        return success(awsS3Service.uploadFiles(uploadFileRequest), "files are successfully uploaded.");
+        return success(awsS3Service.uploadFiles(uploadFileRequest));
     }
 
     @PostMapping("/api/files/change")
     public ApiResponse<FileListDto> updateFiles(@ModelAttribute UpdateFileRequest updateFileRequest) {
-        return success(awsS3Service.updateFiles(updateFileRequest), "files are successfully updated.");
+        return success(awsS3Service.updateFiles(updateFileRequest));
     }
 
     @DeleteMapping("/api/files")
     public ApiResponse<?> deleteFiles(@RequestBody DeleteFileRequest deleteFileRequest) {
         awsS3Service.deleteFiles(deleteFileRequest);
-        return success(null, "files are successfully deleted.");
+        return success(null);
     }
 
 

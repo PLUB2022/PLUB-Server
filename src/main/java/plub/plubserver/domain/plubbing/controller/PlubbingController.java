@@ -18,9 +18,6 @@ public class PlubbingController {
     @PostMapping
     public ApiResponse<PlubbingResponse> createPlubbing(
             @RequestBody CreatePlubbingRequest createPlubbingRequest) {
-        return ApiResponse.success(
-                plubbingService.createPlubbing(createPlubbingRequest),
-                "plubbing is successfully created."
-        );
+        return ApiResponse.success(plubbingService.createPlubbing(createPlubbingRequest));
     }
 }
