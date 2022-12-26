@@ -11,6 +11,8 @@ import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
+import static plub.plubserver.domain.plubbing.model.PlubbingStatus.DELETED;
+
 @Entity
 @Getter
 @Builder
@@ -104,18 +106,16 @@ public class Plubbing extends BaseTimeEntity {
 
     public void deletePlubbing() {
         this.visibility = false;
-        onPreUpdate();
+        this.status = DELETED;
     }
 
     public void updatePlubbing(String name, String goal, String mainImageUrl) {
         this.name = name;
         this.goal = goal;
         this.mainImageUrl = mainImageUrl;
-        onPreUpdate();
     }
 
     public void endPlubbing(PlubbingStatus status) {
         this.status = status;
-        onPreUpdate();
     }
 }

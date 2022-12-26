@@ -40,6 +40,7 @@ public class PlubbingController {
                 "get my plubbing."
         );
     }
+
     // TODO 타임라인, 투두리스트 따로 조회
     @ApiOperation(value = "모임 메인페이지 조회")
     @GetMapping("/main/{plubbingId}")
@@ -51,7 +52,7 @@ public class PlubbingController {
     }
 
     @ApiOperation(value = "모임 삭제")
-    @PostMapping("/delete/{plubbingId}")
+    @DeleteMapping("/{plubbingId}")
     public ApiResponse<PlubbingMessage> deletePlubbing(@PathVariable Long plubbingId) {
         return success(
                 plubbingService.deletePlubbing(plubbingId),
@@ -60,7 +61,7 @@ public class PlubbingController {
     }
 
     @ApiOperation(value = "모임 종료하기")
-    @PostMapping("/end/{plubbingId}")
+    @PutMapping("/end/{plubbingId}")
     public ApiResponse<PlubbingMessage> endPlubbing(@PathVariable Long plubbingId) {
         return success(
                 plubbingService.endPlubbing(plubbingId),
@@ -69,7 +70,7 @@ public class PlubbingController {
     }
 
     @ApiOperation(value = "모임 수정")
-    @PostMapping("/update/{plubbingId}")
+    @PutMapping("/{plubbingId}")
     public ApiResponse<PlubbingResponse> updatePlubbing(@PathVariable Long plubbingId, @Valid @RequestBody UpdatePlubbingRequest updatePlubbingRequest) {
         return success(
                 plubbingService.updatePlubbing(plubbingId, updatePlubbingRequest),
