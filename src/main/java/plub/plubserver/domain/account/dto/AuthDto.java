@@ -38,6 +38,8 @@ public class AuthDto {
     }
 
     public record SignUpRequest(
+            @ApiModelProperty(value = "SignToken", example = "eyJraWQiOiJmaDZCczhDIi")
+            String signToken,
             @ApiModelProperty(value = "이용약관 및 개인정보취급방침 (필수)", example = "true/false")
             boolean usePolicy,
             @ApiModelProperty(value = "위치 기반 서비스 이용 약관 (필수)", example = "true/false")
