@@ -14,7 +14,7 @@ import java.util.List;
 import static plub.plubserver.common.dto.ApiResponse.success;
 
 @RestController
-@RequestMapping("/api/category")
+@RequestMapping("/api/categories")
 @RequiredArgsConstructor
 @Api(tags = "카테고리 API", hidden = true)
 public class CategoryController {
