@@ -59,7 +59,7 @@ public class AuthDto {
             @ApiModelProperty(value = "자기소개", example = "안녕하세요! 저는 플럽이에요")
             String introduce,
             @ApiModelProperty(value = "관심사 선택", example = "[음악, 맛집, 뷰티, 계절스포츠]")
-            List<String> categoryList
+            List<Long> categoryList
 
     ) {
         @Builder

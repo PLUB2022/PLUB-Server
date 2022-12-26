@@ -26,9 +26,10 @@ import plub.plubserver.domain.category.model.AccountCategory;
 import plub.plubserver.domain.category.model.SubCategory;
 import plub.plubserver.domain.category.repository.SubCategoryRepository;
 import plub.plubserver.domain.policy.model.Policy;
-import plub.plubserver.domain.policy.repository.PolicyRepository;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static plub.plubserver.config.security.SecurityUtils.getCurrentAccountEmail;
@@ -48,7 +49,6 @@ public class AuthService {
     private final GoogleService googleService;
     private final KakaoService kakaoService;
     private final SubCategoryRepository subCategoryRepository;
-    private final PolicyRepository policyRepository;
 
     public AuthMessage loginAccess(SocialLoginRequest socialLoginRequest) {
         OAuthIdAndRefreshTokenResponse response = fetchSocialEmail(socialLoginRequest);
@@ -128,10 +128,10 @@ public class AuthService {
 
 
         // 카테고리 리스트
-        List<String> categoryList = signUpRequest.categoryList();
+        List<Long> categoryList = signUpRequest.categoryList();
         List<AccountCategory> accountCategoryList = new ArrayList<>();
-        for (String id : categoryList) {
-            SubCategory subCategory = subCategoryRepository.findByName(id).orElseThrow(() -> new CategoryException(CategoryCode.NOT_FOUND_CATEGORY));
+        for (Long id : categoryList) {
+            SubCategory subCategory = subCategoryRepository.findById(id).orElseThrow(() -> new CategoryException(CategoryCode.NOT_FOUND_CATEGORY));
             AccountCategory accountCategory = AccountCategory.builder()
                     .account(account)
                     .categorySub(subCategory)
@@ -198,11 +198,10 @@ public class AuthService {
             throw new AccountException(AccountCode.ROLE_ACCESS_ERROR);
         }
         JwtDto jwtDto = login(loginRequest);
-        AuthMessage loginMessage = new AuthMessage(
+        return new AuthMessage(
                 AuthCode.LOGIN.getStatusCode(),
                 jwtDto,
                 AuthCode.LOGIN.getMessage()
         );
-        return loginMessage;
     }
 }

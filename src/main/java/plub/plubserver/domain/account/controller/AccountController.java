@@ -16,7 +16,7 @@ import static plub.plubserver.domain.account.dto.AuthDto.AuthMessage;
 
 
 @RestController
-@RequestMapping("/api/account")
+@RequestMapping("/api/accounts")
 @RequiredArgsConstructor
 @Api(tags = "회원 API", hidden = true)
 public class AccountController {
