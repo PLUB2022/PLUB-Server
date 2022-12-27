@@ -14,7 +14,7 @@ import java.util.List;
 import static plub.plubserver.common.dto.ApiResponse.success;
 
 @RestController
-@RequestMapping("/api/category")
+@RequestMapping("/api/categories")
 @RequiredArgsConstructor
 @Api(tags = "카테고리 API", hidden = true)
 public class CategoryController {
@@ -27,18 +27,11 @@ public class CategoryController {
     }
 
     @ApiOperation(value = "서브 카테고리 조회")
-    @GetMapping("/sub")
-    public ApiResponse<List<SubCategoryListResponse>> getAllCategorySub(@RequestParam Long categoryId) {
-        return success(categoryService.getAllCategorySub(categoryId));
-    }
-
-     /*@ApiOperation(value = "카테고리 버전 체크")
-    @GetMapping("/check/version")
-    public ApiResponse<CategoryVersionResponse> getCategoryVersion() {
+    @GetMapping("/{categoryId}/sub")
+    public ApiResponse<List<SubCategoryListResponse>> getAllCategorySub(@PathVariable Long categoryId) {
         return success(
-                CategoryCode.CATEGORY_SUCCESS.getStatusCode(),
-                categoryService.getCategoryVersion(),
-                "get category version."
+                categoryService.getAllCategorySub(categoryId),
+                "get all sub categories."
         );
-    }*/
+    }
 }

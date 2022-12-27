@@ -17,7 +17,7 @@ public class AccountDto {
             @ApiModelProperty(value = "비밀번호", example = "비밀번호")
             String password,
             @ApiModelProperty(value = "닉네임", example = "플럽")
-            @Pattern(regexp="^([0-9|a-z|A-Z|ㄱ-ㅎ|ㅏ-ㅣ|가-힣]*$)",
+            @Pattern(regexp = "^([0-9|a-z|A-Z|ㄱ-ㅎ|ㅏ-ㅣ|가-힣]*$)",
                     message = "닉네임에 공백과 특수문자가 포함될 수 없습니다.")
             String nickname,
             @ApiModelProperty(value = "소셜타입", example = "GOOGLE/KAKAO/APPLE")
@@ -32,7 +32,7 @@ public class AccountDto {
     }
 
     public record AccountInfoResponse(
-            @ApiModelProperty(value = "이메일",example = "plub@example.com")
+            @ApiModelProperty(value = "이메일", example = "plub@example.com")
             String email,
             @ApiModelProperty(value = "닉네임", example = "플럽")
             String nickname,
@@ -46,8 +46,11 @@ public class AccountDto {
             String introduce,
             @ApiModelProperty(value = "프로필 이미지", example = "https://s3.ap-northeast-2.amazonaws.com/plub/account/profile/test_profile.jpg")
             String profileImage
-    ){
-        @Builder public AccountInfoResponse {}
+    ) {
+        @Builder
+        public AccountInfoResponse {
+        }
+
         public static AccountInfoResponse of(Account account) {
             return AccountInfoResponse.builder()
                     .email(account.getEmail())
@@ -68,10 +71,28 @@ public class AccountDto {
             String introduce,
             @ApiModelProperty(value = "새로운 프로필 이미지", example = "디바이스 사진첩에서 가져온 이미지 파일")
             String profileImageUrl
-    ) {}
+    ) {
+    }
+
+    public record PlubbingAccountInfoResponse(
+            @ApiModelProperty(value = "닉네임", example = "플럽")
+            String nickname,
+            @ApiModelProperty(value = "프로필 이미지", example = "https://s3.ap-northeast-2.amazonaws.com/plub/account/profile/test_profile.jpg")
+            String profileImage
+    ) {
+        @Builder
+        public PlubbingAccountInfoResponse {
+        }
+
+        public static PlubbingAccountInfoResponse of(Account account) {
+            return PlubbingAccountInfoResponse.builder()
+                    .nickname(account.getNickname())
+                    .profileImage(account.getProfileImage())
+                    .build();
+        }
+    }
 
     public record NicknameResponse(
             boolean isAvailableNickname
     ) {}
-
 }

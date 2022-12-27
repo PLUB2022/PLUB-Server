@@ -1,4 +1,4 @@
-package plub.plubserver.domain.account.model;
+package plub.plubserver.domain.plubbing.model;
 
 public enum AccountPlubbingStatus {
     WAIT, ACTIVE, END

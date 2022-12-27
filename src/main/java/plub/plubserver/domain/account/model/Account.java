@@ -10,6 +10,7 @@ import plub.plubserver.domain.category.model.AccountCategory;
 import plub.plubserver.domain.comment.model.Comment;
 import plub.plubserver.domain.message.model.Message;
 import plub.plubserver.domain.policy.model.Policy;
+import plub.plubserver.domain.plubbing.model.AccountPlubbing;
 import plub.plubserver.domain.recruit.model.AccountRecruit;
 
 import javax.persistence.*;

@@ -2,14 +2,16 @@ package plub.plubserver.domain.plubbing.model;
 
 import lombok.*;
 import plub.plubserver.common.model.BaseTimeEntity;
-import plub.plubserver.domain.account.model.AccountPlubbing;
 import plub.plubserver.domain.category.model.PlubbingSubCategory;
 import plub.plubserver.domain.recruit.model.Recruit;
 import plub.plubserver.domain.timeline.model.PlubbingTimeline;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
+
+import static plub.plubserver.domain.plubbing.model.PlubbingStatus.DELETED;
 
 @Entity
 @Getter
@@ -26,6 +28,9 @@ public class Plubbing extends BaseTimeEntity {
     private String name; // 모임 이름
     private String goal;
     private String mainImageUrl;
+
+    @NotNull
+    private boolean visibility;
 
     @Enumerated(EnumType.STRING)
     private PlubbingStatus status; // ACTIVE, END
@@ -97,5 +102,20 @@ public class Plubbing extends BaseTimeEntity {
 
     public void addRecruit(Recruit recruit) {
         this.recruit = recruit;
+    }
+
+    public void deletePlubbing() {
+        this.visibility = false;
+        this.status = DELETED;
+    }
+
+    public void updatePlubbing(String name, String goal, String mainImageUrl) {
+        this.name = name;
+        this.goal = goal;
+        this.mainImageUrl = mainImageUrl;
+    }
+
+    public void endPlubbing(PlubbingStatus status) {
+        this.status = status;
     }
 }

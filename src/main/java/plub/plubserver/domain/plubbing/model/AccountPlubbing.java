@@ -1,11 +1,8 @@
-package plub.plubserver.domain.account.model;
+package plub.plubserver.domain.plubbing.model;
 
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.feed.model.PlubbingFeed;
-import plub.plubserver.domain.plubbing.model.Plubbing;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -45,5 +42,9 @@ public class AccountPlubbing {
         this.account = account;
         this.plubbing = plubbing;
         this.archives = archives;
+    }
+
+    public void changeStatus(AccountPlubbingStatus accountPlubbingStatus) {
+        this.accountPlubbingStatus = accountPlubbingStatus;
     }
 }
