@@ -23,7 +23,7 @@ public class Policy {
     private boolean isChecked;
 
     // 회원(1) - 정책(다)
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "account_id")
     private Account account;
 

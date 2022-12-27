@@ -26,7 +26,7 @@ public class AwsS3Controller {
         return success(awsS3Service.updateFiles(updateFileRequest));
     }
 
-    @DeleteMapping("/api/files/{type}/")
+    @DeleteMapping("/api/files/{type}")
     public ApiResponse<?> deleteFiles(@PathVariable String type, @RequestParam String fileUrl) {
         awsS3Service.deleteFiles(type, fileUrl);
         return success(null);
