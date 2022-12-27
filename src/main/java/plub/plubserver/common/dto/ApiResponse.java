@@ -5,6 +5,8 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.HashMap;
+
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -19,8 +21,9 @@ public class ApiResponse<T> {
         this.data = data;
     }
 
-    private ApiResponse(int status, String message) {
+    private ApiResponse(int status, T data, String message) {
         this.statusCode = status;
+        this.data = data;
         this.message = message;
     }
 
@@ -33,7 +36,8 @@ public class ApiResponse<T> {
     }
 
     public static ApiResponse<?> error(int errorCode, String message) {
-        return new ApiResponse<>(errorCode, message);
+        HashMap<String, String> empty = new HashMap<>();
+        return new ApiResponse<>(errorCode, empty, message);
     }
 
 }
