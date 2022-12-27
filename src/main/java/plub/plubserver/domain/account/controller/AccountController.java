@@ -12,6 +12,7 @@ import javax.validation.Valid;
 
 import static plub.plubserver.common.dto.ApiResponse.success;
 import static plub.plubserver.domain.account.dto.AccountDto.AccountInfoResponse;
+import static plub.plubserver.domain.account.dto.AccountDto.NicknameResponse;
 import static plub.plubserver.domain.account.dto.AuthDto.AuthMessage;
 
 
@@ -36,7 +37,7 @@ public class AccountController {
 
     @ApiOperation(value = "닉네임 검증 API")
     @GetMapping("/check/nickname/{nickname}")
-    public ApiResponse<Boolean> isDuplicateNickname(@PathVariable String nickname) {
+    public ApiResponse<NicknameResponse> isDuplicateNickname(@PathVariable String nickname) {
         return success(accountService.isDuplicateNickname(nickname));
     }
 
