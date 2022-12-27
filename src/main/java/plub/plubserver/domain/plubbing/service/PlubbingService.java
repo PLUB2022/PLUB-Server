@@ -19,7 +19,7 @@ import plub.plubserver.domain.plubbing.model.Plubbing;
 import plub.plubserver.domain.plubbing.model.PlubbingPlace;
 import plub.plubserver.domain.plubbing.model.PlubbingStatus;
 import plub.plubserver.domain.plubbing.repository.*;
-import plub.plubserver.domain.recruit.model.Question;
+import plub.plubserver.domain.recruit.model.RecruitQuestion;
 import plub.plubserver.domain.recruit.model.Recruit;
 
 import java.util.List;
@@ -36,8 +36,8 @@ public class PlubbingService {
 
     private void createRecruit(CreatePlubbingRequest createPlubbingRequest, Plubbing plubbing) {
         // 모집 질문글 엔티티화
-        List<Question> questionList = createPlubbingRequest.questions().stream()
-                .map(it -> Question.builder()
+        List<RecruitQuestion> recruitQuestionList = createPlubbingRequest.questions().stream()
+                .map(it -> RecruitQuestion.builder()
                         .questionTitle(it)
                         .build())
                 .toList();
@@ -47,12 +47,12 @@ public class PlubbingService {
                 .title(createPlubbingRequest.title())
                 .introduce(createPlubbingRequest.introduce())
                 .plubbing(plubbing)
-                .questions(questionList)
-                .questionNum(questionList.size())
+                .recruitQuestionList(recruitQuestionList)
+                .questionNum(recruitQuestionList.size())
                 .build();
 
         // 질문 - 모집 매핑
-        questionList.forEach(it -> it.addRecruit(recruit));
+        recruitQuestionList.forEach(it -> it.addRecruit(recruit));
 
         // 모임 - 모집 매핑
         plubbing.addRecruit(recruit);
@@ -79,7 +79,7 @@ public class PlubbingService {
 
 
     @Transactional
-    public PlubbingResponse createPlubbing(CreatePlubbingRequest createPlubbingRequest) {
+    public Long createPlubbing(CreatePlubbingRequest createPlubbingRequest) {
         // 모임 생성자(호스트) 가져오기
         Account owner = accountService.getCurrentAccount();
 
@@ -117,7 +117,7 @@ public class PlubbingService {
 
         plubbingRepository.flush(); // flush를 안 하면 recruitId가 null로 들어감
 
-        return PlubbingResponse.of(plubbing);
+        return plubbing.getId();
     }
 
     public List<MyPlubbingResponse> getMyPlubbing(Boolean isHost) {

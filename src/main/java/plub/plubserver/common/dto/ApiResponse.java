@@ -1,6 +1,8 @@
 package plub.plubserver.common.dto;
 
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.BindingResult;
 import plub.plubserver.common.exception.CommonErrorCode;

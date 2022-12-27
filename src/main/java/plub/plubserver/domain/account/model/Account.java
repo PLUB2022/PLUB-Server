@@ -10,7 +10,7 @@ import plub.plubserver.domain.category.model.AccountCategory;
 import plub.plubserver.domain.comment.model.Comment;
 import plub.plubserver.domain.message.model.Message;
 import plub.plubserver.domain.plubbing.model.AccountPlubbing;
-import plub.plubserver.domain.recruit.model.AccountRecruit;
+import plub.plubserver.domain.recruit.model.AppliedAccount;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -63,7 +63,7 @@ public class Account extends BaseTimeEntity {
 
     // 회원(1) - 회원_모집페이지(다) # 다대다 용
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<AccountRecruit> accountRecruitList = new ArrayList<>();
+    private List<AppliedAccount> appliedAccountList = new ArrayList<>();
 
     // 회원(1) - 회원_모임페이지(다) # 다대다 용
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
