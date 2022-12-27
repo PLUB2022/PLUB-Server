@@ -8,8 +8,9 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import plub.plubserver.common.dto.ApiResponse;
-import plub.plubserver.util.s3.AwsS3Exception;
+import plub.plubserver.util.s3.exception.AwsS3Exception;
 
 import javax.validation.ConstraintViolationException;
 import java.io.IOException;
@@ -61,7 +62,14 @@ public class GlobalExceptionHandler {
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
     protected ApiResponse<?> awsS3Error(final AwsS3Exception ex) {
         log.warn("예외 발생 및 처리 = {} : {}", ex.getMessage(), ex.getMessage());
-        return ApiResponse.error(AWS_S3_ERROR.getHttpCode(), ex.getMessage());
+        return ApiResponse.error(AWS_S3_ERROR.getStatusCode(), ex.getMessage());
     }
 
+    // 파일 업로드 용량 초과시 발생
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+    protected ApiResponse<?> handleMaxUploadSizeException(final MaxUploadSizeExceededException ex) {
+        log.warn("예외 발생 및 처리 = {} : {}", ex.getMessage(), ex.getMessage());
+        return ApiResponse.error(AWS_S3_FILE_SIZE_EXCEEDED.getStatusCode(), AWS_S3_FILE_SIZE_EXCEEDED.getMessage());
+    }
 }

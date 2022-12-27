@@ -48,7 +48,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .formLogin().disable()
                 .httpBasic().disable() // bearer 방식을 쓸 거다
                 .authorizeRequests()
-                .antMatchers("/api/category/**", "/api/auth/reissue","/api/auth/login", "/api/auth/signup", "/api/account/check/nickname/**", "/api/test/**", "/api/plubbing/**").permitAll()
+                .antMatchers("/api/category/**", "/api/auth/reissue","/api/auth/login", "/api/auth/signup", "/api/accounts/check/nickname/**", "/api/test/**", "/api/plubbing/**").permitAll()
                 .antMatchers("/docs/**", "/favicon.ico", "/v2/api-docs","/configuration/ui","/swagger-resources/**",
                         "/configuration/security","/swagger-ui.html","/swagger-ui/#", "/webjars/**","/swagger/**", "/swagger-ui/**", "/", "/csrf", "/error").permitAll()
                 .anyRequest()
