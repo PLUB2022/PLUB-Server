@@ -7,6 +7,23 @@ import plub.plubserver.domain.recruit.model.Recruit;
 import java.util.List;
 
 public class RecruitDto {
+    /**
+     * Request
+     */
+    public record AnswerRequest(Long questionId, String answer) { }
+    public record ApplyRecruitRequest(
+            List<AnswerRequest> answers
+    ) {
+    }
+
+    public record JoinedAccountDto(
+            Long accountId,
+            String profileImageUrl
+    ) {}
+
+    /**
+     * Response
+     */
     public record QuestionResponse(
             Long id,
             String question
@@ -25,12 +42,6 @@ public class RecruitDto {
                     .toList();
         }
     }
-
-    public record JoinedAccountDto(
-            Long accountId,
-            String profileImageUrl
-    ) {}
-
 
     public record RecruitResponse(
             String title,

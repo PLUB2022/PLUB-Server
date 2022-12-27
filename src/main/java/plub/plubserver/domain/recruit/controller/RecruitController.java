@@ -3,6 +3,7 @@ package plub.plubserver.domain.recruit.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+import plub.plubserver.domain.recruit.dto.RecruitDto.ApplyRecruitRequest;
 import plub.plubserver.domain.recruit.service.RecruitService;
 
 @Slf4j
@@ -30,10 +31,12 @@ public class RecruitController {
         recruitService.doneRecruit(recruitId);
     }
 
-//    @PostMapping("/applicants")
-//    public void applyRecruit(@PathVariable("recruitId") Long recruitId) {
-//        recruitService.applyRecruit(recruitId);
-//    }
+    @PostMapping("/applicants")
+    public Long applyRecruit(
+            @PathVariable("recruitId") Long recruitId,
+            @RequestBody ApplyRecruitRequest applyRecruitRequest) {
+        return recruitService.applyRecruit(recruitId, applyRecruitRequest);
+    }
 //
 //    @GetMapping("/applicants")
 //    public void getApplicants(@PathVariable("recruitId") Long recruitId) {

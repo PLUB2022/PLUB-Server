@@ -1,8 +1,6 @@
 package plub.plubserver.domain.recruit.model;
 
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import plub.plubserver.common.model.BaseTimeEntity;
 import plub.plubserver.domain.account.model.Account;
 
@@ -12,6 +10,8 @@ import java.util.List;
 
 @Entity
 @Getter
+@Builder
+@AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class AppliedAccount extends BaseTimeEntity {
 
@@ -20,7 +20,8 @@ public class AppliedAccount extends BaseTimeEntity {
     @Column(name = "applied_account_id")
     private Long id;
 
-    private ApplicantStatus status = ApplicantStatus.WAITING;
+    @Enumerated(EnumType.STRING)
+    private ApplicantStatus status;
 
     // 지원한 사용자(다) - 회원(1) # 다대다 용
     @ManyToOne(fetch = FetchType.LAZY)
@@ -39,6 +40,10 @@ public class AppliedAccount extends BaseTimeEntity {
     /**
      * methods
      */
+    public void addAnswerList(List<RecruitQuestionAnswer> answers) {
+        if (answerList == null) answerList = new ArrayList<>();
+        this.answerList.addAll(answers);
+    }
     public void accept() {
         status = ApplicantStatus.ACCEPTED;
     }

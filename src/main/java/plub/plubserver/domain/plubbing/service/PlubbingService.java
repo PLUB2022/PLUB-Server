@@ -49,6 +49,7 @@ public class PlubbingService {
                 .plubbing(plubbing)
                 .recruitQuestionList(recruitQuestionList)
                 .questionNum(recruitQuestionList.size())
+                .visibility(true)
                 .build();
 
         // 질문 - 모집 매핑

@@ -9,11 +9,11 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.client.HttpClientErrorException;
 import plub.plubserver.common.dto.ApiResponse;
-import plub.plubserver.common.exception.CommonErrorCode;
 import plub.plubserver.util.s3.AwsS3Exception;
 
 import javax.validation.ValidationException;
 import java.io.IOException;
+import java.util.NoSuchElementException;
 
 @RestControllerAdvice
 @Slf4j
@@ -59,6 +59,14 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(AwsS3Exception.class)
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
     protected ApiResponse<?> awsS3Error(final AwsS3Exception ex) {
+        log.warn("예외 발생 및 처리 = {} : {}", ex.getMessage(), ex.getMessage());
+        return ApiResponse.error(CommonErrorCode.AWS_S3_ERROR.getHttpCode(), ex.getMessage());
+    }
+
+    // DB Entity Not found
+    @ExceptionHandler(NoSuchElementException.class)
+    @ResponseStatus(value = HttpStatus.NOT_FOUND)
+    protected ApiResponse<?> notFoundError(final NoSuchElementException ex) {
         log.warn("예외 발생 및 처리 = {} : {}", ex.getMessage(), ex.getMessage());
         return ApiResponse.error(CommonErrorCode.AWS_S3_ERROR.getHttpCode(), ex.getMessage());
     }

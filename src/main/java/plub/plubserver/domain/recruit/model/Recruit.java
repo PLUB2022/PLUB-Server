@@ -46,6 +46,10 @@ public class Recruit extends BaseTimeEntity {
     /**
      * methods
      */
+    public void addAppliedAccount(AppliedAccount appliedAccount) {
+        if (appliedAccountList == null) appliedAccountList = new ArrayList<>();
+        appliedAccountList.add(appliedAccount);
+    }
     public void done() {
         visibility = false;
     }
