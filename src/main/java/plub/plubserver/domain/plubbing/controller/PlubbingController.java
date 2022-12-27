@@ -16,7 +16,7 @@ import static plub.plubserver.common.dto.ApiResponse.success;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/plubbing")
+@RequestMapping("/api/plubbings")
 @Slf4j
 @Api(tags = "플러빙 API", hidden = true)
 public class PlubbingController {
@@ -40,9 +40,10 @@ public class PlubbingController {
                 "get my plubbing."
         );
     }
+
     // TODO 타임라인, 투두리스트 따로 조회
     @ApiOperation(value = "모임 메인페이지 조회")
-    @GetMapping("/main/{plubbingId}")
+    @GetMapping("/{plubbingId}/main")
     public ApiResponse<MainPlubbingResponse> getMainPlubbing(@PathVariable Long plubbingId) {
         return success(
                 plubbingService.getMainPlubbing(plubbingId),
@@ -51,7 +52,7 @@ public class PlubbingController {
     }
 
     @ApiOperation(value = "모임 삭제")
-    @PostMapping("/delete/{plubbingId}")
+    @DeleteMapping("/{plubbingId}")
     public ApiResponse<PlubbingMessage> deletePlubbing(@PathVariable Long plubbingId) {
         return success(
                 plubbingService.deletePlubbing(plubbingId),
@@ -60,7 +61,7 @@ public class PlubbingController {
     }
 
     @ApiOperation(value = "모임 종료하기")
-    @PostMapping("/end/{plubbingId}")
+    @PutMapping("/{plubbingId}/end")
     public ApiResponse<PlubbingMessage> endPlubbing(@PathVariable Long plubbingId) {
         return success(
                 plubbingService.endPlubbing(plubbingId),
@@ -69,7 +70,7 @@ public class PlubbingController {
     }
 
     @ApiOperation(value = "모임 수정")
-    @PostMapping("/update/{plubbingId}")
+    @PutMapping("/{plubbingId}")
     public ApiResponse<PlubbingResponse> updatePlubbing(@PathVariable Long plubbingId, @Valid @RequestBody UpdatePlubbingRequest updatePlubbingRequest) {
         return success(
                 plubbingService.updatePlubbing(plubbingId, updatePlubbingRequest),

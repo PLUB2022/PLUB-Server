@@ -173,7 +173,6 @@ public class PlubbingService {
     @Transactional
     public PlubbingMessage endPlubbing(Long plubbingId) {
         Plubbing plubbing = plubbingRepository.findById(plubbingId).orElseThrow(() -> new PlubbingException(PlubbingCode.NOT_FOUND_PLUBBING));
-        checkPlubbingStatus(plubbing);
         checkAuthority(plubbing);
         List<AccountPlubbing> accountPlubbingList = accountPlubbingRepository.findAllByPlubbingId(plubbingId)
                 .orElseThrow(() -> new PlubbingException(PlubbingCode.NOT_FOUND_PLUBBING));
@@ -184,7 +183,7 @@ public class PlubbingService {
             plubbing.endPlubbing(PlubbingStatus.END);
             accountPlubbingList.forEach(a -> a.changeStatus(AccountPlubbingStatus.END));
         }
-        return new PlubbingMessage(true);
+        return new PlubbingMessage(plubbing.getStatus());
     }
 
     @Transactional
