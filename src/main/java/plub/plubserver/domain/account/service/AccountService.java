@@ -4,8 +4,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import plub.plubserver.domain.account.config.AccountCode;
+import plub.plubserver.domain.account.config.AuthCode;
 import plub.plubserver.domain.account.dto.AccountDto.AccountProfileRequest;
 import plub.plubserver.domain.account.exception.AccountException;
+import plub.plubserver.domain.account.exception.AuthException;
 import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.account.repository.AccountRepository;
 
@@ -48,7 +50,7 @@ public class AccountService {
     public NicknameResponse isDuplicateNickname(String nickname) {
         String pattern = "^[0-9|a-z|A-Z|ㄱ-ㅎ|ㅏ-ㅣ|가-힣]*$";
         if (!Pattern.matches(pattern, nickname)) {
-            throw new AccountException(AccountCode.NICKNAME_DUPLICATION);
+            throw new AccountException(AccountCode.NICKNAME_ERROR);
         }
         return new NicknameResponse(!accountRepository.existsByNickname(nickname));
     }

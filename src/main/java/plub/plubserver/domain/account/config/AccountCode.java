@@ -20,7 +20,8 @@ public enum AccountCode {
     EMAIL_DUPLICATION(400, 2070, "duplicated email error."),
     NICKNAME_RULE_ERROR(400, 2080, "invalid nickname rule error."),
     SOCIAL_TYPE_ERROR(400, 2090, "invalid social type error."),
-    ROLE_ACCESS_ERROR(400, 2120, "role access error.");
+    ROLE_ACCESS_ERROR(400, 2120, "role access error."),
+    NICKNAME_ERROR(400, 2130, "invalid nickname error.");
 
     private final int HttpCode;
     private final int statusCode;
