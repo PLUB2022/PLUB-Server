@@ -97,6 +97,7 @@ public class AuthService {
         String socialType = signKey.socialType();
         String refreshToken = signKey.refreshToken();
         String nickname = signUpRequest.nickname();
+        String profileImage = signUpRequest.profileImage();
 
         boolean agePolicy = signUpRequest.agePolicy();
         boolean personalPolicy = signUpRequest.personalPolicy();

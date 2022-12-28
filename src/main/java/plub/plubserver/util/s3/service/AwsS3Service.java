@@ -9,14 +9,15 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 import plub.plubserver.common.exception.CommonErrorCode;
+import plub.plubserver.util.s3.S3SaveDir;
 import plub.plubserver.util.s3.dto.AwsS3Dto.FileDto;
 import plub.plubserver.util.s3.dto.AwsS3Dto.FileListDto;
 import plub.plubserver.util.s3.dto.AwsS3Dto.UpdateFileRequest;
 import plub.plubserver.util.s3.dto.AwsS3Dto.UploadFileRequest;
 import plub.plubserver.util.s3.exception.AwsS3Exception;
-import plub.plubserver.util.s3.S3SaveDir;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -40,6 +41,11 @@ public class AwsS3Service {
 
     public FileListDto uploadFiles(UploadFileRequest uploadFileRequest) {
         String currentAccountEmail = getCurrentAccountEmail();
+
+        List<MultipartFile> files = uploadFileRequest.files();
+        if (CollectionUtils.isEmpty(files)) {
+            throw new AwsS3Exception(CommonErrorCode.INVALID_INPUT_VALUE);
+        }
         List<FileDto> result = uploadFileRequest.files().stream()
                 .map(file -> uploadV2(file, uploadFileRequest.type(), currentAccountEmail))
                 .toList();
@@ -60,8 +66,8 @@ public class AwsS3Service {
         try (InputStream inputStream = multipartFile.getInputStream()) {
             amazonS3Client.putObject(new PutObjectRequest(bucketPath, fileName, inputStream, objectMetadata)
                     .withCannedAcl(CannedAccessControlList.PublicRead));
-        } catch (IOException e) {
-            throw new AwsS3Exception(CommonErrorCode.AWS_S3_FILE_SIZE_EXCEEDED);
+        } catch (RuntimeException | IOException e) {
+            throw new AwsS3Exception(CommonErrorCode.AWS_S3_ERROR);
         }
 
         String fileUrl = amazonS3Client.getUrl(bucketPath, fileName).toString();
@@ -94,6 +100,12 @@ public class AwsS3Service {
         String loginUser = getCurrentAccountEmail();
 
         // 기존꺼 삭제
+
+        List<String> urls = updateFileRequest.toDeleteUrls();
+        if (CollectionUtils.isEmpty(urls)) {
+            throw new AwsS3Exception(CommonErrorCode.AWS_S3_ERROR);
+        }
+
         updateFileRequest.toDeleteUrls().forEach(file -> delete(type, file));
 
         // 새로운거 업로드

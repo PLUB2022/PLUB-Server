@@ -29,7 +29,7 @@ public class AwsS3Controller {
     @DeleteMapping("/api/files/{type}")
     public ApiResponse<?> deleteFiles(@PathVariable String type, @RequestParam String fileUrl) {
         awsS3Service.deleteFiles(type, fileUrl);
-        return success(null);
+        return success("DELETE SUCCESS");
     }
 
 }

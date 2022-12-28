@@ -58,6 +58,8 @@ public class AuthDto {
             String gender,
             @ApiModelProperty(value = "자기소개", example = "안녕하세요! 저는 플럽이에요")
             String introduce,
+            @ApiModelProperty(value = "회원 프로필", example = "회원 프로필 이미지")
+            String profileImage,
             @ApiModelProperty(value = "관심사 선택", example = "[음악, 맛집, 뷰티, 계절스포츠]")
             List<Long> categoryList
 
@@ -86,6 +88,7 @@ public class AuthDto {
                     .gender(gender)
                     .introduce(introduce)
                     .role(Role.ROLE_USER)
+                    .profileImage(profileImage)
                     .build();
         }
 
