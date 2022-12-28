@@ -29,9 +29,6 @@ public class CategoryController {
     @ApiOperation(value = "서브 카테고리 조회")
     @GetMapping("/{categoryId}/sub")
     public ApiResponse<List<SubCategoryListResponse>> getAllCategorySub(@PathVariable Long categoryId) {
-        return success(
-                categoryService.getAllCategorySub(categoryId),
-                "get all sub categories."
-        );
+        return success(categoryService.getAllCategorySub(categoryId));
     }
 }
