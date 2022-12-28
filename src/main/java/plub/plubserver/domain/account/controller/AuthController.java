@@ -27,48 +27,33 @@ public class AuthController {
         AuthMessage authMessage = authService.loginAccess(socialLoginRequest);
         return success(
                 authMessage.statusCode(),
-                authMessage.detailData(),
-                authMessage.detailMessage()
+                authMessage.detailData()
         );
     }
 
     @ApiOperation(value = "소셜 회원가입 및 로그인")
     @PostMapping("/signup")
-    public ApiResponse<JwtDto> signUp(@RequestHeader("X-ACCESS-TOKEN") String header,
-                                      @Valid @RequestBody SignUpRequest signUpRequest) {
-        SignAuthMessage signAuthMessage = authService.signUp(signUpRequest, header);
-        return success(
-                signAuthMessage.detailData(),
-                signAuthMessage.detailMessage()
-        );
+    public ApiResponse<JwtDto> signUp(@Valid @RequestBody SignUpRequest signUpRequest) {
+        SignAuthMessage signAuthMessage = authService.signUp(signUpRequest);
+        return success(signAuthMessage.detailData());
     }
 
     @ApiOperation(value = "토큰 재발행")
     @PostMapping("/reissue")
     public ApiResponse<JwtDto> reissue(@RequestBody ReissueRequest reissueRequest) {
-        return success(
-                authService.reissue(reissueRequest),
-                "access token reissued."
-        );
+        return success(authService.reissue(reissueRequest));
     }
 
     @ApiOperation(value = "로그아웃")
     @GetMapping("/logout")
     public ApiResponse<String> logout() {
-        return success(
-                authService.logout(),
-                "logout."
-        );
+        return success(authService.logout());
     }
 
     @ApiOperation(value = "어드민 로그인")
     @PostMapping("/login/admin")
     public ApiResponse<?> adminLogin(@RequestBody LoginRequest loginRequest) {
         AuthMessage authMessage = authService.loginAdmin(loginRequest);
-        return success(
-                authMessage.statusCode(),
-                authMessage.detailData(),
-                authMessage.detailMessage()
-        );
+        return success(authMessage.detailData());
     }
 }

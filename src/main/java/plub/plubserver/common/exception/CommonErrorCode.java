@@ -12,7 +12,8 @@ public enum CommonErrorCode {
     METHOD_NOT_ALLOWED(405, 9020, "method not allowed."),
     INTERNAL_SERVER_ERROR(500, 9030, "server error."),
     HTTP_CLIENT_ERROR(400, 9040, "http client error."),
-    AWS_S3_ERROR(400, 9050, "AWS S3 upload fail.");
+    AWS_S3_ERROR(400, 9050, "AWS S3 upload fail."),
+    AWS_S3_FILE_SIZE_EXCEEDED(400, 9060, "exceeded file size");
 
 
     private final int statusCode;

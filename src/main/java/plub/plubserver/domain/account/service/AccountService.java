@@ -13,6 +13,7 @@ import java.util.regex.Pattern;
 
 import static plub.plubserver.config.security.SecurityUtils.getCurrentAccountEmail;
 import static plub.plubserver.domain.account.dto.AccountDto.AccountInfoResponse;
+import static plub.plubserver.domain.account.dto.AccountDto.NicknameResponse;
 import static plub.plubserver.domain.account.dto.AuthDto.AuthMessage;
 
 @Service
@@ -44,19 +45,21 @@ public class AccountService {
                 .orElseThrow(() -> new AccountException(AccountCode.NOT_FOUND_ACCOUNT));
     }
 
-    public boolean isDuplicateNickname(String nickname) {
+    public NicknameResponse isDuplicateNickname(String nickname) {
         String pattern = "^[0-9|a-z|A-Z|ㄱ-ㅎ|ㅏ-ㅣ|가-힣]*$";
         if (!Pattern.matches(pattern, nickname)) {
             throw new AccountException(AccountCode.NICKNAME_DUPLICATION);
         }
-        return accountRepository.existsByNickname(nickname);
+        return new NicknameResponse(!accountRepository.existsByNickname(nickname));
     }
 
     // 회원 정보 수정
     @Transactional
     public AccountInfoResponse updateProfile(AccountProfileRequest profileRequest) {
         Account myAccount = getCurrentAccount();
-        if (isDuplicateNickname(profileRequest.nickname()))
+
+        NicknameResponse duplicateNickname = isDuplicateNickname(profileRequest.nickname());
+        if (!duplicateNickname.isAvailableNickname())
             throw new AccountException(AccountCode.NICKNAME_DUPLICATION);
 
         myAccount.updateProfile(profileRequest.nickname(), profileRequest.introduce(), profileRequest.profileImageUrl());

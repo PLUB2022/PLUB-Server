@@ -19,8 +19,7 @@ public class TestController {
         TestDto.AuthCodeResponse authCodeResponse = new TestDto.AuthCodeResponse(authCodeDto.authCode());
         return success(
                 statusCode,
-                authCodeResponse,
-                "테스트 용입니다."
+                authCodeResponse
         );
     }
 }

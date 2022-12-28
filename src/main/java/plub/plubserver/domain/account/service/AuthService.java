@@ -25,10 +25,13 @@ import plub.plubserver.domain.category.exception.CategoryException;
 import plub.plubserver.domain.category.model.AccountCategory;
 import plub.plubserver.domain.category.model.SubCategory;
 import plub.plubserver.domain.category.repository.SubCategoryRepository;
+import plub.plubserver.domain.policy.model.Policy;
+
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static plub.plubserver.config.security.SecurityUtils.getCurrentAccountEmail;
 import static plub.plubserver.domain.account.dto.AuthDto.*;
@@ -84,8 +87,8 @@ public class AuthService {
     }
 
     @Transactional
-    public SignAuthMessage signUp(SignUpRequest signUpRequest, String header) {
-        String signToken = jwtProvider.resolveSignToken(header);
+    public SignAuthMessage signUp(SignUpRequest signUpRequest) {
+        String signToken = signUpRequest.signToken();
         if (!jwtProvider.validate(signToken))
             throw new AuthException(AuthCode.SIGNUP_TOKEN_ERROR);
 
@@ -101,14 +104,35 @@ public class AuthService {
         boolean usePolicy = signUpRequest.usePolicy();
         boolean marketPolicy = signUpRequest.marketPolicy();
 
+        ConcurrentHashMap<String, Boolean> policyCheckList = new ConcurrentHashMap<>();
+        policyCheckList.put("agePolicy", agePolicy);
+        policyCheckList.put("personalPolicy", personalPolicy);
+        policyCheckList.put("placePolicy", placePolicy);
+        policyCheckList.put("usePolicy", usePolicy);
+        policyCheckList.put("marketPolicy", marketPolicy);
+
         checkDuplicationEmailAndNickName(email, nickname);
         Account account = signUpRequest.toAccount(email, socialType, passwordEncoder);
 
+        // 정책 리스트
+        List<Policy> policyList = new ArrayList<>();
+        policyCheckList.forEach((title, isChecked) -> {
+            Policy policy = Policy.builder()
+                    .title(title)
+                    .isChecked(isChecked)
+                    .account(account)
+                    .build();
+
+            policyList.add(policy);
+        });
+        account.updateAccountPolicy(policyList);
+
+
         // 카테고리 리스트
-        List<String> categoryList = signUpRequest.categoryList();
+        List<Long> categoryList = signUpRequest.categoryList();
         List<AccountCategory> accountCategoryList = new ArrayList<>();
-        for (String id : categoryList) {
-            SubCategory subCategory = subCategoryRepository.findByName(id).orElseThrow(() -> new CategoryException(CategoryCode.NOT_FOUND_CATEGORY));
+        for (Long id : categoryList) {
+            SubCategory subCategory = subCategoryRepository.findById(id).orElseThrow(() -> new CategoryException(CategoryCode.NOT_FOUND_CATEGORY));
             AccountCategory accountCategory = AccountCategory.builder()
                     .account(account)
                     .categorySub(subCategory)
@@ -119,6 +143,7 @@ public class AuthService {
         accountRepository.save(account);
 
         account.updateAccountCategory(accountCategoryList);
+
 
         JwtDto jwtDto = login(account.toAccountRequestDto().toLoginRequest());
         account.updateRefreshToken(refreshToken);
@@ -174,11 +199,10 @@ public class AuthService {
             throw new AccountException(AccountCode.ROLE_ACCESS_ERROR);
         }
         JwtDto jwtDto = login(loginRequest);
-        AuthMessage loginMessage = new AuthMessage(
+        return new AuthMessage(
                 AuthCode.LOGIN.getStatusCode(),
                 jwtDto,
                 AuthCode.LOGIN.getMessage()
         );
-        return loginMessage;
     }
 }

@@ -38,6 +38,8 @@ public class AuthDto {
     }
 
     public record SignUpRequest(
+            @ApiModelProperty(value = "SignToken", example = "eyJraWQiOiJmaDZCczhDIi")
+            String signToken,
             @ApiModelProperty(value = "이용약관 및 개인정보취급방침 (필수)", example = "true/false")
             boolean usePolicy,
             @ApiModelProperty(value = "위치 기반 서비스 이용 약관 (필수)", example = "true/false")
@@ -57,7 +59,7 @@ public class AuthDto {
             @ApiModelProperty(value = "자기소개", example = "안녕하세요! 저는 플럽이에요")
             String introduce,
             @ApiModelProperty(value = "관심사 선택", example = "[음악, 맛집, 뷰티, 계절스포츠]")
-            List<String> categoryList
+            List<Long> categoryList
 
     ) {
         @Builder
