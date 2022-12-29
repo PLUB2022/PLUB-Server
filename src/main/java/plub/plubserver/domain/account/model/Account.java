@@ -9,6 +9,7 @@ import plub.plubserver.domain.alarm.model.Alarm;
 import plub.plubserver.domain.category.model.AccountCategory;
 import plub.plubserver.domain.comment.model.Comment;
 import plub.plubserver.domain.message.model.Message;
+import plub.plubserver.domain.policy.model.Policy;
 import plub.plubserver.domain.plubbing.model.AccountPlubbing;
 import plub.plubserver.domain.recruit.model.AppliedAccount;
 
@@ -73,6 +74,10 @@ public class Account extends BaseTimeEntity {
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<AccountCategory> accountCategories = new ArrayList<>();
 
+    // 회원(1) - 정책(다)
+    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Policy> policyList = new ArrayList<>();
+
     @Builder
     public Account(String email, String password, String nickname, int age, String birthday, String gender, String phone, SocialType socialType, String profileImage, String lastLogin, String fcmToken, Role role, String introduce, List<AccountCategory> accountCategories) {
         this.email = email;
@@ -112,5 +117,9 @@ public class Account extends BaseTimeEntity {
 
     public void updateAccountCategory(List<AccountCategory> accountCategories) {
         this.accountCategories = accountCategories;
+    }
+
+    public void updateAccountPolicy(List<Policy> policyList) {
+        this.policyList = policyList;
     }
 }

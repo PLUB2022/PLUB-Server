@@ -12,7 +12,7 @@
 //import org.springframework.mock.web.MockMultipartFile;
 //import plub.plubserver.domain.account.AccountTemplate;
 //import plub.plubserver.domain.account.model.Account;
-//import plub.plubserver.util.s3.AwsS3Service;
+//import plub.plubserver.util.s3.service.AwsS3Service;
 //import plub.plubserver.util.s3.S3SaveDir;
 //
 //import static org.assertj.core.api.Assertions.assertThat;

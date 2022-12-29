@@ -24,57 +24,39 @@ public class PlubbingController {
 
     @ApiOperation(value = "모임 생성")
     @PostMapping
-    public ApiResponse<Long> createPlubbing(
-            @Valid @RequestBody CreatePlubbingRequest createPlubbingRequest) {
-        return success(
-                plubbingService.createPlubbing(createPlubbingRequest),
-                "plubbing is successfully created."
-        );
+    public ApiResponse<PlubbingResponse> createPlubbing(
+            @RequestBody CreatePlubbingRequest createPlubbingRequest) {
+        return ApiResponse.success(plubbingService.createPlubbing(createPlubbingRequest));
     }
 
     @ApiOperation(value = "내 모임 조회")
     @GetMapping("/my")
     public ApiResponse<List<MyPlubbingResponse>> getMyPlubbing(@RequestParam(required = false) Boolean isHost) {
-        return success(
-                plubbingService.getMyPlubbing(isHost),
-                "get my plubbing."
-        );
+        return success(plubbingService.getMyPlubbing(isHost));
     }
 
     // TODO 타임라인, 투두리스트 따로 조회
     @ApiOperation(value = "모임 메인페이지 조회")
-    @GetMapping("/main/{plubbingId}")
+    @GetMapping("/{plubbingId}/main")
     public ApiResponse<MainPlubbingResponse> getMainPlubbing(@PathVariable Long plubbingId) {
-        return success(
-                plubbingService.getMainPlubbing(plubbingId),
-                "get main plubbing."
-        );
+        return success(plubbingService.getMainPlubbing(plubbingId));
     }
 
     @ApiOperation(value = "모임 삭제")
-    @PostMapping("/delete/{plubbingId}")
+    @DeleteMapping("/{plubbingId}")
     public ApiResponse<PlubbingMessage> deletePlubbing(@PathVariable Long plubbingId) {
-        return success(
-                plubbingService.deletePlubbing(plubbingId),
-                "plubbing is successfully deleted."
-        );
+        return success(plubbingService.deletePlubbing(plubbingId));
     }
 
     @ApiOperation(value = "모임 종료하기")
-    @PostMapping("/end/{plubbingId}")
+    @PutMapping("/{plubbingId}/end")
     public ApiResponse<PlubbingMessage> endPlubbing(@PathVariable Long plubbingId) {
-        return success(
-                plubbingService.endPlubbing(plubbingId),
-                "plubbing is successfully ended."
-        );
+        return success(plubbingService.endPlubbing(plubbingId));
     }
 
     @ApiOperation(value = "모임 수정")
-    @PostMapping("/update/{plubbingId}")
+    @PutMapping("/{plubbingId}")
     public ApiResponse<PlubbingResponse> updatePlubbing(@PathVariable Long plubbingId, @Valid @RequestBody UpdatePlubbingRequest updatePlubbingRequest) {
-        return success(
-                plubbingService.updatePlubbing(plubbingId, updatePlubbingRequest),
-                "plubbing is successfully updated."
-        );
+        return success(plubbingService.updatePlubbing(plubbingId, updatePlubbingRequest));
     }
 }

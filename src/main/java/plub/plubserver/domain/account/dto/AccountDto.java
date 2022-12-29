@@ -1,7 +1,7 @@
 package plub.plubserver.domain.account.dto;
 
 import io.swagger.annotations.ApiModelProperty;
-import lombok.Builder;
+import lombok.*;
 import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.account.model.SocialType;
 
@@ -91,4 +91,8 @@ public class AccountDto {
                     .build();
         }
     }
+
+    public record NicknameResponse(
+            boolean isAvailableNickname
+    ) {}
 }
