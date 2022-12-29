@@ -1,8 +1,10 @@
 package plub.plubserver.common.exception;
 
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 @Getter
+@RequiredArgsConstructor
 public enum CommonErrorCode {
     /**
      * fail
@@ -16,13 +18,8 @@ public enum CommonErrorCode {
     AWS_S3_FILE_SIZE_EXCEEDED(400, 9060, "exceeded file size");
 
 
+
+    private final int HttpCode;
     private final int statusCode;
     private final String message;
-    private final int HttpCode;
-
-    CommonErrorCode(int HttpCode, int statusCode, String message) {
-        this.HttpCode = HttpCode;
-        this.message = message;
-        this.statusCode = statusCode;
-    }
 }

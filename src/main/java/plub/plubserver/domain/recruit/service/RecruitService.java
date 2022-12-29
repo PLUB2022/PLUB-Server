@@ -6,10 +6,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.account.service.AccountService;
+import plub.plubserver.domain.recruit.config.RecruitCode;
 import plub.plubserver.domain.recruit.dto.RecruitDto.AnswerRequest;
 import plub.plubserver.domain.recruit.dto.RecruitDto.ApplyRecruitRequest;
 import plub.plubserver.domain.recruit.dto.RecruitDto.QuestionResponse;
 import plub.plubserver.domain.recruit.dto.RecruitDto.RecruitResponse;
+import plub.plubserver.domain.recruit.exception.RecruitException;
 import plub.plubserver.domain.recruit.model.*;
 import plub.plubserver.domain.recruit.repository.RecruitRepository;
 
@@ -26,7 +28,8 @@ public class RecruitService {
     private final AccountService accountService;
 
     private Recruit findById(Long recruitId) {
-        return recruitRepository.findById(recruitId).orElseThrow();
+        return recruitRepository.findById(recruitId)
+                .orElseThrow(() -> new RecruitException(RecruitCode.NOT_FOUND_RECRUIT));
     }
 
     public RecruitResponse getRecruit(Long recruitId) {
@@ -62,7 +65,7 @@ public class RecruitService {
             RecruitQuestion question = questions.stream()
                     .filter(it -> it.getId().equals(ar.questionId()))
                     .findFirst()
-                    .orElseThrow(() -> new IllegalArgumentException("해당 질문이 없습니다."));
+                    .orElseThrow(() -> new RecruitException(RecruitCode.NOT_FOUND_QUESTION));
 
             answers.add(RecruitQuestionAnswer.builder()
                     .recruitQuestion(question)

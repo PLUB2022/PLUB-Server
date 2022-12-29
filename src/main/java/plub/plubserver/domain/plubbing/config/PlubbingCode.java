@@ -1,8 +1,10 @@
 package plub.plubserver.domain.plubbing.config;
 
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 @Getter
+@RequiredArgsConstructor
 public enum PlubbingCode {
     /**
      * success
@@ -19,10 +21,4 @@ public enum PlubbingCode {
     private final int HttpCode;
     private final int statusCode;
     private final String message;
-
-    PlubbingCode(int HttpCode, int statusCode, String message) {
-        this.HttpCode = HttpCode;
-        this.statusCode = statusCode;
-        this.message = message;
-    }
 }
