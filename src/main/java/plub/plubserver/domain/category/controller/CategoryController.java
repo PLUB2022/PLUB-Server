@@ -23,18 +23,12 @@ public class CategoryController {
     @ApiOperation(value = "카테고리 전체 조회")
     @GetMapping
     public ApiResponse<List<CategoryListResponse>> getAllCategory() {
-        return success(
-                categoryService.getAllCategory(),
-                "get all categories."
-        );
+        return success(categoryService.getAllCategory());
     }
 
     @ApiOperation(value = "서브 카테고리 조회")
     @GetMapping("/{categoryId}/sub")
     public ApiResponse<List<SubCategoryListResponse>> getAllCategorySub(@PathVariable Long categoryId) {
-        return success(
-                categoryService.getAllCategorySub(categoryId),
-                "get all sub categories."
-        );
+        return success(categoryService.getAllCategorySub(categoryId));
     }
 }

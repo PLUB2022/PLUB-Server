@@ -1,4 +1,4 @@
-package plub.plubserver.util.s3;
+package plub.plubserver.util.s3.dto;
 
 import org.springframework.web.multipart.MultipartFile;
 
@@ -14,10 +14,6 @@ public class AwsS3Dto {
             List<String> toDeleteUrls,
             List<MultipartFile> newFiles
     ) {}
-    public record DeleteFileRequest(
-        String type,
-        List<String> urls
-    ) {}
     public record FileDto(
             String filename,
             String fileUrl
@@ -25,5 +21,4 @@ public class AwsS3Dto {
     public record FileListDto(
             List<FileDto> files
     ) {}
-
 }
