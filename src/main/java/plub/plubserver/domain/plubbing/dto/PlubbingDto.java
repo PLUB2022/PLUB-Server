@@ -222,24 +222,6 @@ public class PlubbingDto {
         }
     }
 
-    /*public record PlubbingPageResponse(
-            List<PlubbingCardResponse> plubbingList,
-            int totalPage,
-            int currentPage
-    ) {
-        @Builder
-        public PlubbingPageResponse {
-        }
-
-        public static PlubbingPageResponse of(List<PlubbingCardResponse> plubbingList, int totalPage, int currentPage) {
-            return PlubbingPageResponse.builder()
-                    .plubbingList(plubbingList)
-                    .totalPage(totalPage)
-                    .currentPage(currentPage)
-                    .build();
-        }
-    }*/
-
     public record PlubbingMessage(Object result) {
     }
 }
