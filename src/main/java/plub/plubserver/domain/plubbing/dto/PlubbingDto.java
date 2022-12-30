@@ -195,4 +195,5 @@ public class PlubbingDto {
 
     public record PlubbingMessage(Object result) {
     }
+
 }

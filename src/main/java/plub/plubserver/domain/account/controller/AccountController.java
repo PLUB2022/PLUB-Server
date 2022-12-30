@@ -5,7 +5,7 @@ import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import plub.plubserver.common.dto.ApiResponse;
-import plub.plubserver.domain.account.dto.AccountDto.AccountProfileRequest;
+import plub.plubserver.domain.account.dto.AccountDto.*;
 import plub.plubserver.domain.account.service.AccountService;
 
 import javax.validation.Valid;
@@ -54,5 +54,18 @@ public class AccountController {
     public ApiResponse<?> revoke() {
         AuthMessage revoke = accountService.revoke();
         return success(revoke.detailData());
+    }
+
+    @ApiOperation(value = "회원 관심사 등록")
+    @PostMapping("/interest")
+    public ApiResponse<AccountCategoryResponse> createAccountCategory(
+            @Valid @RequestBody AccountCategoryRequest accountCategoryRequest) {
+        return success(accountService.createAccountCategory(accountCategoryRequest));
+    }
+
+    @ApiOperation(value = "회원 관심사 조회")
+    @GetMapping("/interest")
+    public ApiResponse<AccountCategoryResponse> getAccountCategory() {
+        return success(accountService.getAccountCategory());
     }
 }
