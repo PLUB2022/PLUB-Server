@@ -11,6 +11,7 @@ import plub.plubserver.domain.category.model.SubCategory;
 import plub.plubserver.domain.category.repository.CategoryRepository;
 import plub.plubserver.domain.category.repository.SubCategoryRepository;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -26,13 +27,13 @@ public class CategoryService {
                 .orElseThrow(() -> new CategoryException(CategoryCode.NOT_FOUND_CATEGORY));
     }
 
-    public List<CategoryListResponse> getAllCategory() {
+    public List<CategoryListResponse> getCategoryList() {
         return categoryRepository.findAll()
                 .stream().map(CategoryListResponse::of)
                 .collect(Collectors.toList());
     }
 
-    public List<SubCategoryListResponse> getAllCategorySub(Long categoryId) {
+    public List<SubCategoryListResponse> getSubCategoryList(Long categoryId) {
         return subCategoryRepository.findAllByCategoryId(categoryId)
                 .stream().map(SubCategoryListResponse::of)
                 .collect(Collectors.toList());
@@ -50,5 +51,15 @@ public class CategoryService {
         SubCategory categorySub = SubCategory.toCategorySub(name, sequence, category);
         subCategoryRepository.save(categorySub);
         return true;
+    }
+
+    public List<AllCategoryResponse> getAllCategory() {
+        List<Category> categories = categoryRepository.findAll().stream().collect(Collectors.toList());
+        List<AllCategoryResponse> allCategoryResponses = new ArrayList<>();
+        for(Category c : categories){
+            allCategoryResponses.add(AllCategoryResponse.of(c, subCategoryRepository.findAllByCategoryId(c.getId()).
+                            stream().map(SubCategoryListResponse::of).collect(Collectors.toList())));
+        }
+        return allCategoryResponses;
     }
 }
