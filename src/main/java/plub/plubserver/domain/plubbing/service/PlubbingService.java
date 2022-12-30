@@ -1,11 +1,14 @@
 package plub.plubserver.domain.plubbing.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import plub.plubserver.domain.account.config.AccountCode;
 import plub.plubserver.domain.account.exception.AccountException;
 import plub.plubserver.domain.account.model.Account;
+import plub.plubserver.domain.account.model.AccountCategory;
+import plub.plubserver.domain.account.repository.AccountCategoryRepository;
 import plub.plubserver.domain.plubbing.config.PlubbingCode;
 import plub.plubserver.domain.plubbing.dto.PlubbingDto.*;
 import plub.plubserver.domain.plubbing.exception.PlubbingException;
@@ -23,6 +26,7 @@ import plub.plubserver.domain.recruit.model.Question;
 import plub.plubserver.domain.recruit.model.Recruit;
 import plub.plubserver.domain.timeline.repository.PlubbingTimelineRepository;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -31,10 +35,10 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class PlubbingService {
     private final PlubbingRepository plubbingRepository;
+    private final AccountCategoryRepository accountCategoryRepository;
     private final CategoryService categoryService;
     private final AccountService accountService;
     private final AccountPlubbingRepository accountPlubbingRepository;
-    private final PlubbingTimelineRepository plubbingTimelineRepository;
 
     private void createRecruit(CreatePlubbingRequest createPlubbingRequest, Plubbing plubbing) {
         // 모집 질문글 엔티티화
@@ -136,8 +140,7 @@ public class PlubbingService {
         Account currentAccount = accountService.getCurrentAccount();
 
         return accountPlubbingRepository.findAllByAccountAndIsHostAndAccountPlubbingStatus(currentAccount, isHost, AccountPlubbingStatus.ACTIVE)
-                .orElseThrow(() -> new PlubbingException(PlubbingCode.NOT_FOUND_PLUBBING)).stream()
-                .map(MyPlubbingResponse::of).collect(Collectors.toList());
+                .stream().map(MyPlubbingResponse::of).collect(Collectors.toList());
     }
 
     public MainPlubbingResponse getMainPlubbing(Long plubbingId) {
@@ -149,8 +152,7 @@ public class PlubbingService {
         checkPlubbingStatus(plubbing);
 
         List<Account> accounts = accountPlubbingRepository.findAllByPlubbingId(plubbingId)
-                .orElseThrow(() -> new AccountException(AccountCode.NOT_FOUND_ACCOUNT)).stream()
-                .map(AccountPlubbing::getAccount).collect(Collectors.toList());
+                .stream().map(AccountPlubbing::getAccount).collect(Collectors.toList());
 
         return MainPlubbingResponse.of(plubbing, accounts);
     }
@@ -164,7 +166,6 @@ public class PlubbingService {
         plubbing.deletePlubbing();
 
         accountPlubbingRepository.findAllByPlubbingId(plubbingId)
-                .orElseThrow(() -> new PlubbingException(PlubbingCode.NOT_FOUND_PLUBBING))
                 .forEach(a -> a.changeStatus(AccountPlubbingStatus.END));
 
         return new PlubbingMessage(true);
@@ -174,8 +175,7 @@ public class PlubbingService {
     public PlubbingMessage endPlubbing(Long plubbingId) {
         Plubbing plubbing = plubbingRepository.findById(plubbingId).orElseThrow(() -> new PlubbingException(PlubbingCode.NOT_FOUND_PLUBBING));
         checkAuthority(plubbing);
-        List<AccountPlubbing> accountPlubbingList = accountPlubbingRepository.findAllByPlubbingId(plubbingId)
-                .orElseThrow(() -> new PlubbingException(PlubbingCode.NOT_FOUND_PLUBBING));
+        List<AccountPlubbing> accountPlubbingList = accountPlubbingRepository.findAllByPlubbingId(plubbingId);
         if (plubbing.getStatus().equals(PlubbingStatus.END)) {
             plubbing.endPlubbing(PlubbingStatus.ACTIVE);
             accountPlubbingList.forEach(a -> a.changeStatus(AccountPlubbingStatus.ACTIVE));
@@ -206,4 +206,30 @@ public class PlubbingService {
             throw new PlubbingException(PlubbingCode.DELETED_STATUS_PLUBBING);
     }
 
+    public Page<PlubbingCardResponse> getRecommendation(Pageable pageable) {
+        Account myAccount = accountService.getCurrentAccount();
+        if (accountCategoryRepository.existsByAccount(myAccount)) {
+            List<SubCategory> subCategories = accountCategoryRepository.findAllByAccount(myAccount)
+                    .stream().map(AccountCategory::getCategorySub).toList();
+            List<PlubbingCardResponse> plubbings = new ArrayList<>();
+            for (SubCategory subCategory : subCategories) {
+                plubbings.addAll(plubbingRepository.findAllBySubCategoryId(subCategory.getId()).stream().map(PlubbingCardResponse::of).toList());
+            }
+            int start = (int) pageable.getOffset();
+            int end = Math.min((start + pageable.getPageSize()), plubbings.size());
+            return new PageImpl<>(plubbings.subList(start, end), pageable, plubbings.size());
+        } else {
+            Pageable pageablebyViews = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by("views").descending());
+            return plubbingRepository.findAll(pageablebyViews).map(PlubbingCardResponse::of);
+        }
+    }
+
+    public Page<PlubbingCardResponse> getPlubbingByCatergory(Long categoryId, Pageable pageable) {
+        List<PlubbingCardResponse> plubbings = plubbingRepository.findAllByCategoryId(categoryId).stream().map(PlubbingCardResponse::of).toList();
+        Pageable pageablebyDate = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by("modifiedAt").descending());
+        int start = (int) pageablebyDate.getOffset();
+        int end = Math.min((start + pageablebyDate.getPageSize()), plubbings.size());
+        return new PageImpl<>(plubbings.subList(start, end), pageablebyDate, plubbings.size());
+    }
 }
+
