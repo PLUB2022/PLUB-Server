@@ -78,7 +78,9 @@ public class PlubbingService {
         plubbing.addPlubbingSubCategories(plubbingSubCategories);
     }
 
-
+    /**
+     * 모임 생성
+     */
     @Transactional
     public Long createPlubbing(CreatePlubbingRequest createPlubbingRequest) {
         // 모임 생성자(호스트) 가져오기
@@ -119,6 +121,18 @@ public class PlubbingService {
         plubbingRepository.flush(); // flush를 안 하면 recruitId가 null로 들어감
 
         return plubbing.getId();
+    }
+
+    /**
+     * 호스트 찾기
+     */
+    public Account getHost(Long plubbingId) {
+        return accountPlubbingRepository.findByPlubbingId(plubbingId)
+                .stream()
+                .filter(AccountPlubbing::isHost)
+                .findFirst()
+                .orElseThrow(() -> new PlubbingException(PlubbingCode.NOT_HOST))
+                .getAccount();
     }
 
     public List<MyPlubbingResponse> getMyPlubbing(Boolean isHost) {

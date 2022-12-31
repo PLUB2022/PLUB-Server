@@ -102,7 +102,14 @@ public class PlubbingDto {
     public record JoinedAccountsInfoResponse(
             int maxAccountNum,
             int curAccountNum
-    ) {}
+    ) {
+        public static JoinedAccountsInfoResponse of (Plubbing plubbing) {
+            return JoinedAccountsInfoResponse.builder()
+                    .maxAccountNum(plubbing.getMaxAccountNum())
+                    .curAccountNum(plubbing.getCurAccountNum())
+                    .build();
+        }
+    }
     public record PlubbingResponse(
             Long plubbingId,
             List<String> subCategories,

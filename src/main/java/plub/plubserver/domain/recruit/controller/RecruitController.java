@@ -55,11 +55,11 @@ public class RecruitController {
         return success(recruitService.acceptApplicant(recruitId, applicantId));
     }
 
-//    @PostMapping("/applicants/{applicantId}/refuse")
-//    public void rejectApplicant(
-//            @PathVariable("recruitId") Long recruitId,
-//            @PathVariable("applicantId") Long applicantId
-//    ) {
-//        recruitService.rejectApplicant(recruitId, applicantId);
-//    }
+    @PostMapping("/applicants/{applicantId}/refuse")
+    public ApiResponse<JoinedAccountsInfoResponse> rejectApplicant(
+            @PathVariable("recruitId") Long recruitId,
+            @PathVariable("applicantId") Long applicantId
+    ) {
+        return success(recruitService.rejectApplicant(recruitId, applicantId));
+    }
 }

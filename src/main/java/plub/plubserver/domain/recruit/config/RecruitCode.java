@@ -19,7 +19,9 @@ public enum RecruitCode {
     DELETED_STATUS_PLUBBING(404, 6040, "deleted/ended status error."),
     NOT_FOUND_QUESTION(404, 6050, "not found question error."),
     ALREADY_APPLIED_RECRUIT(400, 6060, "already applied recruit error."),
-    ALREADY_ACCEPTED_APPLICANT(400, 6070, "already accepted applicant error.");
+    ALREADY_ACCEPTED_APPLICANT(400, 6070, "already accepted applicant error."),
+    ALREADY_REJECTED_APPLICANT(400, 6080, "already rejected applicant error.");
+
 
     private final int HttpCode;
     private final int statusCode;
