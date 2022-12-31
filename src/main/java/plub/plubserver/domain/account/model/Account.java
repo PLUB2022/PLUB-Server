@@ -121,4 +121,9 @@ public class Account extends BaseTimeEntity {
     public void updateAccountPolicy(List<Policy> policyList) {
         this.policyList = policyList;
     }
+
+    public void setAccountCategory(List<AccountCategory> accountCategories) {
+        this.getAccountCategories().clear();
+        this.getAccountCategories().addAll(accountCategories);
+    }
 }

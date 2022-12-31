@@ -11,7 +11,6 @@ import plub.plubserver.domain.account.model.AccountCategory;
 import plub.plubserver.domain.account.repository.AccountCategoryRepository;
 import plub.plubserver.domain.account.repository.AccountRepository;
 import plub.plubserver.domain.category.config.CategoryCode;
-import plub.plubserver.domain.category.dto.CategoryDto;
 import plub.plubserver.domain.category.exception.CategoryException;
 import plub.plubserver.domain.category.model.SubCategory;
 import plub.plubserver.domain.category.repository.SubCategoryRepository;
@@ -102,8 +101,7 @@ public class AccountService {
                     .build();
             accountCategoryList.add(accountCategory);
         }
-        myAccount.getAccountCategories().clear();
-        myAccount.getAccountCategories().addAll(accountCategoryList);
+        myAccount.setAccountCategory(accountCategoryList);
         return AccountCategoryResponse.of(myAccount);
     }
 

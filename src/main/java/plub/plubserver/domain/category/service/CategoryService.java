@@ -54,7 +54,7 @@ public class CategoryService {
     }
 
     public List<AllCategoryResponse> getAllCategory() {
-        List<Category> categories = categoryRepository.findAll().stream().collect(Collectors.toList());
+        List<Category> categories = categoryRepository.findAll().stream().toList();
         List<AllCategoryResponse> allCategoryResponses = new ArrayList<>();
         for(Category c : categories){
             allCategoryResponses.add(AllCategoryResponse.of(c, subCategoryRepository.findAllByCategoryId(c.getId()).

@@ -24,7 +24,6 @@ import plub.plubserver.domain.plubbing.model.PlubbingStatus;
 import plub.plubserver.domain.plubbing.repository.*;
 import plub.plubserver.domain.recruit.model.Question;
 import plub.plubserver.domain.recruit.model.Recruit;
-import plub.plubserver.domain.timeline.repository.PlubbingTimelineRepository;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -208,28 +207,17 @@ public class PlubbingService {
 
     public Page<PlubbingCardResponse> getRecommendation(Pageable pageable) {
         Account myAccount = accountService.getCurrentAccount();
-        if (accountCategoryRepository.existsByAccount(myAccount)) {
+        if (!myAccount.getAccountCategories().isEmpty()) {
             List<SubCategory> subCategories = accountCategoryRepository.findAllByAccount(myAccount)
                     .stream().map(AccountCategory::getCategorySub).toList();
-            List<PlubbingCardResponse> plubbings = new ArrayList<>();
-            for (SubCategory subCategory : subCategories) {
-                plubbings.addAll(plubbingRepository.findAllBySubCategoryId(subCategory.getId()).stream().map(PlubbingCardResponse::of).toList());
-            }
-            int start = (int) pageable.getOffset();
-            int end = Math.min((start + pageable.getPageSize()), plubbings.size());
-            return new PageImpl<>(plubbings.subList(start, end), pageable, plubbings.size());
+            return plubbingRepository.findAllBySubCategory(subCategories, pageable).map(PlubbingCardResponse::of);
         } else {
-            Pageable pageablebyViews = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by("views").descending());
-            return plubbingRepository.findAll(pageablebyViews).map(PlubbingCardResponse::of);
+            return plubbingRepository.findAllByViews(pageable).map(PlubbingCardResponse::of);
         }
     }
 
     public Page<PlubbingCardResponse> getPlubbingByCatergory(Long categoryId, Pageable pageable) {
-        List<PlubbingCardResponse> plubbings = plubbingRepository.findAllByCategoryId(categoryId).stream().map(PlubbingCardResponse::of).toList();
-        Pageable pageablebyDate = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by("modifiedAt").descending());
-        int start = (int) pageablebyDate.getOffset();
-        int end = Math.min((start + pageablebyDate.getPageSize()), plubbings.size());
-        return new PageImpl<>(plubbings.subList(start, end), pageablebyDate, plubbings.size());
+        return plubbingRepository.findAllByCategoryId(categoryId, pageable).map(PlubbingCardResponse::of);
     }
 }
 
