@@ -58,7 +58,7 @@ public class CategoryService {
         List<AllCategoryResponse> allCategoryResponses = new ArrayList<>();
         for(Category c : categories){
             allCategoryResponses.add(AllCategoryResponse.of(c, subCategoryRepository.findAllByCategoryId(c.getId()).
-                            stream().map(SubCategoryListResponse::of).collect(Collectors.toList())));
+                            stream().map(SubCategoryListResponse::of).toList()));
         }
         return allCategoryResponses;
     }
