@@ -98,6 +98,11 @@ public class PlubbingDto {
     /**
      * Response
      */
+    @Builder
+    public record JoinedAccountsInfoResponse(
+            int maxAccountNum,
+            int curAccountNum
+    ) {}
     public record PlubbingResponse(
             Long plubbingId,
             List<String> subCategories,

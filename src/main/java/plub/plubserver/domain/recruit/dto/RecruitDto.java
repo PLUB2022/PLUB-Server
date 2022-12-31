@@ -24,6 +24,7 @@ public class RecruitDto {
     /**
      * Response
      */
+
     public record QuestionResponse(
             Long id,
             String question

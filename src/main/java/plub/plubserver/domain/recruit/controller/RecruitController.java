@@ -3,8 +3,12 @@ package plub.plubserver.domain.recruit.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+import plub.plubserver.common.dto.ApiResponse;
+import plub.plubserver.domain.plubbing.dto.PlubbingDto.JoinedAccountsInfoResponse;
 import plub.plubserver.domain.recruit.dto.RecruitDto.ApplyRecruitRequest;
 import plub.plubserver.domain.recruit.service.RecruitService;
+
+import static plub.plubserver.common.dto.ApiResponse.success;
 
 @Slf4j
 @RestController
@@ -32,10 +36,10 @@ public class RecruitController {
     }
 
     @PostMapping("/applicants")
-    public Long applyRecruit(
+    public ApiResponse<Long> applyRecruit(
             @PathVariable("recruitId") Long recruitId,
             @RequestBody ApplyRecruitRequest applyRecruitRequest) {
-        return recruitService.applyRecruit(recruitId, applyRecruitRequest);
+        return success(recruitService.applyRecruit(recruitId, applyRecruitRequest));
     }
 //
 //    @GetMapping("/applicants")
@@ -43,13 +47,19 @@ public class RecruitController {
 //        recruitService.getApplicants(recruitId);
 //    }
 //
-//    @PostMapping("/applicants/{applicantId}/approval")
-//    public void acceptApplicant(@PathVariable("recruitId") Long recruitId, @PathVariable("applicantId") Long applicantId) {
-//        recruitService.acceptApplicant(recruitId, applicantId);
-//    }
-//
+    @PostMapping("/applicants/{applicantId}/approval")
+    public ApiResponse<JoinedAccountsInfoResponse> acceptApplicant(
+            @PathVariable("recruitId") Long recruitId,
+            @PathVariable("applicantId") Long applicantId
+    ) {
+        return success(recruitService.acceptApplicant(recruitId, applicantId));
+    }
+
 //    @PostMapping("/applicants/{applicantId}/refuse")
-//    public void rejectApplicant(@PathVariable("recruitId") Long recruitId, @PathVariable("applicantId") Long applicantId) {
+//    public void rejectApplicant(
+//            @PathVariable("recruitId") Long recruitId,
+//            @PathVariable("applicantId") Long applicantId
+//    ) {
 //        recruitService.rejectApplicant(recruitId, applicantId);
 //    }
 }
