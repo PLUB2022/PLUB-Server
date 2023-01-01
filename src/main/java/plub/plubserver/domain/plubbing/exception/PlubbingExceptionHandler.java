@@ -11,7 +11,7 @@ import plub.plubserver.common.dto.ApiResponse;
 public class PlubbingExceptionHandler {
     @ExceptionHandler(PlubbingException.class)
     public ResponseEntity<ApiResponse<?>> handle(PlubbingException ex) {
-        log.warn("모임 예외 발생 및 처리 = {} : {}", ex.getClass().getName(), ex.getMessage());
+        log.warn("{}({}) - {}", ex.getClass().getSimpleName(), ex.plubbingCode.getStatusCode(), ex.getMessage());
         return ResponseEntity
                 .status(ex.plubbingCode.getHttpCode())
                 .body(ApiResponse.error(ex.plubbingCode.getStatusCode(), ex.plubbingCode.getMessage()));

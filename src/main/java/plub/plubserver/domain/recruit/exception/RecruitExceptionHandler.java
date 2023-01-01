@@ -11,7 +11,7 @@ import plub.plubserver.common.dto.ApiResponse;
 public class RecruitExceptionHandler {
     @ExceptionHandler(RecruitException.class)
     public ResponseEntity<ApiResponse<?>> handle(RecruitException ex) {
-        log.warn("모집 예외 발생 및 처리 = {} : {}", ex.getClass().getName(), ex.getMessage());
+        log.warn("{}({}) - {}", ex.getClass().getSimpleName(), ex.recruitCode.getStatusCode(), ex.getMessage());
         return ResponseEntity
                 .status(ex.recruitCode.getHttpCode())
                 .body(ApiResponse.error(ex.recruitCode.getStatusCode(), ex.recruitCode.getMessage()));

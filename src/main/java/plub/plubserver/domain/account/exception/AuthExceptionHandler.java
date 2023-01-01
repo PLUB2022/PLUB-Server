@@ -11,7 +11,7 @@ import plub.plubserver.common.dto.ApiResponse;
 public class AuthExceptionHandler {
     @ExceptionHandler(AuthException.class)
     public ResponseEntity<ApiResponse<?>> handle(AuthException ex) {
-        log.warn("로그인 예외 발생 및 처리 = {} : {}", ex.getClass().getName(), ex.getMessage());
+        log.warn("{}({}) - {}", ex.getClass().getSimpleName(), ex.authError.getStatusCode(), ex.getMessage());
         return ResponseEntity
                 .status(ex.authError.getHttpCode())
                 .body(ApiResponse.error(ex.authError.getStatusCode(), ex.authError.getMessage()));

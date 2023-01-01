@@ -115,9 +115,7 @@ public class RecruitService {
         return recruit.getId();
     }
 
-    /**
-     * 지원자 승낙
-     */
+    // 지원자 찾기
     private AppliedAccount findAppliedAccount(Long recruitId, Long accountId) {
         Account account = accountService.getCurrentAccount();
         Recruit recruit = findById(recruitId);
@@ -133,14 +131,17 @@ public class RecruitService {
                 .orElseThrow(() -> new AccountException(AccountCode.NOT_FOUND_ACCOUNT));
     }
 
+    /**
+     * 지원자 승낙
+     */
     @Transactional
     public JoinedAccountsInfoResponse acceptApplicant(Long recruitId, Long accountId) {
         Recruit recruit = findById(recruitId);
         AppliedAccount appliedAccount = findAppliedAccount(recruitId, accountId);
 
-        // 지원자 승낙
-        if (appliedAccount.getStatus().equals(ApplicantStatus.ACCEPTED))
-            throw new RecruitException(RecruitCode.ALREADY_ACCEPTED_APPLICANT);
+        if (appliedAccount.getStatus().equals(ApplicantStatus.ACCEPTED) ||
+                appliedAccount.getStatus().equals(ApplicantStatus.REJECTED))
+            throw new RecruitException(RecruitCode.ALREADY_HANDLED);
         appliedAccount.accept();
 
         // 모임에 해당 지원자 추가
@@ -167,9 +168,9 @@ public class RecruitService {
     public JoinedAccountsInfoResponse rejectApplicant(Long recruitId, Long accountId) {
         AppliedAccount appliedAccount = findAppliedAccount(recruitId, accountId);
 
-        // 지원자 거절
-        if (appliedAccount.getStatus().equals(ApplicantStatus.REJECTED))
-            throw new RecruitException(RecruitCode.ALREADY_ACCEPTED_APPLICANT);
+        if (appliedAccount.getStatus().equals(ApplicantStatus.REJECTED) ||
+                appliedAccount.getStatus().equals(ApplicantStatus.ACCEPTED))
+            throw new RecruitException(RecruitCode.ALREADY_HANDLED);
         appliedAccount.reject();
 
         Plubbing plubbing = findById(recruitId).getPlubbing();
