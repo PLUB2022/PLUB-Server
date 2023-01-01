@@ -1,8 +1,10 @@
 package plub.plubserver.domain.recruit.dto;
 
 import lombok.Builder;
-import plub.plubserver.domain.recruit.model.RecruitQuestion;
+import plub.plubserver.domain.recruit.model.AppliedAccount;
 import plub.plubserver.domain.recruit.model.Recruit;
+import plub.plubserver.domain.recruit.model.RecruitQuestion;
+import plub.plubserver.domain.recruit.model.RecruitQuestionAnswer;
 
 import java.util.List;
 
@@ -10,7 +12,9 @@ public class RecruitDto {
     /**
      * Request
      */
-    public record AnswerRequest(Long questionId, String answer) { }
+    public record AnswerRequest(Long questionId, String answer) {
+    }
+
     public record ApplyRecruitRequest(
             List<AnswerRequest> answers
     ) {
@@ -19,7 +23,8 @@ public class RecruitDto {
     public record JoinedAccountDto(
             Long accountId,
             String profileImageUrl
-    ) {}
+    ) {
+    }
 
     /**
      * Response
@@ -29,7 +34,10 @@ public class RecruitDto {
             Long id,
             String question
     ) {
-        @Builder public QuestionResponse{}
+        @Builder
+        public QuestionResponse {
+        }
+
         public static QuestionResponse of(RecruitQuestion recruitQuestion) {
             return QuestionResponse.builder()
                     .id(recruitQuestion.getId())
@@ -54,8 +62,11 @@ public class RecruitDto {
             String introduce,
             boolean isBookmarked,
             List<JoinedAccountDto> joinedAccounts
-    ){
-        @Builder public RecruitResponse {}
+    ) {
+        @Builder
+        public RecruitResponse {
+        }
+
         public static RecruitResponse of(Recruit recruit) {
             return RecruitResponse.builder()
                     .title(recruit.getTitle())
@@ -80,6 +91,48 @@ public class RecruitDto {
                                     accountPlubbing.getAccount().getProfileImage()
                             ))
                             .toList())
+                    .build();
+        }
+    }
+
+    public record AppliedAccountResponse(
+            String accountName,
+            String profileImage,
+            String createdAt,
+            List<QuestionAnswerResponse> answers
+    ) {
+        @Builder
+        public AppliedAccountResponse {
+        }
+
+        public static AppliedAccountResponse of (AppliedAccount appliedAccount) {
+            return AppliedAccountResponse.builder()
+                    .accountName(appliedAccount.getAccount().getNickname())
+                    .profileImage(appliedAccount.getAccount().getProfileImage())
+                    .createdAt(appliedAccount.getCreatedAt())
+                    .answers(appliedAccount.getAnswerList()
+                            .stream()
+                            .map(QuestionAnswerResponse::of)
+                            .toList())
+                    .build();
+        }
+
+    }
+
+    public record QuestionAnswerResponse(
+            String question,
+            String answer
+    ) {
+        @Builder
+        public QuestionAnswerResponse {
+        }
+
+        public static QuestionAnswerResponse of(RecruitQuestionAnswer recruitQuestionAnswer) {
+            String question = recruitQuestionAnswer.getId() + ". " + recruitQuestionAnswer
+                    .getRecruitQuestion().getQuestionTitle();
+            return QuestionAnswerResponse.builder()
+                    .question(question)
+                    .answer(recruitQuestionAnswer.getAnswer())
                     .build();
         }
     }

@@ -17,10 +17,7 @@ import plub.plubserver.domain.plubbing.model.Plubbing;
 import plub.plubserver.domain.plubbing.repository.AccountPlubbingRepository;
 import plub.plubserver.domain.plubbing.service.PlubbingService;
 import plub.plubserver.domain.recruit.config.RecruitCode;
-import plub.plubserver.domain.recruit.dto.RecruitDto.AnswerRequest;
-import plub.plubserver.domain.recruit.dto.RecruitDto.ApplyRecruitRequest;
-import plub.plubserver.domain.recruit.dto.RecruitDto.QuestionResponse;
-import plub.plubserver.domain.recruit.dto.RecruitDto.RecruitResponse;
+import plub.plubserver.domain.recruit.dto.RecruitDto.*;
 import plub.plubserver.domain.recruit.exception.RecruitException;
 import plub.plubserver.domain.recruit.model.*;
 import plub.plubserver.domain.recruit.repository.AppliedAccountRepository;
@@ -46,12 +43,21 @@ public class RecruitService {
                 .orElseThrow(() -> new RecruitException(RecruitCode.NOT_FOUND_RECRUIT));
     }
 
+    /**
+     * 조회
+     */
     public RecruitResponse getRecruit(Long recruitId) {
         return RecruitResponse.of(findById(recruitId));
     }
 
     public List<QuestionResponse> getRecruitQuestions(Long recruitId) {
         return QuestionResponse.ofList(findById(recruitId).getRecruitQuestionList());
+    }
+
+    public List<AppliedAccountResponse> getAppliedAccounts(Long recruitId) {
+        return findById(recruitId).getAppliedAccountList().stream()
+                .map(AppliedAccountResponse::of)
+                .toList();
     }
 
     /**
