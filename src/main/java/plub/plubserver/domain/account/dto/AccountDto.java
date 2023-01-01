@@ -6,6 +6,9 @@ import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.account.model.SocialType;
 
 import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
+
+import java.util.List;
 
 import static plub.plubserver.domain.account.dto.AuthDto.LoginRequest;
 
@@ -94,5 +97,31 @@ public class AccountDto {
 
     public record NicknameResponse(
             boolean isAvailableNickname
-    ) {}
+    ) {
+    }
+
+    public record AccountCategoryResponse(
+            Long accountId,
+            List<Long> subCategories
+
+    ) {
+        @Builder
+        public AccountCategoryResponse {
+        }
+
+        public static AccountCategoryResponse of(Account account) {
+            return AccountCategoryResponse.builder()
+                    .accountId(account.getId())
+                    .subCategories(account.getAccountCategories().stream()
+                            .map(a -> a.getCategorySub().getId()).toList())
+                    .build();
+        }
+    }
+
+    public record AccountCategoryRequest(
+            @Size(max = 5)
+            List<Long> subCategories
+    ) {
+    }
+
 }

@@ -22,7 +22,7 @@ import plub.plubserver.domain.account.model.Role;
 import plub.plubserver.domain.account.repository.AccountRepository;
 import plub.plubserver.domain.category.config.CategoryCode;
 import plub.plubserver.domain.category.exception.CategoryException;
-import plub.plubserver.domain.category.model.AccountCategory;
+import plub.plubserver.domain.account.model.AccountCategory;
 import plub.plubserver.domain.category.model.SubCategory;
 import plub.plubserver.domain.category.repository.SubCategoryRepository;
 import plub.plubserver.domain.policy.model.Policy;

@@ -6,7 +6,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import plub.plubserver.common.model.BaseTimeEntity;
 import plub.plubserver.domain.alarm.model.Alarm;
-import plub.plubserver.domain.category.model.AccountCategory;
 import plub.plubserver.domain.comment.model.Comment;
 import plub.plubserver.domain.message.model.Message;
 import plub.plubserver.domain.policy.model.Policy;
@@ -97,8 +96,8 @@ public class Account extends BaseTimeEntity {
     }
 
     // TODO : DTO에 변환로직이 가도록 수정해야함
-    public AccountRequest toAccountRequestDto(){
-        return new AccountRequest(email,email + "plub", nickname, socialType.getSocialName());
+    public AccountRequest toAccountRequestDto() {
+        return new AccountRequest(email, email + "plub", nickname, socialType.getSocialName());
     }
 
     public void setIdForTest(Long id) {
@@ -121,5 +120,10 @@ public class Account extends BaseTimeEntity {
 
     public void updateAccountPolicy(List<Policy> policyList) {
         this.policyList = policyList;
+    }
+
+    public void setAccountCategory(List<AccountCategory> accountCategories) {
+        this.getAccountCategories().clear();
+        this.getAccountCategories().addAll(accountCategories);
     }
 }

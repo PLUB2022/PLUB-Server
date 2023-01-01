@@ -10,9 +10,9 @@ import java.util.List;
 import java.util.Optional;
 
 public interface AccountPlubbingRepository extends JpaRepository<AccountPlubbing, Long> {
-    Optional<List<AccountPlubbing>> findAllByAccountAndIsHostAndAccountPlubbingStatus(Account currentAccount, Boolean isHost, AccountPlubbingStatus status);
+    List<AccountPlubbing> findAllByAccountAndIsHostAndAccountPlubbingStatus(Account currentAccount, Boolean isHost, AccountPlubbingStatus status);
 
-    Optional<List<AccountPlubbing>> findAllByPlubbingId(Long plubbingId);
+    List<AccountPlubbing> findAllByPlubbingId(Long plubbingId);
 
     boolean existsByAccountAndPlubbingId(Account currentAccount, Long plubbingId);
 

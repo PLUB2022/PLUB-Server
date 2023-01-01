@@ -20,15 +20,21 @@ import static plub.plubserver.common.dto.ApiResponse.success;
 public class CategoryController {
     private final CategoryService categoryService;
 
-    @ApiOperation(value = "카테고리 전체 조회")
+    @ApiOperation(value = "카테고리 목록 조회")
     @GetMapping
-    public ApiResponse<List<CategoryListResponse>> getAllCategory() {
-        return success(categoryService.getAllCategory());
+    public ApiResponse<List<CategoryListResponse>> getCategoryList() {
+        return success(categoryService.getCategoryList());
     }
 
-    @ApiOperation(value = "서브 카테고리 조회")
+    @ApiOperation(value = "서브 카테고리 목록 조회")
     @GetMapping("/{categoryId}/sub")
-    public ApiResponse<List<SubCategoryListResponse>> getAllCategorySub(@PathVariable Long categoryId) {
-        return success(categoryService.getAllCategorySub(categoryId));
+    public ApiResponse<List<SubCategoryListResponse>> getSubCategoryList(@PathVariable Long categoryId) {
+        return success(categoryService.getSubCategoryList(categoryId));
+    }
+
+    @ApiOperation(value = "카테고리 전체 조회")
+    @GetMapping("/all")
+    public ApiResponse<List<AllCategoryResponse>> getAllCategory() {
+        return success(categoryService.getAllCategory());
     }
 }
