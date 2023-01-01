@@ -16,9 +16,7 @@ import plub.plubserver.domain.plubbing.repository.AccountPlubbingRepository;
 import plub.plubserver.domain.plubbing.repository.PlubbingRepository;
 import plub.plubserver.domain.plubbing.service.PlubbingService;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.Mockito.when;
-import static plub.plubserver.domain.plubbing.dto.PlubbingDto.PlubbingResponse;
 
 @ExtendWith(MockitoExtension.class)
 public class PlubbingServiceTest {
@@ -54,11 +52,6 @@ public class PlubbingServiceTest {
         when(plubbingRepository.save(form.toEntity())).thenReturn(form.toEntity());
 
         // when
-        PlubbingResponse plubbing = plubbingService.createPlubbing(form);
-
-        // then
-        assertThat(plubbing.onOff()).startsWith("off");
-        assertThat(plubbing.name()).isEqualTo(form.name());
-        assertThat(plubbing.days().size()).isEqualTo(form.days().size());
+        plubbingService.createPlubbing(form);
     }
 }

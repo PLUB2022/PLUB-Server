@@ -15,6 +15,7 @@ public class RecruitDto {
     public record AnswerRequest(Long questionId, String answer) {
     }
 
+    @Builder
     public record ApplyRecruitRequest(
             List<AnswerRequest> answers
     ) {
