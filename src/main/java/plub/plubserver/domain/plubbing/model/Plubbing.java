@@ -45,6 +45,7 @@ public class Plubbing extends BaseTimeEntity {
     private PlubbingPlace plubbingPlace;
     private int maxAccountNum; // 최대 인원수 4~20
     private int curAccountNum; // 현재 인원수
+    private int views; // 조회수
 
     // 모임(1) - 모집(1) # 모임이 부모 : 외래키 관리
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)

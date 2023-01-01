@@ -4,6 +4,9 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
 import plub.plubserver.common.dto.ApiResponse;
 import plub.plubserver.domain.plubbing.dto.PlubbingDto.*;
@@ -56,7 +59,23 @@ public class PlubbingController {
 
     @ApiOperation(value = "모임 수정")
     @PutMapping("/{plubbingId}")
-    public ApiResponse<PlubbingResponse> updatePlubbing(@PathVariable Long plubbingId, @Valid @RequestBody UpdatePlubbingRequest updatePlubbingRequest) {
+    public ApiResponse<PlubbingResponse> updatePlubbing(@PathVariable Long plubbingId,
+                                                        @Valid @RequestBody UpdatePlubbingRequest updatePlubbingRequest) {
         return success(plubbingService.updatePlubbing(plubbingId, updatePlubbingRequest));
+    }
+
+    @ApiOperation(value = "추천 모임")
+    @GetMapping("/recommendation")
+    public ApiResponse<Page<PlubbingCardResponse>> getRecommendation(@PageableDefault(size = 10) Pageable pageable) {
+        Page<PlubbingCardResponse> plubbingCardResponses = plubbingService.getRecommendation(pageable);
+        return success(plubbingCardResponses);
+    }
+
+    @ApiOperation(value = "카테고리별 모임 조회")
+    @GetMapping("/categories/{categoryId}")
+    public ApiResponse<Page<PlubbingCardResponse>> getPlubbingByCatergory(@PathVariable Long categoryId,
+                                                                          @PageableDefault(size = 10) Pageable pageable) {
+        Page<PlubbingCardResponse> plubbingCardResponses = plubbingService.getPlubbingByCatergory(categoryId, pageable);
+        return success(plubbingCardResponses);
     }
 }

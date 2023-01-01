@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import plub.plubserver.common.model.BaseTimeEntity;
+import plub.plubserver.domain.account.model.AccountCategory;
 
 import javax.persistence.*;
 import java.util.ArrayList;

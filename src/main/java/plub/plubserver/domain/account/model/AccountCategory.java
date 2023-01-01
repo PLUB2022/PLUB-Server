@@ -1,14 +1,12 @@
-package plub.plubserver.domain.category.model;
+package plub.plubserver.domain.account.model;
 
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
-import plub.plubserver.domain.account.model.Account;
+import lombok.*;
+import plub.plubserver.domain.category.model.SubCategory;
 
 import javax.persistence.*;
 
 @Entity
+@Getter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -27,5 +25,4 @@ public class AccountCategory {
     @ManyToOne
     @JoinColumn(name = "account_id")
     private Account account;
-
 }

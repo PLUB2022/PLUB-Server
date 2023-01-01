@@ -217,6 +217,35 @@ public class PlubbingDto {
         }
     }
 
+    public record PlubbingCardResponse(
+            Long plubbingId,
+            String name,
+            String title,
+            String mainImageFileName,
+            String introduce,
+            List<MeetingDay> days,
+            int curAccountNum,
+            boolean isBookmarked
+    ) {
+        @Builder
+        public PlubbingCardResponse {
+        }
+
+        public static PlubbingCardResponse of(Plubbing plubbing) {
+            return PlubbingCardResponse.builder()
+                    .plubbingId(plubbing.getId())
+                    .name(plubbing.getName())
+                    .title(plubbing.getGoal())
+                    .mainImageFileName(plubbing.getMainImageUrl())
+                    .introduce(plubbing.getGoal())
+                    .days(plubbing.getDays().stream()
+                            .map(PlubbingMeetingDay::getDay)
+                            .toList())
+                    .curAccountNum(plubbing.getCurAccountNum())
+                    .build();
+        }
+    }
+
     public record PlubbingMessage(Object result) {
     }
 }
