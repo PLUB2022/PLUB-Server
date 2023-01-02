@@ -27,16 +27,18 @@ public class CategoryService {
                 .orElseThrow(() -> new CategoryException(CategoryCode.NOT_FOUND_CATEGORY));
     }
 
-    public List<CategoryListResponse> getCategoryList() {
-        return categoryRepository.findAll()
-                .stream().map(CategoryListResponse::of)
+    public CategoryListResponse getCategoryList() {
+        List<CategoryResponse> categoryResponses = categoryRepository.findAll()
+                .stream().map(CategoryResponse::of)
                 .collect(Collectors.toList());
+        return CategoryListResponse.of(categoryResponses);
     }
 
-    public List<SubCategoryListResponse> getSubCategoryList(Long categoryId) {
-        return subCategoryRepository.findAllByCategoryId(categoryId)
-                .stream().map(SubCategoryListResponse::of)
+    public SubCategoryListResponse getSubCategoryList(Long categoryId) {
+        List<SubCategoryResponse> subCategoryResponses = subCategoryRepository.findAllByCategoryId(categoryId)
+                .stream().map(SubCategoryResponse::of)
                 .collect(Collectors.toList());
+        return SubCategoryListResponse.of(subCategoryResponses);
     }
 
     public boolean createCategory(String name, int sequence, String icon) {
@@ -53,13 +55,13 @@ public class CategoryService {
         return true;
     }
 
-    public List<AllCategoryResponse> getAllCategory() {
+    public AllCategoryListResponse getAllCategory() {
         List<Category> categories = categoryRepository.findAll().stream().toList();
         List<AllCategoryResponse> allCategoryResponses = new ArrayList<>();
         for(Category c : categories){
             allCategoryResponses.add(AllCategoryResponse.of(c, subCategoryRepository.findAllByCategoryId(c.getId()).
-                            stream().map(SubCategoryListResponse::of).toList()));
+                            stream().map(SubCategoryResponse::of).toList()));
         }
-        return allCategoryResponses;
+        return AllCategoryListResponse.of(allCategoryResponses);
     }
 }
