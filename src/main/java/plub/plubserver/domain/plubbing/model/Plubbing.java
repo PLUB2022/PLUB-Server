@@ -27,7 +27,7 @@ public class Plubbing extends BaseTimeEntity {
 
     private String name; // 모임 이름
     private String goal;
-    private String mainImageUrl;
+    private String mainImage;
 
     @NotNull
     private boolean visibility;
@@ -113,7 +113,7 @@ public class Plubbing extends BaseTimeEntity {
     public void updatePlubbing(String name, String goal, String mainImageUrl) {
         this.name = name;
         this.goal = goal;
-        this.mainImageUrl = mainImageUrl;
+        this.mainImage = mainImageUrl;
     }
 
     public void endPlubbing(PlubbingStatus status) {

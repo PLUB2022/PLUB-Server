@@ -10,12 +10,16 @@ import javax.persistence.Embeddable;
 @Getter
 public class PlubbingPlace {
     private String address;
+    private String roadAddress;
+    private String placeName;
     private Double placePositionX;
     private Double placePositionY;
 
     public PlubbingPlace() {
-        this.address = "";
-        this.placePositionX = 0.0;
-        this.placePositionY = 0.0;
+        address = "";
+        roadAddress = "";
+        placeName = "";
+        placePositionX = 0.0;
+        placePositionY = 0.0;
     }
 }
