@@ -35,7 +35,9 @@ public class CategoryDto {
             @ApiModelProperty(value = "세부 카테고리 이름", example = "미술")
             String name,
             @ApiModelProperty(value = "카테고리 이름", example = "예술")
-            String categoryName
+            String categoryName,
+            @ApiModelProperty(value = "대분류 카테고리 id", example = "1")
+            String parentId
     ) {
         @Builder
         public SubCategoryResponse {
@@ -46,6 +48,7 @@ public class CategoryDto {
                     .id(categorySub.getId())
                     .name(categorySub.getName())
                     .categoryName(categorySub.getCategory().getName())
+                    .parentId(categorySub.getCategory().getId().toString())
                     .build();
         }
     }
