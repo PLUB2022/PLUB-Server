@@ -11,7 +11,7 @@ import plub.plubserver.common.dto.ApiResponse;
 public class AccountExceptionHandler {
     @ExceptionHandler(AccountException.class)
     public ResponseEntity<ApiResponse<?>> handle(AccountException ex) {
-        log.warn("예외 발생 및 처리 = {} : {}", ex.accountError.getStatusCode(), ex.getClass().getName(), ex.getMessage());
+        log.warn("{}({}) - {}", ex.getClass().getSimpleName(), ex.accountError.getStatusCode(), ex.getMessage());
         return ResponseEntity
                 .status(ex.accountError.getHttpCode())
                 .body(ApiResponse.error(ex.accountError.getStatusCode(), ex.accountError.getMessage()));

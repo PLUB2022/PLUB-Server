@@ -1,36 +1,36 @@
 package plub.plubserver.domain.recruit.model;
 
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import plub.plubserver.common.model.BaseTimeEntity;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 
 @Entity
 @Getter
+@Builder
+@AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Question extends BaseTimeEntity {
+public class RecruitQuestion extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "question_id")
+    @Column(name = "recruit_question_id")
     private Long id;
 
     private String questionTitle;
 
     // 질문(다) - 모집(1)
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "board_id")
+    @JoinColumn(name = "recruit_id")
     private Recruit recruit;
 
-    @Builder
-    public Question(String questionTitle, Recruit recruit) {
-        this.questionTitle = questionTitle;
-        this.recruit = recruit;
-    }
+    // 질문(1) - 답변(다)
+    @OneToMany(mappedBy = "recruitQuestion", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<RecruitQuestionAnswer> answerList = new ArrayList<>();
+
 
     public void addRecruit(Recruit recruit) {
         this.recruit = recruit;

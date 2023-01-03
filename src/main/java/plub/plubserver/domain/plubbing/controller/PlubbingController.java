@@ -27,9 +27,9 @@ public class PlubbingController {
 
     @ApiOperation(value = "모임 생성")
     @PostMapping
-    public ApiResponse<PlubbingResponse> createPlubbing(
-            @RequestBody CreatePlubbingRequest createPlubbingRequest) {
-        return ApiResponse.success(plubbingService.createPlubbing(createPlubbingRequest));
+    public ApiResponse<Long> createPlubbing(
+            @Valid @RequestBody CreatePlubbingRequest createPlubbingRequest) {
+        return success(plubbingService.createPlubbing(createPlubbingRequest));
     }
 
     @ApiOperation(value = "내 모임 조회")

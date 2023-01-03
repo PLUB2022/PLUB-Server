@@ -93,8 +93,8 @@ public class Plubbing extends BaseTimeEntity {
     }
 
     public void addAccountPlubbing(AccountPlubbing accountPlubbing) {
-        if (this.accountPlubbingList == null) this.accountPlubbingList = new ArrayList<>();
-        this.accountPlubbingList.add(accountPlubbing);
+        if (accountPlubbingList == null) accountPlubbingList = new ArrayList<>();
+        accountPlubbingList.add(accountPlubbing);
     }
 
     public void addPlubbingPlace(PlubbingPlace plubbingPlace) {
@@ -106,8 +106,8 @@ public class Plubbing extends BaseTimeEntity {
     }
 
     public void deletePlubbing() {
-        this.visibility = false;
-        this.status = DELETED;
+        visibility = false;
+        status = DELETED;
     }
 
     public void updatePlubbing(String name, String goal, String mainImageUrl) {
@@ -118,5 +118,11 @@ public class Plubbing extends BaseTimeEntity {
 
     public void endPlubbing(PlubbingStatus status) {
         this.status = status;
+    }
+
+    @PostUpdate
+    public void updateCurAccountNum() {
+        // TODO : 명시적 호출을 안 하고도 자동으로 업데이트 할 수 있는 방법 찾기
+        curAccountNum = accountPlubbingList.size();
     }
 }

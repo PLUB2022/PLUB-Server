@@ -22,8 +22,8 @@ public class CategoryService {
     private final CategoryRepository categoryRepository;
     private final SubCategoryRepository subCategoryRepository;
 
-    public SubCategory getSubCategory(String categoryName) {
-        return subCategoryRepository.findByName(categoryName)
+    public SubCategory getSubCategory(Long categoryId) {
+        return subCategoryRepository.findById(categoryId)
                 .orElseThrow(() -> new CategoryException(CategoryCode.NOT_FOUND_CATEGORY));
     }
 

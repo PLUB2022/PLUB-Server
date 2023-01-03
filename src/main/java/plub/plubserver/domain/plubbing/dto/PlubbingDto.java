@@ -1,6 +1,7 @@
 package plub.plubserver.domain.plubbing.dto;
 
 import lombok.Builder;
+import org.hibernate.validator.constraints.Range;
 import org.springframework.lang.Nullable;
 import plub.plubserver.domain.account.dto.AccountDto.PlubbingAccountInfoResponse;
 import plub.plubserver.domain.account.model.Account;
@@ -22,7 +23,7 @@ public class PlubbingDto {
     public record CreatePlubbingRequest(
             @NotEmpty
             @Size(max = 5)
-            List<String> subCategories,
+            List<Long> subCategoryIds,
 
             @NotBlank
             @Size(max = 25)
@@ -43,7 +44,6 @@ public class PlubbingDto {
             @Nullable
             String mainImage,
 
-            @NotBlank
             List<String> days, // MON, TUE, WED, THR, FRI, SAT, SUN, ALL
 
             @NotBlank
@@ -57,11 +57,11 @@ public class PlubbingDto {
             Double placePositionX,
             Double placePositionY,
 
-            @Size(min = 4, max = 20)
+            @Range(min = 4, max = 20)
             int maxAccountNum,
 
             @Size(max = 5)
-            List<String> questionTitles
+            List<String> questions
     ) {
         public PlubbingOnOff getOnOff() {
             if (this.onOff.equals("ON")) return PlubbingOnOff.ON;
@@ -70,6 +70,18 @@ public class PlubbingDto {
 
         public List<PlubbingMeetingDay> getPlubbingMeetingDay(Plubbing plubbing) {
             return this.days.stream().map(it -> new PlubbingMeetingDay(it, plubbing)).toList();
+        }
+
+        public Plubbing toEntity() {
+            return Plubbing.builder()
+                    .name(this.name)
+                    .goal(this.goal)
+                    .mainImageUrl(this.mainImageUrl)
+                    .onOff(this.getOnOff())
+                    .maxAccountNum(this.maxAccountNum)
+                    .status(PlubbingStatus.ACTIVE)
+                    .visibility(true)
+                    .build();
         }
     }
 
@@ -88,6 +100,18 @@ public class PlubbingDto {
     /**
      * Response
      */
+    @Builder
+    public record JoinedAccountsInfoResponse(
+            int maxAccountNum,
+            int curAccountNum
+    ) {
+        public static JoinedAccountsInfoResponse of (Plubbing plubbing) {
+            return JoinedAccountsInfoResponse.builder()
+                    .maxAccountNum(plubbing.getMaxAccountNum())
+                    .curAccountNum(plubbing.getCurAccountNum())
+                    .build();
+        }
+    }
     public record PlubbingResponse(
             Long plubbingId,
             List<String> subCategories,

@@ -44,6 +44,11 @@ server:
 # 로깅 레벨 설정
 logging:
   level:
+    # AWS 연결 오류 로그 안 띄우고 개발 환경에서 부트 빠르게 띄우는 설정
+    com:
+      amazonaws:
+        util:
+          EC2MetadataUtils: error
     org:
       hibernate:
         SQL: DEBUG

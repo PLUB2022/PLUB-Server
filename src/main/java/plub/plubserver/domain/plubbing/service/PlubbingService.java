@@ -14,13 +14,11 @@ import plub.plubserver.domain.account.service.AccountService;
 import plub.plubserver.domain.category.model.PlubbingSubCategory;
 import plub.plubserver.domain.category.model.SubCategory;
 import plub.plubserver.domain.category.service.CategoryService;
-import plub.plubserver.domain.plubbing.config.PlubbingCode;
-import plub.plubserver.domain.plubbing.dto.PlubbingDto.*;
-import plub.plubserver.domain.plubbing.exception.PlubbingException;
-import plub.plubserver.domain.plubbing.model.*;
-import plub.plubserver.domain.plubbing.repository.AccountPlubbingRepository;
-import plub.plubserver.domain.plubbing.repository.PlubbingRepository;
-import plub.plubserver.domain.recruit.model.Question;
+import plub.plubserver.domain.plubbing.model.Plubbing;
+import plub.plubserver.domain.plubbing.model.PlubbingPlace;
+import plub.plubserver.domain.plubbing.model.PlubbingStatus;
+import plub.plubserver.domain.plubbing.repository.*;
+import plub.plubserver.domain.recruit.model.RecruitQuestion;
 import plub.plubserver.domain.recruit.model.Recruit;
 
 import java.util.List;
@@ -38,8 +36,8 @@ public class PlubbingService {
 
     private void createRecruit(CreatePlubbingRequest createPlubbingRequest, Plubbing plubbing) {
         // 모집 질문글 엔티티화
-        List<Question> questionList = createPlubbingRequest.questionTitles().stream()
-                .map(it -> Question.builder()
+        List<RecruitQuestion> recruitQuestionList = createPlubbingRequest.questions().stream()
+                .map(it -> RecruitQuestion.builder()
                         .questionTitle(it)
                         .build())
                 .toList();
@@ -49,12 +47,13 @@ public class PlubbingService {
                 .title(createPlubbingRequest.title())
                 .introduce(createPlubbingRequest.introduce())
                 .plubbing(plubbing)
-                .questions(questionList)
-                .questionNum(questionList.size())
+                .recruitQuestionList(recruitQuestionList)
+                .questionNum(recruitQuestionList.size())
+                .visibility(true)
                 .build();
 
         // 질문 - 모집 매핑
-        questionList.forEach(it -> it.addRecruit(recruit));
+        recruitQuestionList.forEach(it -> it.addRecruit(recruit));
 
         // 모임 - 모집 매핑
         plubbing.addRecruit(recruit);
@@ -62,7 +61,7 @@ public class PlubbingService {
 
     private void connectSubCategories(CreatePlubbingRequest createPlubbingRequest, Plubbing plubbing) {
         // 서브 카테고리 가져오기
-        List<SubCategory> subCategories = createPlubbingRequest.subCategories()
+        List<SubCategory> subCategories = createPlubbingRequest.subCategoryIds()
                 .stream()
                 .map(categoryService::getSubCategory)
                 .toList();
@@ -79,24 +78,16 @@ public class PlubbingService {
         plubbing.addPlubbingSubCategories(plubbingSubCategories);
     }
 
-
+    /**
+     * 모임 생성
+     */
     @Transactional
-    public PlubbingResponse createPlubbing(CreatePlubbingRequest createPlubbingRequest) {
+    public Long createPlubbing(CreatePlubbingRequest createPlubbingRequest) {
         // 모임 생성자(호스트) 가져오기
         Account owner = accountService.getCurrentAccount();
 
         // Plubbing 엔티티 생성 및 저장
-        Plubbing plubbing = plubbingRepository.save(
-                Plubbing.builder()
-                        .name(createPlubbingRequest.name())
-                        .goal(createPlubbingRequest.goal())
-                        .mainImage(createPlubbingRequest.mainImage())
-                        .status(PlubbingStatus.ACTIVE)
-                        .onOff(createPlubbingRequest.getOnOff())
-                        .maxAccountNum(createPlubbingRequest.maxAccountNum())
-                        .visibility(true)
-                        .build()
-        );
+        Plubbing plubbing = plubbingRepository.save(createPlubbingRequest.toEntity());
 
         // days 매핑
         plubbing.addPlubbingMeetingDay(createPlubbingRequest.getPlubbingMeetingDay(plubbing));
@@ -131,7 +122,19 @@ public class PlubbingService {
 
         plubbingRepository.flush(); // flush를 안 하면 recruitId가 null로 들어감
 
-        return plub.plubserver.domain.plubbing.dto.PlubbingDto.PlubbingResponse.of(plubbing);
+        return plubbing.getId();
+    }
+
+    /**
+     * 호스트 찾기
+     */
+    public Account getHost(Long plubbingId) {
+        return accountPlubbingRepository.findByPlubbingId(plubbingId)
+                .stream()
+                .filter(AccountPlubbing::isHost)
+                .findFirst()
+                .orElseThrow(() -> new PlubbingException(PlubbingCode.NOT_HOST))
+                .getAccount();
     }
 
     public List<MyPlubbingResponse> getMyPlubbing(Boolean isHost) {

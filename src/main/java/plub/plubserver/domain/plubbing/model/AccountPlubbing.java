@@ -19,6 +19,7 @@ public class AccountPlubbing {
     private Long id;
 
     private boolean isHost;
+    @Enumerated(EnumType.STRING)
     private AccountPlubbingStatus accountPlubbingStatus;
 
     // 회원_모임페이지(다) - 회원(1)

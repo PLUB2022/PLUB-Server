@@ -11,7 +11,7 @@ import plub.plubserver.common.dto.ApiResponse;
 public class CategoryExceptionHandler {
     @ExceptionHandler(CategoryException.class)
     public ResponseEntity<ApiResponse<?>> handle(CategoryException ex) {
-        log.warn("예외 발생 및 처리 = {} : {}", ex.getClass().getName(), ex.getMessage());
+        log.warn("{}({}) - {}", ex.getClass().getSimpleName(), ex.categoryError.getStatusCode(), ex.getMessage());
         return ResponseEntity
                 .status(ex.categoryError.getHttpCode())
                 .body(ApiResponse.error(ex.categoryError.getStatusCode(), ex.categoryError.getMessage()));

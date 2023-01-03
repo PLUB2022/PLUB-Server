@@ -1,8 +1,10 @@
 package plub.plubserver.domain.account.config;
 
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 @Getter
+@RequiredArgsConstructor
 public enum AccountCode {
     /**
      * success
@@ -26,10 +28,4 @@ public enum AccountCode {
     private final int HttpCode;
     private final int statusCode;
     private final String message;
-
-    AccountCode(int HttpCode, int statusCode, String message) {
-        this.HttpCode = HttpCode;
-        this.statusCode = statusCode;
-        this.message = message;
-    }
 }

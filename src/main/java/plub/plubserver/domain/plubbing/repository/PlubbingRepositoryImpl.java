@@ -5,15 +5,16 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
-import plub.plubserver.domain.category.model.QPlubbingSubCategory;
 import plub.plubserver.domain.category.model.QSubCategory;
 import plub.plubserver.domain.category.model.SubCategory;
 import plub.plubserver.domain.plubbing.model.Plubbing;
 import plub.plubserver.domain.plubbing.model.PlubbingStatus;
-import plub.plubserver.domain.plubbing.model.QPlubbing;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static plub.plubserver.domain.category.model.QPlubbingSubCategory.plubbingSubCategory;
+import static plub.plubserver.domain.plubbing.model.QPlubbing.plubbing;
 
 @RequiredArgsConstructor
 public class PlubbingRepositoryImpl implements PlubbingRepositoryCustom {
@@ -23,21 +24,21 @@ public class PlubbingRepositoryImpl implements PlubbingRepositoryCustom {
     public Page<Plubbing> findAllByCategoryId(Long categoryId, Pageable pageable) {
         return PageableExecutionUtils.getPage(
                 queryFactory
-                        .selectFrom(QPlubbing.plubbing)
-                        .join(QPlubbing.plubbing.plubbingSubCategories, QPlubbingSubCategory.plubbingSubCategory)
-                        .join(QPlubbingSubCategory.plubbingSubCategory.subCategory, QSubCategory.subCategory)
+                        .selectFrom(plubbing)
+                        .join(plubbing.plubbingSubCategories, plubbingSubCategory)
+                        .join(plubbingSubCategory.subCategory, QSubCategory.subCategory)
                         .where(QSubCategory.subCategory.category.id.eq(categoryId),
-                                QPlubbing.plubbing.status.eq(PlubbingStatus.ACTIVE),
-                                QPlubbing.plubbing.visibility.eq(true))
-                        .orderBy(QPlubbing.plubbing.modifiedAt.desc())
+                                plubbing.status.eq(PlubbingStatus.ACTIVE),
+                                plubbing.visibility.eq(true))
+                        .orderBy(plubbing.modifiedAt.desc())
                         .offset(pageable.getOffset())
                         .limit(pageable.getPageSize())
                         .fetch(),
                 pageable,
                 () -> queryFactory
-                        .selectFrom(QPlubbing.plubbing)
-                        .join(QPlubbing.plubbing.plubbingSubCategories, QPlubbingSubCategory.plubbingSubCategory)
-                        .join(QPlubbingSubCategory.plubbingSubCategory.subCategory, QSubCategory.subCategory)
+                        .selectFrom(plubbing)
+                        .join(plubbing.plubbingSubCategories, plubbingSubCategory)
+                        .join(plubbingSubCategory.subCategory, QSubCategory.subCategory)
                         .where(QSubCategory.subCategory.category.id.eq(categoryId))
                         .fetch().size()
         );
@@ -49,11 +50,11 @@ public class PlubbingRepositoryImpl implements PlubbingRepositoryCustom {
         List<Plubbing> plubbings = new ArrayList<>();
         for (SubCategory s : subCategories) {
             plubbings.addAll(queryFactory
-                    .selectFrom(QPlubbing.plubbing)
-                    .join(QPlubbing.plubbing.plubbingSubCategories, QPlubbingSubCategory.plubbingSubCategory)
-                    .where(QPlubbingSubCategory.plubbingSubCategory.subCategory.id.eq(s.getId()),
-                            QPlubbing.plubbing.status.eq(PlubbingStatus.ACTIVE),
-                            QPlubbing.plubbing.visibility.eq(true))
+                    .selectFrom(plubbing)
+                    .join(plubbing.plubbingSubCategories, plubbingSubCategory)
+                    .where(plubbingSubCategory.subCategory.id.eq(s.getId()),
+                            plubbing.status.eq(PlubbingStatus.ACTIVE),
+                            plubbing.visibility.eq(true))
                     .offset(pageable.getOffset())
                     .limit(pageable.getPageSize())
                     .fetch());
@@ -69,18 +70,18 @@ public class PlubbingRepositoryImpl implements PlubbingRepositoryCustom {
     public Page<Plubbing> findAllByViews(Pageable pageable) {
         return PageableExecutionUtils.getPage(
                 queryFactory
-                        .selectFrom(QPlubbing.plubbing)
-                        .where(QPlubbing.plubbing.status.eq(PlubbingStatus.ACTIVE),
-                                QPlubbing.plubbing.visibility.eq(true))
-                        .orderBy(QPlubbing.plubbing.views.desc())
+                        .selectFrom(plubbing)
+                        .where(plubbing.status.eq(PlubbingStatus.ACTIVE),
+                                plubbing.visibility.eq(true))
+                        .orderBy(plubbing.views.desc())
                         .offset(pageable.getOffset())
                         .limit(pageable.getPageSize())
                         .fetch(),
                 pageable,
                 () -> queryFactory
-                        .selectFrom(QPlubbing.plubbing)
-                        .where(QPlubbing.plubbing.status.eq(PlubbingStatus.ACTIVE),
-                                QPlubbing.plubbing.visibility.eq(true))
+                        .selectFrom(plubbing)
+                        .where(plubbing.status.eq(PlubbingStatus.ACTIVE),
+                                plubbing.visibility.eq(true))
                         .fetch().size()
         );
     }
