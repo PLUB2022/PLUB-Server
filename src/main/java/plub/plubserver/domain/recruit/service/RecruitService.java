@@ -50,14 +50,18 @@ public class RecruitService {
         return RecruitResponse.of(findById(recruitId));
     }
 
-    public List<QuestionResponse> getRecruitQuestions(Long recruitId) {
-        return QuestionResponse.ofList(findById(recruitId).getRecruitQuestionList());
+    public QuestionListResponse getRecruitQuestions(Long recruitId) {
+        return new QuestionListResponse(
+                QuestionResponse.ofList(findById(recruitId).getRecruitQuestionList())
+        );
     }
 
-    public List<AppliedAccountResponse> getAppliedAccounts(Long recruitId) {
-        return findById(recruitId).getAppliedAccountList().stream()
-                .map(AppliedAccountResponse::of)
-                .toList();
+    public AppliedAccountListResponse getAppliedAccounts(Long recruitId) {
+        return new AppliedAccountListResponse(
+                findById(recruitId).getAppliedAccountList().stream()
+                        .map(AppliedAccountResponse::of)
+                        .toList()
+        );
     }
 
     /**

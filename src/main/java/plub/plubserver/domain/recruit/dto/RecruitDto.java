@@ -53,6 +53,10 @@ public class RecruitDto {
         }
     }
 
+    public record QuestionListResponse(
+            List<QuestionResponse> questions
+    ) {}
+
     public record RecruitResponse(
             String title,
             List<String> categories,
@@ -117,8 +121,11 @@ public class RecruitDto {
                             .toList())
                     .build();
         }
-
     }
+
+    public record AppliedAccountListResponse(
+            List<AppliedAccountResponse> appliedAccounts
+    ) {}
 
     public record QuestionAnswerResponse(
             String question,
