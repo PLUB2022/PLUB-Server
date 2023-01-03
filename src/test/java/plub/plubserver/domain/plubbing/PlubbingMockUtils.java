@@ -19,7 +19,7 @@ public class PlubbingMockUtils {
                     .name("테스트 이름")
                     .goal("플럽 1차 MVP 제작 완료")
                     .introduce("테스트 모임 소개")
-                    .mainImageUrl("https://plub.s3.ap-northeast-2.amazonaws.com/plubbing/1/mainImage")
+                    .mainImage("https://plub.s3.ap-northeast-2.amazonaws.com/plubbing/1/mainImage")
                     .days(List.of("MON", "TUE", "WED", "THR", "FRI", "SAT", "SUN"))
                     .onOff("ON")
                     .address("서울특별시 강남구 테헤란로 427")

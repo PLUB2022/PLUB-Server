@@ -76,7 +76,7 @@ public class PlubbingDto {
             return Plubbing.builder()
                     .name(this.name)
                     .goal(this.goal)
-                    .mainImageUrl(this.mainImageUrl)
+                    .mainImage(this.mainImage)
                     .onOff(this.getOnOff())
                     .maxAccountNum(this.maxAccountNum)
                     .status(PlubbingStatus.ACTIVE)

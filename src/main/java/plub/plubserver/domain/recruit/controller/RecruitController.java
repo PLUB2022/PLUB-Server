@@ -5,13 +5,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import plub.plubserver.common.dto.ApiResponse;
 import plub.plubserver.domain.plubbing.dto.PlubbingDto.JoinedAccountsInfoResponse;
-import plub.plubserver.domain.recruit.dto.RecruitDto.AppliedAccountResponse;
+import plub.plubserver.domain.recruit.dto.RecruitDto.AppliedAccountListResponse;
 import plub.plubserver.domain.recruit.dto.RecruitDto.ApplyRecruitRequest;
-import plub.plubserver.domain.recruit.dto.RecruitDto.QuestionResponse;
+import plub.plubserver.domain.recruit.dto.RecruitDto.QuestionListResponse;
 import plub.plubserver.domain.recruit.dto.RecruitDto.RecruitResponse;
 import plub.plubserver.domain.recruit.service.RecruitService;
-
-import java.util.List;
 
 import static plub.plubserver.common.dto.ApiResponse.success;
 
@@ -28,7 +26,7 @@ public class RecruitController {
     }
 
     @GetMapping("/questions")
-    public ApiResponse<List<QuestionResponse>> getRecruitQuestions(
+    public ApiResponse<QuestionListResponse> getRecruitQuestions(
             @PathVariable("recruitId") Long recruitId
     ) {
         return success(recruitService.getRecruitQuestions(recruitId));
@@ -50,7 +48,7 @@ public class RecruitController {
     }
 
     @GetMapping("/applicants")
-    public ApiResponse<List<AppliedAccountResponse>> getApplicants(
+    public ApiResponse<AppliedAccountListResponse> getApplicants(
             @PathVariable("recruitId") Long recruitId
     ) {
         return success(recruitService.getAppliedAccounts(recruitId));

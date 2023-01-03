@@ -41,7 +41,7 @@ public class RecruitServiceBootTest {
                 .name("테스트 플럽 이름")
                 .goal("테스트 플럽 목표")
                 .introduce("테스트 플럽 소개")
-                .mainImageUrl("테스트 플럽 메인 이미지")
+                .mainImage("테스트 플럽 메인 이미지")
                 .days(List.of("MON", "TUE"))
                 .onOff("ON")
                 .maxAccountNum(5)
