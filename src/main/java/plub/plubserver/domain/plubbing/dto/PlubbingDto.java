@@ -42,7 +42,7 @@ public class PlubbingDto {
             String introduce,
 
             @Nullable
-            String mainImageUrl,
+            String mainImage,
 
             List<String> days, // MON, TUE, WED, THR, FRI, SAT, SUN, ALL
 
@@ -52,6 +52,8 @@ public class PlubbingDto {
 
             // 오프라인시 - 장소 좌표 (온라인이면 0.0, 0.0)
             String address,
+            String roadAddress,
+            String placeName,
             Double placePositionX,
             Double placePositionY,
 
@@ -91,7 +93,7 @@ public class PlubbingDto {
             @Size(max = 12)
             String goal,
             @Nullable
-            String mainImageUrl
+            String mainImage
     ) {
     }
 
@@ -115,10 +117,12 @@ public class PlubbingDto {
             List<String> subCategories,
             String name,
             String goal,
-            String mainImageFileName,
+            String mainImage,
             List<MeetingDay> days,
             String onOff,
             String address,
+            String roadAddress,
+            String placeName,
             Double placePositionX,
             Double placePositionY,
             int curAccountNum,
@@ -139,12 +143,14 @@ public class PlubbingDto {
                             .toList())
                     .name(plubbing.getName())
                     .goal(plubbing.getGoal())
-                    .mainImageFileName(plubbing.getMainImageUrl())
+                    .mainImage(plubbing.getMainImage())
                     .days(plubbing.getDays().stream()
                             .map(PlubbingMeetingDay::getDay)
                             .toList())
                     .onOff(plubbing.getOnOff().name())
                     .address(plubbing.getPlubbingPlace().getAddress())
+                    .roadAddress(plubbing.getPlubbingPlace().getRoadAddress())
+                    .placeName(plubbing.getPlubbingPlace().getPlaceName())
                     .placePositionX(plubbing.getPlubbingPlace().getPlacePositionX())
                     .placePositionY(plubbing.getPlubbingPlace().getPlacePositionY())
                     .curAccountNum(plubbing.getCurAccountNum())
@@ -160,7 +166,7 @@ public class PlubbingDto {
             Long plubbingId,
             String name,
             String goal,
-            String mainImageFileName,
+            String mainImage,
             List<MeetingDay> days
     ) {
         @Builder
@@ -173,7 +179,7 @@ public class PlubbingDto {
                     .plubbingId(plubbing.getId())
                     .name(plubbing.getName())
                     .goal(plubbing.getGoal())
-                    .mainImageFileName(plubbing.getMainImageUrl())
+                    .mainImage(plubbing.getMainImage())
                     .days(plubbing.getDays().stream()
                             .map(PlubbingMeetingDay::getDay)
                             .toList())
@@ -185,10 +191,12 @@ public class PlubbingDto {
             Long plubbingId,
             String name,
             String goal,
-            String mainImageFileName,
+            String mainImage,
             List<MeetingDay> days,
             String onOff,
             String address,
+            String roadAddress,
+            String placeName,
             Double placePositionX,
             Double placePositionY,
             List<PlubbingAccountInfoResponse> accountInfo
@@ -202,12 +210,14 @@ public class PlubbingDto {
                     .plubbingId(plubbing.getId())
                     .name(plubbing.getName())
                     .goal(plubbing.getGoal())
-                    .mainImageFileName(plubbing.getMainImageUrl())
+                    .mainImage(plubbing.getMainImage())
                     .days(plubbing.getDays().stream()
                             .map(PlubbingMeetingDay::getDay)
                             .toList())
                     .onOff(plubbing.getOnOff().name())
                     .address(plubbing.getPlubbingPlace().getAddress())
+                    .roadAddress(plubbing.getPlubbingPlace().getRoadAddress())
+                    .placeName(plubbing.getPlubbingPlace().getPlaceName())
                     .placePositionX(plubbing.getPlubbingPlace().getPlacePositionX())
                     .placePositionY(plubbing.getPlubbingPlace().getPlacePositionY())
                     .accountInfo(accounts.stream()
@@ -221,7 +231,7 @@ public class PlubbingDto {
             Long plubbingId,
             String name,
             String title,
-            String mainImageFileName,
+            String mainImage,
             String introduce,
             List<MeetingDay> days,
             int curAccountNum,
@@ -236,7 +246,7 @@ public class PlubbingDto {
                     .plubbingId(plubbing.getId())
                     .name(plubbing.getName())
                     .title(plubbing.getGoal())
-                    .mainImageFileName(plubbing.getMainImageUrl())
+                    .mainImage(plubbing.getMainImage())
                     .introduce(plubbing.getGoal())
                     .days(plubbing.getDays().stream()
                             .map(PlubbingMeetingDay::getDay)

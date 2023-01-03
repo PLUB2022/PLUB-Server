@@ -1,7 +1,8 @@
 package plub.plubserver.domain.plubbing.service;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import plub.plubserver.domain.account.config.AccountCode;
@@ -9,11 +10,6 @@ import plub.plubserver.domain.account.exception.AccountException;
 import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.account.model.AccountCategory;
 import plub.plubserver.domain.account.repository.AccountCategoryRepository;
-import plub.plubserver.domain.plubbing.config.PlubbingCode;
-import plub.plubserver.domain.plubbing.dto.PlubbingDto.*;
-import plub.plubserver.domain.plubbing.exception.PlubbingException;
-import plub.plubserver.domain.plubbing.model.AccountPlubbing;
-import plub.plubserver.domain.plubbing.model.AccountPlubbingStatus;
 import plub.plubserver.domain.account.service.AccountService;
 import plub.plubserver.domain.category.model.PlubbingSubCategory;
 import plub.plubserver.domain.category.model.SubCategory;
@@ -25,7 +21,6 @@ import plub.plubserver.domain.plubbing.repository.*;
 import plub.plubserver.domain.recruit.model.RecruitQuestion;
 import plub.plubserver.domain.recruit.model.Recruit;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -101,6 +96,8 @@ public class PlubbingService {
         switch (plubbing.getOnOff().name()) {
             case "OFF" -> plubbing.addPlubbingPlace(PlubbingPlace.builder()
                     .address(createPlubbingRequest.address())
+                    .roadAddress(createPlubbingRequest.roadAddress())
+                    .placeName(createPlubbingRequest.placeName())
                     .placePositionX(createPlubbingRequest.placePositionX())
                     .placePositionY(createPlubbingRequest.placePositionY())
                     .build());
@@ -195,7 +192,7 @@ public class PlubbingService {
         Plubbing plubbing = plubbingRepository.findById(plubbingId).orElseThrow(() -> new PlubbingException(PlubbingCode.NOT_FOUND_PLUBBING));
         checkPlubbingStatus(plubbing);
         checkAuthority(plubbing);
-        plubbing.updatePlubbing(updatePlubbingRequest.name(), updatePlubbingRequest.goal(), updatePlubbingRequest.mainImageUrl());
+        plubbing.updatePlubbing(updatePlubbingRequest.name(), updatePlubbingRequest.goal(), updatePlubbingRequest.mainImage());
         return PlubbingResponse.of(plubbing);
     }
 
