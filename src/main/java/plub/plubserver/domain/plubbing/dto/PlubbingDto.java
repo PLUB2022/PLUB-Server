@@ -100,6 +100,9 @@ public class PlubbingDto {
     /**
      * Response
      */
+    public record PlubbingIdResponse(
+            Long plubbingId
+    ) {}
     @Builder
     public record JoinedAccountsInfoResponse(
             int maxAccountNum,

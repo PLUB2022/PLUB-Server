@@ -5,7 +5,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
-import plub.plubserver.domain.category.model.QSubCategory;
 import plub.plubserver.domain.category.model.SubCategory;
 import plub.plubserver.domain.plubbing.model.Plubbing;
 import plub.plubserver.domain.plubbing.model.PlubbingStatus;
@@ -14,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static plub.plubserver.domain.category.model.QPlubbingSubCategory.plubbingSubCategory;
+import static plub.plubserver.domain.category.model.QSubCategory.subCategory;
 import static plub.plubserver.domain.plubbing.model.QPlubbing.plubbing;
 
 @RequiredArgsConstructor
@@ -26,8 +26,8 @@ public class PlubbingRepositoryImpl implements PlubbingRepositoryCustom {
                 queryFactory
                         .selectFrom(plubbing)
                         .join(plubbing.plubbingSubCategories, plubbingSubCategory)
-                        .join(plubbingSubCategory.subCategory, QSubCategory.subCategory)
-                        .where(QSubCategory.subCategory.category.id.eq(categoryId),
+                        .join(plubbingSubCategory.subCategory, subCategory)
+                        .where(subCategory.category.id.eq(categoryId),
                                 plubbing.status.eq(PlubbingStatus.ACTIVE),
                                 plubbing.visibility.eq(true))
                         .orderBy(plubbing.modifiedAt.desc())
@@ -38,8 +38,8 @@ public class PlubbingRepositoryImpl implements PlubbingRepositoryCustom {
                 () -> queryFactory
                         .selectFrom(plubbing)
                         .join(plubbing.plubbingSubCategories, plubbingSubCategory)
-                        .join(plubbingSubCategory.subCategory, QSubCategory.subCategory)
-                        .where(QSubCategory.subCategory.category.id.eq(categoryId))
+                        .join(plubbingSubCategory.subCategory, subCategory)
+                        .where(subCategory.category.id.eq(categoryId))
                         .fetch().size()
         );
 

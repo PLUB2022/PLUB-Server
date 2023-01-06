@@ -1,9 +1,6 @@
 package plub.plubserver.domain.account.model;
 
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import plub.plubserver.common.model.BaseTimeEntity;
 import plub.plubserver.domain.alarm.model.Alarm;
 import plub.plubserver.domain.comment.model.Comment;
@@ -11,6 +8,7 @@ import plub.plubserver.domain.message.model.Message;
 import plub.plubserver.domain.policy.model.Policy;
 import plub.plubserver.domain.plubbing.model.AccountPlubbing;
 import plub.plubserver.domain.recruit.model.AppliedAccount;
+import plub.plubserver.domain.recruit.model.Bookmark;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -20,6 +18,8 @@ import static plub.plubserver.domain.account.dto.AccountDto.AccountRequest;
 
 @Entity
 @Getter
+@Builder
+@AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Account extends BaseTimeEntity {
 
@@ -77,23 +77,9 @@ public class Account extends BaseTimeEntity {
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Policy> policyList = new ArrayList<>();
 
-    @Builder
-    public Account(String email, String password, String nickname, int age, String birthday, String gender, String phone, SocialType socialType, String profileImage, String lastLogin, String fcmToken, Role role, String introduce, List<AccountCategory> accountCategories) {
-        this.email = email;
-        this.password = password;
-        this.nickname = nickname;
-        this.age = age;
-        this.birthday = birthday;
-        this.gender = gender;
-        this.phone = phone;
-        this.socialType = socialType;
-        this.profileImage = profileImage;
-        this.lastLogin = lastLogin;
-        this.fcmToken = fcmToken;
-        this.introduce = introduce;
-        this.role = role;
-        this.accountCategories = accountCategories;
-    }
+    // 회원(1) - 북마크(다)
+    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Bookmark> bookmarkList = new ArrayList<>();
 
     // TODO : DTO에 변환로직이 가도록 수정해야함
     public AccountRequest toAccountRequestDto() {
@@ -125,5 +111,14 @@ public class Account extends BaseTimeEntity {
     public void setAccountCategory(List<AccountCategory> accountCategories) {
         this.getAccountCategories().clear();
         this.getAccountCategories().addAll(accountCategories);
+    }
+
+    public void addBookmark(Bookmark bookmark) {
+        if (bookmarkList == null) bookmarkList = new ArrayList<>();
+        bookmarkList.add(bookmark);
+    }
+
+    public void removeBookmark(Bookmark bookmark) {
+        bookmarkList.remove(bookmark);
     }
 }

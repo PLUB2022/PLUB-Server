@@ -27,7 +27,7 @@ public class PlubbingController {
 
     @ApiOperation(value = "모임 생성")
     @PostMapping
-    public ApiResponse<Long> createPlubbing(
+    public ApiResponse<PlubbingIdResponse> createPlubbing(
             @Valid @RequestBody CreatePlubbingRequest createPlubbingRequest) {
         return success(plubbingService.createPlubbing(createPlubbingRequest));
     }
@@ -73,7 +73,7 @@ public class PlubbingController {
 
     @ApiOperation(value = "카테고리별 모임 조회")
     @GetMapping("/categories/{categoryId}")
-    public ApiResponse<Page<PlubbingCardResponse>> getPlubbingByCatergory(@PathVariable Long categoryId,
+    public ApiResponse<Page<PlubbingCardResponse>> getPlubbingByCategory(@PathVariable Long categoryId,
                                                                           @PageableDefault(size = 10) Pageable pageable) {
         Page<PlubbingCardResponse> plubbingCardResponses = plubbingService.getPlubbingByCatergory(categoryId, pageable);
         return success(plubbingCardResponses);

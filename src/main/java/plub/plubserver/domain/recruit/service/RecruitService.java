@@ -2,6 +2,7 @@ package plub.plubserver.domain.recruit.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import plub.plubserver.domain.account.config.AccountCode;
@@ -17,6 +18,9 @@ import plub.plubserver.domain.plubbing.model.Plubbing;
 import plub.plubserver.domain.plubbing.repository.AccountPlubbingRepository;
 import plub.plubserver.domain.plubbing.service.PlubbingService;
 import plub.plubserver.domain.recruit.config.RecruitCode;
+import plub.plubserver.domain.recruit.dto.QuestionDto.AnswerRequest;
+import plub.plubserver.domain.recruit.dto.QuestionDto.QuestionListResponse;
+import plub.plubserver.domain.recruit.dto.QuestionDto.QuestionResponse;
 import plub.plubserver.domain.recruit.dto.RecruitDto.*;
 import plub.plubserver.domain.recruit.exception.RecruitException;
 import plub.plubserver.domain.recruit.model.*;
@@ -25,6 +29,7 @@ import plub.plubserver.domain.recruit.repository.RecruitRepository;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 
 @Slf4j
@@ -63,6 +68,39 @@ public class RecruitService {
                         .toList()
         );
     }
+
+    public void search(Pageable pageable, String keyword) {
+        recruitRepository.search(pageable, keyword);
+    }
+
+    /**
+     * 북마크 등록, 취소
+     */
+    @Transactional
+    public BookmarkResponse bookmark(Long recruitId) {
+        Account account = accountService.getCurrentAccount();
+        Recruit recruit = findById(recruitId);
+        Optional<Bookmark> bookmark = account.getBookmarkList().stream()
+                .filter(b -> b.getRecruit().equals(recruit))
+                .findFirst();
+        boolean isBookmarked;
+        if (bookmark.isEmpty()) {
+            // 북마크가 되어있지 않으면 등록
+            account.addBookmark(Bookmark.builder()
+                    .account(account).recruit(recruit)
+                    .build());
+            isBookmarked = true;
+        } else {
+            // 북마크 취소
+            account.removeBookmark(bookmark.get());
+            isBookmarked = false;
+        }
+        return BookmarkResponse.builder()
+                .isBookmarked(isBookmarked)
+                .recruitId(recruitId)
+                .build();
+    }
+
 
     /**
      * 모집 종료

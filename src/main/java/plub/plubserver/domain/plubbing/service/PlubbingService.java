@@ -84,7 +84,7 @@ public class PlubbingService {
      * 모임 생성
      */
     @Transactional
-    public Long createPlubbing(CreatePlubbingRequest createPlubbingRequest) {
+    public PlubbingIdResponse createPlubbing(CreatePlubbingRequest createPlubbingRequest) {
         // 모임 생성자(호스트) 가져오기
         Account owner = accountService.getCurrentAccount();
 
@@ -124,7 +124,7 @@ public class PlubbingService {
 
         plubbingRepository.flush(); // flush를 안 하면 recruitId가 null로 들어감
 
-        return plubbing.getId();
+        return new PlubbingIdResponse(plubbing.getId());
     }
 
     /**

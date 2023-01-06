@@ -3,8 +3,6 @@ package plub.plubserver.domain.recruit.dto;
 import lombok.Builder;
 import plub.plubserver.domain.recruit.model.AppliedAccount;
 import plub.plubserver.domain.recruit.model.Recruit;
-import plub.plubserver.domain.recruit.model.RecruitQuestion;
-import plub.plubserver.domain.recruit.model.RecruitQuestionAnswer;
 
 import java.util.List;
 
@@ -12,12 +10,9 @@ public class RecruitDto {
     /**
      * Request
      */
-    public record AnswerRequest(Long questionId, String answer) {
-    }
-
     @Builder
     public record ApplyRecruitRequest(
-            List<AnswerRequest> answers
+            List<QuestionDto.AnswerRequest> answers
     ) {
     }
 
@@ -30,31 +25,8 @@ public class RecruitDto {
     /**
      * Response
      */
-
-    public record QuestionResponse(
-            Long id,
-            String question
-    ) {
-        @Builder
-        public QuestionResponse {
-        }
-
-        public static QuestionResponse of(RecruitQuestion recruitQuestion) {
-            return QuestionResponse.builder()
-                    .id(recruitQuestion.getId())
-                    .question(recruitQuestion.getQuestionTitle())
-                    .build();
-        }
-
-        public static List<QuestionResponse> ofList(List<RecruitQuestion> recruitQuestions) {
-            return recruitQuestions.stream()
-                    .map(QuestionResponse::of)
-                    .toList();
-        }
-    }
-
-    public record QuestionListResponse(
-            List<QuestionResponse> questions
+    public record RecruitIdResponse(
+            Long recruitId
     ) {}
 
     public record RecruitResponse(
@@ -104,7 +76,7 @@ public class RecruitDto {
             String accountName,
             String profileImage,
             String createdAt,
-            List<QuestionAnswerResponse> answers
+            List<QuestionDto.QuestionAnswerResponse> answers
     ) {
         @Builder
         public AppliedAccountResponse {
@@ -117,7 +89,7 @@ public class RecruitDto {
                     .createdAt(appliedAccount.getCreatedAt())
                     .answers(appliedAccount.getAnswerList()
                             .stream()
-                            .map(QuestionAnswerResponse::of)
+                            .map(QuestionDto.QuestionAnswerResponse::of)
                             .toList())
                     .build();
         }
@@ -127,21 +99,32 @@ public class RecruitDto {
             List<AppliedAccountResponse> appliedAccounts
     ) {}
 
-    public record QuestionAnswerResponse(
-            String question,
-            String answer
-    ) {
-        @Builder
-        public QuestionAnswerResponse {
-        }
+    public record RecruitCardResponse(
 
-        public static QuestionAnswerResponse of(RecruitQuestionAnswer recruitQuestionAnswer) {
-            String question = recruitQuestionAnswer.getId() + ". " + recruitQuestionAnswer
-                    .getRecruitQuestion().getQuestionTitle();
-            return QuestionAnswerResponse.builder()
-                    .question(question)
-                    .answer(recruitQuestionAnswer.getAnswer())
-                    .build();
-        }
+    ) {}
+    public record RecruitCardListResponse(
+            List<RecruitCardResponse> recruitCardList,
+            long totalResultCount,
+            int totalPageCount,
+            boolean isLast
+    ) {
+        @Builder public RecruitCardListResponse {}
+//        public static RecruitCardListResponse of(Page<Recruit> recruits) {
+//            return RecruitCardListResponse.builder()
+//                    .recruitCardList(recruits.stream()
+//                            .map(RecruitCardResponse::of)
+//                            .toList())
+//                    .totalPageCount(recruits.getTotalPages())
+//                    .totalResultCount(recruits.getTotalElements())
+//                    .isLast(recruits.isLast())
+//                    .build();
+//        }
     }
+
+    @Builder
+    public record BookmarkResponse(
+            Long recruitId,
+            boolean isBookmarked
+    ) {}
+
 }
