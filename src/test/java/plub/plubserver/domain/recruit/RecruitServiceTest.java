@@ -14,9 +14,12 @@ import plub.plubserver.domain.plubbing.model.AccountPlubbing;
 import plub.plubserver.domain.plubbing.model.Plubbing;
 import plub.plubserver.domain.plubbing.repository.AccountPlubbingRepository;
 import plub.plubserver.domain.recruit.config.RecruitCode;
-import plub.plubserver.domain.recruit.dto.RecruitDto.AnswerRequest;
+import plub.plubserver.domain.recruit.dto.QuestionDto.AnswerRequest;
 import plub.plubserver.domain.recruit.dto.RecruitDto.ApplyRecruitRequest;
+import plub.plubserver.domain.recruit.dto.RecruitDto.BookmarkResponse;
 import plub.plubserver.domain.recruit.exception.RecruitException;
+import plub.plubserver.domain.recruit.model.Bookmark;
+import plub.plubserver.domain.recruit.model.Recruit;
 import plub.plubserver.domain.recruit.repository.AppliedAccountRepository;
 import plub.plubserver.domain.recruit.repository.RecruitRepository;
 import plub.plubserver.domain.recruit.service.RecruitService;
@@ -30,7 +33,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 
 @ExtendWith(MockitoExtension.class)
-public class RecruitServiceMockTest {
+public class RecruitServiceTest {
     @Mock
     RecruitRepository recruitRepository;
 
@@ -47,7 +50,7 @@ public class RecruitServiceMockTest {
     RecruitService recruitService;
 
     @Test
-    @DisplayName("모집 생성 성공")
+    @DisplayName("모집 지원 성공")
     void applyRecruit_success() {
         // given
         Account host = AccountTemplate.makeAccount1();
@@ -93,10 +96,6 @@ public class RecruitServiceMockTest {
                         .isHost(true)
                         .build()));
 
-        given(appliedAccountRepository.existsByAccountAndRecruit(any(), any()))
-                .willReturn(false);
-
-
         // when - then
         assertThatThrownBy(() -> recruitService.applyRecruit(1L, ApplyRecruitRequest.builder().build()))
                 .isInstanceOf(RecruitException.class)
@@ -123,5 +122,49 @@ public class RecruitServiceMockTest {
         assertThatThrownBy(() -> recruitService.applyRecruit(1L, ApplyRecruitRequest.builder().build()))
                 .isInstanceOf(RecruitException.class)
                 .hasMessage(RecruitCode.ALREADY_APPLIED_RECRUIT.getMessage());
+    }
+
+    @Test
+    @DisplayName("북마크 - 등록")
+    void bookmark_enroll() {
+        // given
+        Account host = AccountTemplate.makeAccount1();
+        Plubbing plubbing = PlubbingMockUtils.getMockPlubbing(host);
+
+        given(accountService.getCurrentAccount()).willReturn(host);
+
+        given(recruitRepository.findById(any()))
+                .willReturn(Optional.of(plubbing.getRecruit()));
+
+        host.addBookmark(Bookmark.builder()
+                .recruit(Recruit.builder().build())
+                .build());
+
+        // when
+        BookmarkResponse bookmark = recruitService.bookmark(1L);
+
+        // then
+        assertThat(bookmark.isBookmarked()).isTrue();
+    }
+
+    @Test
+    @DisplayName("북마크 - 취소")
+    void bookmark_cancel() {
+        // given
+        Account host = AccountTemplate.makeAccount1();
+        Plubbing plubbing = PlubbingMockUtils.getMockPlubbing(host);
+
+        given(accountService.getCurrentAccount()).willReturn(host);
+
+        given(recruitRepository.findById(any()))
+                .willReturn(Optional.of(plubbing.getRecruit()));
+
+        host.addBookmark(Bookmark.builder().recruit(plubbing.getRecruit()).build());
+
+        // when
+        BookmarkResponse bookmark = recruitService.bookmark(1L);
+
+        // then
+        assertThat(bookmark.isBookmarked()).isFalse();
     }
 }
