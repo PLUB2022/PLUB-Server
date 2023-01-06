@@ -17,9 +17,6 @@ public class TestController {
             statusCode = 400;
         }
         TestDto.AuthCodeResponse authCodeResponse = new TestDto.AuthCodeResponse(authCodeDto.authCode());
-        return success(
-                statusCode,
-                authCodeResponse
-        );
+        return success(authCodeResponse);
     }
 }

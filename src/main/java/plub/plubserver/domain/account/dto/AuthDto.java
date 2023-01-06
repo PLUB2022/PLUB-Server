@@ -116,10 +116,10 @@ public class AuthDto {
 
     }
 
-    public record AuthMessage(int statusCode, Object detailData, String detailMessage) {
+    public record AuthMessage(Object detailData, String detailMessage) {
     }
 
-    public record SignAuthMessage(int statusCode, JwtDto detailData, String detailMessage) {
+    public record SignAuthMessage(JwtDto detailData, String detailMessage) {
     }
 
     public record SigningAccount(String email, String socialType, String refreshToken) {

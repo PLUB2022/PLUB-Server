@@ -86,7 +86,7 @@ public class AccountService {
         } else {
             throw new AccountException(AccountCode.SOCIAL_TYPE_ERROR);
         }
-        return new AuthMessage(AccountCode.ACCOUNT_SUCCESS.getStatusCode(), result, "revoke result.");
+        return new AuthMessage(result, "revoke result.");
     }
 
     @Transactional

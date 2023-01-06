@@ -61,7 +61,6 @@ public class AuthService {
             JwtDto jwtDto = login(account.get().toAccountRequestDto().toLoginRequest());
             account.get().updateRefreshToken(refreshToken);
             loginMessage = new AuthMessage(
-                    AuthCode.LOGIN.getStatusCode(),
                     jwtDto,
                     AuthCode.LOGIN.getMessage()
             );
@@ -69,7 +68,6 @@ public class AuthService {
             String signToken = jwtProvider.createSignToken(email, refreshToken);
             SignToken signTokenResponse = new SignToken(signToken);
             loginMessage = new AuthMessage(
-                    AuthCode.NEED_TO_SIGNUP.getStatusCode(),
                     signTokenResponse,
                     AuthCode.NEED_TO_SIGNUP.getMessage()
             );
@@ -150,7 +148,6 @@ public class AuthService {
         account.updateRefreshToken(refreshToken);
 
         return new SignAuthMessage(
-                AuthCode.SIGNUP_COMPLETE.getStatusCode(),
                 jwtDto,
                 AuthCode.SIGNUP_COMPLETE.getMessage()
         );
@@ -201,7 +198,6 @@ public class AuthService {
         }
         JwtDto jwtDto = login(loginRequest);
         return new AuthMessage(
-                AuthCode.LOGIN.getStatusCode(),
                 jwtDto,
                 AuthCode.LOGIN.getMessage()
         );
