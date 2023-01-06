@@ -11,13 +11,12 @@ import java.util.HashMap;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ApiResponse<T> {
-    final static int SUCCESS_STATUS_CODE = 1000;
-    private int statusCode;
+    private Integer statusCode;
     private T data;
     private String message;
 
-    private ApiResponse(int status, T data) {
-        this.statusCode = status;
+    private ApiResponse(T data) {
+        this.statusCode = null;
         this.data = data;
     }
 
@@ -28,16 +27,16 @@ public class ApiResponse<T> {
     }
 
     public static <T> ApiResponse<T> success(T data) {
-        return new ApiResponse<>(SUCCESS_STATUS_CODE, data);
+        return new ApiResponse<>(data);
     }
 
-    public static <T> ApiResponse<T> success(int statusCode, T data) {
-        return new ApiResponse<>(statusCode, data);
-    }
-
-    public static ApiResponse<?> error(int errorCode, String message) {
+    public static ApiResponse error(int errorCode, String message) {
         HashMap<String, String> empty = new HashMap<>();
         return new ApiResponse<>(errorCode, empty, message);
+    }
+
+    public static <T> ApiResponse<T> error(int errorCode, T data, String message) {
+        return new ApiResponse<>(errorCode, data, message);
     }
 
 }

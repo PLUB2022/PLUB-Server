@@ -18,15 +18,14 @@ import plub.plubserver.domain.account.config.AuthCode;
 import plub.plubserver.domain.account.exception.AccountException;
 import plub.plubserver.domain.account.exception.AuthException;
 import plub.plubserver.domain.account.model.Account;
+import plub.plubserver.domain.account.model.AccountCategory;
 import plub.plubserver.domain.account.model.Role;
 import plub.plubserver.domain.account.repository.AccountRepository;
 import plub.plubserver.domain.category.config.CategoryCode;
 import plub.plubserver.domain.category.exception.CategoryException;
-import plub.plubserver.domain.account.model.AccountCategory;
 import plub.plubserver.domain.category.model.SubCategory;
 import plub.plubserver.domain.category.repository.SubCategoryRepository;
 import plub.plubserver.domain.policy.model.Policy;
-
 
 import java.util.ArrayList;
 import java.util.List;
@@ -61,18 +60,13 @@ public class AuthService {
             JwtDto jwtDto = login(account.get().toAccountRequestDto().toLoginRequest());
             account.get().updateRefreshToken(refreshToken);
             loginMessage = new AuthMessage(
-                    AuthCode.LOGIN.getStatusCode(),
                     jwtDto,
                     AuthCode.LOGIN.getMessage()
             );
         } else {
             String signToken = jwtProvider.createSignToken(email, refreshToken);
             SignToken signTokenResponse = new SignToken(signToken);
-            loginMessage = new AuthMessage(
-                    AuthCode.NEED_TO_SIGNUP.getStatusCode(),
-                    signTokenResponse,
-                    AuthCode.NEED_TO_SIGNUP.getMessage()
-            );
+            throw new AuthException(signTokenResponse, AuthCode.NEED_TO_SIGNUP);
         }
         return loginMessage;
     }
@@ -150,7 +144,6 @@ public class AuthService {
         account.updateRefreshToken(refreshToken);
 
         return new SignAuthMessage(
-                AuthCode.SIGNUP_COMPLETE.getStatusCode(),
                 jwtDto,
                 AuthCode.SIGNUP_COMPLETE.getMessage()
         );
@@ -201,7 +194,6 @@ public class AuthService {
         }
         JwtDto jwtDto = login(loginRequest);
         return new AuthMessage(
-                AuthCode.LOGIN.getStatusCode(),
                 jwtDto,
                 AuthCode.LOGIN.getMessage()
         );

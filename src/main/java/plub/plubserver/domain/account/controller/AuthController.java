@@ -25,10 +25,7 @@ public class AuthController {
     @PostMapping("/login")
     public ApiResponse<?> login(@RequestBody SocialLoginRequest socialLoginRequest) {
         AuthMessage authMessage = authService.loginAccess(socialLoginRequest);
-        return success(
-                authMessage.statusCode(),
-                authMessage.detailData()
-        );
+        return success(authMessage.detailData());
     }
 
     @ApiOperation(value = "소셜 회원가입 및 로그인")

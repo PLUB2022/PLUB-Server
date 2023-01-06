@@ -9,7 +9,6 @@ public enum AuthCode {
     /**
      * success
      */
-    NEED_TO_SIGNUP(200, 2001, "need to signup, X-ACCESS-TOKEN is issued."),
     LOGIN(200, 1000, "account exist, process login."),
     SIGNUP_COMPLETE(200, 1000, "signup complete, access token is issued."),
     ADMIN_LOGIN(200, 1000, "admin check, process login."),
@@ -18,6 +17,7 @@ public enum AuthCode {
      * fail
      */
     // Auth
+    NEED_TO_SIGNUP(404, 2050, "need to signup, X-ACCESS-TOKEN is issued."),
     FILTER_ACCESS_DENIED(401, 2000, "access denied."),
     FILTER_ROLE_FORBIDDEN(403, 2010, "role forbidden."),
 

@@ -55,7 +55,9 @@ public class AccountService {
         if (!Pattern.matches(pattern, nickname)) {
             throw new AccountException(AccountCode.NICKNAME_ERROR);
         }
-        return new NicknameResponse(!accountRepository.existsByNickname(nickname));
+        if (!accountRepository.existsByNickname(nickname)) {
+            return new NicknameResponse(true);
+        } else throw new AccountException(AccountCode.NICKNAME_DUPLICATION);
     }
 
     // 회원 정보 수정
@@ -86,7 +88,7 @@ public class AccountService {
         } else {
             throw new AccountException(AccountCode.SOCIAL_TYPE_ERROR);
         }
-        return new AuthMessage(AccountCode.ACCOUNT_SUCCESS.getStatusCode(), result, "revoke result.");
+        return new AuthMessage(result, "revoke result.");
     }
 
     @Transactional
