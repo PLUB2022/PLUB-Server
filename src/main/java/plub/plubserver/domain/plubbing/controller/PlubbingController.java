@@ -52,7 +52,7 @@ public class PlubbingController {
     }
 
     @ApiOperation(value = "모임 종료하기")
-    @PutMapping("/{plubbingId}/end")
+    @PutMapping("/{plubbingId}/status")
     public ApiResponse<PlubbingMessage> endPlubbing(@PathVariable Long plubbingId) {
         return success(plubbingService.endPlubbing(plubbingId));
     }
