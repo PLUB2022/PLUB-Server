@@ -139,11 +139,11 @@ public class PlubbingService {
                 .getAccount();
     }
 
-    public List<MyPlubbingResponse> getMyPlubbing(Boolean isHost) {
+    public MyPlubbingListResponse getMyPlubbing(Boolean isHost) {
         Account currentAccount = accountService.getCurrentAccount();
-
-        return accountPlubbingRepository.findAllByAccountAndIsHostAndAccountPlubbingStatus(currentAccount, isHost, AccountPlubbingStatus.ACTIVE)
+        List<MyPlubbingResponse> myPlubbingResponses = accountPlubbingRepository.findAllByAccountAndIsHostAndAccountPlubbingStatus(currentAccount, isHost, AccountPlubbingStatus.ACTIVE)
                 .stream().map(MyPlubbingResponse::of).collect(Collectors.toList());
+        return MyPlubbingListResponse.of(myPlubbingResponses);
     }
 
     public MainPlubbingResponse getMainPlubbing(Long plubbingId) {
