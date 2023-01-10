@@ -43,6 +43,7 @@ public class PlubbingDto {
 
             @Nullable
             String mainImage,
+            String time,
 
             List<String> days, // MON, TUE, WED, THR, FRI, SAT, SUN, ALL
 
@@ -77,6 +78,7 @@ public class PlubbingDto {
                     .name(this.name)
                     .goal(this.goal)
                     .mainImage(this.mainImage)
+                    .time(this.time)
                     .onOff(this.getOnOff())
                     .maxAccountNum(this.maxAccountNum)
                     .status(PlubbingStatus.ACTIVE)
@@ -100,6 +102,9 @@ public class PlubbingDto {
     /**
      * Response
      */
+    public record PlubbingIdResponse(
+            Long plubbingId
+    ) {}
     public record JoinedAccountsInfoResponse(
             int maxAccountNum,
             int curAccountNum
@@ -121,6 +126,7 @@ public class PlubbingDto {
             String name,
             String goal,
             String mainImage,
+            String time,
             List<MeetingDay> days,
             String onOff,
             String address,
@@ -147,6 +153,7 @@ public class PlubbingDto {
                     .name(plubbing.getName())
                     .goal(plubbing.getGoal())
                     .mainImage(plubbing.getMainImage())
+                    .time(plubbing.getTime())
                     .days(plubbing.getDays().stream()
                             .map(PlubbingMeetingDay::getDay)
                             .toList())

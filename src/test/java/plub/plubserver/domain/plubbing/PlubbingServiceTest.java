@@ -10,6 +10,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import plub.plubserver.domain.account.AccountTemplate;
 import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.account.service.AccountService;
+import plub.plubserver.domain.category.model.SubCategory;
+import plub.plubserver.domain.category.service.CategoryService;
 import plub.plubserver.domain.plubbing.dto.PlubbingDto.CreatePlubbingRequest;
 import plub.plubserver.domain.plubbing.model.Plubbing;
 import plub.plubserver.domain.plubbing.model.PlubbingOnOff;
@@ -28,6 +30,9 @@ public class PlubbingServiceTest {
     PlubbingRepository plubbingRepository;
     @Mock
     AccountService accountService;
+
+    @Mock
+    CategoryService categoryService;
 
     @InjectMocks // 의존성이 필요한 것들을 위에 명시한 Mock 객체들로 넣어 준다.
     PlubbingService plubbingService;
@@ -48,6 +53,7 @@ public class PlubbingServiceTest {
         CreatePlubbingRequest form = PlubbingMockUtils.createPlubbingRequest;
         Plubbing plubbing = form.toEntity();
         given(plubbingRepository.save(any())).willReturn(plubbing);
+        given(categoryService.getSubCategory(any())).willReturn(SubCategory.builder().build());
         doNothing().when(plubbingRepository).flush();
         // when
         plubbingService.createPlubbing(form);
