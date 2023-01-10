@@ -20,6 +20,8 @@ import plub.plubserver.domain.plubbing.exception.PlubbingException;
 import plub.plubserver.domain.plubbing.model.*;
 import plub.plubserver.domain.plubbing.repository.AccountPlubbingRepository;
 import plub.plubserver.domain.plubbing.repository.PlubbingRepository;
+import plub.plubserver.domain.recruit.dto.RecruitDto.UpdateRecruitQuestionRequest;
+import plub.plubserver.domain.recruit.dto.RecruitDto.UpdateRecruitRequest;
 import plub.plubserver.domain.recruit.model.Recruit;
 import plub.plubserver.domain.recruit.model.RecruitQuestion;
 import plub.plubserver.domain.recruit.model.RecruitStatus;
@@ -44,11 +46,7 @@ public class PlubbingService {
 
     private void createRecruit(CreatePlubbingRequest createPlubbingRequest, Plubbing plubbing) {
         // 모집 질문글 엔티티화
-        List<RecruitQuestion> recruitQuestionList = createPlubbingRequest.questions().stream()
-                .map(it -> RecruitQuestion.builder()
-                        .questionTitle(it)
-                        .build())
-                .toList();
+        List<RecruitQuestion> recruitQuestionList = convertRecruitQuestionEntityList(createPlubbingRequest.questions());
 
         // 모집 자동 생성
         Recruit recruit = Recruit.builder()
@@ -66,6 +64,14 @@ public class PlubbingService {
 
         // 모임 - 모집 매핑
         plubbing.addRecruit(recruit);
+    }
+
+    private static List<RecruitQuestion> convertRecruitQuestionEntityList(List<String> questions) {
+        return questions.stream()
+                .map(it -> RecruitQuestion.builder()
+                        .questionTitle(it)
+                        .build())
+                .toList();
     }
 
     private void connectSubCategories(CreatePlubbingRequest createPlubbingRequest, Plubbing plubbing) {
@@ -131,11 +137,11 @@ public class PlubbingService {
 
         plubbingRepository.flush(); // flush를 안 하면 recruitId가 null로 들어감
 
-        return new PlubbingIdResponse(plubbing.getId());
+        return PlubbingIdResponse.of(plubbing);
     }
 
     /**
-     * 호스트 찾기
+     * 호스트
      */
     public Account getHost(Long plubbingId) {
         return accountPlubbingRepository.findByPlubbingId(plubbingId)
@@ -146,6 +152,17 @@ public class PlubbingService {
                 .getAccount();
     }
 
+    // 호스트 여부 검사
+    public void checkHost(Plubbing plubbing) {
+        Account currentAccount = accountService.getCurrentAccount();
+        AccountPlubbing accountPlubbing = accountPlubbingRepository.findByAccountAndPlubbing(currentAccount, plubbing)
+                .orElseThrow(() -> new AccountException(AccountCode.NOT_FOUND_ACCOUNT));
+        if (!accountPlubbing.isHost()) throw new PlubbingException(PlubbingCode.NOT_HOST);
+    }
+
+    /**
+     * 조회
+     */
     public MyPlubbingListResponse getMyPlubbing(Boolean isHost) {
         Account currentAccount = accountService.getCurrentAccount();
         List<MyPlubbingResponse> myPlubbingResponses = accountPlubbingRepository.findAllByAccountAndIsHostAndAccountPlubbingStatus(currentAccount, isHost, AccountPlubbingStatus.ACTIVE)
@@ -167,11 +184,14 @@ public class PlubbingService {
         return MainPlubbingResponse.of(plubbing, accounts);
     }
 
+    /**
+     * 모임 삭제 (soft delete)
+     */
     @Transactional
     public PlubbingMessage deletePlubbing(Long plubbingId) {
         Plubbing plubbing = plubbingRepository.findById(plubbingId).orElseThrow(() -> new PlubbingException(PlubbingCode.NOT_FOUND_PLUBBING));
         checkPlubbingStatus(plubbing);
-        checkAuthority(plubbing);
+        checkHost(plubbing);
 
         plubbing.deletePlubbing();
 
@@ -181,10 +201,13 @@ public class PlubbingService {
         return new PlubbingMessage(true);
     }
 
+    /**
+     * 모임 종료
+     */
     @Transactional
     public PlubbingMessage endPlubbing(Long plubbingId) {
         Plubbing plubbing = plubbingRepository.findById(plubbingId).orElseThrow(() -> new PlubbingException(PlubbingCode.NOT_FOUND_PLUBBING));
-        checkAuthority(plubbing);
+        checkHost(plubbing);
         List<AccountPlubbing> accountPlubbingList = accountPlubbingRepository.findAllByPlubbingId(plubbingId);
         if (plubbing.getStatus().equals(PlubbingStatus.END)) {
             plubbing.endPlubbing(PlubbingStatus.ACTIVE);
@@ -196,19 +219,51 @@ public class PlubbingService {
         return new PlubbingMessage(plubbing.getStatus());
     }
 
+    /**
+     * 수정
+     */
+    // 모집글 수정 : 타이틀, 모임 이름, 목표, 모임 소개글, 메인이미지
     @Transactional
-    public PlubbingResponse updatePlubbing(Long plubbingId, UpdatePlubbingRequest updatePlubbingRequest) {
-        Plubbing plubbing = plubbingRepository.findById(plubbingId).orElseThrow(() -> new PlubbingException(PlubbingCode.NOT_FOUND_PLUBBING));
-        checkPlubbingStatus(plubbing);
-        checkAuthority(plubbing);
-        plubbing.updatePlubbing(updatePlubbingRequest.name(), updatePlubbingRequest.goal(), updatePlubbingRequest.mainImage());
-        return PlubbingResponse.of(plubbing);
+    public PlubbingIdResponse updateRecruit(Long plubbingId, UpdateRecruitRequest updateRecruitRequest) {
+        Plubbing plubbing = getPlubbing(plubbingId);
+        checkHost(plubbing);
+        plubbing.updateRecruit(updateRecruitRequest);
+        return PlubbingIdResponse.of(plubbing);
     }
 
-    private void checkAuthority(Plubbing plubbing) {
-        Account currentAccount = accountService.getCurrentAccount();
-        AccountPlubbing accountPlubbing = accountPlubbingRepository.findByAccountAndPlubbing(currentAccount, plubbing).orElseThrow(() -> new AccountException(AccountCode.NOT_FOUND_ACCOUNT));
-        if (!accountPlubbing.isHost()) throw new PlubbingException(PlubbingCode.NOT_HOST);
+    // 모임 정보 수정 : 날짜, 온/오프라인, 최대인원수
+    @Transactional
+    public PlubbingIdResponse updatePlubbing(Long plubbingId, UpdatePlubbingRequest updatePlubbingRequest) {
+        Plubbing plubbing = getPlubbing(plubbingId);
+        checkHost(plubbing);
+        plubbing.updatePlubbing(updatePlubbingRequest);
+
+        // 오프라인이면 장소도 저장 (온라인 이면 기본값 저장)
+        switch (plubbing.getOnOff().name()) {
+            case "OFF" -> plubbing.addPlubbingPlace(PlubbingPlace.builder()
+                    .address(updatePlubbingRequest.address())
+                    .roadAddress(updatePlubbingRequest.roadAddress())
+                    .placeName(updatePlubbingRequest.placeName())
+                    .placePositionX(updatePlubbingRequest.placePositionX())
+                    .placePositionY(updatePlubbingRequest.placePositionY())
+                    .build());
+
+            case "ON" -> plubbing.addPlubbingPlace(new PlubbingPlace());
+        }
+        return PlubbingIdResponse.of(plubbing);
+    }
+
+    // 게스트 질문 수정
+    @Transactional
+    public PlubbingIdResponse updateRecruitQuestion(Long plubbingId, UpdateRecruitQuestionRequest updateRecruitQuestionRequest) {
+        Plubbing plubbing = getPlubbing(plubbingId);
+        checkHost(plubbing);
+        Recruit recruit = plubbing.getRecruit();
+//        recruit.getRecruitQuestionList().clear();
+//        plubbingRepository.flush();
+        List<RecruitQuestion> recruitQuestionList = convertRecruitQuestionEntityList(updateRecruitQuestionRequest.questions());
+        recruit.updateQuestions(recruitQuestionList);
+        return PlubbingIdResponse.of(plubbing);
     }
 
     private void checkPlubbingStatus(Plubbing plubbing) {

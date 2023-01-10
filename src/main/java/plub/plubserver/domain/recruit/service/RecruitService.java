@@ -8,10 +8,8 @@ import plub.plubserver.domain.account.config.AccountCode;
 import plub.plubserver.domain.account.exception.AccountException;
 import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.account.service.AccountService;
-import plub.plubserver.domain.plubbing.config.PlubbingCode;
 import plub.plubserver.domain.plubbing.dto.PlubbingDto.JoinedAccountsInfoResponse;
 import plub.plubserver.domain.plubbing.dto.PlubbingDto.PlubbingIdResponse;
-import plub.plubserver.domain.plubbing.exception.PlubbingException;
 import plub.plubserver.domain.plubbing.model.AccountPlubbing;
 import plub.plubserver.domain.plubbing.model.AccountPlubbingStatus;
 import plub.plubserver.domain.plubbing.model.Plubbing;
@@ -41,12 +39,6 @@ public class RecruitService {
         return plubbingService.getPlubbing(plubbingId).getRecruit();
     }
 
-    private void checkHost(Account account, Recruit recruit) {
-        Account host = plubbingService.getHost(recruit.getPlubbing().getId());
-        if (!host.getId().equals(account.getId()))
-            throw new PlubbingException(PlubbingCode.NOT_HOST);
-    }
-
     /**
      * 조회
      */
@@ -74,7 +66,7 @@ public class RecruitService {
     @Transactional
     public RecruitStatusResponse endRecruit(Long plubbingId) {
         Recruit recruit = getRecruitByPlubbingId(plubbingId);
-        checkHost(accountService.getCurrentAccount(), recruit);
+        plubbingService.checkHost(recruit.getPlubbing());
         recruit.done();
         return RecruitStatusResponse.of(recruit);
     }
@@ -127,11 +119,9 @@ public class RecruitService {
 
     // 지원자 찾기
     private AppliedAccount findAppliedAccount(Long plubbingId, Long accountId) {
-        Account account = accountService.getCurrentAccount();
         Recruit recruit = getRecruitByPlubbingId(plubbingId);
 
-        // host 가 아니면 예외 처리
-        checkHost(account, recruit);
+        plubbingService.checkHost(recruit.getPlubbing());
 
         // recruit 에서 지원자를 찾기
         return appliedAccountRepository

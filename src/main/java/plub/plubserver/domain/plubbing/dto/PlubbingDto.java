@@ -21,24 +21,19 @@ public class PlubbingDto {
      */
     @Builder
     public record CreatePlubbingRequest(
-            @NotEmpty
-            @Size(max = 5)
+            @NotEmpty @Size(max = 5)
             List<Long> subCategoryIds,
 
-            @NotBlank
-            @Size(max = 25)
+            @NotBlank @Size(max = 25)
             String title,
 
-            @NotBlank
-            @Size(max = 12)
+            @NotBlank @Size(max = 12)
             String name,
 
-            @NotBlank
-            @Size(max = 12)
+            @NotBlank @Size(max = 12)
             String goal,
 
-            @NotBlank
-            @Size(max = 12)
+            @NotBlank @Size(max = 12)
             String introduce,
 
             @Nullable
@@ -88,15 +83,29 @@ public class PlubbingDto {
     }
 
     public record UpdatePlubbingRequest(
+            @Size(max = 5)
+            List<String> days,
             @NotBlank
-            @Size(max = 12)
-            String name,
-            @NotBlank
-            @Size(max = 12)
-            String goal,
-            @Nullable
-            String mainImage
+            @Pattern(regexp = "^(ON|OFF)$", message = "only permit ON or OFF.")
+            String onOff,
+            @Range(min = 4, max = 20)
+            int maxAccountNum,
+
+            // 오프라인시 - 장소 좌표 (온라인이면 0.0, 0.0)
+            String address,
+            String roadAddress,
+            String placeName,
+            Double placePositionX,
+            Double placePositionY
     ) {
+        public PlubbingOnOff getOnOff() {
+            if (this.onOff.equals("ON")) return PlubbingOnOff.ON;
+            else return PlubbingOnOff.OFF;
+        }
+
+        public List<PlubbingMeetingDay> getPlubbingMeetingDay(Plubbing plubbing) {
+            return this.days.stream().map(it -> new PlubbingMeetingDay(it, plubbing)).toList();
+        }
     }
 
     /**
@@ -104,7 +113,12 @@ public class PlubbingDto {
      */
     public record PlubbingIdResponse(
             Long plubbingId
-    ) {}
+    ) {
+        public static PlubbingIdResponse of(Plubbing plubbing) {
+            return new PlubbingIdResponse(plubbing.getId());
+        }
+    }
+
     public record JoinedAccountsInfoResponse(
             int maxAccountNum,
             int curAccountNum
@@ -112,6 +126,7 @@ public class PlubbingDto {
         @Builder
         public JoinedAccountsInfoResponse {
         }
+
         public static JoinedAccountsInfoResponse of(Plubbing plubbing) {
             return JoinedAccountsInfoResponse.builder()
                     .maxAccountNum(plubbing.getMaxAccountNum())

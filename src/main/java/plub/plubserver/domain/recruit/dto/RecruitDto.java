@@ -1,6 +1,7 @@
 package plub.plubserver.domain.recruit.dto;
 
 import lombok.Builder;
+import org.springframework.lang.Nullable;
 import plub.plubserver.domain.plubbing.model.AccountPlubbing;
 import plub.plubserver.domain.plubbing.model.Plubbing;
 import plub.plubserver.domain.recruit.model.AppliedAccount;
@@ -8,6 +9,8 @@ import plub.plubserver.domain.recruit.model.Recruit;
 import plub.plubserver.domain.recruit.model.RecruitQuestion;
 import plub.plubserver.domain.recruit.model.RecruitQuestionAnswer;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
 import java.util.List;
 
 public class RecruitDto {
@@ -34,6 +37,22 @@ public class RecruitDto {
             );
         }
     }
+
+    public record UpdateRecruitRequest(
+            String title,
+            @NotBlank @Size(max = 12)
+            String name,
+            @NotBlank @Size(max = 12)
+            String goal,
+            String introduce,
+            @Nullable
+            String mainImage
+    ) {
+    }
+
+    public record UpdateRecruitQuestionRequest(
+            List<String> questions
+    ){}
 
     /**
      * Response
@@ -63,7 +82,8 @@ public class RecruitDto {
 
     public record QuestionListResponse(
             List<QuestionResponse> questions
-    ) {}
+    ) {
+    }
 
     public record RecruitResponse(
             String recruitTitle,
@@ -124,7 +144,7 @@ public class RecruitDto {
         public AppliedAccountResponse {
         }
 
-        public static AppliedAccountResponse of (AppliedAccount appliedAccount) {
+        public static AppliedAccountResponse of(AppliedAccount appliedAccount) {
             return AppliedAccountResponse.builder()
                     .accountId(appliedAccount.getAccount().getId())
                     .accountName(appliedAccount.getAccount().getNickname())
@@ -140,7 +160,8 @@ public class RecruitDto {
 
     public record AppliedAccountListResponse(
             List<AppliedAccountResponse> appliedAccounts
-    ) {}
+    ) {
+    }
 
     public record QuestionAnswerResponse(
             String question,
