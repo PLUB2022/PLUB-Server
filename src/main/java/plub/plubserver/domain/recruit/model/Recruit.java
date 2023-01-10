@@ -24,6 +24,9 @@ public class Recruit extends BaseTimeEntity {
     private String title; // 소개글 제목 - 모집 페이지에서 제일 크게 보여줄 제목
     private String introduce; // 모임 소개글 - 모집 페이지에서 보여줄 내용
     private int questionNum;
+
+    @Enumerated(EnumType.STRING)
+    private RecruitStatus status;
     private boolean visibility;
 
     // 모집(1) - 회원_모집페이지(다) # 다대다 용
@@ -51,7 +54,11 @@ public class Recruit extends BaseTimeEntity {
         appliedAccountList.add(appliedAccount);
     }
     public void done() {
-        visibility = false;
+        status = RecruitStatus.END;
+    }
+
+    public void start() {
+        status = RecruitStatus.RECRUITING;
     }
 
 }

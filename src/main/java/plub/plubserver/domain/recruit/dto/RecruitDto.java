@@ -1,6 +1,8 @@
 package plub.plubserver.domain.recruit.dto;
 
 import lombok.Builder;
+import plub.plubserver.domain.plubbing.model.AccountPlubbing;
+import plub.plubserver.domain.plubbing.model.Plubbing;
 import plub.plubserver.domain.recruit.model.AppliedAccount;
 import plub.plubserver.domain.recruit.model.Recruit;
 import plub.plubserver.domain.recruit.model.RecruitQuestion;
@@ -23,8 +25,14 @@ public class RecruitDto {
 
     public record JoinedAccountDto(
             Long accountId,
-            String profileImageUrl
+            String profileImage
     ) {
+        public static JoinedAccountDto of(AccountPlubbing accountPlubbing) {
+            return new JoinedAccountDto(
+                    accountPlubbing.getAccount().getId(),
+                    accountPlubbing.getAccount().getProfileImage()
+            );
+        }
     }
 
     /**
@@ -46,7 +54,7 @@ public class RecruitDto {
                     .build();
         }
 
-        public static List<QuestionResponse> ofList(List<RecruitQuestion> recruitQuestions) {
+        public static List<QuestionResponse> listOf(List<RecruitQuestion> recruitQuestions) {
             return recruitQuestions.stream()
                     .map(QuestionResponse::of)
                     .toList();
@@ -58,14 +66,17 @@ public class RecruitDto {
     ) {}
 
     public record RecruitResponse(
-            String title,
+            String recruitTitle,
+            String recruitIntroduce,
             List<String> categories,
             String plubbingName,
-            String plubbingStartDate,
             String plubbingGoal,
             String plubbingMainImage,
-            String introduce,
+            List<String> plubbingDays,
+            String plubbingTime,
+
             boolean isBookmarked,
+            int curAccountNum,
             List<JoinedAccountDto> joinedAccounts
     ) {
         @Builder
@@ -73,34 +84,37 @@ public class RecruitDto {
         }
 
         public static RecruitResponse of(Recruit recruit) {
+            Plubbing plubbing = recruit.getPlubbing();
+
+            List<String> categories = plubbing.getPlubbingSubCategories().stream()
+                    .map(it -> it.getSubCategory().getName())
+                    .toList();
+
+            List<String> days = plubbing.getDays().stream()
+                    .map(it -> it.getDay().toKorean())
+                    .toList();
+
+            List<JoinedAccountDto> joinedAccounts = plubbing.getAccountPlubbingList().stream()
+                    .map(JoinedAccountDto::of)
+                    .toList();
+
             return RecruitResponse.builder()
-                    .title(recruit.getTitle())
-                    // 카테고리 스트림
-                    .categories(recruit.getPlubbing()
-                            .getPlubbingSubCategories()
-                            .stream()
-                            .map(plubbingSubCategory -> plubbingSubCategory
-                                    .getSubCategory()
-                                    .getName())
-                            .toList())
-                    .plubbingName(recruit.getPlubbing().getName())
-                    .plubbingStartDate(recruit.getPlubbing().getCreatedAt())
-                    .plubbingGoal(recruit.getPlubbing().getGoal())
-                    .introduce(recruit.getIntroduce())
+                    .recruitTitle(recruit.getTitle())
+                    .recruitIntroduce(recruit.getIntroduce())
+                    .categories(categories)
+                    .plubbingName(plubbing.getName())
+                    .plubbingTime(plubbing.getTime())
+                    .plubbingGoal(plubbing.getGoal())
+                    .plubbingDays(days)
                     .isBookmarked(false) // TODO: 북마크 여부
-                    // 참여자 목록 스트림
-                    .joinedAccounts(recruit.getPlubbing().getAccountPlubbingList()
-                            .stream()
-                            .map(accountPlubbing -> new JoinedAccountDto(
-                                    accountPlubbing.getAccount().getId(),
-                                    accountPlubbing.getAccount().getProfileImage()
-                            ))
-                            .toList())
+                    .curAccountNum(plubbing.getCurAccountNum())
+                    .joinedAccounts(joinedAccounts)
                     .build();
         }
     }
 
     public record AppliedAccountResponse(
+            Long accountId,
             String accountName,
             String profileImage,
             String createdAt,
@@ -112,6 +126,7 @@ public class RecruitDto {
 
         public static AppliedAccountResponse of (AppliedAccount appliedAccount) {
             return AppliedAccountResponse.builder()
+                    .accountId(appliedAccount.getAccount().getId())
                     .accountName(appliedAccount.getAccount().getNickname())
                     .profileImage(appliedAccount.getAccount().getProfileImage())
                     .createdAt(appliedAccount.getCreatedAt())
@@ -144,4 +159,21 @@ public class RecruitDto {
                     .build();
         }
     }
+
+    public record RecruitStatusResponse(
+            Long plubbingId,
+            String status
+    ) {
+        @Builder
+        public RecruitStatusResponse {
+        }
+
+        public static RecruitStatusResponse of(Recruit recruit) {
+            return RecruitStatusResponse.builder()
+                    .plubbingId(recruit.getPlubbing().getId())
+                    .status(recruit.getStatus().name())
+                    .build();
+        }
+    }
+
 }

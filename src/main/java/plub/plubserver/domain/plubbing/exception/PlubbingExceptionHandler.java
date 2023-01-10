@@ -10,7 +10,7 @@ import plub.plubserver.common.dto.ApiResponse;
 @RestControllerAdvice
 public class PlubbingExceptionHandler {
     @ExceptionHandler(PlubbingException.class)
-    public ResponseEntity<ApiResponse<?>> handle(PlubbingException ex) {
+    public ResponseEntity<?> handle(PlubbingException ex) {
         log.warn("{}({}) - {}", ex.getClass().getSimpleName(), ex.plubbingCode.getStatusCode(), ex.getMessage());
         return ResponseEntity
                 .status(ex.plubbingCode.getHttpCode())

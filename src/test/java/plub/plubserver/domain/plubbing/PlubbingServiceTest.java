@@ -26,7 +26,7 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class PlubbingServiceTest {
-    @Mock // Mock 객체 생성 (메소드를 호출 해도 아무 일을 하지 않는다.)
+    @Mock
     PlubbingRepository plubbingRepository;
     @Mock
     AccountService accountService;
@@ -34,16 +34,13 @@ public class PlubbingServiceTest {
     @Mock
     CategoryService categoryService;
 
-    @InjectMocks // 의존성이 필요한 것들을 위에 명시한 Mock 객체들로 넣어 준다.
+    @InjectMocks
     PlubbingService plubbingService;
 
     static Account host = AccountTemplate.makeAccount1();
 
-    @BeforeEach // BeforeAll 은 static으로 만들어야 해서 BeforeAll을 사용
+    @BeforeEach
     void stubbing() {
-        // stubbing == Mock 객체의 메소드의 호출 결과를 정의하는 행위
-        // 여기서는 accountService의 getCurrentAccount() 가 호출되면 무조건 testAccount를 반환한다고 stubbing 한 것이다.
-        // createPlubbing 에서 accountService의 getCurrentAccount는 테스트 할 필요가 없으므로 정의를 해주는 것이다.
         when(accountService.getCurrentAccount()).thenReturn(host);
     }
 

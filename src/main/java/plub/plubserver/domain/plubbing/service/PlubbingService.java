@@ -22,6 +22,7 @@ import plub.plubserver.domain.plubbing.repository.AccountPlubbingRepository;
 import plub.plubserver.domain.plubbing.repository.PlubbingRepository;
 import plub.plubserver.domain.recruit.model.Recruit;
 import plub.plubserver.domain.recruit.model.RecruitQuestion;
+import plub.plubserver.domain.recruit.model.RecruitStatus;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -35,6 +36,11 @@ public class PlubbingService {
     private final CategoryService categoryService;
     private final AccountService accountService;
     private final AccountPlubbingRepository accountPlubbingRepository;
+
+    public Plubbing getPlubbing(Long plubbingId) {
+        return plubbingRepository.findById(plubbingId)
+                .orElseThrow(() -> new PlubbingException(PlubbingCode.NOT_FOUND_PLUBBING));
+    }
 
     private void createRecruit(CreatePlubbingRequest createPlubbingRequest, Plubbing plubbing) {
         // 모집 질문글 엔티티화
@@ -51,6 +57,7 @@ public class PlubbingService {
                 .plubbing(plubbing)
                 .recruitQuestionList(recruitQuestionList)
                 .questionNum(recruitQuestionList.size())
+                .status(RecruitStatus.RECRUITING)
                 .visibility(true)
                 .build();
 
