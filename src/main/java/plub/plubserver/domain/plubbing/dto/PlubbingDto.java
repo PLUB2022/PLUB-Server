@@ -105,11 +105,13 @@ public class PlubbingDto {
     public record PlubbingIdResponse(
             Long plubbingId
     ) {}
-    @Builder
     public record JoinedAccountsInfoResponse(
             int maxAccountNum,
             int curAccountNum
     ) {
+        @Builder
+        public JoinedAccountsInfoResponse {
+        }
         public static JoinedAccountsInfoResponse of(Plubbing plubbing) {
             return JoinedAccountsInfoResponse.builder()
                     .maxAccountNum(plubbing.getMaxAccountNum())
@@ -191,6 +193,20 @@ public class PlubbingDto {
                     .days(plubbing.getDays().stream()
                             .map(PlubbingMeetingDay::getDay)
                             .toList())
+                    .build();
+        }
+    }
+
+    public record MyPlubbingListResponse(
+            List<MyPlubbingResponse> plubbings
+    ) {
+        @Builder
+        public MyPlubbingListResponse {
+        }
+
+        public static MyPlubbingListResponse of(List<MyPlubbingResponse> plubbings) {
+            return MyPlubbingListResponse.builder()
+                    .plubbings(plubbings)
                     .build();
         }
     }

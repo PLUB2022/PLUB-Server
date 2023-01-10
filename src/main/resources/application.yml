@@ -24,8 +24,9 @@ spring:
   data:
     web:
       pageable:
-        default-page-size: 15
-  
+        default-page-size: 10
+        one-indexed-parameters: true
+
   profiles:
     active: secret
 
