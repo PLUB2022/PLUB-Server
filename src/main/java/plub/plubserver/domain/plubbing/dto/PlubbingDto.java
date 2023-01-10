@@ -82,6 +82,7 @@ public class PlubbingDto {
         }
     }
 
+    @Builder
     public record UpdatePlubbingRequest(
             @Size(max = 5)
             List<String> days,

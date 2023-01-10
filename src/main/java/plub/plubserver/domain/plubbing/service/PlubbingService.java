@@ -258,11 +258,9 @@ public class PlubbingService {
     public PlubbingIdResponse updateRecruitQuestion(Long plubbingId, UpdateRecruitQuestionRequest updateRecruitQuestionRequest) {
         Plubbing plubbing = getPlubbing(plubbingId);
         checkHost(plubbing);
-        Recruit recruit = plubbing.getRecruit();
-//        recruit.getRecruitQuestionList().clear();
-//        plubbingRepository.flush();
-        List<RecruitQuestion> recruitQuestionList = convertRecruitQuestionEntityList(updateRecruitQuestionRequest.questions());
-        recruit.updateQuestions(recruitQuestionList);
+        plubbing.getRecruit().updateQuestions(
+                convertRecruitQuestionEntityList(updateRecruitQuestionRequest.questions())
+        );
         return PlubbingIdResponse.of(plubbing);
     }
 

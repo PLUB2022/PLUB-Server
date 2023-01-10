@@ -38,6 +38,7 @@ public class RecruitDto {
         }
     }
 
+    @Builder
     public record UpdateRecruitRequest(
             String title,
             @NotBlank @Size(max = 12)
@@ -50,6 +51,7 @@ public class RecruitDto {
     ) {
     }
 
+    @Builder
     public record UpdateRecruitQuestionRequest(
             List<String> questions
     ){}
