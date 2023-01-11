@@ -11,9 +11,10 @@ import org.springframework.web.bind.annotation.*;
 import plub.plubserver.common.dto.ApiResponse;
 import plub.plubserver.domain.plubbing.dto.PlubbingDto.*;
 import plub.plubserver.domain.plubbing.service.PlubbingService;
+import plub.plubserver.domain.recruit.dto.RecruitDto.UpdateRecruitQuestionRequest;
+import plub.plubserver.domain.recruit.dto.RecruitDto.UpdateRecruitRequest;
 
 import javax.validation.Valid;
-import java.util.List;
 
 import static plub.plubserver.common.dto.ApiResponse.success;
 
@@ -57,11 +58,31 @@ public class PlubbingController {
         return success(plubbingService.endPlubbing(plubbingId));
     }
 
-    @ApiOperation(value = "모임 수정")
+    @ApiOperation(value = "모집글 수정")
+    @PutMapping("/{plubbingId}/recruit")
+    public ApiResponse<PlubbingIdResponse> updateRecruit(
+            @PathVariable Long plubbingId,
+            @Valid @RequestBody UpdateRecruitRequest updateRecruitRequest
+    ) {
+        return success(plubbingService.updateRecruit(plubbingId, updateRecruitRequest));
+    }
+
+    @ApiOperation(value = "모임 정보 수정")
     @PutMapping("/{plubbingId}")
-    public ApiResponse<PlubbingResponse> updatePlubbing(@PathVariable Long plubbingId,
-                                                        @Valid @RequestBody UpdatePlubbingRequest updatePlubbingRequest) {
+    public ApiResponse<PlubbingIdResponse> updatePlubbing(
+            @PathVariable Long plubbingId,
+            @Valid @RequestBody UpdatePlubbingRequest updatePlubbingRequest
+    ) {
         return success(plubbingService.updatePlubbing(plubbingId, updatePlubbingRequest));
+    }
+
+    @ApiOperation(value = "게스트 질문 수정")
+    @PutMapping("/{plubbingId}/recruit/questions")
+    public ApiResponse<PlubbingIdResponse> updateRecruitQuestions(
+            @PathVariable Long plubbingId,
+            @Valid @RequestBody UpdateRecruitQuestionRequest updateRecruitQuestionRequest
+    ) {
+        return success(plubbingService.updateRecruitQuestion(plubbingId, updateRecruitQuestionRequest));
     }
 
     @ApiOperation(value = "추천 모임")
