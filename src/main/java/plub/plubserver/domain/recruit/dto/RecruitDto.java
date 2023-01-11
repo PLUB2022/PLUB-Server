@@ -38,7 +38,6 @@ public class RecruitDto {
         }
     }
 
-    @Builder
     public record UpdateRecruitRequest(
             String title,
             @NotBlank @Size(max = 12)
@@ -49,12 +48,18 @@ public class RecruitDto {
             @Nullable
             String mainImage
     ) {
+        @Builder
+        public UpdateRecruitRequest {
+        }
     }
 
-    @Builder
     public record UpdateRecruitQuestionRequest(
             List<String> questions
-    ){}
+    ) {
+        @Builder
+        public UpdateRecruitQuestionRequest {
+        }
+    }
 
     /**
      * Response

@@ -19,7 +19,6 @@ public class PlubbingDto {
     /**
      * Request
      */
-    @Builder
     public record CreatePlubbingRequest(
             @NotEmpty @Size(max = 5)
             List<Long> subCategoryIds,
@@ -59,6 +58,10 @@ public class PlubbingDto {
             @Size(max = 5)
             List<String> questions
     ) {
+        @Builder
+        public CreatePlubbingRequest {
+        }
+
         public PlubbingOnOff getOnOff() {
             if (this.onOff.equals("ON")) return PlubbingOnOff.ON;
             else return PlubbingOnOff.OFF;
@@ -82,7 +85,6 @@ public class PlubbingDto {
         }
     }
 
-    @Builder
     public record UpdatePlubbingRequest(
             @Size(max = 5)
             List<String> days,
@@ -99,6 +101,10 @@ public class PlubbingDto {
             Double placePositionX,
             Double placePositionY
     ) {
+        @Builder
+        public UpdatePlubbingRequest {
+        }
+
         public PlubbingOnOff getOnOff() {
             if (this.onOff.equals("ON")) return PlubbingOnOff.ON;
             else return PlubbingOnOff.OFF;
