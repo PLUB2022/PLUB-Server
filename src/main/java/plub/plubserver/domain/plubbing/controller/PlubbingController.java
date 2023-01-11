@@ -87,16 +87,16 @@ public class PlubbingController {
 
     @ApiOperation(value = "추천 모임")
     @GetMapping("/recommendation")
-    public ApiResponse<Page<PlubbingCardResponse>> getRecommendation(@PageableDefault(size = 10) Pageable pageable) {
-        Page<PlubbingCardResponse> plubbingCardResponses = plubbingService.getRecommendation(pageable);
+    public ApiResponse<PlubbingCardListResponse> getRecommendation(@PageableDefault(size = 10) Pageable pageable) {
+        PlubbingCardListResponse plubbingCardResponses = plubbingService.getRecommendation(pageable);
         return success(plubbingCardResponses);
     }
 
     @ApiOperation(value = "카테고리별 모임 조회")
     @GetMapping("/categories/{categoryId}")
-    public ApiResponse<Page<PlubbingCardResponse>> getPlubbingByCatergory(@PathVariable Long categoryId,
-                                                                          @PageableDefault(size = 10) Pageable pageable) {
-        Page<PlubbingCardResponse> plubbingCardResponses = plubbingService.getPlubbingByCatergory(categoryId, pageable);
+    public ApiResponse<PlubbingCardListResponse> getPlubbingByCategory(@PathVariable Long categoryId,
+                                                                       @PageableDefault(size = 10) Pageable pageable) {
+        PlubbingCardListResponse plubbingCardResponses = plubbingService.getPlubbingByCatergory(categoryId, pageable);
         return success(plubbingCardResponses);
     }
 }

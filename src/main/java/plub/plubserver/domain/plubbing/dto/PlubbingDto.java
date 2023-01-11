@@ -2,6 +2,7 @@ package plub.plubserver.domain.plubbing.dto;
 
 import lombok.Builder;
 import org.hibernate.validator.constraints.Range;
+import org.springframework.data.domain.Page;
 import org.springframework.lang.Nullable;
 import plub.plubserver.domain.account.dto.AccountDto.PlubbingAccountInfoResponse;
 import plub.plubserver.domain.account.model.Account;
@@ -275,6 +276,7 @@ public class PlubbingDto {
 
     public record PlubbingCardResponse(
             Long plubbingId,
+            Long recruitId,
             String name,
             String title,
             String mainImage,
@@ -290,6 +292,7 @@ public class PlubbingDto {
         public static PlubbingCardResponse of(Plubbing plubbing) {
             return PlubbingCardResponse.builder()
                     .plubbingId(plubbing.getId())
+                    .recruitId(plubbing.getRecruit().getId())
                     .name(plubbing.getName())
                     .title(plubbing.getGoal())
                     .mainImage(plubbing.getMainImage())
@@ -298,6 +301,20 @@ public class PlubbingDto {
                             .map(PlubbingMeetingDay::getDay)
                             .toList())
                     .curAccountNum(plubbing.getCurAccountNum())
+                    .build();
+        }
+    }
+
+    public record PlubbingCardListResponse(
+            Page<PlubbingCardResponse> plubbings
+    ) {
+        @Builder
+        public PlubbingCardListResponse {
+        }
+
+        public static PlubbingCardListResponse of(Page<PlubbingCardResponse> plubbings) {
+            return PlubbingCardListResponse.builder()
+                    .plubbings(plubbings)
                     .build();
         }
     }

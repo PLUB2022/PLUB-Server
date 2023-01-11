@@ -269,19 +269,22 @@ public class PlubbingService {
             throw new PlubbingException(PlubbingCode.DELETED_STATUS_PLUBBING);
     }
 
-    public Page<PlubbingCardResponse> getRecommendation(Pageable pageable) {
+    public PlubbingCardListResponse getRecommendation(Pageable pageable) {
         Account myAccount = accountService.getCurrentAccount();
         if (!myAccount.getAccountCategories().isEmpty()) {
             List<SubCategory> subCategories = accountCategoryRepository.findAllByAccount(myAccount)
                     .stream().map(AccountCategory::getCategorySub).toList();
-            return plubbingRepository.findAllBySubCategory(subCategories, pageable).map(PlubbingCardResponse::of);
+            Page<PlubbingCardResponse> plubbingCardResponses = plubbingRepository.findAllBySubCategory(subCategories, pageable).map(PlubbingCardResponse::of);
+            return PlubbingCardListResponse.of(plubbingCardResponses);
         } else {
-            return plubbingRepository.findAllByViews(pageable).map(PlubbingCardResponse::of);
+            Page<PlubbingCardResponse> plubbingCardResponses = plubbingRepository.findAllByViews(pageable).map(PlubbingCardResponse::of);
+            return PlubbingCardListResponse.of(plubbingCardResponses);
         }
     }
 
-    public Page<PlubbingCardResponse> getPlubbingByCatergory(Long categoryId, Pageable pageable) {
-        return plubbingRepository.findAllByCategoryId(categoryId, pageable).map(PlubbingCardResponse::of);
+    public PlubbingCardListResponse getPlubbingByCatergory(Long categoryId, Pageable pageable) {
+        Page<PlubbingCardResponse> plubbingCardResponses = plubbingRepository.findAllByCategoryId(categoryId, pageable).map(PlubbingCardResponse::of);
+        return PlubbingCardListResponse.of(plubbingCardResponses);
     }
 }
 
