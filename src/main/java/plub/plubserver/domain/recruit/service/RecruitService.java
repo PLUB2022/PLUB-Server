@@ -43,7 +43,10 @@ public class RecruitService {
      * 조회
      */
     public RecruitResponse getRecruit(Long plubbingId) {
-        return RecruitResponse.of(getRecruitByPlubbingId(plubbingId));
+        Account account = accountService.getCurrentAccount();
+        Recruit recruit = getRecruitByPlubbingId(plubbingId);
+        boolean isApplied = appliedAccountRepository.existsByAccountAndRecruit(account, recruit);
+        return RecruitResponse.of(recruit, isApplied);
     }
 
     public QuestionListResponse getRecruitQuestions(Long plubbingId) {

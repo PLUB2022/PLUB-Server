@@ -98,6 +98,7 @@ public class RecruitDto {
             String plubbingTime,
 
             boolean isBookmarked,
+            boolean isApplied,
             int curAccountNum,
             List<JoinedAccountDto> joinedAccounts
     ) {
@@ -105,7 +106,7 @@ public class RecruitDto {
         public RecruitResponse {
         }
 
-        public static RecruitResponse of(Recruit recruit) {
+        public static RecruitResponse of(Recruit recruit, boolean isApplied) {
             Plubbing plubbing = recruit.getPlubbing();
 
             List<String> categories = plubbing.getPlubbingSubCategories().stream()
@@ -128,6 +129,7 @@ public class RecruitDto {
                     .plubbingTime(plubbing.getTime())
                     .plubbingGoal(plubbing.getGoal())
                     .plubbingDays(days)
+                    .isApplied(isApplied)
                     .isBookmarked(false) // TODO: 북마크 여부
                     .curAccountNum(plubbing.getCurAccountNum())
                     .joinedAccounts(joinedAccounts)

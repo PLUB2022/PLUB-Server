@@ -183,7 +183,7 @@ public class PlubbingDto {
                     .maxAccountNum(plubbing.getMaxAccountNum())
                     .createdAt(plubbing.getCreatedAt())
                     .modifiedAt(plubbing.getModifiedAt())
-                    .recruit(RecruitResponse.of(plubbing.getRecruit()))
+                    .recruit(RecruitResponse.of(plubbing.getRecruit(), true))
                     .build();
         }
     }
