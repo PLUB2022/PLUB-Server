@@ -10,7 +10,7 @@ import plub.plubserver.common.dto.ApiResponse;
 @RestControllerAdvice
 public class AccountExceptionHandler {
     @ExceptionHandler(AccountException.class)
-    public ResponseEntity<ApiResponse<?>> handle(AccountException ex) {
+    public ResponseEntity<?> handle(AccountException ex) {
         log.warn("{}({}) - {}", ex.getClass().getSimpleName(), ex.accountError.getStatusCode(), ex.getMessage());
         return ResponseEntity
                 .status(ex.accountError.getHttpCode())

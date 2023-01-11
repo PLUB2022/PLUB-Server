@@ -13,12 +13,12 @@ import plub.plubserver.domain.plubbing.PlubbingMockUtils;
 import plub.plubserver.domain.plubbing.model.AccountPlubbing;
 import plub.plubserver.domain.plubbing.model.Plubbing;
 import plub.plubserver.domain.plubbing.repository.AccountPlubbingRepository;
+import plub.plubserver.domain.plubbing.service.PlubbingService;
 import plub.plubserver.domain.recruit.config.RecruitCode;
 import plub.plubserver.domain.recruit.dto.RecruitDto.AnswerRequest;
 import plub.plubserver.domain.recruit.dto.RecruitDto.ApplyRecruitRequest;
 import plub.plubserver.domain.recruit.exception.RecruitException;
 import plub.plubserver.domain.recruit.repository.AppliedAccountRepository;
-import plub.plubserver.domain.recruit.repository.RecruitRepository;
 import plub.plubserver.domain.recruit.service.RecruitService;
 
 import java.util.List;
@@ -32,10 +32,10 @@ import static org.mockito.BDDMockito.given;
 @ExtendWith(MockitoExtension.class)
 public class RecruitServiceMockTest {
     @Mock
-    RecruitRepository recruitRepository;
+    AccountService accountService;
 
     @Mock
-    AccountService accountService;
+    PlubbingService plubbingService;
 
     @Mock
     AccountPlubbingRepository accountPlubbingRepository;
@@ -47,7 +47,7 @@ public class RecruitServiceMockTest {
     RecruitService recruitService;
 
     @Test
-    @DisplayName("모집 생성 성공")
+    @DisplayName("모집 지원 성공")
     void applyRecruit_success() {
         // given
         Account host = AccountTemplate.makeAccount1();
@@ -56,8 +56,8 @@ public class RecruitServiceMockTest {
 
         given(accountService.getCurrentAccount()).willReturn(applicant);
 
-        given(recruitRepository.findById(any()))
-                .willReturn(Optional.of(plubbing.getRecruit()));
+        given(plubbingService.getPlubbing(any()))
+                .willReturn(plubbing);
 
         given(appliedAccountRepository.existsByAccountAndRecruit(any(), any()))
                 .willReturn(false);
@@ -78,24 +78,20 @@ public class RecruitServiceMockTest {
     }
 
     @Test
-    @DisplayName("모집 생성 실패 - 호스트가 본인거에 지원")
+    @DisplayName("모집 지원 실패 - 호스트가 본인거에 지원")
     void applyRecruit_fail1() {
         // given
         Account host = AccountTemplate.makeAccount1();
         Plubbing plubbing = PlubbingMockUtils.getMockPlubbing(host);
         given(accountService.getCurrentAccount()).willReturn(host);
 
-        given(recruitRepository.findById(any()))
-                .willReturn(Optional.of(plubbing.getRecruit()));
+        given(plubbingService.getPlubbing(any()))
+                .willReturn(plubbing);
 
         given(accountPlubbingRepository.findByAccount(any()))
                 .willReturn(Optional.of(AccountPlubbing.builder()
                         .isHost(true)
                         .build()));
-
-        given(appliedAccountRepository.existsByAccountAndRecruit(any(), any()))
-                .willReturn(false);
-
 
         // when - then
         assertThatThrownBy(() -> recruitService.applyRecruit(1L, ApplyRecruitRequest.builder().build()))
@@ -104,7 +100,7 @@ public class RecruitServiceMockTest {
     }
 
     @Test
-    @DisplayName("모집 생성 실패 - 이미 지원한 경우")
+    @DisplayName("모집 지원 실패 - 이미 지원한 경우")
     void applyRecruit_fail2() {
         // given
         Account host = AccountTemplate.makeAccount1();
@@ -113,8 +109,8 @@ public class RecruitServiceMockTest {
 
         given(accountService.getCurrentAccount()).willReturn(applicant);
 
-        given(recruitRepository.findById(any()))
-                .willReturn(Optional.of(plubbing.getRecruit()));
+        given(plubbingService.getPlubbing(any()))
+                .willReturn(plubbing);
 
         given(appliedAccountRepository.existsByAccountAndRecruit(any(), any()))
                 .willReturn(true);

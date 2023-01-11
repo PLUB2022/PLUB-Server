@@ -3,6 +3,8 @@ package plub.plubserver.domain.plubbing.model;
 import lombok.*;
 import plub.plubserver.common.model.BaseTimeEntity;
 import plub.plubserver.domain.category.model.PlubbingSubCategory;
+import plub.plubserver.domain.plubbing.dto.PlubbingDto.UpdatePlubbingRequest;
+import plub.plubserver.domain.recruit.dto.RecruitDto.UpdateRecruitRequest;
 import plub.plubserver.domain.recruit.model.Recruit;
 import plub.plubserver.domain.timeline.model.PlubbingTimeline;
 
@@ -111,11 +113,26 @@ public class Plubbing extends BaseTimeEntity {
         status = DELETED;
     }
 
-    public void updatePlubbing(String name, String goal, String mainImageUrl) {
-        this.name = name;
-        this.goal = goal;
-        this.mainImage = mainImageUrl;
+    // 모집글 수정 : 타이틀, 모임 이름, 목표, 모임 소개글, 메인이미지
+    public void updateRecruit(UpdateRecruitRequest updateRecruitRequest) {
+        // 모집 수정
+        recruit.updateTitleAndIntroduce(updateRecruitRequest);
+
+        // 모임 수정
+        name = updateRecruitRequest.name();
+        goal = updateRecruitRequest.goal();
+        mainImage = updateRecruitRequest.mainImage();
     }
+
+    // 모임 정보 수정 : 날짜, 온/오프라인, 최대인원수
+
+    public void updatePlubbing(UpdatePlubbingRequest updatePlubbingRequest) {
+        days.clear();
+        days.addAll(updatePlubbingRequest.getPlubbingMeetingDay(this));
+        onOff = updatePlubbingRequest.getOnOff();
+        maxAccountNum = updatePlubbingRequest.maxAccountNum();
+    }
+
 
     public void endPlubbing(PlubbingStatus status) {
         this.status = status;

@@ -10,7 +10,7 @@ import plub.plubserver.common.dto.ApiResponse;
 @RestControllerAdvice
 public class AuthExceptionHandler {
     @ExceptionHandler(AuthException.class)
-    public ResponseEntity<ApiResponse<?>> handle(AuthException ex) {
+    public ResponseEntity<?> handle(AuthException ex) {
         log.warn("{}({}) - {}", ex.getClass().getSimpleName(), ex.authError.getStatusCode(), ex.getMessage());
         return ResponseEntity
                 .status(ex.authError.getHttpCode())
