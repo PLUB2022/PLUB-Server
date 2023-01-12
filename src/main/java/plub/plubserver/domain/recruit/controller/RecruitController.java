@@ -5,88 +5,66 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import plub.plubserver.common.dto.ApiResponse;
 import plub.plubserver.domain.plubbing.dto.PlubbingDto.JoinedAccountsInfoResponse;
-import plub.plubserver.domain.recruit.dto.QuestionDto.QuestionListResponse;
-import plub.plubserver.domain.recruit.dto.RecruitDto.AppliedAccountListResponse;
-import plub.plubserver.domain.recruit.dto.RecruitDto.ApplyRecruitRequest;
-import plub.plubserver.domain.recruit.dto.RecruitDto.BookmarkResponse;
-import plub.plubserver.domain.recruit.dto.RecruitDto.RecruitResponse;
+import plub.plubserver.domain.plubbing.dto.PlubbingDto.PlubbingIdResponse;
+import plub.plubserver.domain.recruit.dto.RecruitDto.*;
 import plub.plubserver.domain.recruit.service.RecruitService;
 
 import static plub.plubserver.common.dto.ApiResponse.success;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/recruits")
+@RequestMapping("/api/plubbings/{plubbingId}/recruit")
 @RequiredArgsConstructor
 public class RecruitController {
     private final RecruitService recruitService;
 
-//    @GetMapping
-//    public ApiResponse<?> search(
-//            @RequestParam("keyword") String keyword,
-//            @PageableDefault
-//            @SortDefault.SortDefaults({
-//                    @SortDefault(sort = "category"),
-//                    @SortDefault(sort = "title"),
-//                    @SortDefault(sort = "introduce")
-//            })
-//            Pageable pageable) {
-//        return success(recruitService.search(pageable, keyword));
-//    }
-
-    @GetMapping("/{recruitId}")
-    public ApiResponse<RecruitResponse> getRecruit(@PathVariable("recruitId") Long recruitId) {
-        return success(recruitService.getRecruit(recruitId));
+    @GetMapping
+    public ApiResponse<RecruitResponse> getRecruit(@PathVariable("plubbingId") Long plubbingId) {
+        return success(recruitService.getRecruit(plubbingId));
     }
 
-    @GetMapping("/{recruitId}/questions")
+    @GetMapping("/questions")
     public ApiResponse<QuestionListResponse> getRecruitQuestions(
-            @PathVariable("recruitId") Long recruitId
+            @PathVariable("plubbingId") Long plubbingId
     ) {
-        return success(recruitService.getRecruitQuestions(recruitId));
+        return success(recruitService.getRecruitQuestions(plubbingId));
     }
 
-    @PostMapping("/{recruitId}/bookmarks")
-    public ApiResponse<BookmarkResponse> bookmarkRecruit(
-            @PathVariable("recruitId") Long recruitId
-    ) {
-        return success(recruitService.bookmark(recruitId));
-    }
-
+    // TODO : 모집 글 북마크
     // TODO : 모집 글 수정
 
-    @PutMapping("/{recruitId}/done")
-    public void doneRecruit(@PathVariable("recruitId") Long recruitId) {
-        recruitService.doneRecruit(recruitId);
+    @PutMapping("/end")
+    public ApiResponse<RecruitStatusResponse> endRecruit(@PathVariable("plubbingId") Long plubbingId) {
+        return success(recruitService.endRecruit(plubbingId));
     }
 
-    @PostMapping("/{recruitId}/applicants")
-    public ApiResponse<Long> applyRecruit(
-            @PathVariable("recruitId") Long recruitId,
+    @PostMapping("/applicants")
+    public ApiResponse<PlubbingIdResponse> applyRecruit(
+            @PathVariable("plubbingId") Long plubbingId,
             @RequestBody ApplyRecruitRequest applyRecruitRequest) {
-        return success(recruitService.applyRecruit(recruitId, applyRecruitRequest));
+        return success(recruitService.applyRecruit(plubbingId, applyRecruitRequest));
     }
 
-    @GetMapping("/{recruitId}/applicants")
+    @GetMapping("/applicants")
     public ApiResponse<AppliedAccountListResponse> getApplicants(
-            @PathVariable("recruitId") Long recruitId
+            @PathVariable("plubbingId") Long plubbingId
     ) {
-        return success(recruitService.getAppliedAccounts(recruitId));
+        return success(recruitService.getAppliedAccounts(plubbingId));
     }
 
-    @PostMapping("/{recruitId}/applicants/{applicantId}/approval")
+    @PostMapping("/applicants/{applicantId}/approval")
     public ApiResponse<JoinedAccountsInfoResponse> acceptApplicant(
-            @PathVariable("recruitId") Long recruitId,
+            @PathVariable("plubbingId") Long plubbingId,
             @PathVariable("applicantId") Long applicantId
     ) {
-        return success(recruitService.acceptApplicant(recruitId, applicantId));
+        return success(recruitService.acceptApplicant(plubbingId, applicantId));
     }
 
-    @PostMapping("/{recruitId}/applicants/{applicantId}/refuse")
+    @PostMapping("/applicants/{applicantId}/refuse")
     public ApiResponse<JoinedAccountsInfoResponse> rejectApplicant(
-            @PathVariable("recruitId") Long recruitId,
+            @PathVariable("plubbingId") Long plubbingId,
             @PathVariable("applicantId") Long applicantId
     ) {
-        return success(recruitService.rejectApplicant(recruitId, applicantId));
+        return success(recruitService.rejectApplicant(plubbingId, applicantId));
     }
 }

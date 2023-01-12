@@ -10,7 +10,7 @@ import plub.plubserver.common.dto.ApiResponse;
 @RestControllerAdvice
 public class CategoryExceptionHandler {
     @ExceptionHandler(CategoryException.class)
-    public ResponseEntity<ApiResponse<?>> handle(CategoryException ex) {
+    public ResponseEntity<?> handle(CategoryException ex) {
         log.warn("{}({}) - {}", ex.getClass().getSimpleName(), ex.categoryError.getStatusCode(), ex.getMessage());
         return ResponseEntity
                 .status(ex.categoryError.getHttpCode())

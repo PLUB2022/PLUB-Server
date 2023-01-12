@@ -10,6 +10,8 @@ import java.util.List;
 
 @Entity
 @Getter
+@Builder
+@AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class AccountPlubbing {
 
@@ -36,16 +38,14 @@ public class AccountPlubbing {
     @OneToMany(mappedBy = "accountPlubbing", cascade = CascadeType.ALL)
     private List<PlubbingFeed> archives = new ArrayList<>();
 
-    @Builder
-    public AccountPlubbing(boolean isHost, AccountPlubbingStatus accountPlubbingStatus, Account account, Plubbing plubbing, List<PlubbingFeed> archives) {
-        this.isHost = isHost;
-        this.accountPlubbingStatus = accountPlubbingStatus;
-        this.account = account;
-        this.plubbing = plubbing;
-        this.archives = archives;
-    }
-
+    /**
+     * methods
+     */
     public void changeStatus(AccountPlubbingStatus accountPlubbingStatus) {
         this.accountPlubbingStatus = accountPlubbingStatus;
+    }
+
+    public void changeHost() {
+        this.isHost = !this.isHost;
     }
 }

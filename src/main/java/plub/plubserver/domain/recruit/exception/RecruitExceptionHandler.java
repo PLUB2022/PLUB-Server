@@ -10,7 +10,7 @@ import plub.plubserver.common.dto.ApiResponse;
 @RestControllerAdvice
 public class RecruitExceptionHandler {
     @ExceptionHandler(RecruitException.class)
-    public ResponseEntity<ApiResponse<?>> handle(RecruitException ex) {
+    public ResponseEntity<?> handle(RecruitException ex) {
         log.warn("{}({}) - {}", ex.getClass().getSimpleName(), ex.recruitCode.getStatusCode(), ex.getMessage());
         return ResponseEntity
                 .status(ex.recruitCode.getHttpCode())

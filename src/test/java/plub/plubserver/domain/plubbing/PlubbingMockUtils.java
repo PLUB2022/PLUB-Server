@@ -9,6 +9,7 @@ import plub.plubserver.domain.plubbing.model.PlubbingPlace;
 import plub.plubserver.domain.recruit.model.Recruit;
 import plub.plubserver.domain.recruit.model.RecruitQuestion;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class PlubbingMockUtils {
@@ -46,13 +47,15 @@ public class PlubbingMockUtils {
                 .accountPlubbingStatus(AccountPlubbingStatus.ACTIVE)
                 .build());
 
-        // 모집 질문글 엔티티화
-        List<RecruitQuestion> recruitQuestionList = createPlubbingRequest.questions().stream()
-                .map(it -> RecruitQuestion.builder()
-                        .id((long) (createPlubbingRequest.questions().indexOf(it) + 1))
-                        .questionTitle(it)
-                        .build())
-                .toList();
+        // 모집 질문글 엔티티화 (stream을 사용하면 불변객체로 돌려줘서 이렇게 구성 함)
+        List<RecruitQuestion> recruitQuestionList = new ArrayList<>();
+        List<String> q = createPlubbingRequest.questions();
+        for (String s : q) {
+            recruitQuestionList.add(RecruitQuestion.builder()
+                    .id((long) (q.indexOf(s) + 1))
+                    .questionTitle(s)
+                    .build());
+        }
 
         // 모집 자동 생성
         Recruit recruit = Recruit.builder()

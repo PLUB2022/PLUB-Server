@@ -33,8 +33,4 @@ public class PlubbingMeetingDay {
         };
         this.plubbing = plubbing;
     }
-
-    public void mapPlubbing(Plubbing plubbing) {
-        this.plubbing = plubbing;
-    }
 }

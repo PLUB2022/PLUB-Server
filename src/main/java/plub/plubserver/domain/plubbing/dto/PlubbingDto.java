@@ -2,6 +2,7 @@ package plub.plubserver.domain.plubbing.dto;
 
 import lombok.Builder;
 import org.hibernate.validator.constraints.Range;
+import org.springframework.data.domain.Page;
 import org.springframework.lang.Nullable;
 import plub.plubserver.domain.account.dto.AccountDto.PlubbingAccountInfoResponse;
 import plub.plubserver.domain.account.model.Account;
@@ -19,26 +20,20 @@ public class PlubbingDto {
     /**
      * Request
      */
-    @Builder
     public record CreatePlubbingRequest(
-            @NotEmpty
-            @Size(max = 5)
+            @NotEmpty @Size(max = 5)
             List<Long> subCategoryIds,
 
-            @NotBlank
-            @Size(max = 25)
+            @NotBlank @Size(max = 25)
             String title,
 
-            @NotBlank
-            @Size(max = 12)
+            @NotBlank @Size(max = 12)
             String name,
 
-            @NotBlank
-            @Size(max = 12)
+            @NotBlank @Size(max = 12)
             String goal,
 
-            @NotBlank
-            @Size(max = 12)
+            @NotBlank @Size(max = 12)
             String introduce,
 
             @Nullable
@@ -64,6 +59,10 @@ public class PlubbingDto {
             @Size(max = 5)
             List<String> questions
     ) {
+        @Builder
+        public CreatePlubbingRequest {
+        }
+
         public PlubbingOnOff getOnOff() {
             if (this.onOff.equals("ON")) return PlubbingOnOff.ON;
             else return PlubbingOnOff.OFF;
@@ -88,15 +87,33 @@ public class PlubbingDto {
     }
 
     public record UpdatePlubbingRequest(
+            @Size(max = 5)
+            List<String> days,
             @NotBlank
-            @Size(max = 12)
-            String name,
-            @NotBlank
-            @Size(max = 12)
-            String goal,
-            @Nullable
-            String mainImage
+            @Pattern(regexp = "^(ON|OFF)$", message = "only permit ON or OFF.")
+            String onOff,
+            @Range(min = 4, max = 20)
+            int maxAccountNum,
+
+            // 오프라인시 - 장소 좌표 (온라인이면 0.0, 0.0)
+            String address,
+            String roadAddress,
+            String placeName,
+            Double placePositionX,
+            Double placePositionY
     ) {
+        @Builder
+        public UpdatePlubbingRequest {
+        }
+
+        public PlubbingOnOff getOnOff() {
+            if (this.onOff.equals("ON")) return PlubbingOnOff.ON;
+            else return PlubbingOnOff.OFF;
+        }
+
+        public List<PlubbingMeetingDay> getPlubbingMeetingDay(Plubbing plubbing) {
+            return this.days.stream().map(it -> new PlubbingMeetingDay(it, plubbing)).toList();
+        }
     }
 
     /**
@@ -104,12 +121,20 @@ public class PlubbingDto {
      */
     public record PlubbingIdResponse(
             Long plubbingId
-    ) {}
-    @Builder
+    ) {
+        public static PlubbingIdResponse of(Plubbing plubbing) {
+            return new PlubbingIdResponse(plubbing.getId());
+        }
+    }
+
     public record JoinedAccountsInfoResponse(
             int maxAccountNum,
             int curAccountNum
     ) {
+        @Builder
+        public JoinedAccountsInfoResponse {
+        }
+
         public static JoinedAccountsInfoResponse of(Plubbing plubbing) {
             return JoinedAccountsInfoResponse.builder()
                     .maxAccountNum(plubbing.getMaxAccountNum())
@@ -165,7 +190,7 @@ public class PlubbingDto {
                     .maxAccountNum(plubbing.getMaxAccountNum())
                     .createdAt(plubbing.getCreatedAt())
                     .modifiedAt(plubbing.getModifiedAt())
-                    .recruit(RecruitResponse.of(plubbing.getRecruit()))
+                    .recruit(RecruitResponse.of(plubbing.getRecruit(), true))
                     .build();
         }
     }
@@ -191,6 +216,20 @@ public class PlubbingDto {
                     .days(plubbing.getDays().stream()
                             .map(PlubbingMeetingDay::getDay)
                             .toList())
+                    .build();
+        }
+    }
+
+    public record MyPlubbingListResponse(
+            List<MyPlubbingResponse> plubbings
+    ) {
+        @Builder
+        public MyPlubbingListResponse {
+        }
+
+        public static MyPlubbingListResponse of(List<MyPlubbingResponse> plubbings) {
+            return MyPlubbingListResponse.builder()
+                    .plubbings(plubbings)
                     .build();
         }
     }
@@ -237,6 +276,7 @@ public class PlubbingDto {
 
     public record PlubbingCardResponse(
             Long plubbingId,
+            Long recruitId,
             String name,
             String title,
             String mainImage,
@@ -252,6 +292,7 @@ public class PlubbingDto {
         public static PlubbingCardResponse of(Plubbing plubbing) {
             return PlubbingCardResponse.builder()
                     .plubbingId(plubbing.getId())
+                    .recruitId(plubbing.getRecruit().getId())
                     .name(plubbing.getName())
                     .title(plubbing.getGoal())
                     .mainImage(plubbing.getMainImage())
@@ -260,6 +301,20 @@ public class PlubbingDto {
                             .map(PlubbingMeetingDay::getDay)
                             .toList())
                     .curAccountNum(plubbing.getCurAccountNum())
+                    .build();
+        }
+    }
+
+    public record PlubbingCardListResponse(
+            Page<PlubbingCardResponse> plubbings
+    ) {
+        @Builder
+        public PlubbingCardListResponse {
+        }
+
+        public static PlubbingCardListResponse of(Page<PlubbingCardResponse> plubbings) {
+            return PlubbingCardListResponse.builder()
+                    .plubbings(plubbings)
                     .build();
         }
     }
