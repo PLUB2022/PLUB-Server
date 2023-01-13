@@ -31,7 +31,7 @@ public class QuestionDto {
                     .build();
         }
 
-        public static List<QuestionResponse> ofList(List<RecruitQuestion> recruitQuestions) {
+        public static List<QuestionResponse> listOf(List<RecruitQuestion> recruitQuestions) {
             return recruitQuestions.stream()
                     .map(QuestionResponse::of)
                     .toList();

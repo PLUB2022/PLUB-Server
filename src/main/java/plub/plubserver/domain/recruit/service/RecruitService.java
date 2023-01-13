@@ -2,7 +2,6 @@ package plub.plubserver.domain.recruit.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import plub.plubserver.domain.account.config.AccountCode;
@@ -24,6 +23,7 @@ import plub.plubserver.domain.recruit.dto.RecruitDto.*;
 import plub.plubserver.domain.recruit.exception.RecruitException;
 import plub.plubserver.domain.recruit.model.*;
 import plub.plubserver.domain.recruit.repository.AppliedAccountRepository;
+import plub.plubserver.domain.recruit.repository.RecruitRepository;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,6 +39,7 @@ public class RecruitService {
     private final AccountPlubbingRepository accountPlubbingRepository;
     private final AppliedAccountRepository appliedAccountRepository;
     private final PlubbingService plubbingService;
+    private final RecruitRepository recruitRepository;
 
     private Recruit getRecruitByPlubbingId(Long plubbingId) {
         return plubbingService.getPlubbing(plubbingId).getRecruit();
@@ -68,17 +69,17 @@ public class RecruitService {
         );
     }
 
-    public void search(Pageable pageable, String keyword) {
-        recruitRepository.search(pageable, keyword);
-    }
+//    public void search(Pageable pageable, String keyword) {
+//        recruitRepository.search(pageable, keyword);
+//    }
 
     /**
      * 북마크 등록, 취소
      */
     @Transactional
-    public BookmarkResponse bookmark(Long recruitId) {
+    public BookmarkResponse bookmark(Long plubbingId) {
         Account account = accountService.getCurrentAccount();
-        Recruit recruit = findById(recruitId);
+        Recruit recruit = getRecruitByPlubbingId(plubbingId);
         Optional<Bookmark> bookmark = account.getBookmarkList().stream()
                 .filter(b -> b.getRecruit().equals(recruit))
                 .findFirst();
@@ -96,7 +97,7 @@ public class RecruitService {
         }
         return BookmarkResponse.builder()
                 .isBookmarked(isBookmarked)
-                .recruitId(recruitId)
+                .plubbingId(plubbingId)
                 .build();
     }
 

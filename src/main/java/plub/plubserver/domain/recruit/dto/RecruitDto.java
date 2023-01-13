@@ -4,10 +4,10 @@ import lombok.Builder;
 import org.springframework.lang.Nullable;
 import plub.plubserver.domain.plubbing.model.AccountPlubbing;
 import plub.plubserver.domain.plubbing.model.Plubbing;
+import plub.plubserver.domain.recruit.dto.QuestionDto.AnswerRequest;
+import plub.plubserver.domain.recruit.dto.QuestionDto.QuestionAnswerResponse;
 import plub.plubserver.domain.recruit.model.AppliedAccount;
 import plub.plubserver.domain.recruit.model.Recruit;
-import plub.plubserver.domain.recruit.model.RecruitQuestion;
-import plub.plubserver.domain.recruit.model.RecruitQuestionAnswer;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
@@ -17,13 +17,10 @@ public class RecruitDto {
     /**
      * Request
      */
-    public record AnswerRequest(Long questionId, String answer) {
-    }
-
-    @Builder
     public record ApplyRecruitRequest(
             List<AnswerRequest> answers
     ) {
+        @Builder public ApplyRecruitRequest {}
     }
 
     public record JoinedAccountDto(
@@ -64,34 +61,6 @@ public class RecruitDto {
     /**
      * Response
      */
-
-    public record QuestionResponse(
-            Long id,
-            String question
-    ) {
-        @Builder
-        public QuestionResponse {
-        }
-
-        public static QuestionResponse of(RecruitQuestion recruitQuestion) {
-            return QuestionResponse.builder()
-                    .id(recruitQuestion.getId())
-                    .question(recruitQuestion.getQuestionTitle())
-                    .build();
-        }
-
-        public static List<QuestionResponse> listOf(List<RecruitQuestion> recruitQuestions) {
-            return recruitQuestions.stream()
-                    .map(QuestionResponse::of)
-                    .toList();
-        }
-    }
-
-    public record QuestionListResponse(
-            List<QuestionResponse> questions
-    ) {
-    }
-
     public record RecruitResponse(
             String recruitTitle,
             String recruitIntroduce,
@@ -172,24 +141,6 @@ public class RecruitDto {
     ) {
     }
 
-    public record QuestionAnswerResponse(
-            String question,
-            String answer
-    ) {
-        @Builder
-        public QuestionAnswerResponse {
-        }
-
-        public static QuestionAnswerResponse of(RecruitQuestionAnswer recruitQuestionAnswer) {
-            String question = recruitQuestionAnswer.getId() + ". " + recruitQuestionAnswer
-                    .getRecruitQuestion().getQuestionTitle();
-            return QuestionAnswerResponse.builder()
-                    .question(question)
-                    .answer(recruitQuestionAnswer.getAnswer())
-                    .build();
-        }
-    }
-
     public record RecruitStatusResponse(
             Long plubbingId,
             String status
@@ -204,6 +155,13 @@ public class RecruitDto {
                     .status(recruit.getStatus().name())
                     .build();
         }
+    }
+
+    public record BookmarkResponse(
+            Long plubbingId,
+            boolean isBookmarked
+    ) {
+        @Builder public BookmarkResponse {}
     }
 
 }
