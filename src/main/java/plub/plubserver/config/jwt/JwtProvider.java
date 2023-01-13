@@ -95,6 +95,7 @@ public class JwtProvider {
         return Jwts.builder()
                 .setSubject(customEncryptUtil.encrypt(account.getEmail()))
                 .setIssuedAt(now)
+                .claim("tokenType", "refresh")
                 .setExpiration(new Date(now.getTime() + refreshDuration))
                 .signWith(privateKey)
                 .compact();
@@ -164,6 +165,17 @@ public class JwtProvider {
      * Refresh Token 으로 Access Token 재발급 (Access, Refresh 둘 다 재발급)
      */
     public JwtDto reissue(String refreshToken) {
+        try {
+            Claims body = Jwts.parserBuilder()
+                    .setSigningKey(privateKey)
+                    .build()
+                    .parseClaimsJws(refreshToken)
+                    .getBody();
+            if (body.get("refresh") == null)
+                throw new AuthException(AuthCode.IS_NOT_REFRESH);
+        } catch (ExpiredJwtException e) {
+            throw new AuthException(AuthCode.EXPIRED_REFRESH);
+        }
         RefreshToken findRefreshToken = refreshTokenRepository
                 .findByRefreshToken(refreshToken)
                 .orElseThrow(
