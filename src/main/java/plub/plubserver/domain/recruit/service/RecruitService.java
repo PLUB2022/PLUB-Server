@@ -143,7 +143,7 @@ public class RecruitService {
 
         if (appliedAccount.getStatus().equals(ApplicantStatus.ACCEPTED) ||
                 appliedAccount.getStatus().equals(ApplicantStatus.REJECTED))
-            throw new RecruitException(RecruitCode.ALREADY_HANDLED);
+            throw new RecruitException(RecruitCode.ALREADY_ACCEPTED);
         appliedAccount.accept();
 
         // 모임에 해당 지원자 추가
@@ -171,7 +171,7 @@ public class RecruitService {
 
         if (appliedAccount.getStatus().equals(ApplicantStatus.REJECTED) ||
                 appliedAccount.getStatus().equals(ApplicantStatus.ACCEPTED))
-            throw new RecruitException(RecruitCode.ALREADY_HANDLED);
+            throw new RecruitException(RecruitCode.ALREADY_REJECTED);
         appliedAccount.reject();
 
         Plubbing plubbing = plubbingService.getPlubbing(plubbingId);

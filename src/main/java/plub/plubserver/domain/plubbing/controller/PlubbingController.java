@@ -4,7 +4,6 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
@@ -96,7 +95,7 @@ public class PlubbingController {
     @GetMapping("/categories/{categoryId}")
     public ApiResponse<PlubbingCardListResponse> getPlubbingByCategory(@PathVariable Long categoryId,
                                                                        @PageableDefault(size = 10) Pageable pageable) {
-        PlubbingCardListResponse plubbingCardResponses = plubbingService.getPlubbingByCatergory(categoryId, pageable);
+        PlubbingCardListResponse plubbingCardResponses = plubbingService.getPlubbingByCategory(categoryId, pageable);
         return success(plubbingCardResponses);
     }
 }

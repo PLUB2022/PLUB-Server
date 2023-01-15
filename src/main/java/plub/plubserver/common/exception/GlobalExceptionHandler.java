@@ -22,6 +22,13 @@ import static plub.plubserver.common.exception.CommonErrorCode.*;
 @Slf4j
 public class GlobalExceptionHandler {
 
+    @ExceptionHandler(Exception.class)
+    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+    public ApiResponse<?> globalHandle(Exception ex) {
+        log.warn("글로벌 {} - {}", ex.getClass().getSimpleName(), ex.getMessage());
+        return error(COMMON_BAD_REQUEST.getStatusCode(), ex.getMessage());
+    }
+
     @ExceptionHandler(IOException.class)
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
     public ApiResponse<?> errorHandle(IOException ex) {
@@ -63,7 +70,7 @@ public class GlobalExceptionHandler {
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
     protected ApiResponse<?> awsS3Error(final AwsS3Exception ex) {
         log.warn("{} - {}", ex.getClass().getSimpleName(), ex.getMessage());
-        return error(AWS_S3_ERROR.getStatusCode(), ex.getMessage());
+        return error(AWS_S3_UPLOAD_FAIL.getStatusCode(), ex.getMessage());
     }
 
     // 파일 업로드 용량 초과시 발생

@@ -6,20 +6,13 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum RecruitCode {
-    /**
-     * success
-     */
+    HOST_RECRUIT_ERROR(400, 6050, "host cannot apply it's own plubbings."),
+    NOT_FOUND_QUESTION(404, 6060, "not found question error."),
+    ALREADY_APPLIED_RECRUIT(400, 6070, "this applicant is already applied."),
 
-    /**
-     * fail
-     */
-    NOT_FOUND_RECRUIT(404, 6050, "not found recruit error."),
-    HOST_RECRUIT_ERROR(400, 6020, "host cannot apply it's own plubbings."),
-    NOT_HOST(403, 6030, "this account is not a host."),
-    DELETED_STATUS_PLUBBING(404, 6040, "deleted/ended status error."),
-    NOT_FOUND_QUESTION(404, 6050, "not found question error."),
-    ALREADY_APPLIED_RECRUIT(400, 6060, "this applicant is already applied."),
-    ALREADY_HANDLED(400, 6070, "this applicant is already accepted or rejected.");
+    ALREADY_ACCEPTED(400, 6080, "this applicant is already accepted."),
+
+    ALREADY_REJECTED(400, 6090, "this applicant is already rejected.");
 
 
     private final int HttpCode;

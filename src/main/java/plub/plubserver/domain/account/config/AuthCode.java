@@ -10,8 +10,8 @@ public enum AuthCode {
      * success
      */
     LOGIN(200, 1000, "account exist, process login."),
-    SIGNUP_COMPLETE(200, 1000, "signup complete, access token is issued."),
-    ADMIN_LOGIN(200, 1000, "admin check, process login."),
+    SIGNUP_COMPLETE(200, 1010, "signup complete, access token is issued."),
+    ADMIN_LOGIN(200, 1020, "admin check, process login."),
 
     /**
      * fail
