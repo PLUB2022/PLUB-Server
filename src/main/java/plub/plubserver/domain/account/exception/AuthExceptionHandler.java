@@ -17,6 +17,6 @@ public class AuthExceptionHandler {
         log.warn("{}({}) - {}", ex.getClass().getSimpleName(), ex.authError.getStatusCode(), ex.getMessage());
         return ResponseEntity
                 .status(ex.authError.getHttpCode())
-                .body(ApiResponse.error(ex.authError.getStatusCode(), ex.data, ex.authError.getMessage()));
+                .body(ApiResponse.error(ex.authError.getStatusCode(), ex.data, ex.message));
     }
 }
