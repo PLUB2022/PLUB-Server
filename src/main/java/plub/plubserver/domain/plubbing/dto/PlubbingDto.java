@@ -190,7 +190,7 @@ public class PlubbingDto {
                     .maxAccountNum(plubbing.getMaxAccountNum())
                     .createdAt(plubbing.getCreatedAt())
                     .modifiedAt(plubbing.getModifiedAt())
-                    .recruit(RecruitResponse.of(plubbing.getRecruit(), true))
+                    .recruit(RecruitResponse.of(plubbing.getRecruit(), true, false))
                     .build();
         }
     }
@@ -276,13 +276,19 @@ public class PlubbingDto {
 
     public record PlubbingCardResponse(
             Long plubbingId,
-            Long recruitId,
             String name,
             String title,
             String mainImage,
             String introduce,
+            String time,
             List<MeetingDay> days,
+            String address,
+            String roadAddress,
+            String placeName,
+            Double placePositionX,
+            Double placePositionY,
             int curAccountNum,
+            int remainAccountNum,
             boolean isBookmarked
     ) {
         @Builder
@@ -292,15 +298,21 @@ public class PlubbingDto {
         public static PlubbingCardResponse of(Plubbing plubbing) {
             return PlubbingCardResponse.builder()
                     .plubbingId(plubbing.getId())
-                    .recruitId(plubbing.getRecruit().getId())
                     .name(plubbing.getName())
                     .title(plubbing.getGoal())
                     .mainImage(plubbing.getMainImage())
                     .introduce(plubbing.getGoal())
+                    .time(plubbing.getTime())
                     .days(plubbing.getDays().stream()
                             .map(PlubbingMeetingDay::getDay)
                             .toList())
+                    .address(plubbing.getPlubbingPlace().getAddress())
+                    .roadAddress(plubbing.getPlubbingPlace().getRoadAddress())
+                    .placeName(plubbing.getPlubbingPlace().getPlaceName())
+                    .placePositionX(plubbing.getPlubbingPlace().getPlacePositionX())
+                    .placePositionY(plubbing.getPlubbingPlace().getPlacePositionY())
                     .curAccountNum(plubbing.getCurAccountNum())
+                    .remainAccountNum(plubbing.getMaxAccountNum() - plubbing.getCurAccountNum())
                     .build();
         }
     }

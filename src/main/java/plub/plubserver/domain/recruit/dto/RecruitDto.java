@@ -1,6 +1,7 @@
 package plub.plubserver.domain.recruit.dto;
 
 import lombok.Builder;
+import org.springframework.data.domain.Page;
 import org.springframework.lang.Nullable;
 import plub.plubserver.domain.plubbing.model.AccountPlubbing;
 import plub.plubserver.domain.plubbing.model.Plubbing;
@@ -62,25 +63,31 @@ public class RecruitDto {
      * Response
      */
     public record RecruitResponse(
-            String recruitTitle,
-            String recruitIntroduce,
+            String title,
+            String introduce,
             List<String> categories,
-            String plubbingName,
-            String plubbingGoal,
-            String plubbingMainImage,
-            List<String> plubbingDays,
-            String plubbingTime,
+            String name,
+            String goal,
+            String mainImage,
+            List<String> days,
+            String time,
+            String address,
+            String roadAddress,
+            String placeName,
+            Double placePositionX,
+            Double placePositionY,
 
             boolean isBookmarked,
             boolean isApplied,
             int curAccountNum,
+            int remainAccountNum,
             List<JoinedAccountDto> joinedAccounts
     ) {
         @Builder
         public RecruitResponse {
         }
 
-        public static RecruitResponse of(Recruit recruit, boolean isApplied) {
+        public static RecruitResponse of(Recruit recruit, boolean isApplied, boolean isBookmarked) {
             Plubbing plubbing = recruit.getPlubbing();
 
             List<String> categories = plubbing.getPlubbingSubCategories().stream()
@@ -96,16 +103,22 @@ public class RecruitDto {
                     .toList();
 
             return RecruitResponse.builder()
-                    .recruitTitle(recruit.getTitle())
-                    .recruitIntroduce(recruit.getIntroduce())
+                    .title(recruit.getTitle())
+                    .introduce(recruit.getIntroduce())
                     .categories(categories)
-                    .plubbingName(plubbing.getName())
-                    .plubbingTime(plubbing.getTime())
-                    .plubbingGoal(plubbing.getGoal())
-                    .plubbingDays(days)
+                    .name(plubbing.getName())
+                    .time(plubbing.getTime())
+                    .goal(plubbing.getGoal())
+                    .days(days)
+                    .address(plubbing.getPlubbingPlace().getAddress())
+                    .roadAddress(plubbing.getPlubbingPlace().getRoadAddress())
+                    .placeName(plubbing.getPlubbingPlace().getPlaceName())
+                    .placePositionX(plubbing.getPlubbingPlace().getPlacePositionX())
+                    .placePositionY(plubbing.getPlubbingPlace().getPlacePositionY())
                     .isApplied(isApplied)
-                    .isBookmarked(false) // TODO: 북마크 여부
+                    .isBookmarked(isBookmarked)
                     .curAccountNum(plubbing.getCurAccountNum())
+                    .remainAccountNum(plubbing.getMaxAccountNum() - plubbing.getCurAccountNum())
                     .joinedAccounts(joinedAccounts)
                     .build();
         }
@@ -193,13 +206,11 @@ public class RecruitDto {
     }
 
     public record RecruitCardListResponse(
-            boolean isLast,
-            List<RecruitCardResponse> recruits
+            Page<RecruitCardResponse> recruits
     ) {
         @Builder public RecruitCardListResponse {}
-        public static RecruitCardListResponse of(List<RecruitCardResponse> recruits, boolean isLast) {
+        public static RecruitCardListResponse of(Page<RecruitCardResponse> recruits) {
             return RecruitCardListResponse.builder()
-                    .isLast(isLast)
                     .recruits(recruits)
                     .build();
         }
