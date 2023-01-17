@@ -67,7 +67,7 @@ public class AwsS3Service {
             amazonS3Client.putObject(new PutObjectRequest(bucketPath, fileName, inputStream, objectMetadata)
                     .withCannedAcl(CannedAccessControlList.PublicRead));
         } catch (RuntimeException | IOException e) {
-            throw new AwsS3Exception(CommonErrorCode.AWS_S3_ERROR);
+            throw new AwsS3Exception(CommonErrorCode.AWS_S3_UPLOAD_FAIL);
         }
 
         String fileUrl = amazonS3Client.getUrl(bucketPath, fileName).toString();
@@ -76,7 +76,7 @@ public class AwsS3Service {
 
     private void validateFileExists(MultipartFile multipartFile) {
         if (multipartFile.isEmpty()) {
-            throw new AwsS3Exception(CommonErrorCode.AWS_S3_ERROR);
+            throw new AwsS3Exception(CommonErrorCode.AWS_S3_UPLOAD_FAIL);
         }
     }
 
@@ -103,7 +103,7 @@ public class AwsS3Service {
 
         List<String> urls = updateFileRequest.toDeleteUrls();
         if (CollectionUtils.isEmpty(urls)) {
-            throw new AwsS3Exception(CommonErrorCode.AWS_S3_ERROR);
+            throw new AwsS3Exception(CommonErrorCode.AWS_S3_UPLOAD_FAIL);
         }
 
         updateFileRequest.toDeleteUrls().forEach(file -> delete(type, file));
@@ -129,7 +129,7 @@ public class AwsS3Service {
             amazonS3Client.deleteObject(new DeleteObjectRequest(bucketPath, filename));
         } catch (Exception e) {
             log.warn("S3 파일 삭제 실패 = {}", e.getMessage());
-            throw new AwsS3Exception(CommonErrorCode.AWS_S3_ERROR);
+            throw new AwsS3Exception(CommonErrorCode.AWS_S3_DELETE_FAIL);
         }
     }
 

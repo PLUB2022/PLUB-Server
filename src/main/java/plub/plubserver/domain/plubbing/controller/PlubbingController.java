@@ -100,7 +100,7 @@ public class PlubbingController {
     @GetMapping("/categories/{categoryId}")
     public ApiResponse<PlubbingCardListResponse> getPlubbingByCategory(@PathVariable Long categoryId,
                                                                        @PageableDefault(size = 10) Pageable pageable) {
-        PlubbingCardListResponse plubbingCardResponses = plubbingService.getPlubbingByCatergory(categoryId, pageable);
+        PlubbingCardListResponse plubbingCardResponses = plubbingService.getPlubbingByCategory(categoryId, pageable);
         return success(plubbingCardResponses);
     }
 }

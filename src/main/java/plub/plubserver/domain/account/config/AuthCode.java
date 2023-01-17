@@ -10,8 +10,8 @@ public enum AuthCode {
      * success
      */
     LOGIN(200, 1000, "account exist, process login."),
-    SIGNUP_COMPLETE(200, 1000, "signup complete, access token is issued."),
-    ADMIN_LOGIN(200, 1000, "admin check, process login."),
+    SIGNUP_COMPLETE(200, 1010, "signup complete, access token is issued."),
+    ADMIN_LOGIN(200, 1020, "admin check, process login."),
 
     /**
      * fail
@@ -26,8 +26,10 @@ public enum AuthCode {
 
     NOT_FOUND_REFRESH_TOKEN(404, 2040, "not found refresh token."),
     ENCRYPTION_FAILURE(400, 2100, "encryption failure"),
-    DECRYPTION_FAILURE(400, 2110, "decryption failed.");
+    DECRYPTION_FAILURE(400, 2110, "decryption failed."),
 
+    IS_NOT_REFRESH(400, 2120, "this token is not refresh token."),
+    EXPIRED_REFRESH(400, 2130, "expired refresh token.");
 
     private final int HttpCode;
     private final int statusCode;

@@ -279,7 +279,7 @@ public class PlubbingService {
         }
     }
 
-    public PlubbingCardListResponse getPlubbingByCatergory(Long categoryId, Pageable pageable) {
+    public PlubbingCardListResponse getPlubbingByCategory(Long categoryId, Pageable pageable) {
         Page<PlubbingCardResponse> plubbingCardResponses = plubbingRepository.findAllByCategoryId(categoryId, pageable).map(PlubbingCardResponse::of);
         return PlubbingCardListResponse.of(plubbingCardResponses);
     }

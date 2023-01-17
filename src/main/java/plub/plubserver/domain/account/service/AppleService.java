@@ -116,7 +116,7 @@ public class AppleService {
             PrivateKeyInfo object = (PrivateKeyInfo) pemParser.readObject();
             return converter.getPrivateKey(object);
         } catch (Exception e) {
-            throw new AuthException(AuthCode.APPLE_LOGIN_ERROR);
+            throw new AuthException(AuthCode.APPLE_LOGIN_ERROR, e.getMessage());
         }
     }
 
@@ -142,7 +142,7 @@ public class AppleService {
             return subject + "@APPLE";
         } catch (JsonProcessingException | NoSuchAlgorithmException | InvalidKeySpecException | SignatureException |
                 MalformedJwtException | ExpiredJwtException | IllegalArgumentException e) {
-            throw new AuthException(AuthCode.APPLE_LOGIN_ERROR); // TODO : 위에 있는 모든 예외를 다 캐치?
+            throw new AuthException(AuthCode.APPLE_LOGIN_ERROR, e.getMessage());
         }
     }
 
