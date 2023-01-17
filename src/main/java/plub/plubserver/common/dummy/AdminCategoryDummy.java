@@ -1,7 +1,8 @@
-package plub.plubserver.common;
+package plub.plubserver.common.dummy;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,9 +15,10 @@ import javax.annotation.PostConstruct;
 import static plub.plubserver.domain.account.dto.AuthDto.SignUpRequest;
 
 @Component
+@Order(1)
 @RequiredArgsConstructor
 @Transactional
-public class InitDummyData {
+public class AdminCategoryDummy {
     private final CategoryService categoryService;
     private final AccountRepository accountRepository;
     private final PasswordEncoder passwordEncoder;

@@ -4,11 +4,12 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
 import plub.plubserver.common.dto.ApiResponse;
+import plub.plubserver.domain.account.model.Account;
+import plub.plubserver.domain.account.service.AccountService;
 import plub.plubserver.domain.plubbing.dto.PlubbingDto.*;
 import plub.plubserver.domain.plubbing.service.PlubbingService;
 import plub.plubserver.domain.recruit.dto.RecruitDto.UpdateRecruitQuestionRequest;
@@ -25,12 +26,15 @@ import static plub.plubserver.common.dto.ApiResponse.success;
 @Api(tags = "플러빙 API", hidden = true)
 public class PlubbingController {
     private final PlubbingService plubbingService;
+    private final AccountService accountService;
 
     @ApiOperation(value = "모임 생성")
     @PostMapping
     public ApiResponse<PlubbingIdResponse> createPlubbing(
-            @Valid @RequestBody CreatePlubbingRequest createPlubbingRequest) {
-        return success(plubbingService.createPlubbing(createPlubbingRequest));
+            @Valid @RequestBody CreatePlubbingRequest createPlubbingRequest
+    ) {
+        Account loginAccount = accountService.getCurrentAccount();
+        return success(plubbingService.createPlubbing(loginAccount, createPlubbingRequest));
     }
 
     @ApiOperation(value = "내 모임 조회")

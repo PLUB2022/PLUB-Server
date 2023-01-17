@@ -164,4 +164,46 @@ public class RecruitDto {
         @Builder public BookmarkResponse {}
     }
 
+    public record RecruitCardResponse(
+            Long plubbingId,
+            String title,
+            String introduce,
+            List<String> days,
+            String mainImage,
+            String time,
+            int curAccountNum,
+            boolean isBookmarked
+
+    ) {
+        @Builder public RecruitCardResponse {}
+        public static RecruitCardResponse of(Recruit recruit, boolean isBookmarked) {
+            return RecruitCardResponse.builder()
+                    .plubbingId(recruit.getPlubbing().getId())
+                    .title(recruit.getTitle())
+                    .introduce(recruit.getIntroduce())
+                    .days(recruit.getPlubbing().getDays().stream()
+                            .map(it -> it.getDay().toKorean())
+                            .toList())
+                    .mainImage(recruit.getPlubbing().getMainImage())
+                    .time(recruit.getPlubbing().getTime())
+                    .curAccountNum(recruit.getPlubbing().getCurAccountNum())
+                    .isBookmarked(isBookmarked)
+                    .build();
+        }
+    }
+
+    public record RecruitCardListResponse(
+            boolean isLast,
+            List<RecruitCardResponse> recruits
+    ) {
+        @Builder public RecruitCardListResponse {}
+        public static RecruitCardListResponse of(List<RecruitCardResponse> recruits, boolean isLast) {
+            return RecruitCardListResponse.builder()
+                    .isLast(isLast)
+                    .recruits(recruits)
+                    .build();
+        }
+
+    }
+
 }

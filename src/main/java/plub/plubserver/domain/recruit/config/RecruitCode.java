@@ -6,13 +6,6 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum RecruitCode {
-    /**
-     * success
-     */
-
-    /**
-     * fail
-     */
     NOT_FOUND_RECRUIT(404, 6050, "not found recruit error."),
     HOST_RECRUIT_ERROR(400, 6020, "host cannot apply it's own plubbings."),
     NOT_HOST(403, 6030, "this account is not a host."),
