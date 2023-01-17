@@ -97,10 +97,7 @@ public class PlubbingService {
      * 모임 생성
      */
     @Transactional
-    public PlubbingIdResponse createPlubbing(CreatePlubbingRequest createPlubbingRequest) {
-        // 모임 생성자(호스트) 가져오기
-        Account owner = accountService.getCurrentAccount();
-
+    public PlubbingIdResponse createPlubbing(Account owner, CreatePlubbingRequest createPlubbingRequest) {
         // Plubbing 엔티티 생성 및 저장
         Plubbing plubbing = plubbingRepository.save(createPlubbingRequest.toEntity());
 

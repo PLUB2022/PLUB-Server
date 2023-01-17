@@ -2,6 +2,8 @@ package plub.plubserver.domain.recruit.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import plub.plubserver.domain.account.config.AccountCode;
@@ -16,13 +18,19 @@ import plub.plubserver.domain.plubbing.model.Plubbing;
 import plub.plubserver.domain.plubbing.repository.AccountPlubbingRepository;
 import plub.plubserver.domain.plubbing.service.PlubbingService;
 import plub.plubserver.domain.recruit.config.RecruitCode;
+import plub.plubserver.domain.recruit.dto.QuestionDto.AnswerRequest;
+import plub.plubserver.domain.recruit.dto.QuestionDto.QuestionListResponse;
+import plub.plubserver.domain.recruit.dto.QuestionDto.QuestionResponse;
 import plub.plubserver.domain.recruit.dto.RecruitDto.*;
 import plub.plubserver.domain.recruit.exception.RecruitException;
 import plub.plubserver.domain.recruit.model.*;
 import plub.plubserver.domain.recruit.repository.AppliedAccountRepository;
+import plub.plubserver.domain.recruit.repository.BookmarkRepository;
+import plub.plubserver.domain.recruit.repository.RecruitRepository;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 
 @Slf4j
@@ -34,6 +42,8 @@ public class RecruitService {
     private final AccountPlubbingRepository accountPlubbingRepository;
     private final AppliedAccountRepository appliedAccountRepository;
     private final PlubbingService plubbingService;
+    private final RecruitRepository recruitRepository;
+    private final BookmarkRepository bookmarkRepository;
 
     private Recruit getRecruitByPlubbingId(Long plubbingId) {
         return plubbingService.getPlubbing(plubbingId).getRecruit();
@@ -62,6 +72,57 @@ public class RecruitService {
                         .toList()
         );
     }
+
+    // 북마크 여부 체크해서 DTO로 변환
+    private RecruitCardListResponse makeRecruitCardListResponse(Page<Recruit> recruitPage) {
+        Account account = accountService.getCurrentAccount();
+        List<Long> bookmarkedPlubbingIds = account.getBookmarkList().stream()
+                .map(it -> it.getRecruit().getPlubbing().getId())
+                .toList();
+        
+        List<RecruitCardResponse> recruitCardResponse = recruitPage.map(it -> {
+            boolean isBookmarked = bookmarkedPlubbingIds.contains(it.getPlubbing().getId());
+            return RecruitCardResponse.of(it, isBookmarked);
+        }).toList();
+        
+        return RecruitCardListResponse.of(recruitCardResponse, recruitPage.isLast());        
+    }
+
+    /**
+     * 모집글 검색
+     */
+    public RecruitCardListResponse search(Pageable pageable, String keyword) {
+        Page<Recruit> recruitPage = recruitRepository.search(pageable, keyword);
+        return makeRecruitCardListResponse(recruitPage);
+    }
+
+    /**
+     * 북마크 등록, 취소
+     */
+    @Transactional
+    public BookmarkResponse bookmark(Account account, Long plubbingId) {
+        Recruit recruit = getRecruitByPlubbingId(plubbingId);
+        Optional<Bookmark> bookmark = account.getBookmarkList().stream()
+                .filter(b -> b.getRecruit().equals(recruit))
+                .findFirst();
+        boolean isBookmarked;
+        if (bookmark.isEmpty()) {
+            // 북마크가 되어있지 않으면 등록
+            account.addBookmark(Bookmark.builder()
+                    .account(account).recruit(recruit)
+                    .build());
+            isBookmarked = true;
+        } else {
+            // 북마크 취소
+            account.removeBookmark(bookmark.get());
+            isBookmarked = false;
+        }
+        return BookmarkResponse.builder()
+                .isBookmarked(isBookmarked)
+                .plubbingId(plubbingId)
+                .build();
+    }
+
 
     /**
      * 모집 종료
