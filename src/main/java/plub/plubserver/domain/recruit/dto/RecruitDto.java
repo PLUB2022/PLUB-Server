@@ -3,6 +3,7 @@ package plub.plubserver.domain.recruit.dto;
 import lombok.Builder;
 import org.springframework.data.domain.Page;
 import org.springframework.lang.Nullable;
+import plub.plubserver.common.dto.PageResponse;
 import plub.plubserver.domain.plubbing.model.AccountPlubbing;
 import plub.plubserver.domain.plubbing.model.Plubbing;
 import plub.plubserver.domain.recruit.dto.QuestionDto.AnswerRequest;
@@ -206,12 +207,12 @@ public class RecruitDto {
     }
 
     public record RecruitCardListResponse(
-            Page<RecruitCardResponse> recruits
+            PageResponse<RecruitCardResponse> recruits
     ) {
         @Builder public RecruitCardListResponse {}
         public static RecruitCardListResponse of(Page<RecruitCardResponse> recruits) {
             return RecruitCardListResponse.builder()
-                    .recruits(recruits)
+                    .recruits(PageResponse.of(recruits))
                     .build();
         }
 

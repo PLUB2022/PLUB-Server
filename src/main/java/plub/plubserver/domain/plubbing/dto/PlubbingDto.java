@@ -4,6 +4,7 @@ import lombok.Builder;
 import org.hibernate.validator.constraints.Range;
 import org.springframework.data.domain.Page;
 import org.springframework.lang.Nullable;
+import plub.plubserver.common.dto.PageResponse;
 import plub.plubserver.domain.account.dto.AccountDto.PlubbingAccountInfoResponse;
 import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.plubbing.model.*;
@@ -318,15 +319,16 @@ public class PlubbingDto {
     }
 
     public record PlubbingCardListResponse(
-            Page<PlubbingCardResponse> plubbings
+            PageResponse<PlubbingCardResponse> plubbings
     ) {
         @Builder
         public PlubbingCardListResponse {
         }
 
         public static PlubbingCardListResponse of(Page<PlubbingCardResponse> plubbings) {
+            System.out.println("plubbings = " + plubbings);
             return PlubbingCardListResponse.builder()
-                    .plubbings(plubbings)
+                    .plubbings(PageResponse.of(plubbings))
                     .build();
         }
     }
