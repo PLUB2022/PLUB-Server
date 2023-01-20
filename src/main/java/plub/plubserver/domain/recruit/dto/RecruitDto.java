@@ -6,6 +6,7 @@ import org.springframework.lang.Nullable;
 import plub.plubserver.common.dto.PageResponse;
 import plub.plubserver.domain.plubbing.model.AccountPlubbing;
 import plub.plubserver.domain.plubbing.model.Plubbing;
+import plub.plubserver.domain.plubbing.model.PlubbingPlace;
 import plub.plubserver.domain.recruit.dto.QuestionDto.AnswerRequest;
 import plub.plubserver.domain.recruit.dto.QuestionDto.QuestionAnswerResponse;
 import plub.plubserver.domain.recruit.model.AppliedAccount;
@@ -184,6 +185,12 @@ public class RecruitDto {
             String introduce,
             List<String> days,
             String mainImage,
+            String address,
+            String roadAddress,
+            String placeName,
+            Double placePositionX,
+            Double placePositionY,
+            int remainAccountNum,
             String time,
             int curAccountNum,
             boolean isBookmarked
@@ -191,17 +198,25 @@ public class RecruitDto {
     ) {
         @Builder public RecruitCardResponse {}
         public static RecruitCardResponse of(Recruit recruit, boolean isBookmarked) {
+            Plubbing plubbing = recruit.getPlubbing();
+            PlubbingPlace place = plubbing.getPlubbingPlace();
             return RecruitCardResponse.builder()
-                    .plubbingId(recruit.getPlubbing().getId())
+                    .plubbingId(plubbing.getId())
                     .title(recruit.getTitle())
                     .introduce(recruit.getIntroduce())
-                    .days(recruit.getPlubbing().getDays().stream()
+                    .days(plubbing.getDays().stream()
                             .map(it -> it.getDay().toKorean())
                             .toList())
-                    .mainImage(recruit.getPlubbing().getMainImage())
-                    .time(recruit.getPlubbing().getTime())
-                    .curAccountNum(recruit.getPlubbing().getCurAccountNum())
+                    .mainImage(plubbing.getMainImage())
+                    .time(plubbing.getTime())
+                    .curAccountNum(plubbing.getCurAccountNum())
                     .isBookmarked(isBookmarked)
+                    .address(place.getAddress())
+                    .roadAddress(place.getRoadAddress())
+                    .placeName(place.getPlaceName())
+                    .placePositionX(place.getPlacePositionX())
+                    .placePositionY(place.getPlacePositionY())
+                    .remainAccountNum(plubbing.getMaxAccountNum() - plubbing.getCurAccountNum())
                     .build();
         }
     }

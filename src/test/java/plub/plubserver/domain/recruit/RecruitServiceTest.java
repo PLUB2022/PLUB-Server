@@ -133,15 +133,15 @@ public class RecruitServiceTest {
 
         given(accountService.getCurrentAccount()).willReturn(host);
 
-        given(recruitRepository.findById(any()))
-                .willReturn(Optional.of(plubbing.getRecruit()));
+//        given(recruitRepository.findById(any()))
+//                .willReturn(Optional.of(plubbing.getRecruit()));
 
         host.addBookmark(Bookmark.builder()
                 .recruit(Recruit.builder().build())
                 .build());
 
         // when
-        BookmarkResponse bookmark = recruitService.bookmark(1L);
+        BookmarkResponse bookmark = recruitService.bookmark(host, 1L);
 
         // then
         assertThat(bookmark.isBookmarked()).isTrue();
@@ -156,13 +156,13 @@ public class RecruitServiceTest {
 
         given(accountService.getCurrentAccount()).willReturn(host);
 
-        given(recruitRepository.findById(any()))
-                .willReturn(Optional.of(plubbing.getRecruit()));
+//        given(recruitRepository.findById(any()))
+//                .willReturn(Optional.of(plubbing.getRecruit()));
 
         host.addBookmark(Bookmark.builder().recruit(plubbing.getRecruit()).build());
 
         // when
-        BookmarkResponse bookmark = recruitService.bookmark(1L);
+        BookmarkResponse bookmark = recruitService.bookmark(host,1L);
 
         // then
         assertThat(bookmark.isBookmarked()).isFalse();

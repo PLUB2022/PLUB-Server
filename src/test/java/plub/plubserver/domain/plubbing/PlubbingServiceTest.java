@@ -79,7 +79,7 @@ public class PlubbingServiceTest {
         doNothing().when(plubbingRepository).flush();
 
         // when
-        plubbingService.createPlubbing(form);
+        plubbingService.createPlubbing(host, form);
 
         // then
         assertThat(plubbing.getGoal()).isEqualTo(form.goal());
