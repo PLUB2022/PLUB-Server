@@ -2,9 +2,9 @@ package plub.plubserver.domain.account.model;
 
 import lombok.*;
 import plub.plubserver.common.model.BaseTimeEntity;
-import plub.plubserver.domain.alarm.model.Alarm;
 import plub.plubserver.domain.feed.model.PlubbingFeed;
 import plub.plubserver.domain.message.model.Message;
+import plub.plubserver.domain.notification.model.Notification;
 import plub.plubserver.domain.policy.model.Policy;
 import plub.plubserver.domain.plubbing.model.AccountPlubbing;
 import plub.plubserver.domain.recruit.model.AppliedAccount;
@@ -52,7 +52,7 @@ public class Account extends BaseTimeEntity {
 
     // 회원(1) - 알람(다)
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Alarm> alarms = new ArrayList<>();
+    private List<Notification> alarms = new ArrayList<>();
 
     // 회원(1) - 쪽지(다)
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
