@@ -326,7 +326,6 @@ public class PlubbingDto {
         }
 
         public static PlubbingCardListResponse of(Page<PlubbingCardResponse> plubbings) {
-            System.out.println("plubbings = " + plubbings);
             return PlubbingCardListResponse.builder()
                     .plubbings(PageResponse.of(plubbings))
                     .build();

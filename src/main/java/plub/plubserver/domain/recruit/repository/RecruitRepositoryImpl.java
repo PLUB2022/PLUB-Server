@@ -6,8 +6,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
-import plub.plubserver.domain.plubbing.model.PlubbingStatus;
 import plub.plubserver.domain.recruit.model.Recruit;
+import plub.plubserver.domain.recruit.model.RecruitSearchType;
 
 import static plub.plubserver.domain.category.model.QPlubbingSubCategory.plubbingSubCategory;
 import static plub.plubserver.domain.category.model.QSubCategory.subCategory;
@@ -20,20 +20,27 @@ public class RecruitRepositoryImpl implements RecruitRepositoryCustom {
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public Page<Recruit> search(Pageable pageable, String keyword) {
-        JPQLQuery<Recruit> middleQuery = queryFactory.selectFrom(recruit)
+    public Page<Recruit> search(Pageable pageable, RecruitSearchType type, String keyword) {
+        JPQLQuery<Recruit> prefixQuery = queryFactory.selectFrom(recruit)
                 .leftJoin(recruit.plubbing, plubbing)
                 .fetchJoin()
                 .leftJoin(plubbing.plubbingSubCategories, plubbingSubCategory)
-                .leftJoin(plubbingSubCategory.subCategory, subCategory)
-                .where(plubbing.status.eq(PlubbingStatus.ACTIVE),
-                        plubbing.visibility.eq(true),
-                        (recruit.title.contains(keyword)
-                                .or(subCategory.category.name.contains(keyword)
-                                        .or(recruit.introduce.contains(keyword)
-                                        )
-                                ))
-                );
+                .leftJoin(plubbingSubCategory.subCategory, subCategory);
+//                .where(plubbing.status.eq(PlubbingStatus.ACTIVE),
+//                        plubbing.visibility.eq(true),
+//                        (recruit.title.contains(keyword)
+//                                .or(subCategory.category.name.contains(keyword)
+//                                        .or(recruit.introduce.contains(keyword)
+//                                        )
+//                                ))
+//                );
+        JPQLQuery<Recruit> middleQuery = switch (type) {
+            case TITLE -> prefixQuery.where(recruit.title.contains(keyword));
+            case NAME -> prefixQuery.where(plubbing.name.contains(keyword));
+            // MIX = TITLE_INTRO
+            default -> prefixQuery.where(recruit.title.contains(keyword)
+                    .or(recruit.introduce.contains(keyword)));
+        };
         return PageableExecutionUtils.getPage(middleQuery
                         .orderBy(plubbing.modifiedAt.desc())
                         .offset(pageable.getOffset())

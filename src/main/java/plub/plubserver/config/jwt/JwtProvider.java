@@ -171,7 +171,7 @@ public class JwtProvider {
                     .build()
                     .parseClaimsJws(refreshToken)
                     .getBody();
-            if (body.get("refresh") == null)
+            if (body.get("tokenType") == null || !body.get("tokenType").equals("refresh"))
                 throw new AuthException(AuthCode.IS_NOT_REFRESH);
         } catch (ExpiredJwtException e) {
             throw new AuthException(AuthCode.EXPIRED_REFRESH);
