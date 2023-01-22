@@ -3,12 +3,13 @@ package plub.plubserver.domain.account.model;
 import lombok.*;
 import plub.plubserver.common.model.BaseTimeEntity;
 import plub.plubserver.domain.alarm.model.Alarm;
-import plub.plubserver.domain.comment.model.Comment;
+import plub.plubserver.domain.feed.model.PlubbingFeed;
 import plub.plubserver.domain.message.model.Message;
 import plub.plubserver.domain.policy.model.Policy;
 import plub.plubserver.domain.plubbing.model.AccountPlubbing;
 import plub.plubserver.domain.recruit.model.AppliedAccount;
 import plub.plubserver.domain.recruit.model.Bookmark;
+import plub.plubserver.notice.model.PlubbingNotice;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -57,10 +58,6 @@ public class Account extends BaseTimeEntity {
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Message> messages = new ArrayList<>();
 
-    // 회원(1) - 댓글(다)
-    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Comment> comments = new ArrayList<>();
-
     // 회원(1) - 회원_모집페이지(다) # 다대다 용
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<AppliedAccount> appliedAccountList = new ArrayList<>();
@@ -80,6 +77,14 @@ public class Account extends BaseTimeEntity {
     // 회원(1) - 북마크(다)
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Bookmark> bookmarkList = new ArrayList<>();
+
+    // 회원(1) - 게시판(다)
+    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PlubbingFeed> feedList = new ArrayList<>();
+
+    // 회원(1) - 공지(다)
+    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PlubbingNotice> noticeList = new ArrayList<>();
 
     // TODO : DTO에 변환로직이 가도록 수정해야함
     public AccountRequest toAccountRequestDto() {

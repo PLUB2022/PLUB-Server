@@ -2,12 +2,11 @@ package plub.plubserver.domain.feed.model;
 
 import lombok.*;
 import plub.plubserver.common.model.BaseTimeEntity;
-import plub.plubserver.domain.plubbing.model.AccountPlubbing;
+import plub.plubserver.domain.account.model.Account;
+import plub.plubserver.domain.plubbing.model.Plubbing;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Getter
@@ -18,7 +17,7 @@ public class PlubbingFeed extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "feed_id")
+    @Column(name = "plubbing_feed_id")
     private Long id;
 
     private String title;
@@ -34,8 +33,11 @@ public class PlubbingFeed extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     private FeedType feedType;
 
-    // 피드(다) - 회원_모임페이지(1)
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "account_plubbing_id")
-    private AccountPlubbing accountPlubbing;
+    @JoinColumn(name = "plubbing_id")
+    private Plubbing plubbing;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "account_id")
+    private Account account;
 }

@@ -1,8 +1,8 @@
 package plub.plubserver.domain.feed.dto;
 
 import lombok.Builder;
-import org.springframework.data.domain.Page;
-import plub.plubserver.common.dto.PageResponse;
+import plub.plubserver.common.dto.CommentDto.*;
+import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.feed.model.FeedType;
 import plub.plubserver.domain.feed.model.PlubbingFeed;
 
@@ -10,7 +10,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 import java.util.List;
 
-public class FeedDto {
+public class PlubbingFeedDto {
 
     public record CreateFeedRequest(
             @NotBlank @Size(max = 20)
@@ -54,24 +54,6 @@ public class FeedDto {
     ) {
     }
 
-    public record CreateCommentRequest(
-            @Size(max = 800)
-            String content
-    ) {
-        @Builder
-        public CreateCommentRequest {
-        }
-    }
-
-    public record UpdateCommentRequest(
-            @Size(max = 800)
-            String content
-    ) {
-        @Builder
-        public UpdateCommentRequest {
-        }
-    }
-
     public record FeedCardResponse(
             Long feedId,
             String feedType,
@@ -82,12 +64,12 @@ public class FeedDto {
             boolean pin,
             String profileImage,
             String nickname
-            ) {
+    ) {
         @Builder
         public FeedCardResponse {
         }
 
-        public static FeedCardResponse of(PlubbingFeed plubbingFeed) {
+        public static FeedCardResponse of(PlubbingFeed plubbingFeed, Account account) {
             return FeedCardResponse.builder()
                     .feedId(plubbingFeed.getId())
                     .feedType(plubbingFeed.getFeedType().toString())
@@ -96,8 +78,8 @@ public class FeedDto {
                     .feedImage(plubbingFeed.getFeedImage())
                     .createdAt(plubbingFeed.getCreatedAt())
                     .pin(plubbingFeed.isPin())
-                    .profileImage(plubbingFeed.getAccountPlubbing().getAccount().getProfileImage())
-                    .nickname(plubbingFeed.getAccountPlubbing().getAccount().getNickname())
+                    .profileImage(account.getProfileImage())
+                    .nickname(account.getNickname())
                     .build();
         }
     }
@@ -113,18 +95,6 @@ public class FeedDto {
             return FeedListResponse.builder()
                     .feeds(feeds)
                     .build();
-        }
-    }
-
-    public record CommentResponse(
-            long commentId,
-            String content,
-            String profileImage,
-            String nickname,
-            String createdAt
-    ){
-        @Builder
-        public CommentResponse {
         }
     }
 
@@ -152,11 +122,4 @@ public class FeedDto {
 
     public record FeedMessage(Object result) {
     }
-
-    public record CommentIdResponse(Long commentId) {
-    }
-
-    public record CommentMessage(Object result) {
-    }
-
 }

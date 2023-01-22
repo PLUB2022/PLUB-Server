@@ -4,9 +4,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import plub.plubserver.common.dto.PageResponse;
 import plub.plubserver.domain.account.model.Account;
-import plub.plubserver.domain.feed.dto.FeedDto.*;
+import plub.plubserver.domain.feed.dto.PlubbingFeedDto.*;
+import plub.plubserver.common.dto.CommentDto.*;
 import plub.plubserver.domain.feed.repository.PlubbingFeedRepository;
 
 import java.util.List;
@@ -27,7 +27,6 @@ public class PlubbingFeedService {
                 new FeedCardResponse(2L, "LINE", "feedTitle2", "줄글로 된 내용~~~", "", "2020-02-02 12:12:00", false, "profileUrl2", "nickname2"),
                 new FeedCardResponse(3L, "PHOTO_LINE", "feedTitle3", "어쩌꾸 저쩌구!!~~`", "imgaeUrl3", "2020-02-02 12:12:00", true, "profileUrl3", "nickname3")
         );
-
         return FeedListResponse.of(feedCardResponses);
     }
 
@@ -40,7 +39,7 @@ public class PlubbingFeedService {
     }
 
     public FeedResponse getFeed(Account loginAccount, Long feedId) {
-        return new FeedResponse(1L, "PHOTO", "feedTitle1", "", "imgaeUrl1", "2020-02-02 12:12:00", true, "profileUrl1", "nickname1", 5L, 3L , List.of(
+        return new FeedResponse(1L, "PHOTO", "feedTitle1", "", "imgaeUrl1", "2020-02-02 12:12:00", true, "profileUrl1", "nickname1", 5L, 3L, List.of(
                 new CommentResponse(1L, "commentContent1", "2020-02-02 12:12:00", "profileUrl1", "nickname1"),
                 new CommentResponse(2L, "commentContent2", "2020-02-02 12:12:00", "profileUrl2", "nickname2"),
                 new CommentResponse(3L, "commentContent3", "2020-02-02 12:12:00", "profileUrl3", "nickname3")

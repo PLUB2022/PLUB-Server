@@ -10,7 +10,8 @@ import org.springframework.web.bind.annotation.*;
 import plub.plubserver.common.dto.ApiResponse;
 import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.account.service.AccountService;
-import plub.plubserver.domain.feed.dto.FeedDto.*;
+import plub.plubserver.domain.feed.dto.PlubbingFeedDto.*;
+import plub.plubserver.common.dto.CommentDto.*;
 import plub.plubserver.domain.feed.service.PlubbingFeedService;
 
 import javax.validation.Valid;
@@ -54,7 +55,7 @@ public class PlubbingFeedController {
     @ApiOperation(value = "게시글 수정")
     @PutMapping("/feeds/{feedId}")
     public ApiResponse<FeedIdResponse> updateFeed(@PathVariable Long feedId,
-            @Valid @RequestBody UpdateFeedRequest updateFeedRequest) {
+                                                  @Valid @RequestBody UpdateFeedRequest updateFeedRequest) {
         Account loginAccount = accountService.getCurrentAccount();
         return success(plubbingFeedService.updateFeed(loginAccount, feedId, updateFeedRequest));
     }
@@ -83,30 +84,30 @@ public class PlubbingFeedController {
     @ApiOperation(value = "게시글 댓글 생성")
     @PostMapping("/feeds/{feedId}/comment")
     public ApiResponse<CommentIdResponse> createFeedComment(@PathVariable Long feedId,
-                                                         @Valid @RequestBody CreateCommentRequest createCommentRequest) {
+                                                            @Valid @RequestBody CreateCommentRequest createCommentRequest) {
         Account loginAccount = accountService.getCurrentAccount();
         return success(plubbingFeedService.createFeedComment(loginAccount, feedId, createCommentRequest));
     }
 
     @ApiOperation(value = "게시글 댓글 수정")
     @PutMapping("/feeds/{feedId}/comment/{commentId}")
-    public ApiResponse<CommentIdResponse> updateFeedComment(@PathVariable Long feedId,
-                                                         @Valid @RequestBody UpdateCommentRequest updateCommentRequest) {
+    public ApiResponse<CommentIdResponse> updateFeedComment(@PathVariable Long commentId,
+                                                            @Valid @RequestBody UpdateCommentRequest updateCommentRequest) {
         Account loginAccount = accountService.getCurrentAccount();
-        return success(plubbingFeedService.updateFeedComment(loginAccount, feedId, updateCommentRequest));
+        return success(plubbingFeedService.updateFeedComment(loginAccount, commentId, updateCommentRequest));
     }
 
     @ApiOperation(value = "게시글 댓글 삭제")
     @DeleteMapping("/feeds/{feedId}/comment/{commentId}")
-    public ApiResponse<CommentMessage> deleteFeedComment(@PathVariable Long feedId) {
+    public ApiResponse<CommentMessage> deleteFeedComment(@PathVariable Long commentId) {
         Account loginAccount = accountService.getCurrentAccount();
-        return success(plubbingFeedService.deleteFeedComment(loginAccount, feedId));
+        return success(plubbingFeedService.deleteFeedComment(loginAccount, commentId));
     }
 
     @ApiOperation(value = "게시글 댓글 신고")
     @PostMapping("/feeds/{feedId}/comment/{commentId}/report")
-    public ApiResponse<CommentIdResponse> reportFeedComment(@PathVariable Long feedId) {
+    public ApiResponse<CommentIdResponse> reportFeedComment(@PathVariable Long commentId) {
         Account loginAccount = accountService.getCurrentAccount();
-        return success(plubbingFeedService.reportFeedComment(loginAccount, feedId));
+        return success(plubbingFeedService.reportFeedComment(loginAccount, commentId));
     }
 }
