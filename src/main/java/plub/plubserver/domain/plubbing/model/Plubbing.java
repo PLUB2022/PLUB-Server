@@ -3,10 +3,12 @@ package plub.plubserver.domain.plubbing.model;
 import lombok.*;
 import plub.plubserver.common.model.BaseTimeEntity;
 import plub.plubserver.domain.category.model.PlubbingSubCategory;
+import plub.plubserver.domain.feed.model.PlubbingFeed;
 import plub.plubserver.domain.plubbing.dto.PlubbingDto.UpdatePlubbingRequest;
 import plub.plubserver.domain.recruit.dto.RecruitDto.UpdateRecruitRequest;
 import plub.plubserver.domain.recruit.model.Recruit;
 import plub.plubserver.domain.timeline.model.PlubbingTimeline;
+import plub.plubserver.notice.model.PlubbingNotice;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -66,6 +68,10 @@ public class Plubbing extends BaseTimeEntity {
     // 모임(1) - 플러빙 공지(다)
     @OneToMany(mappedBy = "plubbing", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PlubbingNotice> notices;
+
+    // 모임(1) - 게시판(다)
+    @OneToMany(mappedBy = "plubbing", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PlubbingFeed> feeds = new ArrayList<>();
 
     // 모임(1) - 모임 카테고리(다)
     @OneToMany(mappedBy = "plubbing", cascade = CascadeType.ALL, orphanRemoval = true)

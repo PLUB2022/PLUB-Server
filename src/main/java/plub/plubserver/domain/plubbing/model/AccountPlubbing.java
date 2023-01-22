@@ -3,6 +3,7 @@ package plub.plubserver.domain.plubbing.model;
 import lombok.*;
 import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.feed.model.PlubbingFeed;
+import plub.plubserver.notice.model.PlubbingNotice;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -33,10 +34,6 @@ public class AccountPlubbing {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "plubbing_id")
     private Plubbing plubbing;
-
-    // 회원_모임페이지(1) - 아카이브(다)
-    @OneToMany(mappedBy = "accountPlubbing", cascade = CascadeType.ALL)
-    private List<PlubbingFeed> archives = new ArrayList<>();
 
     /**
      * methods
