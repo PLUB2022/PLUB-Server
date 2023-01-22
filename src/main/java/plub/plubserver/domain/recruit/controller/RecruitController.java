@@ -13,6 +13,7 @@ import plub.plubserver.domain.plubbing.dto.PlubbingDto.JoinedAccountsInfoRespons
 import plub.plubserver.domain.plubbing.dto.PlubbingDto.PlubbingIdResponse;
 import plub.plubserver.domain.recruit.dto.QuestionDto.QuestionListResponse;
 import plub.plubserver.domain.recruit.dto.RecruitDto.*;
+import plub.plubserver.domain.recruit.model.RecruitSearchType;
 import plub.plubserver.domain.recruit.service.RecruitService;
 
 import static plub.plubserver.common.dto.ApiResponse.success;
@@ -28,9 +29,10 @@ public class RecruitController {
     @GetMapping("/recruit")
     public ApiResponse<RecruitCardListResponse> searchRecruit(
             @PageableDefault(sort = "id", direction = Sort.Direction.DESC) Pageable pageable,
-            @RequestParam("keyword") String keyword
+            @RequestParam("keyword") String keyword,
+            @RequestParam("type") String type
     ) {
-        return success(recruitService.search(pageable, keyword));
+        return success(recruitService.search(pageable, RecruitSearchType.toType(type), keyword));
     }
 
     @GetMapping("/{plubbingId}/recruit")

@@ -100,8 +100,8 @@ public class RecruitService {
     /**
      * 모집글 검색
      */
-    public RecruitCardListResponse search(Pageable pageable, String keyword) {
-        Page<Recruit> recruitPage = recruitRepository.search(pageable, keyword);
+    public RecruitCardListResponse search(Pageable pageable, RecruitSearchType type, String keyword) {
+        Page<Recruit> recruitPage = recruitRepository.search(pageable, type, keyword);
         return makeRecruitCardListResponse(pageable, recruitPage);
     }
 
