@@ -19,8 +19,4 @@ public class PlubbingFeedImage {
 
     private String archiveImg;
 
-    // 피드 사진(다) - 피드(1)
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "feed_id")
-    private PlubbingFeed feed;
 }
