@@ -1,4 +1,4 @@
-package plub.plubserver.domain.alarm.model;
+package plub.plubserver.domain.notification.model;
 
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -11,18 +11,16 @@ import javax.persistence.*;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Alarm extends BaseTimeEntity {
+public class Notification extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "alarm_id")
+    @Column(name = "notification_id")
     private Long id;
 
     private String title;
-    private String content;
+    private String body;
 
-    @Enumerated(EnumType.STRING)
-    private AlarmType alarmType;
     private boolean isRead;
 
     // 알람(다) - 회원(1)
