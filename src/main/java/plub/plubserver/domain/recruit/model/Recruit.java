@@ -26,6 +26,8 @@ public class Recruit extends BaseTimeEntity {
     private String introduce; // 모임 소개글 - 모집 페이지에서 보여줄 내용
     private int questionNum;
 
+    private int views;
+
     @Enumerated(EnumType.STRING)
     private RecruitStatus status;
     private boolean visibility;
@@ -67,6 +69,10 @@ public class Recruit extends BaseTimeEntity {
         recruitQuestions.forEach(it -> it.addRecruit(this));
         recruitQuestionList.addAll(recruitQuestions);
         questionNum = recruitQuestions.size();
+    }
+
+    public void plusView() {
+        views++;
     }
 
 }

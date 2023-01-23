@@ -1,9 +1,7 @@
 package plub.plubserver.domain.recruit.dto;
 
 import lombok.Builder;
-import org.springframework.data.domain.Page;
 import org.springframework.lang.Nullable;
-import plub.plubserver.common.dto.PageResponse;
 import plub.plubserver.domain.plubbing.model.AccountPlubbing;
 import plub.plubserver.domain.plubbing.model.Plubbing;
 import plub.plubserver.domain.plubbing.model.PlubbingPlace;
@@ -83,6 +81,7 @@ public class RecruitDto {
             boolean isApplied,
             int curAccountNum,
             int remainAccountNum,
+            int views,
             List<JoinedAccountDto> joinedAccounts
     ) {
         @Builder
@@ -122,6 +121,7 @@ public class RecruitDto {
                     .curAccountNum(plubbing.getCurAccountNum())
                     .remainAccountNum(plubbing.getMaxAccountNum() - plubbing.getCurAccountNum())
                     .joinedAccounts(joinedAccounts)
+                    .views(recruit.getViews())
                     .build();
         }
     }
@@ -183,6 +183,7 @@ public class RecruitDto {
             Long plubbingId,
             String title,
             String introduce,
+            String name,
             List<String> days,
             String mainImage,
             String address,
@@ -193,7 +194,8 @@ public class RecruitDto {
             int remainAccountNum,
             String time,
             int curAccountNum,
-            boolean isBookmarked
+            boolean isBookmarked,
+            int views
 
     ) {
         @Builder public RecruitCardResponse {}
@@ -207,6 +209,7 @@ public class RecruitDto {
                     .days(plubbing.getDays().stream()
                             .map(it -> it.getDay().toKorean())
                             .toList())
+                    .name(plubbing.getName())
                     .mainImage(plubbing.getMainImage())
                     .time(plubbing.getTime())
                     .curAccountNum(plubbing.getCurAccountNum())
@@ -217,20 +220,9 @@ public class RecruitDto {
                     .placePositionX(place.getPlacePositionX())
                     .placePositionY(place.getPlacePositionY())
                     .remainAccountNum(plubbing.getMaxAccountNum() - plubbing.getCurAccountNum())
+                    .views(recruit.getViews())
                     .build();
         }
-    }
-
-    public record RecruitCardListResponse(
-            PageResponse<RecruitCardResponse> recruits
-    ) {
-        @Builder public RecruitCardListResponse {}
-        public static RecruitCardListResponse of(Page<RecruitCardResponse> recruits) {
-            return RecruitCardListResponse.builder()
-                    .recruits(PageResponse.of(recruits))
-                    .build();
-        }
-
     }
 
 }

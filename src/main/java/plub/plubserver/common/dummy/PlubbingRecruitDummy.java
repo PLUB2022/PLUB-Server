@@ -30,15 +30,16 @@ public class PlubbingRecruitDummy {
             CreatePlubbingRequest form = CreatePlubbingRequest.builder()
                     .subCategoryIds(List.of(1L, 2L))
                     .title("운동" + i)
-                    .name("테스트 이름" + i)
-                    .goal("플럽 1차 MVP 제작 완료")
-                    .introduce("테스트 모임 소개")
+                    .name("운동 모임" + i)
+                    .goal("3대300치기" + i)
+                    .introduce("운동 소개" + i)
+                    .mainImage("dummyImage" + i)
                     .days(List.of("THR", "FRI", "SAT", "SUN"))
                     .onOff("ON")
                     .address("서울특별시 강남구 테헤란로 427")
                     .time("1400")
                     .maxAccountNum(5)
-                    .questions(List.of("질문1"))
+                    .questions(List.of("질문" + i))
                     .build();
             plubbingService.createPlubbing(admin1, form);
             plubbingService.createPlubbing(admin2, form);
@@ -49,7 +50,7 @@ public class PlubbingRecruitDummy {
                     .subCategoryIds(List.of(66L)) // 프로그래밍?
                     .title("프로그래밍 모임" + i)
                     .name("코딩 모임" + i)
-                    .goal("코틀린 마스터")
+                    .goal("코틀린 마스터" + i)
                     .introduce("모각코해요" + i)
                     .days(List.of("SAT", "SUN"))
                     .onOff("ON")
@@ -66,7 +67,7 @@ public class PlubbingRecruitDummy {
                     .subCategoryIds(List.of(16L))
                     .title("배드민턴 모임" + i)
                     .name("배민모임" + i)
-                    .goal("배드민턴 스매쉬 잘 치기")
+                    .goal("배드민턴 스매쉬 잘 치기" + i)
                     .introduce("우리는 배민 이다")
                     .days(List.of("THR", "FRI", "SAT", "SUN"))
                     .onOff("ON")

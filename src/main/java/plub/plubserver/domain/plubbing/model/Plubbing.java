@@ -149,4 +149,8 @@ public class Plubbing extends BaseTimeEntity {
         // TODO : 명시적 호출을 안 하고도 자동으로 업데이트 할 수 있는 방법 찾기
         curAccountNum = accountPlubbingList.size();
     }
+
+    public void plusView() {
+        views++;
+    }
 }

@@ -7,6 +7,8 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import plub.plubserver.common.dto.PageResponse;
+import plub.plubserver.common.model.SortType;
 import plub.plubserver.domain.account.config.AccountCode;
 import plub.plubserver.domain.account.exception.AccountException;
 import plub.plubserver.domain.account.model.Account;
@@ -51,12 +53,14 @@ public class RecruitService {
     /**
      * 조회
      */
+    @Transactional
     public RecruitResponse getRecruit(Long plubbingId) {
         Account account = accountService.getCurrentAccount();
         Recruit recruit = getRecruitByPlubbingId(plubbingId);
         boolean isApplied = appliedAccountRepository.existsByAccountAndRecruit(account, recruit);
         boolean isBookmarked = account.getBookmarkList().stream()
                 .anyMatch(it -> it.getRecruit().equals(recruit));
+        recruit.plusView();
         return RecruitResponse.of(recruit, isApplied, isBookmarked);
     }
 
@@ -74,13 +78,29 @@ public class RecruitService {
         );
     }
 
-    // 북마크 여부 체크해서 DTO로 변환
-    private RecruitCardListResponse makeRecruitCardListResponse(Pageable pageable, Page<Recruit> recruitPage) {
+    /**
+     * 모집글 검색
+     */
+    public PageResponse<RecruitCardResponse> search(
+            Pageable pageable,
+            String sort,
+            RecruitSearchType type,
+            String keyword
+    ) {
+
+        Page<Recruit> recruitPage = recruitRepository.search(
+                pageable,
+                SortType.of(sort),
+                type,
+                keyword
+        );
         Account account = accountService.getCurrentAccount();
+
+        // 북마크 여부 체크해서 DTO로 반환
         List<Long> bookmarkedPlubbingIds = account.getBookmarkList().stream()
                 .map(it -> it.getRecruit().getPlubbing().getId())
                 .toList();
-        
+
         List<RecruitCardResponse> recruitCardResponse = recruitPage.map(it -> {
             boolean isBookmarked = bookmarkedPlubbingIds.contains(it.getPlubbing().getId());
             return RecruitCardResponse.of(it, isBookmarked);
@@ -93,16 +113,8 @@ public class RecruitService {
                 pageable,
                 recruitCardResponse.size()
         );
-        
-        return RecruitCardListResponse.of(recruitCardPage);
-    }
 
-    /**
-     * 모집글 검색
-     */
-    public RecruitCardListResponse search(Pageable pageable, RecruitSearchType type, String keyword) {
-        Page<Recruit> recruitPage = recruitRepository.search(pageable, type, keyword);
-        return makeRecruitCardListResponse(pageable, recruitPage);
+        return PageResponse.of(recruitCardPage);
     }
 
     /**

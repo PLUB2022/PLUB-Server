@@ -2,9 +2,7 @@ package plub.plubserver.domain.plubbing.dto;
 
 import lombok.Builder;
 import org.hibernate.validator.constraints.Range;
-import org.springframework.data.domain.Page;
 import org.springframework.lang.Nullable;
-import plub.plubserver.common.dto.PageResponse;
 import plub.plubserver.domain.account.dto.AccountDto.PlubbingAccountInfoResponse;
 import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.plubbing.model.*;
@@ -314,20 +312,6 @@ public class PlubbingDto {
                     .placePositionY(plubbing.getPlubbingPlace().getPlacePositionY())
                     .curAccountNum(plubbing.getCurAccountNum())
                     .remainAccountNum(plubbing.getMaxAccountNum() - plubbing.getCurAccountNum())
-                    .build();
-        }
-    }
-
-    public record PlubbingCardListResponse(
-            PageResponse<PlubbingCardResponse> plubbings
-    ) {
-        @Builder
-        public PlubbingCardListResponse {
-        }
-
-        public static PlubbingCardListResponse of(Page<PlubbingCardResponse> plubbings) {
-            return PlubbingCardListResponse.builder()
-                    .plubbings(PageResponse.of(plubbings))
                     .build();
         }
     }

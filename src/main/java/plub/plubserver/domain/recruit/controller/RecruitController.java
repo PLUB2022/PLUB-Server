@@ -7,6 +7,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
 import plub.plubserver.common.dto.ApiResponse;
+import plub.plubserver.common.dto.PageResponse;
 import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.account.service.AccountService;
 import plub.plubserver.domain.plubbing.dto.PlubbingDto.JoinedAccountsInfoResponse;
@@ -27,12 +28,13 @@ public class RecruitController {
     private final AccountService accountService;
 
     @GetMapping("/recruit")
-    public ApiResponse<RecruitCardListResponse> searchRecruit(
+    public ApiResponse<PageResponse<RecruitCardResponse>> searchRecruit(
             @PageableDefault(sort = "id", direction = Sort.Direction.DESC) Pageable pageable,
             @RequestParam("keyword") String keyword,
-            @RequestParam("type") String type
+            @RequestParam("type") String type,
+            @RequestParam("sort") String sort
     ) {
-        return success(recruitService.search(pageable, RecruitSearchType.toType(type), keyword));
+        return success(recruitService.search(pageable, sort, RecruitSearchType.toType(type), keyword));
     }
 
     @GetMapping("/{plubbingId}/recruit")

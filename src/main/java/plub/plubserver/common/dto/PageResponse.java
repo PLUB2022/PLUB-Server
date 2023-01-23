@@ -10,15 +10,15 @@ import java.util.List;
 public class PageResponse<T> {
     int totalPages;
     int totalElements;
-    boolean isLast;
+    boolean last;
     List<T> content;
 
-    public static <T> PageResponse<T> of(Page<T> data) {
+    public static <T> PageResponse<T> of(Page<T> page) {
         return PageResponse.<T>builder()
-                .totalPages(data.getTotalPages())
-                .totalElements((int) data.getTotalElements())
-                .isLast(data.isLast())
-                .content(data.getContent())
+                .totalPages(page.getTotalPages())
+                .totalElements((int) page.getTotalElements())
+                .last(page.isLast())
+                .content(page.getContent())
                 .build();
     }
 }

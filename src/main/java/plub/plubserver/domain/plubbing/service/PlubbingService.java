@@ -5,6 +5,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import plub.plubserver.common.dto.PageResponse;
 import plub.plubserver.domain.account.config.AccountCode;
 import plub.plubserver.domain.account.exception.AccountException;
 import plub.plubserver.domain.account.model.Account;
@@ -167,6 +168,7 @@ public class PlubbingService {
         return MyPlubbingListResponse.of(myPlubbingResponses);
     }
 
+    @Transactional
     public MainPlubbingResponse getMainPlubbing(Long plubbingId) {
         Account currentAccount = accountService.getCurrentAccount();
         if (!accountPlubbingRepository.existsByAccountAndPlubbingId(currentAccount, plubbingId))
@@ -177,6 +179,8 @@ public class PlubbingService {
 
         List<Account> accounts = accountPlubbingRepository.findAllByPlubbingId(plubbingId)
                 .stream().map(AccountPlubbing::getAccount).collect(Collectors.toList());
+
+        plubbing.plusView();
 
         return MainPlubbingResponse.of(plubbing, accounts);
     }
@@ -266,22 +270,22 @@ public class PlubbingService {
             throw new PlubbingException(PlubbingCode.DELETED_STATUS_PLUBBING);
     }
 
-    public PlubbingCardListResponse getRecommendation(Pageable pageable) {
+    public PageResponse<PlubbingCardResponse> getRecommendation(Pageable pageable) {
         Account myAccount = accountService.getCurrentAccount();
         if (!myAccount.getAccountCategories().isEmpty()) {
             List<SubCategory> subCategories = accountCategoryRepository.findAllByAccount(myAccount)
                     .stream().map(AccountCategory::getCategorySub).toList();
             Page<PlubbingCardResponse> plubbingCardResponses = plubbingRepository.findAllBySubCategory(subCategories, pageable).map(PlubbingCardResponse::of);
-            return PlubbingCardListResponse.of(plubbingCardResponses);
+            return PageResponse.of(plubbingCardResponses);
         } else {
             Page<PlubbingCardResponse> plubbingCardResponses = plubbingRepository.findAllByViews(pageable).map(PlubbingCardResponse::of);
-            return PlubbingCardListResponse.of(plubbingCardResponses);
+            return PageResponse.of(plubbingCardResponses);
         }
     }
 
-    public PlubbingCardListResponse getPlubbingByCategory(Long categoryId, Pageable pageable) {
+    public PageResponse<PlubbingCardResponse> getPlubbingByCategory(Long categoryId, Pageable pageable) {
         Page<PlubbingCardResponse> plubbingCardResponses = plubbingRepository.findAllByCategoryId(categoryId, pageable).map(PlubbingCardResponse::of);
-        return PlubbingCardListResponse.of(plubbingCardResponses);
+        return PageResponse.of(plubbingCardResponses);
     }
 }
 

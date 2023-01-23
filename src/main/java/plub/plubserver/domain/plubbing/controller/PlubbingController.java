@@ -8,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
 import plub.plubserver.common.dto.ApiResponse;
+import plub.plubserver.common.dto.PageResponse;
 import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.account.service.AccountService;
 import plub.plubserver.domain.plubbing.dto.PlubbingDto.*;
@@ -91,16 +92,18 @@ public class PlubbingController {
 
     @ApiOperation(value = "추천 모임")
     @GetMapping("/recommendation")
-    public ApiResponse<PlubbingCardListResponse> getRecommendation(@PageableDefault(size = 10) Pageable pageable) {
-        PlubbingCardListResponse plubbingCardResponses = plubbingService.getRecommendation(pageable);
-        return success(plubbingCardResponses);
+    public ApiResponse<PageResponse<PlubbingCardResponse>> getRecommendation(
+            @PageableDefault Pageable pageable
+    ) {
+        return success(plubbingService.getRecommendation(pageable));
     }
 
     @ApiOperation(value = "카테고리별 모임 조회")
     @GetMapping("/categories/{categoryId}")
-    public ApiResponse<PlubbingCardListResponse> getPlubbingByCategory(@PathVariable Long categoryId,
-                                                                       @PageableDefault(size = 10) Pageable pageable) {
-        PlubbingCardListResponse plubbingCardResponses = plubbingService.getPlubbingByCategory(categoryId, pageable);
-        return success(plubbingCardResponses);
+    public ApiResponse<PageResponse<PlubbingCardResponse>> getPlubbingByCategory(
+            @PathVariable Long categoryId,
+            @PageableDefault Pageable pageable
+    ) {
+        return success(plubbingService.getPlubbingByCategory(categoryId, pageable));
     }
 }
