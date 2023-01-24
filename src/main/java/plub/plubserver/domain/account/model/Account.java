@@ -2,6 +2,7 @@ package plub.plubserver.domain.account.model;
 
 import lombok.*;
 import plub.plubserver.common.model.BaseTimeEntity;
+import plub.plubserver.domain.calendar.model.PlubbingCalendarAttend;
 import plub.plubserver.domain.feed.model.PlubbingFeed;
 import plub.plubserver.domain.message.model.Message;
 import plub.plubserver.domain.notification.model.Notification;
@@ -85,6 +86,11 @@ public class Account extends BaseTimeEntity {
     // 회원(1) - 공지(다)
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PlubbingNotice> noticeList = new ArrayList<>();
+
+    // 회원(1) - 참석여부(다)
+    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PlubbingCalendarAttend> attendList = new ArrayList<>();
+
 
     // TODO : DTO에 변환로직이 가도록 수정해야함
     public AccountRequest toAccountRequestDto() {

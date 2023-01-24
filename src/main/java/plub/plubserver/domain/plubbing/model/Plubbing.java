@@ -2,12 +2,13 @@ package plub.plubserver.domain.plubbing.model;
 
 import lombok.*;
 import plub.plubserver.common.model.BaseTimeEntity;
+import plub.plubserver.domain.calendar.model.PlubbingCalendar;
 import plub.plubserver.domain.category.model.PlubbingSubCategory;
 import plub.plubserver.domain.feed.model.PlubbingFeed;
 import plub.plubserver.domain.plubbing.dto.PlubbingDto.UpdatePlubbingRequest;
 import plub.plubserver.domain.recruit.dto.RecruitDto.UpdateRecruitRequest;
 import plub.plubserver.domain.recruit.model.Recruit;
-import plub.plubserver.domain.timeline.model.PlubbingTimeline;
+import plub.plubserver.domain.todo.model.PlubbingTodo;
 import plub.plubserver.notice.model.PlubbingNotice;
 
 import javax.persistence.*;
@@ -59,7 +60,7 @@ public class Plubbing extends BaseTimeEntity {
 
     // 모임(1) - 플러빙 일정(다)
     @OneToMany(mappedBy = "plubbing", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<PlubbingDate> plubbingDateList;
+    private List<PlubbingCalendar> calendarList;
 
     // 모임(1) - 회원_모임페이지(다) # 다대다 용
     @OneToMany(mappedBy = "plubbing", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -79,7 +80,7 @@ public class Plubbing extends BaseTimeEntity {
 
     // 모임(1) - 타임라인(다)
     @OneToMany(mappedBy = "plubbing", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<PlubbingTimeline> timeLineList;
+    private List<PlubbingTodo> todoList;
 
     /**
      * methods
