@@ -1,10 +1,10 @@
 package plub.plubserver.domain.calendar.dto;
 
 import lombok.Builder;
+import org.springframework.data.domain.Page;
+import plub.plubserver.common.dto.PageResponse;
 
-import java.util.List;
-
-import static plub.plubserver.domain.calendar.dto.PlubbingCalendarAttendDto.*;
+import static plub.plubserver.domain.calendar.dto.PlubbingCalendarAttendDto.CalendarAttendList;
 
 public class PlubbingCalendarDto {
 
@@ -62,14 +62,14 @@ public class PlubbingCalendarDto {
 
 
     public record CalendarListResponse(
-            List<CalendarCardResponse> calendarList
+            PageResponse<CalendarCardResponse> calendarList
     ){
         @Builder
         public CalendarListResponse{}
 
-        public static CalendarListResponse of(List<CalendarCardResponse> calendarList) {
+        public static CalendarListResponse of(Page<CalendarCardResponse> calendarPage) {
             return CalendarListResponse.builder()
-                    .calendarList(calendarList)
+                    .calendarList(PageResponse.of(calendarPage))
                     .build();
         }
     }

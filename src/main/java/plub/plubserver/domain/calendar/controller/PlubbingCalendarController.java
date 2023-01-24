@@ -4,6 +4,8 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
 import plub.plubserver.common.dto.ApiResponse;
 import plub.plubserver.domain.calendar.dto.PlubbingCalendarAttendDto;
@@ -54,8 +56,9 @@ public class PlubbingCalendarController {
 
     @ApiOperation(value = "일정 리스트 조회")
     @GetMapping("/{plubbingId}/calendar")
-    public ApiResponse<CalendarListResponse> getCalendarList(@PathVariable Long plubbingId) {
-        return success(plubbingCalendarService.getCalendarList(plubbingId));
+    public ApiResponse<CalendarListResponse> getCalendarList(@PathVariable Long plubbingId,
+                                                             @PageableDefault Pageable pageable) {
+        return success(plubbingCalendarService.getCalendarList(plubbingId, pageable));
     }
 
     @ApiOperation(value = "참석 여부 선택")

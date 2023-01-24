@@ -1,6 +1,9 @@
 package plub.plubserver.domain.calendar.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import plub.plubserver.domain.calendar.repository.PlubbingCalendarRepository;
 
@@ -38,15 +41,18 @@ public class PlubbingCalendarService {
         return new CalendarAttendResponse(1L, "nickname", "profileImage", "attendStatus");
     }
 
-    public CalendarListResponse getCalendarList(Long plubbingId) {
-        return new CalendarListResponse(
-                List.of(
-                        new CalendarCardResponse(1L, "title", "memo", "2021-08-01", "2021-08-01", "10:00", "11:00", false, "address", "roadAddress", "placeName",
-                                new HostInfo(10L, "nickname", "profileImage"),
-                                new CalendarAttendList(List.of(new CalendarAttendResponse(100L, "nickname", "profileImage", "attendStatus")))),
-                        new CalendarCardResponse(2L, "title", "memo", "2021-08-01", "2021-08-01", "10:00", "11:00", false, "address", "roadAddress", "placeName",
-                                new HostInfo(10L, "nickname", "profileImage"),
-                                new CalendarAttendList(List.of(new CalendarAttendResponse(100L, "nickname", "profileImage", "attendStatus"))))));
+    public CalendarListResponse getCalendarList(Long plubbingId, Pageable pageable) {
+
+        List<CalendarCardResponse> calendarCardResponseList = List.of(
+                new CalendarCardResponse(1L, "title", "memo", "2021-08-01", "2021-08-01", "10:00", "11:00", false, "address", "roadAddress", "placeName",
+                        new HostInfo(10L, "nickname", "profileImage"),
+                        new CalendarAttendList(List.of(new CalendarAttendResponse(100L, "nickname", "profileImage", "attendStatus")))),
+                new CalendarCardResponse(2L, "title", "memo", "2021-08-01", "2021-08-01", "10:00", "11:00", false, "address", "roadAddress", "placeName",
+                        new HostInfo(10L, "nickname", "profileImage"),
+                        new CalendarAttendList(List.of(new CalendarAttendResponse(100L, "nickname", "profileImage", "attendStatus")))));
+        Page<CalendarCardResponse> calendarCardResponsePage = new PageImpl<>(calendarCardResponseList, pageable, 0);
+        return CalendarListResponse.of(calendarCardResponsePage);
+
     }
 
 }

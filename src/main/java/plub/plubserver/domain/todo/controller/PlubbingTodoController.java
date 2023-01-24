@@ -4,6 +4,8 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
 import plub.plubserver.common.dto.ApiResponse;
 import plub.plubserver.domain.todo.service.PlubbingTodoService;
@@ -33,8 +35,9 @@ public class PlubbingTodoController {
 
     @ApiOperation(value = "투두 리스트 전체 조회")
     @GetMapping("/{plubbingId}/todolist")
-    public ApiResponse<TodoListResponse> getAllTodoList(@PathVariable Long plubbingId) {
-        return success(plubbingTodoService.getAllTodoList(plubbingId));
+    public ApiResponse<TodoListResponse> getAllTodoList(@PathVariable Long plubbingId,
+                                                        @PageableDefault Pageable pageable) {
+        return success(plubbingTodoService.getAllTodoList(plubbingId, pageable));
     }
 
     @ApiOperation(value = "투두 상세 조회")
@@ -47,8 +50,9 @@ public class PlubbingTodoController {
     @ApiOperation(value = "투두 리스트 맴버 조회")
     @GetMapping("/{plubbingId}/todolist/account/{accountId}")
     public ApiResponse<TodoListResponse> getTodoList(@PathVariable Long plubbingId,
-                                                     @PathVariable Long accountId) {
-        return success(plubbingTodoService.getTodoList(plubbingId, accountId));
+                                                     @PathVariable Long accountId,
+                                                     @PageableDefault Pageable pageable) {
+        return success(plubbingTodoService.getTodoList(plubbingId, accountId, pageable));
     }
 
     @ApiOperation(value = "투두 리스트 날짜 조회")
@@ -56,8 +60,9 @@ public class PlubbingTodoController {
     public ApiResponse<TodoListResponse> getTodoListByDate(@PathVariable Long plubbingId,
                                                            @PathVariable int year,
                                                            @PathVariable int month,
-                                                           @PathVariable int day) {
-        return success(plubbingTodoService.getTodoListByDate(plubbingId, year, month, day));
+                                                           @PathVariable int day,
+                                                           @PageableDefault Pageable pageable) {
+        return success(plubbingTodoService.getTodoListByDate(plubbingId, year, month, day, pageable));
     }
 
     @ApiOperation(value = "투두 리스트 삭제")

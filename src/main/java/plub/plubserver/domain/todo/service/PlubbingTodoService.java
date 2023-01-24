@@ -1,6 +1,9 @@
 package plub.plubserver.domain.todo.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.account.service.AccountService;
@@ -23,8 +26,8 @@ public class PlubbingTodoService {
        return new PlubbingTodoDto.TodoIdResponse(1L);
     }
 
-    public TodoListResponse getAllTodoList(Long plubbingId) {
-        return getTodoListMockResponse();
+    public TodoListResponse getAllTodoList(Long plubbingId, Pageable pageable) {
+        return getTodoListMockResponse(pageable);
     }
 
 
@@ -32,13 +35,13 @@ public class PlubbingTodoService {
         return new TodoCardResponse(1L, "content1", "2022-12-01", false, false, "", 0);
     }
 
-    public TodoListResponse getTodoList(Long plubbingId, Long accountId) {
+    public TodoListResponse getTodoList(Long plubbingId, Long accountId, Pageable pageable) {
         Account loginAccount = accountService.getCurrentAccount();
-        return getTodoListMockResponse();
+        return getTodoListMockResponse(pageable);
     }
 
-    public TodoListResponse getTodoListByDate(Long plubbingId, int year, int month, int day) {
-        return getTodoListMockResponse();
+    public TodoListResponse getTodoListByDate(Long plubbingId, int year, int month, int day, Pageable pageable) {
+        return getTodoListMockResponse(pageable);
     }
 
     public TodoMessage deleteTodoList(Long plubbingId, Long todolistId) {
@@ -61,12 +64,13 @@ public class PlubbingTodoService {
         return new TodoMessage("success");
     }
 
-    private TodoListResponse getTodoListMockResponse() {
+    private TodoListResponse getTodoListMockResponse(Pageable pageable) {
         List<TodoCardResponse> todoCardResponses = List.of(
                 new TodoCardResponse(1L, "content1", "2022-12-01", false, false, "", 0),
                 new TodoCardResponse(2L, "content1", "2022-12-01", false, false, "", 0),
                 new TodoCardResponse(3L, "content1", "2022-12-01", false, false, "", 0)
         );
-        return TodoListResponse.of(todoCardResponses);
+        Page<TodoCardResponse> todoCardResponsePage = new PageImpl<>(todoCardResponses, pageable, 0);
+        return TodoListResponse.of(todoCardResponsePage);
     }
 }

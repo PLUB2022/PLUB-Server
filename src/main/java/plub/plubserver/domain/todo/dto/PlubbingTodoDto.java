@@ -1,11 +1,12 @@
 package plub.plubserver.domain.todo.dto;
 
 import lombok.Builder;
+import org.springframework.data.domain.Page;
+import plub.plubserver.common.dto.PageResponse;
 import plub.plubserver.domain.todo.model.PlubbingTodo;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
-import java.util.List;
 
 public class PlubbingTodoDto {
 
@@ -57,14 +58,14 @@ public class PlubbingTodoDto {
     }
 
     public record TodoListResponse(
-            List<TodoCardResponse> todoList
+            PageResponse<TodoCardResponse> todoList
     ){
         @Builder
         public TodoListResponse {}
 
-        public static TodoListResponse of(List<TodoCardResponse> todoList) {
+        public static TodoListResponse of(Page<TodoCardResponse> todoCardPage) {
             return TodoListResponse.builder()
-                    .todoList(todoList)
+                    .todoList(PageResponse.of(todoCardPage))
                     .build();
         }
 
