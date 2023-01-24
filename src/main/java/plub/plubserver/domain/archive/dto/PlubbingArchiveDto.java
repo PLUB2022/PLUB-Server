@@ -6,6 +6,8 @@ import plub.plubserver.common.dto.PageResponse;
 import plub.plubserver.domain.archive.model.PlubbingArchive;
 import plub.plubserver.domain.archive.model.PlubbingArchiveImage;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
 import java.util.List;
 import java.util.Optional;
 
@@ -16,7 +18,10 @@ public class PlubbingArchiveDto {
      * Request
      */
     public record ArchiveRequest(
+            @NotBlank @Size(max = 12)
             String title,
+
+            @Size(max = 10)
             List<String> images
     ) {
     }

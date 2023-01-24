@@ -6,6 +6,8 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import plub.plubserver.domain.account.model.Account;
+import plub.plubserver.domain.account.service.AccountService;
 import plub.plubserver.domain.archive.dto.PlubbingArchiveDto.ArchiveCardListResponse;
 import plub.plubserver.domain.archive.dto.PlubbingArchiveDto.ArchiveCardResponse;
 import plub.plubserver.domain.archive.dto.PlubbingArchiveDto.ArchiveIdResponse;
@@ -13,6 +15,7 @@ import plub.plubserver.domain.archive.dto.PlubbingArchiveDto.ArchiveRequest;
 import plub.plubserver.domain.archive.model.PlubbingArchive;
 import plub.plubserver.domain.archive.model.PlubbingArchiveImage;
 import plub.plubserver.domain.archive.repository.PlubbingArchiveRepository;
+import plub.plubserver.domain.plubbing.model.Plubbing;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,6 +24,8 @@ import java.util.List;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class PlubbingArchiveService {
+
+    private final AccountService accountService;
     private final PlubbingArchiveRepository plubbingArchiveRepository;
 
     public ArchiveCardListResponse getArchiveList(Long plubbingId, Pageable pageable) {
@@ -52,7 +57,29 @@ public class PlubbingArchiveService {
 
     @Transactional
     public ArchiveIdResponse createArchive(Long plubbingId, ArchiveRequest archiveRequest) {
-        return ArchiveIdResponse.of(PlubbingArchive.builder().id(1L).build());
+        Account account = accountService.getCurrentAccount();
+        Plubbing plubbing = account.getPlubbing(plubbingId);
+
+        PlubbingArchive plubbingArchive = plubbingArchiveRepository.save(
+                PlubbingArchive.builder().title(archiveRequest.title()).build()
+        );
+
+        // PlubbingArchive 매핑해서 이미지 엔티티화
+        List<PlubbingArchiveImage> archiveImages = archiveRequest.images().stream()
+                .map(it -> PlubbingArchiveImage.builder()
+                        .plubbingArchive(plubbingArchive)
+                        .image(it)
+                        .build()
+                )
+                .toList();
+
+        // PlubbingArchiveImage 매핑
+        plubbingArchive.setImages(archiveImages);
+
+        // PlubbingArchive 저장
+        plubbing.addArchive(plubbingArchive);
+
+        return ArchiveIdResponse.of(plubbingArchive);
     }
 
     @Transactional

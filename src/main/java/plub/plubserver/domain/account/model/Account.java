@@ -6,8 +6,11 @@ import plub.plubserver.domain.calendar.model.PlubbingCalendarAttend;
 import plub.plubserver.domain.feed.model.PlubbingFeed;
 import plub.plubserver.domain.message.model.Message;
 import plub.plubserver.domain.notification.model.Notification;
-import plub.plubserver.domain.policy.model.Policy;
+import plub.plubserver.domain.plubbing.config.PlubbingCode;
+import plub.plubserver.domain.plubbing.exception.PlubbingException;
 import plub.plubserver.domain.plubbing.model.AccountPlubbing;
+import plub.plubserver.domain.plubbing.model.Plubbing;
+import plub.plubserver.domain.policy.model.Policy;
 import plub.plubserver.domain.recruit.model.AppliedAccount;
 import plub.plubserver.domain.recruit.model.Bookmark;
 import plub.plubserver.notice.model.PlubbingNotice;
@@ -131,5 +134,13 @@ public class Account extends BaseTimeEntity {
 
     public void removeBookmark(Bookmark bookmark) {
         bookmarkList.remove(bookmark);
+    }
+
+    public Plubbing getPlubbing(Long plubbingId) {
+        return accountPlubbingList.stream()
+                .filter(it -> it.getPlubbing().getId().equals(plubbingId))
+                .findFirst()
+                .orElseThrow(() -> new PlubbingException(PlubbingCode.NOT_FOUND_PLUBBING))
+                .getPlubbing();
     }
 }

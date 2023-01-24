@@ -11,6 +11,8 @@ import plub.plubserver.domain.archive.dto.PlubbingArchiveDto.ArchiveIdResponse;
 import plub.plubserver.domain.archive.dto.PlubbingArchiveDto.ArchiveRequest;
 import plub.plubserver.domain.archive.service.PlubbingArchiveService;
 
+import javax.validation.Valid;
+
 import static plub.plubserver.common.dto.ApiResponse.success;
 
 @RestController
@@ -39,7 +41,7 @@ public class PlubbingArchiveController {
     @PostMapping
     public ApiResponse<ArchiveIdResponse> createArchive(
             @PathVariable Long plubbingId,
-            @RequestBody ArchiveRequest archiveRequest
+            @Valid @RequestBody ArchiveRequest archiveRequest
     ) {
         return success(
                 plubbingArchiveService.createArchive(plubbingId, archiveRequest)
@@ -50,7 +52,7 @@ public class PlubbingArchiveController {
     public ApiResponse<ArchiveIdResponse> updateArchive(
             @PathVariable("plubbingId") Long plubbingId,
             @PathVariable("archiveId") Long archiveId,
-            @RequestBody ArchiveRequest archiveRequest
+            @Valid @RequestBody ArchiveRequest archiveRequest
     ) {
         return success(
                 plubbingArchiveService.updateArchive(plubbingId, archiveId, archiveRequest)

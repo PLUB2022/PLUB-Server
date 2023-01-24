@@ -2,6 +2,7 @@ package plub.plubserver.domain.plubbing.model;
 
 import lombok.*;
 import plub.plubserver.common.model.BaseTimeEntity;
+import plub.plubserver.domain.archive.model.PlubbingArchive;
 import plub.plubserver.domain.calendar.model.PlubbingCalendar;
 import plub.plubserver.domain.category.model.PlubbingSubCategory;
 import plub.plubserver.domain.feed.model.PlubbingFeed;
@@ -78,9 +79,13 @@ public class Plubbing extends BaseTimeEntity {
     @OneToMany(mappedBy = "plubbing", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PlubbingSubCategory> plubbingSubCategories;
 
-    // 모임(1) - 타임라인(다)
+    // 모임(1) - 투두(다)
     @OneToMany(mappedBy = "plubbing", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PlubbingTodo> todoList;
+
+    // 모임(1) - 아카이브(다)
+    @OneToMany(mappedBy = "plubbing", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PlubbingArchive> archives;
 
     /**
      * methods
@@ -153,5 +158,11 @@ public class Plubbing extends BaseTimeEntity {
 
     public void plusView() {
         views++;
+    }
+
+    // archive
+    public void addArchive(PlubbingArchive plubbingArchive) {
+        if (archives == null) archives = new ArrayList<>();
+        archives.add(plubbingArchive);
     }
 }

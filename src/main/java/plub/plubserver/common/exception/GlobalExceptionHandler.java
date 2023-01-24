@@ -3,6 +3,7 @@ package plub.plubserver.common.exception;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindException;
+import org.springframework.validation.FieldError;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -62,7 +63,11 @@ public class GlobalExceptionHandler {
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
     protected ApiResponse<?> validationException(final BindException ex) {
         log.warn("ValidationException({}) - {}", ex.getClass().getSimpleName(), ex.getMessage());
-        return error(INVALID_INPUT_VALUE.getStatusCode(), ex.getMessage());
+        StringBuilder reason = new StringBuilder();
+        for (FieldError fieldError : ex.getBindingResult().getFieldErrors()) {
+            reason.append(fieldError.getDefaultMessage()).append(",");
+        }
+        return error(INVALID_INPUT_VALUE.getStatusCode(), reason.toString());
     }
 
     // Aws S3 Error
