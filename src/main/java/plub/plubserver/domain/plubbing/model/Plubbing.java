@@ -7,7 +7,7 @@ import plub.plubserver.domain.feed.model.PlubbingFeed;
 import plub.plubserver.domain.plubbing.dto.PlubbingDto.UpdatePlubbingRequest;
 import plub.plubserver.domain.recruit.dto.RecruitDto.UpdateRecruitRequest;
 import plub.plubserver.domain.recruit.model.Recruit;
-import plub.plubserver.domain.timeline.model.PlubbingTimeline;
+import plub.plubserver.domain.todo.model.PlubbingTodo;
 import plub.plubserver.notice.model.PlubbingNotice;
 
 import javax.persistence.*;
@@ -79,7 +79,7 @@ public class Plubbing extends BaseTimeEntity {
 
     // 모임(1) - 타임라인(다)
     @OneToMany(mappedBy = "plubbing", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<PlubbingTimeline> timeLineList;
+    private List<PlubbingTodo> todoList;
 
     /**
      * methods
