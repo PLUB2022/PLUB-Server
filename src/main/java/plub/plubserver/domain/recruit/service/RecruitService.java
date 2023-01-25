@@ -3,7 +3,6 @@ package plub.plubserver.domain.recruit.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -101,25 +100,18 @@ public class RecruitService {
                 .map(it -> it.getRecruit().getPlubbing().getId())
                 .toList();
 
-        List<RecruitCardResponse> recruitCardResponse = recruitPage.map(it -> {
+        List<RecruitCardResponse> cardList = recruitPage.map(it -> {
             boolean isBookmarked = bookmarkedPlubbingIds.contains(it.getPlubbing().getId());
             return RecruitCardResponse.of(it, isBookmarked);
         }).toList();
 
-        int start = (int) pageable.getOffset();
-        int end = Math.min(start + pageable.getPageSize(), recruitCardResponse.size());
-        Page<RecruitCardResponse> recruitCardPage = new PageImpl<>(
-                recruitCardResponse.subList(start, end),
-                pageable,
-                recruitCardResponse.size()
-        );
-
-        return PageResponse.of(recruitCardPage);
+        return PageResponse.of(pageable, cardList);
     }
 
     /**
-     * 북마크 등록, 취소
+     * 북마크
      */
+    // 등록, 취소
     @Transactional
     public BookmarkResponse bookmark(Account account, Long plubbingId) {
         Recruit recruit = getRecruitByPlubbingId(plubbingId);
@@ -142,6 +134,17 @@ public class RecruitService {
                 .isBookmarked(isBookmarked)
                 .plubbingId(plubbingId)
                 .build();
+    }
+
+    // 내 북마크 전체 조회
+    public PageResponse<RecruitCardResponse> getMyBookmarks(Pageable pageable) {
+        Account account = accountService.getCurrentAccount();
+        List<Bookmark> bookmarkList = account.getBookmarkList();
+        List<RecruitCardResponse> cardList = bookmarkList.stream()
+                .map(it -> RecruitCardResponse.of(it.getRecruit(), true))
+                .toList();
+
+        return PageResponse.of(pageable, cardList);
     }
 
 
