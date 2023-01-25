@@ -154,4 +154,11 @@ public class Plubbing extends BaseTimeEntity {
     public void plusView() {
         views++;
     }
+
+    public String getTime() {
+        if (time.length() >= 2) {
+            return time.substring(0, 2) + ":" + time.substring(2);
+        }
+        return time;
+    }
 }
