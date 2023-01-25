@@ -35,5 +35,11 @@ public class PlubbingArchive extends BaseTimeEntity {
         this.images = images;
     }
 
+    public void update(String title, List<PlubbingArchiveImage> images) {
+        this.title = title;
+        this.images.clear();
+        this.images.addAll(images);
+    }
+
 
 }
