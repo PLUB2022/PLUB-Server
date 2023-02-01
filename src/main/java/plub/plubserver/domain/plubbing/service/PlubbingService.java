@@ -6,6 +6,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import plub.plubserver.common.dto.PageResponse;
+import plub.plubserver.common.model.SortType;
 import plub.plubserver.domain.account.config.AccountCode;
 import plub.plubserver.domain.account.exception.AccountException;
 import plub.plubserver.domain.account.model.Account;
@@ -283,8 +284,8 @@ public class PlubbingService {
         }
     }
 
-    public PageResponse<PlubbingCardResponse> getPlubbingByCategory(Long categoryId, Pageable pageable) {
-        Page<PlubbingCardResponse> plubbingCardResponses = plubbingRepository.findAllByCategoryId(categoryId, pageable).map(PlubbingCardResponse::of);
+    public PageResponse<PlubbingCardResponse> getPlubbingByCategory(Long categoryId, Pageable pageable, String sort) {
+        Page<PlubbingCardResponse> plubbingCardResponses = plubbingRepository.findAllByCategoryId(categoryId, pageable, SortType.of(sort)).map(PlubbingCardResponse::of);
         return PageResponse.of(plubbingCardResponses);
     }
 }

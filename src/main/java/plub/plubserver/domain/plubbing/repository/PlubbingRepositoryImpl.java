@@ -1,10 +1,12 @@
 package plub.plubserver.domain.plubbing.repository;
 
+import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
+import plub.plubserver.common.model.SortType;
 import plub.plubserver.domain.category.model.SubCategory;
 import plub.plubserver.domain.plubbing.model.Plubbing;
 import plub.plubserver.domain.plubbing.model.PlubbingStatus;
@@ -15,13 +17,22 @@ import java.util.List;
 import static plub.plubserver.domain.category.model.QPlubbingSubCategory.plubbingSubCategory;
 import static plub.plubserver.domain.category.model.QSubCategory.subCategory;
 import static plub.plubserver.domain.plubbing.model.QPlubbing.plubbing;
+import static plub.plubserver.domain.recruit.model.QRecruit.recruit;
 
 @RequiredArgsConstructor
 public class PlubbingRepositoryImpl implements PlubbingRepositoryCustom {
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public Page<Plubbing> findAllByCategoryId(Long categoryId, Pageable pageable) {
+    public Page<Plubbing> findAllByCategoryId(Long categoryId, Pageable pageable, SortType sortType) {
+
+        OrderSpecifier<?> order;
+        if (sortType == SortType.POPULAR) {
+            order = plubbing.views.desc();
+        } else {
+            order = plubbing.modifiedAt.desc();
+        }
+
         return PageableExecutionUtils.getPage(
                 queryFactory
                         .selectFrom(plubbing)
@@ -30,7 +41,7 @@ public class PlubbingRepositoryImpl implements PlubbingRepositoryCustom {
                         .where(subCategory.category.id.eq(categoryId),
                                 plubbing.status.eq(PlubbingStatus.ACTIVE),
                                 plubbing.visibility.eq(true))
-                        .orderBy(plubbing.modifiedAt.desc())
+                        .orderBy(order)
                         .offset(pageable.getOffset())
                         .limit(pageable.getPageSize())
                         .fetch(),

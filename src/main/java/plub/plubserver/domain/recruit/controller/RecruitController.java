@@ -49,6 +49,13 @@ public class RecruitController {
         return success(recruitService.getRecruitQuestions(plubbingId));
     }
 
+    @GetMapping("/recruit/bookmarks/me")
+    public ApiResponse<PageResponse<RecruitCardResponse>> getMyBookmarks(
+            @PageableDefault(sort = "id", direction = Sort.Direction.DESC) Pageable pageable
+    ) {
+        return success(recruitService.getMyBookmarks(pageable));
+    }
+
     @PostMapping("/{plubbingId}/recruit/bookmarks")
     public ApiResponse<BookmarkResponse> bookmark(@PathVariable Long plubbingId) {
         Account loginAccount = accountService.getCurrentAccount();

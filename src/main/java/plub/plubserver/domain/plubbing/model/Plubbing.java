@@ -165,4 +165,11 @@ public class Plubbing extends BaseTimeEntity {
         if (archives == null) archives = new ArrayList<>();
         archives.add(plubbingArchive);
     }
+
+    public String getTime() {
+        if (time.length() >= 2) {
+            return time.substring(0, 2) + ":" + time.substring(2);
+        }
+        return time;
+    }
 }
