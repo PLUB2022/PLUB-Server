@@ -50,9 +50,6 @@ logging:
       amazonaws:
         util:
           EC2MetadataUtils: error
-    org:
-      hibernate:
-        SQL: DEBUG
       springframework:
         web:
           client:

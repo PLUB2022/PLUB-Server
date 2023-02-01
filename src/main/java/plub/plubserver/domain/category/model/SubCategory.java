@@ -4,7 +4,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import plub.plubserver.common.model.BaseTimeEntity;
+import plub.plubserver.common.model.BaseEntity;
 import plub.plubserver.domain.account.model.AccountCategory;
 
 import javax.persistence.*;
@@ -14,7 +14,7 @@ import java.util.List;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class SubCategory extends BaseTimeEntity {
+public class SubCategory extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

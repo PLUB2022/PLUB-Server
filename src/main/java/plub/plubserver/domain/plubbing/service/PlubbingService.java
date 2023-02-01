@@ -7,8 +7,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import plub.plubserver.common.dto.PageResponse;
 import plub.plubserver.common.model.SortType;
-import plub.plubserver.domain.account.config.AccountCode;
-import plub.plubserver.domain.account.exception.AccountException;
 import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.account.model.AccountCategory;
 import plub.plubserver.domain.account.repository.AccountCategoryRepository;
@@ -155,8 +153,12 @@ public class PlubbingService {
     public void checkHost(Plubbing plubbing) {
         Account currentAccount = accountService.getCurrentAccount();
         AccountPlubbing accountPlubbing = accountPlubbingRepository.findByAccountAndPlubbing(currentAccount, plubbing)
-                .orElseThrow(() -> new AccountException(AccountCode.NOT_FOUND_ACCOUNT));
+                .orElseThrow(() -> new PlubbingException(PlubbingCode.NOT_MEMBER_ERROR));
         if (!accountPlubbing.isHost()) throw new PlubbingException(PlubbingCode.NOT_HOST);
+    }
+
+    public void checkHost(Long plubbingId) {
+        checkHost(getPlubbing(plubbingId));
     }
 
     /**

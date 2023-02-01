@@ -1,7 +1,7 @@
 package plub.plubserver.domain.recruit.model;
 
 import lombok.*;
-import plub.plubserver.common.model.BaseTimeEntity;
+import plub.plubserver.common.model.BaseEntity;
 import plub.plubserver.domain.plubbing.model.Plubbing;
 import plub.plubserver.domain.recruit.dto.RecruitDto.UpdateRecruitRequest;
 
@@ -15,7 +15,7 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Recruit extends BaseTimeEntity {
+public class Recruit extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
