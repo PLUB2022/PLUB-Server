@@ -5,9 +5,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
 import plub.plubserver.common.dto.ApiResponse;
+import plub.plubserver.common.dto.PageResponse;
 import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.account.service.AccountService;
-import plub.plubserver.domain.archive.dto.ArchiveDto.ArchiveCardListResponse;
 import plub.plubserver.domain.archive.dto.ArchiveDto.ArchiveCardResponse;
 import plub.plubserver.domain.archive.dto.ArchiveDto.ArchiveIdResponse;
 import plub.plubserver.domain.archive.dto.ArchiveDto.ArchiveRequest;
@@ -26,7 +26,7 @@ public class ArchiveController {
     private final AccountService accountService;
 
     @GetMapping
-    public ApiResponse<ArchiveCardListResponse> getArchiveList(
+    public ApiResponse<PageResponse<ArchiveCardResponse>> getArchiveList(
             @PathVariable Long plubbingId,
             @PageableDefault Pageable pageable
     ) {

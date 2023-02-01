@@ -24,7 +24,7 @@ public class Archive extends BaseEntity {
     private Long id;
 
     private String title;
-//    private boolean visibility;
+    private int sequence;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "plubbing_id")

@@ -1,15 +1,13 @@
 package plub.plubserver.domain.archive.service;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import plub.plubserver.common.dto.PageResponse;
 import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.account.service.AccountService;
 import plub.plubserver.domain.archive.config.ArchiveCode;
-import plub.plubserver.domain.archive.dto.ArchiveDto.ArchiveCardListResponse;
 import plub.plubserver.domain.archive.dto.ArchiveDto.ArchiveCardResponse;
 import plub.plubserver.domain.archive.dto.ArchiveDto.ArchiveIdResponse;
 import plub.plubserver.domain.archive.dto.ArchiveDto.ArchiveRequest;
@@ -20,7 +18,6 @@ import plub.plubserver.domain.archive.repository.ArchiveRepository;
 import plub.plubserver.domain.plubbing.model.Plubbing;
 import plub.plubserver.domain.plubbing.service.PlubbingService;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -37,18 +34,22 @@ public class ArchiveService {
                 .orElseThrow(() -> new ArchiveException(ArchiveCode.NOT_FOUND_ARCHIVE));
     }
 
-    public ArchiveCardListResponse getArchiveList(Long plubbingId, Pageable pageable) {
-        List<ArchiveCardResponse> archiveCardList = new ArrayList<>();
-        archiveCardList.add(ArchiveCardResponse.builder()
-                .archiveId(1L)
-                .title("title")
-                .image("image")
-                .imageCount(1)
-                .sequence(1)
-                .createdAt("2021-08-01 00:00:00")
-                .build());
-        Page<ArchiveCardResponse> archiveCardPage = new PageImpl<>(archiveCardList, pageable, 0);
-        return ArchiveCardListResponse.of(archiveCardPage);
+    public PageResponse<ArchiveCardResponse> getArchiveList(Long plubbingId, Pageable pageable) {
+        return PageResponse.of(
+                archiveRepository.findAllByPlubbingIdOrderBySequenceDesc(plubbingId, pageable)
+                .map(ArchiveCardResponse::of)
+        );
+//        List<ArchiveCardResponse> archiveCardList = new ArrayList<>();
+//        archiveCardList.add(ArchiveCardResponse.builder()
+//                .archiveId(1L)
+//                .title("title")
+//                .image("image")
+//                .imageCount(1)
+//                .sequence(1)
+//                .createdAt("2021-08-01 00:00:00")
+//                .build());
+//        Page<ArchiveCardResponse> archiveCardPage = new PageImpl<>(archiveCardList, pageable, 0);
+//        return ArchiveCardListResponse.of(archiveCardPage);
     }
 
     public ArchiveCardResponse getArchive(Long plubbingId, Long archiveId) {
@@ -80,12 +81,16 @@ public class ArchiveService {
             ArchiveRequest archiveRequest
     ) {
         Plubbing plubbing = loginAccount.getPlubbing(plubbingId);
+        int sequence = archiveRepository.findFirstByPlubbingIdOrderBySequenceDesc(plubbingId)
+                .map(Archive::getSequence)
+                .orElse(0) + 1;
 
         Archive archive = archiveRepository.save(
                 Archive.builder()
                         .title(archiveRequest.title())
                         .account(loginAccount)
                         .plubbing(plubbing)
+                        .sequence(sequence)
                         .build()
         );
 
