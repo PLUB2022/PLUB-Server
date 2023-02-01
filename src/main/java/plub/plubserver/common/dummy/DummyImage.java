@@ -1,0 +1,5 @@
+package plub.plubserver.common.dummy;
+
+public class DummyImage {
+    public static final String PLUB_MAIN_LOGO = "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ1Wk9jOVVvQXpQOGEvZFB1blg5SVpRPT0iLCJyb2xlIjoiUk9MRV9BRE1JTiIsImlhdCI6MTY3NTI1ODEwNSwiZXhwIjoxNjc1MjU4Mjg1fQ.a-Vex-3MaocEirkgcRG_P_LzTqkrV6-vHTTQhh_ohHrDTDj7fdF2Z6eBz7YnSFdVKPUbc7_JGLTBuMtpYLjgww";
+}

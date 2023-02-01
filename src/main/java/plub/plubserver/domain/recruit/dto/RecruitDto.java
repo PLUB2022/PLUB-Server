@@ -106,6 +106,7 @@ public class RecruitDto {
             return RecruitResponse.builder()
                     .title(recruit.getTitle())
                     .introduce(recruit.getIntroduce())
+                    .mainImage(plubbing.getMainImage())
                     .categories(categories)
                     .name(plubbing.getName())
                     .time(plubbing.getTime())

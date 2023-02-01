@@ -150,11 +150,14 @@ public class PlubbingService {
     }
 
     // 호스트 여부 검사
-    public void checkHost(Plubbing plubbing) {
-        Account currentAccount = accountService.getCurrentAccount();
-        AccountPlubbing accountPlubbing = accountPlubbingRepository.findByAccountAndPlubbing(currentAccount, plubbing)
+    public void checkHost(Account account, Plubbing plubbing) {
+        AccountPlubbing accountPlubbing = accountPlubbingRepository.findByAccountAndPlubbing(account, plubbing)
                 .orElseThrow(() -> new PlubbingException(PlubbingCode.NOT_MEMBER_ERROR));
         if (!accountPlubbing.isHost()) throw new PlubbingException(PlubbingCode.NOT_HOST);
+    }
+
+    public void checkHost(Plubbing plubbing) {
+        checkHost(accountService.getCurrentAccount(), plubbing);
     }
 
     public void checkHost(Long plubbingId) {

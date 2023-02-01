@@ -70,8 +70,10 @@ public class RecruitController {
     @PostMapping("/{plubbingId}/recruit/applicants")
     public ApiResponse<PlubbingIdResponse> applyRecruit(
             @PathVariable Long plubbingId,
-            @RequestBody ApplyRecruitRequest applyRecruitRequest) {
-        return success(recruitService.applyRecruit(plubbingId, applyRecruitRequest));
+            @RequestBody ApplyRecruitRequest applyRecruitRequest
+    ) {
+        Account loginAccount = accountService.getCurrentAccount();
+        return success(recruitService.applyRecruit(loginAccount, plubbingId, applyRecruitRequest));
     }
 
     @GetMapping("/{plubbingId}/recruit/applicants")
@@ -86,7 +88,8 @@ public class RecruitController {
             @PathVariable("plubbingId") Long plubbingId,
             @PathVariable("applicantId") Long applicantId
     ) {
-        return success(recruitService.acceptApplicant(plubbingId, applicantId));
+        Account loginAccount = accountService.getCurrentAccount();
+        return success(recruitService.acceptApplicant(loginAccount, plubbingId, applicantId));
     }
 
     @PostMapping("/{plubbingId}/recruit/applicants/{applicantId}/refuse")
@@ -94,6 +97,7 @@ public class RecruitController {
             @PathVariable("plubbingId") Long plubbingId,
             @PathVariable("applicantId") Long applicantId
     ) {
-        return success(recruitService.rejectApplicant(plubbingId, applicantId));
+        Account loginAccount = accountService.getCurrentAccount();
+        return success(recruitService.rejectApplicant(loginAccount, plubbingId, applicantId));
     }
 }

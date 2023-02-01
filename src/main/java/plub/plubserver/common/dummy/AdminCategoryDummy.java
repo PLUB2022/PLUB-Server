@@ -12,6 +12,7 @@ import plub.plubserver.domain.category.service.CategoryService;
 
 import javax.annotation.PostConstruct;
 
+import static plub.plubserver.common.dummy.DummyImage.PLUB_MAIN_LOGO;
 import static plub.plubserver.domain.account.dto.AuthDto.SignUpRequest;
 
 @Component
@@ -28,14 +29,26 @@ public class AdminCategoryDummy {
     @PostConstruct
     public void init() {
 
-        // 테스트용 계정
-        SignUpRequest adminAccount = SignUpRequest.builder().build();
+        // 테스트용 계정 - 어드민
+        SignUpRequest adminAccount = SignUpRequest.builder()
+                .profileImage(PLUB_MAIN_LOGO)
+                .build();
         Account account = adminAccount.toAdmin(passwordEncoder, ADMIN_PASSWORD, "admin1");
         accountRepository.save(account);
 
-        SignUpRequest adminAccount2 = SignUpRequest.builder().build();
+        SignUpRequest adminAccount2 = SignUpRequest.builder()
+                .profileImage(PLUB_MAIN_LOGO)
+                .build();
         Account account2 = adminAccount2.toAdmin(passwordEncoder, ADMIN_PASSWORD, "admin2");
         accountRepository.save(account2);
+
+        // 테스트용 계정 - 더미 유저
+        for (int i = 0; i < 20; i++) {
+            SignUpRequest dummyAccountForm = SignUpRequest.builder()
+                    .profileImage(PLUB_MAIN_LOGO)
+                    .build();
+            accountRepository.save(dummyAccountForm.toDummy(passwordEncoder, ADMIN_PASSWORD, "dummy" + i));
+        }
 
         // 전체 카테고리
         categoryService.createCategory("예술", 1, "https://plub.s3.ap-northeast-2.amazonaws.com/category/artIcon.png");

@@ -46,6 +46,10 @@ public class AccountService {
         return accountRepository.findByNickname(nickname).map(AccountInfoResponse::of).orElseThrow(() -> new AccountException(AccountCode.NOT_FOUND_ACCOUNT));
     }
 
+    public Account getAccount(Long accountId) {
+        return accountRepository.findById(accountId).orElseThrow(() -> new AccountException(AccountCode.NOT_FOUND_ACCOUNT));
+    }
+
     public Account getAccountByEmail(String email) {
         return accountRepository.findByEmail(email).orElseThrow(() -> new AccountException(AccountCode.NOT_FOUND_ACCOUNT));
     }

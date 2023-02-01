@@ -11,6 +11,7 @@ public class QuestionDto {
      * Request
      */
     public record AnswerRequest(Long questionId, String answer) {
+        @Builder public AnswerRequest {}
     }
 
     /**

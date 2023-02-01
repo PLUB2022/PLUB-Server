@@ -163,23 +163,26 @@ public class RecruitService {
      * 모집 지원
      */
     @Transactional
-    public PlubbingIdResponse applyRecruit(Long plubbingId, ApplyRecruitRequest applyRecruitRequest) {
-        Account account = accountService.getCurrentAccount();
+    public PlubbingIdResponse applyRecruit(
+            Account loginAccount,
+            Long plubbingId,
+            ApplyRecruitRequest applyRecruitRequest
+    ) {
         Recruit recruit = getRecruitByPlubbingId(plubbingId);
 
         // 호스트 본인은 지원 불가 처리
-        accountPlubbingRepository.findByAccount(account).ifPresent(accountPlubbing -> {
+        accountPlubbingRepository.findByAccount(loginAccount).ifPresent(accountPlubbing -> {
             if (accountPlubbing.isHost())
                 throw new RecruitException(RecruitCode.HOST_RECRUIT_ERROR);
         });
 
         // 이미 지원했는지 확인
-        if (appliedAccountRepository.existsByAccountAndRecruit(account, recruit))
+        if (appliedAccountRepository.existsByAccountAndRecruit(loginAccount, recruit))
             throw new RecruitException(RecruitCode.ALREADY_APPLIED_RECRUIT);
 
         // 지원자 생성
         AppliedAccount appliedAccount = AppliedAccount.builder()
-                .account(account)
+                .account(loginAccount)
                 .recruit(recruit)
                 .status(ApplicantStatus.WAITING)
                 .build();
@@ -206,14 +209,14 @@ public class RecruitService {
     }
 
     // 지원자 찾기
-    private AppliedAccount findAppliedAccount(Long plubbingId, Long accountId) {
+    private AppliedAccount findAppliedAccount(Account account, Long plubbingId, Long accountId) {
         Recruit recruit = getRecruitByPlubbingId(plubbingId);
 
-        plubbingService.checkHost(recruit.getPlubbing());
+        plubbingService.checkHost(account, recruit.getPlubbing());
 
         // recruit 에서 지원자를 찾기
         return appliedAccountRepository
-                .findByAccountIdAndRecruitId(accountId, plubbingId)
+                .findByAccountIdAndRecruitId(accountId, recruit.getId())
                 .orElseThrow(() -> new AccountException(AccountCode.NOT_FOUND_ACCOUNT));
     }
 
@@ -222,9 +225,9 @@ public class RecruitService {
      * 지원자 승낙
      */
     @Transactional
-    public JoinedAccountsInfoResponse acceptApplicant(Long plubbingId, Long accountId) {
+    public JoinedAccountsInfoResponse acceptApplicant(Account loginAccount, Long plubbingId, Long accountId) {
         Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
-        AppliedAccount appliedAccount = findAppliedAccount(plubbingId, accountId);
+        AppliedAccount appliedAccount = findAppliedAccount(loginAccount, plubbingId, accountId);
 
         if (appliedAccount.getStatus().equals(ApplicantStatus.ACCEPTED) ||
                 appliedAccount.getStatus().equals(ApplicantStatus.REJECTED))
@@ -251,8 +254,8 @@ public class RecruitService {
      * 지원자 거절
      */
     @Transactional
-    public JoinedAccountsInfoResponse rejectApplicant(Long plubbingId, Long accountId) {
-        AppliedAccount appliedAccount = findAppliedAccount(plubbingId, accountId);
+    public JoinedAccountsInfoResponse rejectApplicant(Account loginAccount, Long plubbingId, Long accountId) {
+        AppliedAccount appliedAccount = findAppliedAccount(loginAccount, plubbingId, accountId);
 
         if (appliedAccount.getStatus().equals(ApplicantStatus.REJECTED) ||
                 appliedAccount.getStatus().equals(ApplicantStatus.ACCEPTED))

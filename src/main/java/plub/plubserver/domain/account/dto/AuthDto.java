@@ -95,13 +95,28 @@ public class AuthDto {
         public Account toAdmin(PasswordEncoder passwordEncoder, CharSequence ADMIN_PASSWORD, String email) {
             return Account.builder()
                     .email(email)
+                    .profileImage(profileImage)
                     .password(passwordEncoder.encode(ADMIN_PASSWORD))
                     .socialType(SocialType.GOOGLE)
                     .nickname("admin")
-                    .birthday("birthday admin")
+                    .birthday("19981102")
                     .gender("M")
                     .introduce("introduce admin")
                     .role(Role.ROLE_ADMIN)
+                    .build();
+        }
+
+        public Account toDummy(PasswordEncoder passwordEncoder, CharSequence ADMIN_PASSWORD, String email) {
+            return Account.builder()
+                    .email(email)
+                    .profileImage(profileImage)
+                    .password(passwordEncoder.encode(ADMIN_PASSWORD))
+                    .socialType(SocialType.GOOGLE)
+                    .nickname("dummy")
+                    .birthday("19971103")
+                    .gender("M")
+                    .introduce("introduce dummy")
+                    .role(Role.ROLE_USER)
                     .build();
         }
     }
