@@ -1,7 +1,8 @@
 package plub.plubserver.domain.account.model;
 
 import lombok.*;
-import plub.plubserver.common.model.BaseTimeEntity;
+import plub.plubserver.common.model.BaseEntity;
+import plub.plubserver.domain.archive.model.Archive;
 import plub.plubserver.domain.calendar.model.PlubbingCalendarAttend;
 import plub.plubserver.domain.feed.model.PlubbingFeed;
 import plub.plubserver.domain.message.model.Message;
@@ -26,7 +27,7 @@ import static plub.plubserver.domain.account.dto.AccountDto.AccountRequest;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Account extends BaseTimeEntity {
+public class Account extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -94,6 +95,10 @@ public class Account extends BaseTimeEntity {
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PlubbingCalendarAttend> attendList = new ArrayList<>();
 
+    // 회원(1) - 아카이브(다) : 당장은 필요없지만 일단 만들어 놓음
+    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Archive> archiveList = new ArrayList<>();
+
 
     // TODO : DTO에 변환로직이 가도록 수정해야함
     public AccountRequest toAccountRequestDto() {
@@ -142,5 +147,10 @@ public class Account extends BaseTimeEntity {
                 .findFirst()
                 .orElseThrow(() -> new PlubbingException(PlubbingCode.NOT_FOUND_PLUBBING))
                 .getPlubbing();
+    }
+
+    public void addArchive(Archive archive) {
+        if (archiveList == null) archiveList = new ArrayList<>();
+        archiveList.add(archive);
     }
 }

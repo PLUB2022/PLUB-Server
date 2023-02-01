@@ -1,7 +1,7 @@
 package plub.plubserver.domain.category.model;
 
 import lombok.*;
-import plub.plubserver.common.model.BaseTimeEntity;
+import plub.plubserver.common.model.BaseEntity;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -10,7 +10,7 @@ import java.util.List;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Category extends BaseTimeEntity {
+public class Category extends BaseEntity {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "category_id")
     private Long id;

@@ -1,7 +1,7 @@
 package plub.plubserver.domain.calendar.model;
 
 import lombok.*;
-import plub.plubserver.common.model.BaseTimeEntity;
+import plub.plubserver.common.model.BaseEntity;
 import plub.plubserver.domain.account.model.Account;
 
 import javax.persistence.*;
@@ -11,7 +11,7 @@ import javax.persistence.*;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class PlubbingCalendarAttend extends BaseTimeEntity {
+public class PlubbingCalendarAttend extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -3,8 +3,8 @@ package plub.plubserver.domain.archive.dto;
 import lombok.Builder;
 import org.springframework.data.domain.Page;
 import plub.plubserver.common.dto.PageResponse;
-import plub.plubserver.domain.archive.model.PlubbingArchive;
-import plub.plubserver.domain.archive.model.PlubbingArchiveImage;
+import plub.plubserver.domain.archive.model.Archive;
+import plub.plubserver.domain.archive.model.ArchiveImage;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Optional;
 
 
-public class PlubbingArchiveDto {
+public class ArchiveDto {
 
     /**
      * Request
@@ -37,9 +37,9 @@ public class PlubbingArchiveDto {
         public ArchiveIdResponse {
         }
 
-        public static ArchiveIdResponse of(PlubbingArchive plubbingArchive) {
+        public static ArchiveIdResponse of(Archive archive) {
             return ArchiveIdResponse.builder()
-                    .archiveId(plubbingArchive.getId())
+                    .archiveId(archive.getId())
                     .build();
         }
     }
@@ -56,22 +56,22 @@ public class PlubbingArchiveDto {
         public ArchiveCardResponse {
         }
 
-        public static ArchiveCardResponse of(PlubbingArchive plubbingArchive) {
+        public static ArchiveCardResponse of(Archive archive) {
             String image = "";
             int sequence = -1;
-            Optional<PlubbingArchiveImage> archiveImage = plubbingArchive.getImages().stream().findFirst();
+            Optional<ArchiveImage> archiveImage = archive.getImages().stream().findFirst();
             if (archiveImage.isPresent()) {
                 image = archiveImage.get().getImage();
-                sequence = plubbingArchive.getImages().indexOf(archiveImage.get());
+                sequence = archive.getImages().indexOf(archiveImage.get());
             }
 
             return ArchiveCardResponse.builder()
-                    .archiveId(plubbingArchive.getId())
-                    .title(plubbingArchive.getTitle())
+                    .archiveId(archive.getId())
+                    .title(archive.getTitle())
                     .image(image)
-                    .imageCount(plubbingArchive.getImages().size())
+                    .imageCount(archive.getImages().size())
                     .sequence(sequence)
-                    .createdAt(plubbingArchive.getCreatedAt())
+                    .createdAt(archive.getCreatedAt())
                     .build();
         }
     }

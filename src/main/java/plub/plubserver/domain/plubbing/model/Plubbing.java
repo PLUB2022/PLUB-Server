@@ -1,8 +1,8 @@
 package plub.plubserver.domain.plubbing.model;
 
 import lombok.*;
-import plub.plubserver.common.model.BaseTimeEntity;
-import plub.plubserver.domain.archive.model.PlubbingArchive;
+import plub.plubserver.common.model.BaseEntity;
+import plub.plubserver.domain.archive.model.Archive;
 import plub.plubserver.domain.calendar.model.PlubbingCalendar;
 import plub.plubserver.domain.category.model.PlubbingSubCategory;
 import plub.plubserver.domain.feed.model.PlubbingFeed;
@@ -24,7 +24,7 @@ import static plub.plubserver.domain.plubbing.model.PlubbingStatus.DELETED;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Plubbing extends BaseTimeEntity {
+public class Plubbing extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -85,7 +85,7 @@ public class Plubbing extends BaseTimeEntity {
 
     // 모임(1) - 아카이브(다)
     @OneToMany(mappedBy = "plubbing", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<PlubbingArchive> archives;
+    private List<Archive> archives;
 
     /**
      * methods
@@ -161,9 +161,9 @@ public class Plubbing extends BaseTimeEntity {
     }
 
     // archive
-    public void addArchive(PlubbingArchive plubbingArchive) {
+    public void addArchive(Archive archive) {
         if (archives == null) archives = new ArrayList<>();
-        archives.add(plubbingArchive);
+        archives.add(archive);
     }
 
     public String getTime() {

@@ -9,16 +9,16 @@ import javax.persistence.*;
 @AllArgsConstructor
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class PlubbingArchiveImage {
+public class ArchiveImage {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "plubbing_archive_image_id")
+    @Column(name = "archive_image_id")
     private Long id;
 
     private String image;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "plubbing_archive_id")
-    private PlubbingArchive plubbingArchive;
+    @JoinColumn(name = "archive_id")
+    private Archive archive;
 
 }

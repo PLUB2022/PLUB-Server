@@ -1,7 +1,7 @@
 package plub.plubserver.domain.recruit.model;
 
 import lombok.*;
-import plub.plubserver.common.model.BaseTimeEntity;
+import plub.plubserver.common.model.BaseEntity;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -13,7 +13,7 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class RecruitQuestion extends BaseTimeEntity {
+public class RecruitQuestion extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
