@@ -33,7 +33,8 @@ public class PlubbingRecruitDummy {
                     .name("운동 모임" + i)
                     .goal("3대300치기" + i)
                     .introduce("운동 소개" + i)
-                    .mainImage("dummyImage" + i)
+                    .mainImage("https://plub.s3.ap-northeast-2.amazonaws.com/plubbing/mainImage/sports2.jpg
+")
                     .days(List.of("THR", "FRI", "SAT", "SUN"))
                     .onOff("ON")
                     .address("서울특별시 강남구 테헤란로 427")
@@ -69,6 +70,8 @@ public class PlubbingRecruitDummy {
                     .name("배민모임" + i)
                     .goal("배드민턴 스매쉬 잘 치기" + i)
                     .introduce("우리는 배민 이다")
+                    .mainImage("https://plub.s3.ap-northeast-2.amazonaws.com/plubbing/mainImage/sports1.png
+")
                     .days(List.of("THR", "FRI", "SAT", "SUN"))
                     .onOff("ON")
                     .address("서울특별시 강남구 테헤란로 427")
