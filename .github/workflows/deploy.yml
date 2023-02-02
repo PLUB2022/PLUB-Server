@@ -17,10 +17,13 @@ jobs:
       - name: Set up JDK 17
         uses: actions/setup-java@v3
         with:
-          java-version: '17'
+          java-version: 17
           distribution: 'temurin'
-          
-      - name: Apple Sign Key File
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Set up apple sign key file
         env:
           APPLE_SIGN_KEY: ${{ secrets.APPLE_SIGN_KEY }}
           KEY_DIR: src/main/resources
@@ -34,8 +37,6 @@ jobs:
           YAML_FILE_NAME: application-secret.yml
         run: echo $YAML_SECRET | base64 --decode > $YAML_DIR/$YAML_FILE_NAME
 
-      - name: Grant execute permission for gradlew
-        run: chmod +x gradlew
       - name: Build with Gradle
         run: ./gradlew bootJar
 
