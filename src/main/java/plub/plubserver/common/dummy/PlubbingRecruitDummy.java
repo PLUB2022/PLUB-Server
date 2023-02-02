@@ -37,7 +37,7 @@ public class PlubbingRecruitDummy {
         Account admin2 = accountService.getAccountByEmail("admin2");
         for (int i = 0; i < 5; i++) {
             CreatePlubbingRequest form = CreatePlubbingRequest.builder()
-                    .subCategoryIds(List.of(1L, 2L))
+                    .subCategoryIds(List.of(1L, 2L, 3L, 4L, 5L, 6L, 7L, 8L))
                     .title("운동" + i)
                     .name("운동 모임" + i)
                     .goal("3대300치기" + i)
