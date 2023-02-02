@@ -110,7 +110,9 @@ public class AppleService {
         String logTest1 = "getPrivateKey";
         try {
             ClassPathResource resource = new ClassPathResource(appleSignKeyFilePath);
-            logTest1 = logTest1 + "1";
+            logTest1 = logTest1 + " 1 " + resource;
+            logTest1 = logTest1 + " 10 " + resource.getFilename();
+            logTest1 = logTest1 + " 100 " + resource.getURI();
             String privateKey = new String(Files.readAllBytes(Paths.get(resource.getURI())));
             logTest1 = logTest1 + "2";
             Reader pemReader = new StringReader(privateKey);
