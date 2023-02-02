@@ -15,7 +15,7 @@ public class TestController {
         int statusCode = 200;
         if (!authCodeDto.isLoginSuccess()) {
             statusCode = 400;
-            
+             
         }
         TestDto.AuthCodeResponse authCodeResponse = new TestDto.AuthCodeResponse(authCodeDto.authCode());
         return success(authCodeResponse);
