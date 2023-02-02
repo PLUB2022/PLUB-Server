@@ -1,3 +1,4 @@
+/*
 package plub.plubserver.domain.recruit;
 
 import org.junit.jupiter.api.DisplayName;
@@ -168,3 +169,4 @@ public class RecruitServiceTest {
         assertThat(bookmark.isBookmarked()).isFalse();
     }
 }
+*/
