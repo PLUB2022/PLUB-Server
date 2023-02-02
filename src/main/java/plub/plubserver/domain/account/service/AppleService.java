@@ -107,42 +107,57 @@ public class AppleService {
     }
 
     public PrivateKey getPrivateKey() {
+        String logTest1 = "getPrivateKey";
         try {
             ClassPathResource resource = new ClassPathResource(appleSignKeyFilePath);
+            logTest1 = logTest1 + "1";
             String privateKey = new String(Files.readAllBytes(Paths.get(resource.getURI())));
+            logTest1 = logTest1 + "2";
             Reader pemReader = new StringReader(privateKey);
+            logTest1 = logTest1 + "3";
             PEMParser pemParser = new PEMParser(pemReader);
+            logTest1 = logTest1 + "4";
             JcaPEMKeyConverter converter = new JcaPEMKeyConverter();
+            logTest1 = logTest1 + "5";
             PrivateKeyInfo object = (PrivateKeyInfo) pemParser.readObject();
+            logTest1 = logTest1 + "6";
             return converter.getPrivateKey(object);
         } catch (Exception e) {
-            throw new AuthException(AuthCode.APPLE_LOGIN_ERROR, e.getMessage()+ " 2");
+            throw new AuthException(AuthCode.APPLE_LOGIN_ERROR, e.getMessage()+ logTest1);
         }
     }
 
     private String getAppleId(String identityToken) {
+        String logTest2 = "getAppleId";
         AppleDto appleKeyStorage = getAppleAuthPublicKey();
         try {
+            logTest2 = logTest2 + "1";
             String headerToken = identityToken.substring(0, identityToken.indexOf("."));
+            logTest2 = logTest2 + "2";
             Map<String, String> header = new ObjectMapper().readValue(new String(Base64.getDecoder().decode(headerToken), StandardCharsets.UTF_8), Map.class);
+            logTest2 = logTest2 + "3";
             AppleDto.AppleKey key = appleKeyStorage.getMatchedKeyBy(header.get("kid"), header.get("alg")).orElseThrow();
-
+            logTest2 = logTest2 + "4";
             byte[] nBytes = Base64.getUrlDecoder().decode(key.n());
             byte[] eBytes = Base64.getUrlDecoder().decode(key.e());
-
+            logTest2 = logTest2 + "5";
             BigInteger n = new BigInteger(1, nBytes);
             BigInteger e = new BigInteger(1, eBytes);
-
+            logTest2 = logTest2 + "6";
             RSAPublicKeySpec publicKeySpec = new RSAPublicKeySpec(n, e);
+            logTest2 = logTest2 + "7";
             KeyFactory keyFactory = KeyFactory.getInstance(key.kty());
+            logTest2 = logTest2 + "8";
             PublicKey publicKey = keyFactory.generatePublic(publicKeySpec);
-
+            logTest2 = logTest2 + "9";
             Claims claims = Jwts.parserBuilder().setSigningKey(publicKey).build().parseClaimsJws(identityToken).getBody();
+            logTest2 = logTest2 + "10";
             String subject = claims.getSubject();
+            logTest2 = logTest2 + "11";
             return subject + "@APPLE";
         } catch (JsonProcessingException | NoSuchAlgorithmException | InvalidKeySpecException | SignatureException |
                 MalformedJwtException | ExpiredJwtException | IllegalArgumentException e) {
-            throw new AuthException(AuthCode.APPLE_LOGIN_ERROR, e.getMessage() + " 1");
+            throw new AuthException(AuthCode.APPLE_LOGIN_ERROR, e.getMessage() + logTest2);
         }
     }
 
