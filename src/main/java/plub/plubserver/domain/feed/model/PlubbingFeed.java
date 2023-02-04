@@ -32,6 +32,8 @@ public class PlubbingFeed extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     private FeedType feedType;
+    @Enumerated(EnumType.STRING)
+    private ViewType viewType;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "plubbing_id")

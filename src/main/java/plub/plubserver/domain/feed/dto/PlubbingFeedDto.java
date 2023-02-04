@@ -5,6 +5,7 @@ import plub.plubserver.common.dto.CommentDto.*;
 import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.feed.model.FeedType;
 import plub.plubserver.domain.feed.model.PlubbingFeed;
+import plub.plubserver.domain.feed.model.ViewType;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
@@ -34,6 +35,7 @@ public class PlubbingFeedDto {
                     .content(this.content)
                     .feedImage(this.feedImage)
                     .feedType(FeedType.valueOf(this.feedType))
+                    .viewType(ViewType.NORMAL)
                     .visibility(true)
                     .pin(false)
                     .build();
@@ -57,13 +59,15 @@ public class PlubbingFeedDto {
     public record FeedCardResponse(
             Long feedId,
             String feedType,
+            String viewType,
             String title,
             String content,
             String feedImage,
             String createdAt,
             boolean pin,
             String profileImage,
-            String nickname
+            String nickname,
+            Long plubbingId
     ) {
         @Builder
         public FeedCardResponse {
@@ -73,6 +77,7 @@ public class PlubbingFeedDto {
             return FeedCardResponse.builder()
                     .feedId(plubbingFeed.getId())
                     .feedType(plubbingFeed.getFeedType().toString())
+                    .viewType(plubbingFeed.getViewType().toString())
                     .title(plubbingFeed.getTitle())
                     .content(plubbingFeed.getContent())
                     .feedImage(plubbingFeed.getFeedImage())
@@ -80,20 +85,23 @@ public class PlubbingFeedDto {
                     .pin(plubbingFeed.isPin())
                     .profileImage(account.getProfileImage())
                     .nickname(account.getNickname())
+                    .plubbingId(plubbingFeed.getPlubbing().getId())
                     .build();
         }
     }
 
     public record FeedListResponse(
-            List<FeedCardResponse> feeds
+            List<FeedCardResponse> pinedFeedList,
+            List<FeedCardResponse> feedList
     ) {
         @Builder
         public FeedListResponse {
         }
 
-        public static FeedListResponse of(List<FeedCardResponse> feeds) {
+        public static FeedListResponse of(List<FeedCardResponse> pinedFeedList, List<FeedCardResponse> feedList) {
             return FeedListResponse.builder()
-                    .feeds(feeds)
+                    .pinedFeedList(pinedFeedList)
+                    .feedList(feedList)
                     .build();
         }
     }
@@ -101,6 +109,7 @@ public class PlubbingFeedDto {
     public record FeedResponse(
             Long feedId,
             String feedType,
+            String viewType,
             String title,
             String content,
             String feedImage,

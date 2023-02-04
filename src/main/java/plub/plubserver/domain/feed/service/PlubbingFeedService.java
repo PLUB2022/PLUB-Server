@@ -22,12 +22,21 @@ public class PlubbingFeedService {
     }
 
     public FeedListResponse getFeedList(Account loginAccount, Long plubbingId, Pageable pageable) {
-        List<FeedCardResponse> feedCardResponses = List.of(
-                new FeedCardResponse(1L, "PHOTO", "feedTitle1", "", "imgaeUrl1", "2020-02-02 12:12:00", true, "profileUrl1", "nickname1"),
-                new FeedCardResponse(2L, "LINE", "feedTitle2", "줄글로 된 내용~~~", "", "2020-02-02 12:12:00", false, "profileUrl2", "nickname2"),
-                new FeedCardResponse(3L, "PHOTO_LINE", "feedTitle3", "어쩌꾸 저쩌구!!~~`", "imgaeUrl3", "2020-02-02 12:12:00", true, "profileUrl3", "nickname3")
+        List<FeedCardResponse> pinedFeedList = List.of(
+                new FeedCardResponse(1L, "PHOTO", "PIN", "feedTitle1", "", "imgaeUrl1", "2020-02-02 12:12:00", true, "profileUrl1", "nickname1", 1L),
+                new FeedCardResponse(2L, "LINE", "PIN", "feedTitle2", "줄글로 된 내용~~~", "", "2020-02-02 12:24:00", true, "profileUrl2", "nickname2", 1L),
+                new FeedCardResponse(3L, "PHOTO_LINE", "PIN", "feedTitle3", "어쩌꾸 저쩌구!!~~`", "imgaeUrl3", "2020-02-05 12:12:00", true, "profileUrl3", "nickname3", 1L)
         );
-        return FeedListResponse.of(feedCardResponses);
+        List<FeedCardResponse> feedList = List.of(
+                new FeedCardResponse(5L, "PHOTO", "NORMAL", "feedTitle4", "", "imgaeUrl4", "2020-02-02 12:12:00", false, "profileUrl4", "nickname4", 1L),
+                new FeedCardResponse(6L, "LINE", "NORMAL", "feedTitle5", "줄글로 된 내용~~~", "", "2020-02-02 12:12:33", false, "profileUrl5", "nickname5", 1L),
+                new FeedCardResponse(7L, "PHOTO_LINE", "NORMAL", "feedTitle6", "어쩌꾸 저쩌구!!~~`", "imgaeUrl3", "2020-02-05 12:12:00", false, "profileUrl6", "nickname6", 1L),
+                new FeedCardResponse(8L, "LINE", "SYSTEM", "8번째 멤버와 함께 갑니다.", "<b>김밥먹고싶다</b> 님이 <b>요란한 한줄</b> 에 들어왔어요", "", "2020-02-11 12:12:00", false, "", "", 1L),
+                new FeedCardResponse(9L, "PHOTO", "NORMAL", "feedTitle7", "", "imgaeUr7", "2020-02-12 12:12:00", false, "profileUrl7", "nickname7", 1L),
+                new FeedCardResponse(10L, "LINE", "NORMAL", "feedTitle8", "줄글로 된 내용~~~", "", "2020-03-13 12:12:00", false, "profileUrl8", "nickname8", 1L),
+                new FeedCardResponse(11L, "PHOTO_LINE", "NORMAL", "feedTitle9", "어쩌꾸 저쩌구!!~~`", "imgaeUrl9", "2020-04-15 12:12:00", false, "profileUrl9", "nickname9", 1L)
+        );
+        return FeedListResponse.of(pinedFeedList, feedList);
     }
 
     public FeedIdResponse updateFeed(Account loginAccount, Long feedId, UpdateFeedRequest updateFeedRequest) {
@@ -39,7 +48,7 @@ public class PlubbingFeedService {
     }
 
     public FeedResponse getFeed(Account loginAccount, Long feedId) {
-        return new FeedResponse(1L, "PHOTO", "feedTitle1", "", "imgaeUrl1", "2020-02-02 12:12:00", true, "profileUrl1", "nickname1", 5L, 3L, List.of(
+        return new FeedResponse(1L, "PHOTO", "NORMAL", "feedTitle1", "", "imgaeUrl1", "2020-02-02 12:12:00", true, "profileUrl1", "nickname1", 5L, 3L, List.of(
                 new CommentResponse(1L, "commentContent1", "2020-02-02 12:12:00", "profileUrl1", "nickname1"),
                 new CommentResponse(2L, "commentContent2", "2020-02-02 12:12:00", "profileUrl2", "nickname2"),
                 new CommentResponse(3L, "commentContent3", "2020-02-02 12:12:00", "profileUrl3", "nickname3")
