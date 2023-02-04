@@ -44,7 +44,6 @@ public class PlubbingController {
         return success(plubbingService.getMyPlubbing(isHost));
     }
 
-    // TODO 타임라인, 투두리스트 따로 조회
     @ApiOperation(value = "모임 메인페이지 조회")
     @GetMapping("/{plubbingId}/main")
     public ApiResponse<MainPlubbingResponse> getMainPlubbing(@PathVariable Long plubbingId) {

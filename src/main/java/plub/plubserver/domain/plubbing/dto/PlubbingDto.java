@@ -239,6 +239,7 @@ public class PlubbingDto {
             String goal,
             String mainImage,
             List<MeetingDay> days,
+            String time,
             String onOff,
             String address,
             String roadAddress,
@@ -260,6 +261,7 @@ public class PlubbingDto {
                     .days(plubbing.getDays().stream()
                             .map(PlubbingMeetingDay::getDay)
                             .toList())
+                    .time(plubbing.getTime())
                     .onOff(plubbing.getOnOff().name())
                     .address(plubbing.getPlubbingPlace().getAddress())
                     .roadAddress(plubbing.getPlubbingPlace().getRoadAddress())

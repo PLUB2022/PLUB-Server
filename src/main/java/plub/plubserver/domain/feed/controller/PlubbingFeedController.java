@@ -8,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
 import plub.plubserver.common.dto.ApiResponse;
+import plub.plubserver.common.dto.PageResponse;
 import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.account.service.AccountService;
 import plub.plubserver.domain.feed.dto.PlubbingFeedDto.*;
@@ -38,11 +39,17 @@ public class PlubbingFeedController {
 
     @ApiOperation(value = "게시판 조회")
     @GetMapping("/{plubbingId}/feeds")
-    public ApiResponse<FeedListResponse> getFeedList(@PathVariable Long plubbingId,
-                                                     @PageableDefault(size = 20) Pageable pageable) {
+    public ApiResponse<PageResponse<FeedCardResponse>> getFeedList(@PathVariable Long plubbingId,
+                                                                   @PageableDefault(size = 20) Pageable pageable) {
         Account loginAccount = accountService.getCurrentAccount();
-        FeedListResponse feedListResponse = plubbingFeedService.getFeedList(loginAccount, plubbingId, pageable);
-        return success(feedListResponse);
+        return success(plubbingFeedService.getFeedList(loginAccount, plubbingId, pageable));
+    }
+
+    @ApiOperation(value = "클립 보드 조회")
+    @GetMapping("/{plubbingId}/pins")
+    public ApiResponse<FeedListResponse> getPinedFeedList(@PathVariable Long plubbingId) {
+        Account loginAccount = accountService.getCurrentAccount();
+        return success(plubbingFeedService.getPinedFeedList(loginAccount, plubbingId));
     }
 
     @ApiOperation(value = "게시글 상세 조회")

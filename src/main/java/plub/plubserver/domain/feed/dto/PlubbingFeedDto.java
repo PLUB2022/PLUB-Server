@@ -1,7 +1,9 @@
 package plub.plubserver.domain.feed.dto;
 
 import lombok.Builder;
+import org.springframework.data.domain.Page;
 import plub.plubserver.common.dto.CommentDto.*;
+import plub.plubserver.common.dto.PageResponse;
 import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.feed.model.FeedType;
 import plub.plubserver.domain.feed.model.PlubbingFeed;
@@ -91,17 +93,14 @@ public class PlubbingFeedDto {
     }
 
     public record FeedListResponse(
-            List<FeedCardResponse> pinedFeedList,
-            List<FeedCardResponse> feedList
-    ) {
+            List<FeedCardResponse> pinedFeedList) {
         @Builder
         public FeedListResponse {
         }
 
-        public static FeedListResponse of(List<FeedCardResponse> pinedFeedList, List<FeedCardResponse> feedList) {
+        public static FeedListResponse of(List<FeedCardResponse> pinedFeedList) {
             return FeedListResponse.builder()
                     .pinedFeedList(pinedFeedList)
-                    .feedList(feedList)
                     .build();
         }
     }
