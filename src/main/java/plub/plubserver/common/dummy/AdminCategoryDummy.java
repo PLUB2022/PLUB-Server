@@ -13,6 +13,7 @@ import plub.plubserver.domain.category.service.CategoryService;
 import javax.annotation.PostConstruct;
 
 import static plub.plubserver.common.dummy.DummyImage.PLUB_MAIN_LOGO;
+import static plub.plubserver.common.dummy.DummyImage.PLUB_PROFILE_TEST;
 import static plub.plubserver.domain.account.dto.AuthDto.SignUpRequest;
 
 @Component
@@ -45,7 +46,7 @@ public class AdminCategoryDummy {
         // 테스트용 계정 - 더미 유저
         for (int i = 0; i < 20; i++) {
             SignUpRequest dummyAccountForm = SignUpRequest.builder()
-                    .profileImage(PLUB_MAIN_LOGO)
+                    .profileImage(PLUB_PROFILE_TEST)
                     .build();
             accountRepository.save(dummyAccountForm.toDummy(passwordEncoder, ADMIN_PASSWORD, "dummy" + i));
         }
