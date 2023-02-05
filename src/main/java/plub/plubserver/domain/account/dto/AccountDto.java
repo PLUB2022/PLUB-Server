@@ -124,4 +124,21 @@ public class AccountDto {
     ) {
     }
 
+    public record AccountInfo(
+            Long accountId,
+            String nickname,
+            String profileImage
+    ) {
+        @Builder
+        public AccountInfo {
+        }
+
+        public static AccountInfo of(Account account) {
+            return AccountInfo.builder()
+                    .accountId(account.getId())
+                    .nickname(account.getNickname())
+                    .profileImage(account.getProfileImage())
+                    .build();
+        }
+    }
 }
