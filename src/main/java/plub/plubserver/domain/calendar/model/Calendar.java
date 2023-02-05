@@ -6,6 +6,7 @@ import plub.plubserver.domain.calendar.dto.CalendarDto;
 import plub.plubserver.domain.plubbing.model.Plubbing;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -46,6 +47,9 @@ public class Calendar extends BaseEntity {
     private List<CalendarAttend> calendarAttendList;
 
     public void addCalendarAttend(CalendarAttend calendarAttend) {
+        if (calendarAttendList == null) {
+            calendarAttendList = new ArrayList<>();
+        }
         this.calendarAttendList.add(calendarAttend);
         calendarAttend.setCalendar(this);
     }
@@ -62,6 +66,4 @@ public class Calendar extends BaseEntity {
         this.roadAddress = request.roadAddress();
         this.placeName = request.placeName();
     }
-
-
 }
