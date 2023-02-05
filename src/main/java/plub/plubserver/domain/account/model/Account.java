@@ -14,6 +14,8 @@ import plub.plubserver.domain.plubbing.model.Plubbing;
 import plub.plubserver.domain.policy.model.Policy;
 import plub.plubserver.domain.recruit.model.AppliedAccount;
 import plub.plubserver.domain.recruit.model.Bookmark;
+import plub.plubserver.domain.todo.model.Todo;
+import plub.plubserver.domain.todo.model.TodoTimeline;
 import plub.plubserver.notice.model.PlubbingNotice;
 
 import javax.persistence.*;
@@ -98,6 +100,14 @@ public class Account extends BaseEntity {
     // 회원(1) - 아카이브(다) : 당장은 필요없지만 일단 만들어 놓음
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Archive> archiveList = new ArrayList<>();
+
+    // 회원(1) - 투두리스트(다)
+    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Todo> todoList = new ArrayList<>();
+
+    // 회원(1) - 타임라인(다)
+    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<TodoTimeline> timeLineList = new ArrayList<>();
 
 
     // TODO : DTO에 변환로직이 가도록 수정해야함
