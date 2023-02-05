@@ -1,9 +1,6 @@
 package plub.plubserver.domain.category.model;
 
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import plub.plubserver.common.model.BaseEntity;
 import plub.plubserver.domain.account.model.AccountCategory;
 
@@ -13,6 +10,8 @@ import java.util.List;
 
 @Entity
 @Getter
+@AllArgsConstructor
+@Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class SubCategory extends BaseEntity {
 
@@ -23,6 +22,7 @@ public class SubCategory extends BaseEntity {
 
     private int sequence;
     private String name;
+    private String defaultImage;
 
     // 카테고리(1) - 서브 카테고리(다)
     @ManyToOne(fetch = FetchType.LAZY)
@@ -37,18 +37,12 @@ public class SubCategory extends BaseEntity {
     @OneToMany(mappedBy = "categorySub", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<AccountCategory> accountCategories = new ArrayList<>();
 
-    @Builder
-    public SubCategory(int sequence, String name, Category category) {
-        this.sequence = sequence;
-        this.name = name;
-        this.category = category;
-    }
-
-    public static SubCategory toCategorySub(String name, int sequence, Category category) {
+    public static SubCategory toSubCategory(String name, int sequence, Category category, String defaultImage) {
         return SubCategory.builder()
                 .name(name)
                 .sequence(sequence)
                 .category(category)
+                .defaultImage(defaultImage)
                 .build();
     }
 }

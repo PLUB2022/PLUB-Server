@@ -172,4 +172,8 @@ public class Plubbing extends BaseEntity {
         }
         return time;
     }
+
+    public void setMainImage(String mainImage) {
+        this.mainImage = mainImage;
+    }
 }
