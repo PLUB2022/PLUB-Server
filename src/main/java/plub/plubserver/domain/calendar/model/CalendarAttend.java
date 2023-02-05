@@ -30,4 +30,7 @@ public class CalendarAttend extends BaseEntity {
     @JoinColumn(name = "account_id")
     private Account account;
 
+    public void setCalendar(Calendar calendar) {
+        this.calendar = calendar;
+    }
 }

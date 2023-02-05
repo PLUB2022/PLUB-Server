@@ -1,6 +1,7 @@
 package plub.plubserver.domain.calendar.dto;
 
 import lombok.Builder;
+import plub.plubserver.domain.calendar.model.CalendarAttend;
 
 import java.util.List;
 
@@ -14,6 +15,15 @@ public class CalendarAttendDto {
     ) {
         @Builder
         public CalendarAttendResponse{}
+
+        public static CalendarAttendResponse of(CalendarAttend calendarAttend) {
+            return CalendarAttendResponse.builder()
+                    .calendarAttendId(calendarAttend.getId())
+                    .nickname(calendarAttend.getAccount().getNickname())
+                    .profileImage(calendarAttend.getAccount().getProfileImage())
+                    .AttendStatus(calendarAttend.getAttendStatus().toString())
+                    .build();
+        }
     }
 
     public record CalendarAttendList(
@@ -21,6 +31,14 @@ public class CalendarAttendDto {
     ) {
         @Builder
         public CalendarAttendList{}
+
+        public static CalendarAttendList of(List<CalendarAttend> calendarAttendList) {
+            return CalendarAttendList.builder()
+                    .calendarAttendList(calendarAttendList.stream()
+                            .map(CalendarAttendResponse::of)
+                            .toList())
+                    .build();
+        }
     }
 
     public record CheckAttendRequest(
@@ -28,6 +46,7 @@ public class CalendarAttendDto {
     ) {
         @Builder
         public CheckAttendRequest {}
+
     }
 
 }
