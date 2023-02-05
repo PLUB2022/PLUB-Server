@@ -120,6 +120,7 @@ public class PlubbingRecruitDummy {
             Account account = accountService.getAccountByEmail("dummy" + i);
             recruitService.applyRecruit(account, 1L, applyRecruitRequest);
         }
+        recruitService.applyRecruit(admin2, 1L, applyRecruitRequest);
 
         recruitRepository.flush();
 

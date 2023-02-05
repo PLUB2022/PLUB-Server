@@ -171,10 +171,11 @@ public class RecruitService {
         Recruit recruit = getRecruitByPlubbingId(plubbingId);
 
         // 호스트 본인은 지원 불가 처리
-        accountPlubbingRepository.findByAccount(loginAccount).ifPresent(accountPlubbing -> {
-            if (accountPlubbing.isHost())
-                throw new RecruitException(RecruitCode.HOST_RECRUIT_ERROR);
-        });
+        accountPlubbingRepository.findByAccountAndPlubbing(loginAccount, recruit.getPlubbing())
+                .ifPresent(accountPlubbing -> {
+                    if (accountPlubbing.isHost())
+                        throw new RecruitException(RecruitCode.HOST_RECRUIT_ERROR);
+                });
 
         // 이미 지원했는지 확인
         if (appliedAccountRepository.existsByAccountAndRecruit(loginAccount, recruit))
@@ -202,7 +203,6 @@ public class RecruitService {
                     .answer(ar.answer())
                     .build());
         }
-
         appliedAccount.addAnswerList(answers);
         recruit.addAppliedAccount(appliedAccount);
         return new PlubbingIdResponse(plubbingId);
