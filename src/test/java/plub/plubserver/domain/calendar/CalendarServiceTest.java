@@ -8,8 +8,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import plub.plubserver.domain.account.AccountTemplate;
 import plub.plubserver.domain.account.model.Account;
-import plub.plubserver.domain.calendar.dto.CalendarAttendDto;
 import plub.plubserver.domain.calendar.model.Calendar;
+import plub.plubserver.domain.calendar.model.CalendarAttend;
 import plub.plubserver.domain.calendar.repository.CalendarAttendRepository;
 import plub.plubserver.domain.calendar.repository.CalendarRepository;
 import plub.plubserver.domain.calendar.service.CalendarService;
@@ -20,6 +20,7 @@ import plub.plubserver.domain.plubbing.service.PlubbingService;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static plub.plubserver.domain.calendar.dto.CalendarAttendDto.CheckAttendRequest;
 import static plub.plubserver.domain.calendar.dto.CalendarDto.CreateCalendarRequest;
 import static plub.plubserver.domain.calendar.dto.CalendarDto.UpdateCalendarRequest;
 
@@ -110,11 +111,15 @@ class CalendarServiceTest {
         given(calendarRepository.findById(any()))
                 .willReturn(java.util.Optional.of(mockCalendar));
 
-        CalendarAttendDto.CheckAttendRequest checkAttendRequest = CalendarMockUtils.checkAttendRequest();
+        CheckAttendRequest checkAttendRequest = CalendarMockUtils.checkAttendRequest();
+        CalendarAttend calendarAttend = checkAttendRequest.toEntity(mockCalendar, account);
+        given(calendarAttendRepository.findByCalendarIdAndAccountId(any(), any()))
+                .willReturn(java.util.Optional.of(calendarAttend));
+
         // when
         calendarService.checkAttend(account, plubbing.getId(), mockCalendar.getId(), checkAttendRequest);
 
         // then
-        assertThat(mockCalendar.getCalendarAttendList().size()).isEqualTo(1);
+        assertThat(calendarAttend.getAttendStatus().toString()).isEqualTo(checkAttendRequest.attendStatus());
     }
 }

@@ -1,6 +1,9 @@
 package plub.plubserver.domain.calendar.dto;
 
 import lombok.Builder;
+import plub.plubserver.domain.account.model.Account;
+import plub.plubserver.domain.calendar.model.AttendStatus;
+import plub.plubserver.domain.calendar.model.Calendar;
 import plub.plubserver.domain.calendar.model.CalendarAttend;
 
 import java.util.List;
@@ -47,6 +50,13 @@ public class CalendarAttendDto {
         @Builder
         public CheckAttendRequest {}
 
+        public CalendarAttend toEntity(Calendar mockCalendar, Account account) {
+            return CalendarAttend.builder()
+                    .calendar(mockCalendar)
+                    .account(account)
+                    .attendStatus(AttendStatus.valueOf(attendStatus))
+                    .build();
+        }
     }
 
 }

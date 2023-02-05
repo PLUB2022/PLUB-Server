@@ -15,8 +15,7 @@ import plub.plubserver.domain.calendar.service.CalendarService;
 import javax.validation.Valid;
 
 import static plub.plubserver.common.dto.ApiResponse.success;
-import static plub.plubserver.domain.calendar.dto.CalendarAttendDto.CalendarAttendResponse;
-import static plub.plubserver.domain.calendar.dto.CalendarAttendDto.CheckAttendRequest;
+import static plub.plubserver.domain.calendar.dto.CalendarAttendDto.*;
 import static plub.plubserver.domain.calendar.dto.CalendarDto.*;
 
 @RestController
@@ -73,6 +72,13 @@ public class CalendarController {
                                                           @Valid @RequestBody CheckAttendRequest calendarAttendRequest) {
         Account currentAccount = accountService.getCurrentAccount();
         return success(calendarService.checkAttend(currentAccount, plubbingId, calendarId, calendarAttendRequest));
+    }
+
+    @ApiOperation(value = "참석자 리스트 조회")
+    @GetMapping("/{plubbingId}/calendar/{calendarId}/attend")
+    public ApiResponse<CalendarAttendList> getAttendList(@PathVariable Long plubbingId,
+                                                         @PathVariable Long calendarId) {
+        return success(calendarService.getAttendList(plubbingId, calendarId));
     }
 
 

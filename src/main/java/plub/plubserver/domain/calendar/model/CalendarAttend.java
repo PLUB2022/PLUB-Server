@@ -33,4 +33,8 @@ public class CalendarAttend extends BaseEntity {
     public void setCalendar(Calendar calendar) {
         this.calendar = calendar;
     }
+
+    public void updateAttendStatus(AttendStatus attendStatus) {
+        this.attendStatus = attendStatus;
+    }
 }

@@ -13,11 +13,13 @@ import plub.plubserver.domain.calendar.model.Calendar;
 import plub.plubserver.domain.calendar.model.CalendarAttend;
 import plub.plubserver.domain.calendar.repository.CalendarAttendRepository;
 import plub.plubserver.domain.calendar.repository.CalendarRepository;
+import plub.plubserver.domain.plubbing.model.AccountPlubbing;
 import plub.plubserver.domain.plubbing.model.Plubbing;
 import plub.plubserver.domain.plubbing.service.PlubbingService;
 
-import static plub.plubserver.domain.calendar.dto.CalendarAttendDto.CalendarAttendResponse;
-import static plub.plubserver.domain.calendar.dto.CalendarAttendDto.CheckAttendRequest;
+import java.util.List;
+
+import static plub.plubserver.domain.calendar.dto.CalendarAttendDto.*;
 import static plub.plubserver.domain.calendar.dto.CalendarDto.*;
 
 @Service
@@ -41,6 +43,16 @@ public class CalendarService {
         plubbingService.checkHost(account, plubbing);
         Calendar calendar = createCalendarResponse.toEntity(account.getId());
         calendarRepository.save(calendar);
+        List<AccountPlubbing> accountPlubbingList = plubbing.getAccountPlubbingList();
+        for (AccountPlubbing accountPlubbing : accountPlubbingList) {
+            CalendarAttend calendarAttend = CalendarAttend.builder()
+                    .calendar(calendar)
+                    .account(accountPlubbing.getAccount())
+                    .attendStatus(AttendStatus.WAITING)
+                    .build();
+            calendarAttendRepository.save(calendarAttend);
+        }
+
         return CalendarIdResponse.of(calendar.getId());
     }
 
@@ -68,13 +80,9 @@ public class CalendarService {
         Calendar calendar = calendarRepository.findById(calendarId)
                 .orElseThrow(() -> new CalendarException(CalendarCode.NOT_FOUNT_CALENDAR));
         AttendStatus attendStatus = AttendStatus.valueOf(calendarAttendRequest.attendStatus());
-        CalendarAttend calendarAttend = CalendarAttend.builder()
-                .calendar(calendar)
-                .account(account)
-                .attendStatus(attendStatus)
-                .build();
-        calendarAttendRepository.save(calendarAttend);
-        calendar.addCalendarAttend(calendarAttend);
+        CalendarAttend calendarAttend = calendarAttendRepository.findByCalendarIdAndAccountId(calendar.getId(), account.getId())
+                .orElseThrow(() -> new CalendarException(CalendarCode.NOT_FOUNT_CALENDAR_ATTEND));
+        calendarAttend.updateAttendStatus(attendStatus);
         return CalendarAttendResponse.of(calendarAttend);
     }
 
@@ -83,5 +91,14 @@ public class CalendarService {
         Page<CalendarCardResponse> calendarPage = calendarRepository.findAllByPlubbingId(plubbingId, pageable)
                 .map(CalendarCardResponse::of);
         return CalendarListResponse.of(calendarPage);
+    }
+
+    public CalendarAttendList getAttendList(Long plubbingId, Long calendarId) {
+        plubbingService.getPlubbing(plubbingId);
+        Calendar calendar = calendarRepository.findById(calendarId)
+                .orElseThrow(() -> new CalendarException(CalendarCode.NOT_FOUNT_CALENDAR));
+        List<CalendarAttend> attendList = calendarAttendRepository.findByCalendarId(calendar.getId());
+        return CalendarAttendList.of(attendList);
+
     }
 }

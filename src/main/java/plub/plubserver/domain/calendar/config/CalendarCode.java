@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum CalendarCode {
     NOT_FOUNT_CALENDAR(404, 7010, "not fount calendar"),
+    NOT_FOUNT_CALENDAR_ATTEND(404, 7011, "not fount calendar attend"),
     ;
 
     private final int HttpCode;

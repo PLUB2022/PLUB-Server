@@ -6,7 +6,6 @@ import plub.plubserver.domain.calendar.dto.CalendarDto;
 import plub.plubserver.domain.plubbing.model.Plubbing;
 
 import javax.persistence.*;
-import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -45,14 +44,6 @@ public class Calendar extends BaseEntity {
     // 플러빙 일자(1) - 참여자(다)
     @OneToMany(mappedBy = "calendar", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CalendarAttend> calendarAttendList;
-
-    public void addCalendarAttend(CalendarAttend calendarAttend) {
-        if (calendarAttendList == null) {
-            calendarAttendList = new ArrayList<>();
-        }
-        this.calendarAttendList.add(calendarAttend);
-        calendarAttend.setCalendar(this);
-    }
 
     public void updateCalendar(CalendarDto.UpdateCalendarRequest request) {
         this.title = request.title();
