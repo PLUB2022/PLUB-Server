@@ -7,16 +7,17 @@ import plub.plubserver.common.model.BaseEntity;
 import plub.plubserver.domain.plubbing.model.Plubbing;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class PlubbingCalendar extends BaseEntity {
+public class Calendar extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "plubbing_calendar_id")
+    @Column(name = "calendar_id")
     private Long id;
 
     private String title;
@@ -25,8 +26,8 @@ public class PlubbingCalendar extends BaseEntity {
     private String staredAt;
     private String endedAt;
 
-    private String startTime;
-    private String endTime;
+    private LocalDateTime startTime;
+    private LocalDateTime endTime;
     private boolean isAllDay;
 
     private String address;
@@ -41,6 +42,6 @@ public class PlubbingCalendar extends BaseEntity {
     private Plubbing plubbing;
 
     // 플러빙 일자(1) - 참여자(다)
-    @OneToMany(mappedBy = "plubbingCalendar", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<PlubbingCalendarAttend> accounts;
+    @OneToMany(mappedBy = "calendar", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<CalendarAttend> calendarAttendList;
 }

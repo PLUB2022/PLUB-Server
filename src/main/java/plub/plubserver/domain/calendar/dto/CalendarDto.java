@@ -4,9 +4,9 @@ import lombok.Builder;
 import org.springframework.data.domain.Page;
 import plub.plubserver.common.dto.PageResponse;
 
-import static plub.plubserver.domain.calendar.dto.PlubbingCalendarAttendDto.CalendarAttendList;
+import static plub.plubserver.domain.calendar.dto.CalendarAttendDto.CalendarAttendList;
 
-public class PlubbingCalendarDto {
+public class CalendarDto {
 
     public record CreateCalendarRequest(
         String title,

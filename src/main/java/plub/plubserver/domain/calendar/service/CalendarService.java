@@ -5,18 +5,18 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import plub.plubserver.domain.calendar.repository.PlubbingCalendarRepository;
+import plub.plubserver.domain.calendar.repository.CalendarRepository;
 
 import java.util.List;
 
-import static plub.plubserver.domain.calendar.dto.PlubbingCalendarAttendDto.*;
-import static plub.plubserver.domain.calendar.dto.PlubbingCalendarDto.*;
+import static plub.plubserver.domain.calendar.dto.CalendarAttendDto.*;
+import static plub.plubserver.domain.calendar.dto.CalendarDto.*;
 
 @Service
 @RequiredArgsConstructor
-public class PlubbingCalendarService {
+public class CalendarService {
 
-    public final PlubbingCalendarRepository plubbingCalendarRepository;
+    public final CalendarRepository calendarRepository;
 
     public CalendarCardResponse getCalendarCard(Long calendarId) {
         return new CalendarCardResponse(1L, "title", "memo", "2021-08-01", "2021-08-01", "10:00", "11:00", false, "address", "roadAddress", "placeName",

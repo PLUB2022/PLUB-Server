@@ -4,7 +4,7 @@ import lombok.Builder;
 
 import java.util.List;
 
-public class PlubbingCalendarAttendDto {
+public class CalendarAttendDto {
 
     public record CalendarAttendResponse(
         Long calendarAttendId,
