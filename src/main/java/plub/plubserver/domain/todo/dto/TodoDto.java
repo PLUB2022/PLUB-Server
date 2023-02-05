@@ -197,6 +197,21 @@ public class TodoDto {
             @DateTimeFormat(pattern = "yyyy-MM-dd")
             LocalDate date
     ) {
+        @Builder
+        public UpdateTodoRequest {}
+
+        public Todo toEntity(Todo todo) {
+            return Todo.builder()
+                    .id(todo.getId())
+                    .account(todo.getAccount())
+                    .content(content)
+                    .date(date)
+                    .isChecked(todo.isChecked())
+                    .isProof(todo.isProof())
+                    .proofImage(todo.getProofImage())
+                    .likes(todo.getLikes())
+                    .build();
+        }
     }
 
     public record TodoMessage(Object result) {
@@ -208,5 +223,7 @@ public class TodoDto {
     public record ProofTodoRequest(
             String proofImage
     ) {
+        @Builder
+        public ProofTodoRequest {}
     }
 }

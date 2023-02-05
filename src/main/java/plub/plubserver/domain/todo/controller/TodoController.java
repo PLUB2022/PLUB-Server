@@ -48,7 +48,7 @@ public class TodoController {
     @ApiOperation(value = "투두 타임라인 전체 조회")
     @GetMapping("/{plubbingId}/timeline")
     public ApiResponse<TodoTimelineAllPageResponse> getAllTodoList(@PathVariable Long plubbingId,
-                                                        @PageableDefault Pageable pageable) {
+                                                                   @PageableDefault Pageable pageable) {
         return success(todoService.getAllTodoList(plubbingId, pageable));
     }
 
@@ -64,7 +64,6 @@ public class TodoController {
     public ApiResponse<TodoTimelinePageResponse> getTodoListTest(@PathVariable Long plubbingId,
                                                                  @PathVariable Long accountId,
                                                                  @PageableDefault Pageable pageable) {
-        Account currentAccount = accountService.getCurrentAccount();
         return success(todoService.getAccountTodoTimelinePage(plubbingId, accountId, pageable));
     }
 
@@ -81,31 +80,31 @@ public class TodoController {
                                                     @PathVariable Long todoId,
                                                     @Valid @RequestBody UpdateTodoRequest request) {
         Account currentAccount = accountService.getCurrentAccount();
-        return success(todoService.updateTodo(plubbingId, todoId, request, currentAccount));
+        return success(todoService.updateTodo(currentAccount, plubbingId, todoId, request));
     }
 
     @ApiOperation(value = "투두 리스트 완료")
     @PutMapping("/{plubbingId}/todolist/{todoId}/complete")
     public ApiResponse<TodoIdResponse> completeTodoList(@PathVariable Long plubbingId,
-                                                     @PathVariable Long todoId) {
+                                                        @PathVariable Long todoId) {
         Account currentAccount = accountService.getCurrentAccount();
-        return success(todoService.completeTodo(plubbingId, todoId, currentAccount));
+        return success(todoService.completeTodo(currentAccount, plubbingId, todoId));
     }
 
     @ApiOperation(value = "투두 리스트 완료 취소")
     @PutMapping("/{plubbingId}/todolist/{todoId}/cancel")
     public ApiResponse<TodoIdResponse> cancelTodoList(@PathVariable Long plubbingId,
-                                                   @PathVariable Long todoId) {
+                                                      @PathVariable Long todoId) {
         Account currentAccount = accountService.getCurrentAccount();
-        return success(todoService.cancelTodo(plubbingId, todoId, currentAccount));
+        return success(todoService.cancelTodo(currentAccount, plubbingId, todoId));
     }
 
     @ApiOperation(value = "투두 리스트 인증")
     @PostMapping("/{plubbingId}/todolist/{todoId}/proof")
     public ApiResponse<TodoResponse> proofTodoList(@PathVariable Long plubbingId,
-                                                  @PathVariable Long todoId,
-                                                  @Valid @RequestBody ProofTodoRequest request) {
+                                                   @PathVariable Long todoId,
+                                                   @Valid @RequestBody ProofTodoRequest request) {
         Account currentAccount = accountService.getCurrentAccount();
-        return success(todoService.proofTodo(plubbingId, todoId, request, currentAccount));
+        return success(todoService.proofTodo(currentAccount, plubbingId, todoId, request));
     }
 }

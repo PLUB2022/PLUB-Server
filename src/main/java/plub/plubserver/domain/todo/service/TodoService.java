@@ -89,7 +89,7 @@ public class TodoService {
     }
 
     // 투두 업데이트
-    public TodoResponse updateTodo(Long plubbingId, Long todoId, UpdateTodoRequest request, Account currentAccount) {
+    public TodoResponse updateTodo(Account currentAccount, Long plubbingId, Long todoId, UpdateTodoRequest request) {
         plubbingService.getPlubbing(plubbingId);
         Todo todo = todoRepository.findByIdAndAccount(todoId, currentAccount)
                 .orElseThrow(() -> new TodoException(TodoCode.NOT_FOUNT_TODO));
@@ -102,7 +102,7 @@ public class TodoService {
     }
 
     // 투두 완료
-    public TodoIdResponse completeTodo(Long plubbingId, Long todoId, Account currentAccount) {
+    public TodoIdResponse completeTodo(Account currentAccount, Long plubbingId, Long todoId) {
         plubbingService.getPlubbing(plubbingId);
         Todo todo = todoRepository.findByIdAndAccount(todoId, currentAccount)
                 .orElseThrow(() -> new TodoException(TodoCode.NOT_FOUNT_TODO));
@@ -112,7 +112,7 @@ public class TodoService {
     }
 
     // 투두 완료 취소
-    public TodoIdResponse cancelTodo(Long plubbingId, Long todoId, Account currentAccount) {
+    public TodoIdResponse cancelTodo(Account currentAccount, Long plubbingId, Long todoId) {
         plubbingService.getPlubbing(plubbingId);
         Todo todo = todoRepository.findByIdAndAccount(todoId, currentAccount)
                 .orElseThrow(() -> new TodoException(TodoCode.NOT_FOUNT_TODO));
@@ -124,7 +124,7 @@ public class TodoService {
     }
 
     // 투두 인증
-    public TodoResponse proofTodo(Long plubbingId, Long todoId, ProofTodoRequest proofImage, Account currentAccount) {
+    public TodoResponse proofTodo(Account currentAccount, Long plubbingId, Long todoId, ProofTodoRequest proofImage) {
         plubbingService.getPlubbing(plubbingId);
         Todo todo = todoRepository.findByIdAndAccount(todoId, currentAccount)
                 .orElseThrow(() -> new TodoException(TodoCode.NOT_FOUNT_TODO));
@@ -133,7 +133,7 @@ public class TodoService {
             todo.updateTodoIsProof(true);
             todoRepository.save(todo);
             return TodoResponse.of(todo);
-        } else if (todo.isProof()){
+        } else if (todo.isProof()) {
             throw new TodoException(TodoCode.ALREADY_PROOF_TODO);
         } else {
             throw new TodoException(TodoCode.NOT_COMPLETE_TODO);
