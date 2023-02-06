@@ -11,23 +11,30 @@ import javax.persistence.*;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class PlubbingCalendarAttend extends BaseEntity {
+public class CalendarAttend extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "plubbing_calendar_attend")
+    @Column(name = "calendar_attend")
     private Long id;
 
     private AttendStatus attendStatus;
 
     // 참여자(다) - 플러빙일정(1)
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "plubbing_calendar_id")
-    private PlubbingCalendar plubbingCalendar;
+    @JoinColumn(name = "calendar_id")
+    private Calendar calendar;
 
     // 참여자(1) - 참석여부(다)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "account_id")
     private Account account;
 
+    public void setCalendar(Calendar calendar) {
+        this.calendar = calendar;
+    }
+
+    public void updateAttendStatus(AttendStatus attendStatus) {
+        this.attendStatus = attendStatus;
+    }
 }

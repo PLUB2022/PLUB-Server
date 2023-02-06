@@ -78,9 +78,8 @@ public class AccountDto {
     }
 
     public record PlubbingAccountInfoResponse(
-            @ApiModelProperty(value = "닉네임", example = "플럽")
+            Long accountId,
             String nickname,
-            @ApiModelProperty(value = "프로필 이미지", example = "https://s3.ap-northeast-2.amazonaws.com/plub/account/profile/test_profile.jpg")
             String profileImage
     ) {
         @Builder
@@ -89,6 +88,7 @@ public class AccountDto {
 
         public static PlubbingAccountInfoResponse of(Account account) {
             return PlubbingAccountInfoResponse.builder()
+                    .accountId(account.getId())
                     .nickname(account.getNickname())
                     .profileImage(account.getProfileImage())
                     .build();
@@ -142,3 +142,4 @@ public class AccountDto {
         }
     }
 }
+
