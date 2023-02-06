@@ -16,7 +16,7 @@ import plub.plubserver.domain.recruit.model.AppliedAccount;
 import plub.plubserver.domain.recruit.model.Bookmark;
 import plub.plubserver.domain.todo.model.Todo;
 import plub.plubserver.domain.todo.model.TodoTimeline;
-import plub.plubserver.notice.model.PlubbingNotice;
+import plub.plubserver.domain.notice.model.PlubbingNotice;
 
 import javax.persistence.*;
 import java.util.ArrayList;

@@ -2,12 +2,8 @@ package plub.plubserver.domain.plubbing.model;
 
 import lombok.*;
 import plub.plubserver.domain.account.model.Account;
-import plub.plubserver.domain.feed.model.PlubbingFeed;
-import plub.plubserver.notice.model.PlubbingNotice;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Getter

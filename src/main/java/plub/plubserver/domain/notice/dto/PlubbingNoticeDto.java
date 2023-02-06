@@ -1,4 +1,4 @@
-package plub.plubserver.notice.dto;
+package plub.plubserver.domain.notice.dto;
 
 import lombok.Builder;
 import plub.plubserver.common.dto.CommentDto.*;

@@ -1,4 +1,4 @@
-package plub.plubserver.notice.service;
+package plub.plubserver.domain.notice.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -7,7 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 import plub.plubserver.common.dto.CommentDto.*;
 import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.feed.repository.PlubbingFeedRepository;
-import plub.plubserver.notice.dto.PlubbingNoticeDto.*;
+import plub.plubserver.domain.notice.dto.PlubbingNoticeDto.*;
 
 import java.util.List;
 

@@ -1,4 +1,4 @@
-package plub.plubserver.notice.model;
+package plub.plubserver.domain.notice.model;
 
 import lombok.*;
 import plub.plubserver.common.model.BaseEntity;

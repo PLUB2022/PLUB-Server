@@ -1,4 +1,4 @@
-package plub.plubserver.notice.controller;
+package plub.plubserver.domain.notice.controller;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -11,8 +11,8 @@ import plub.plubserver.common.dto.ApiResponse;
 import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.account.service.AccountService;
 import plub.plubserver.common.dto.CommentDto.*;
-import plub.plubserver.notice.dto.PlubbingNoticeDto.*;
-import plub.plubserver.notice.service.PlubbingNoticeService;
+import plub.plubserver.domain.notice.dto.PlubbingNoticeDto.*;
+import plub.plubserver.domain.notice.service.PlubbingNoticeService;
 
 import javax.validation.Valid;
 
