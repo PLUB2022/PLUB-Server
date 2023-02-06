@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import plub.plubserver.domain.account.config.AccountCode;
 import plub.plubserver.domain.account.dto.AccountDto;
 import plub.plubserver.domain.account.exception.AccountException;
@@ -25,6 +26,7 @@ import static plub.plubserver.domain.todo.dto.TodoDto.*;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class TodoService {
 
     private final TodoRepository todoRepository;
@@ -32,6 +34,7 @@ public class TodoService {
     private final PlubbingService plubbingService;
     private final AccountRepository accountRepository;
 
+    @Transactional
     public TodoIdResponse createTodo(Account currentAccount, Long plubbingId, CreateTodoRequest request) {
         Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
 
@@ -89,6 +92,7 @@ public class TodoService {
     }
 
     // 투두 업데이트
+    @Transactional
     public TodoResponse updateTodo(Account currentAccount, Long plubbingId, Long todoId, UpdateTodoRequest request) {
         plubbingService.getPlubbing(plubbingId);
         Todo todo = todoRepository.findByIdAndAccount(todoId, currentAccount)
@@ -97,21 +101,21 @@ public class TodoService {
             throw new TodoException(TodoCode.ALREADY_CHECKED_TODO);
 
         todo.updateTodoDateAndContent(request.date(), request.content());
-        todoRepository.save(todo);
         return TodoResponse.of(todo);
     }
 
     // 투두 완료
+    @Transactional
     public TodoIdResponse completeTodo(Account currentAccount, Long plubbingId, Long todoId) {
         plubbingService.getPlubbing(plubbingId);
         Todo todo = todoRepository.findByIdAndAccount(todoId, currentAccount)
                 .orElseThrow(() -> new TodoException(TodoCode.NOT_FOUNT_TODO));
         todo.updateTodoIsChecked(true);
-        todoRepository.save(todo);
         return new TodoIdResponse(todo.getId());
     }
 
     // 투두 완료 취소
+    @Transactional
     public TodoIdResponse cancelTodo(Account currentAccount, Long plubbingId, Long todoId) {
         plubbingService.getPlubbing(plubbingId);
         Todo todo = todoRepository.findByIdAndAccount(todoId, currentAccount)
@@ -119,11 +123,11 @@ public class TodoService {
         if (todo.isProof())
             throw new TodoException(TodoCode.ALREADY_PROOF_TODO);
         todo.updateTodoIsChecked(false);
-        todoRepository.save(todo);
         return new TodoIdResponse(todo.getId());
     }
 
     // 투두 인증
+    @Transactional
     public TodoResponse proofTodo(Account currentAccount, Long plubbingId, Long todoId, ProofTodoRequest proofImage) {
         plubbingService.getPlubbing(plubbingId);
         Todo todo = todoRepository.findByIdAndAccount(todoId, currentAccount)
@@ -131,7 +135,6 @@ public class TodoService {
         if (todo.isChecked()) {
             todo.updateTodoProofImage(proofImage.proofImage());
             todo.updateTodoIsProof(true);
-            todoRepository.save(todo);
             return TodoResponse.of(todo);
         } else if (todo.isProof()) {
             throw new TodoException(TodoCode.ALREADY_PROOF_TODO);

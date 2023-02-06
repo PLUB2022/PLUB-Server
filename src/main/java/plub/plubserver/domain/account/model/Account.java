@@ -3,7 +3,7 @@ package plub.plubserver.domain.account.model;
 import lombok.*;
 import plub.plubserver.common.model.BaseEntity;
 import plub.plubserver.domain.archive.model.Archive;
-import plub.plubserver.domain.calendar.model.PlubbingCalendarAttend;
+import plub.plubserver.domain.calendar.model.CalendarAttend;
 import plub.plubserver.domain.feed.model.PlubbingFeed;
 import plub.plubserver.domain.message.model.Message;
 import plub.plubserver.domain.notification.model.Notification;
@@ -95,7 +95,7 @@ public class Account extends BaseEntity {
 
     // 회원(1) - 참석여부(다)
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<PlubbingCalendarAttend> attendList = new ArrayList<>();
+    private List<CalendarAttend> attendList = new ArrayList<>();
 
     // 회원(1) - 아카이브(다) : 당장은 필요없지만 일단 만들어 놓음
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
