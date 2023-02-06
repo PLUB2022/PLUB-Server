@@ -5,7 +5,7 @@ import plub.plubserver.common.model.BaseEntity;
 import plub.plubserver.domain.archive.model.Archive;
 import plub.plubserver.domain.calendar.model.CalendarAttend;
 import plub.plubserver.domain.feed.model.PlubbingFeed;
-import plub.plubserver.domain.message.model.Message;
+import plub.plubserver.domain.notice.model.PlubbingNotice;
 import plub.plubserver.domain.notification.model.Notification;
 import plub.plubserver.domain.plubbing.config.PlubbingCode;
 import plub.plubserver.domain.plubbing.exception.PlubbingException;
@@ -16,7 +16,6 @@ import plub.plubserver.domain.recruit.model.AppliedAccount;
 import plub.plubserver.domain.recruit.model.Bookmark;
 import plub.plubserver.domain.todo.model.Todo;
 import plub.plubserver.domain.todo.model.TodoTimeline;
-import plub.plubserver.domain.notice.model.PlubbingNotice;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -60,10 +59,6 @@ public class Account extends BaseEntity {
     // 회원(1) - 알람(다)
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Notification> alarms = new ArrayList<>();
-
-    // 회원(1) - 쪽지(다)
-    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Message> messages = new ArrayList<>();
 
     // 회원(1) - 회원_모집페이지(다) # 다대다 용
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)

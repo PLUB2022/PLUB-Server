@@ -44,7 +44,7 @@ public class ArchiveDto {
     public record ArchiveCardResponse(
             Long archiveId,
             String title,
-            String image,
+            List<String> images,
             int imageCount,
             int sequence,
             String createdAt
@@ -57,10 +57,9 @@ public class ArchiveDto {
             return ArchiveCardResponse.builder()
                     .archiveId(archive.getId())
                     .title(archive.getTitle())
-                    .image(archive.getImages().stream()
+                    .images(archive.getImages().stream()
                             .map(ArchiveImage::getImage)
-                            .findFirst()
-                            .orElse(""))
+                            .toList())
                     .imageCount(archive.getImages().size())
                     .sequence(archive.getSequence())
                     .createdAt(archive.getCreatedAt())
