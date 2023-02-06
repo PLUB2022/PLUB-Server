@@ -3,13 +3,13 @@ package plub.plubserver.domain.plubbing.model;
 import lombok.*;
 import plub.plubserver.common.model.BaseEntity;
 import plub.plubserver.domain.archive.model.Archive;
-import plub.plubserver.domain.calendar.model.PlubbingCalendar;
+import plub.plubserver.domain.calendar.model.Calendar;
 import plub.plubserver.domain.category.model.PlubbingSubCategory;
 import plub.plubserver.domain.feed.model.PlubbingFeed;
 import plub.plubserver.domain.plubbing.dto.PlubbingDto.UpdatePlubbingRequest;
 import plub.plubserver.domain.recruit.dto.RecruitDto.UpdateRecruitRequest;
 import plub.plubserver.domain.recruit.model.Recruit;
-import plub.plubserver.domain.todo.model.PlubbingTodo;
+import plub.plubserver.domain.todo.model.TodoTimeline;
 import plub.plubserver.notice.model.PlubbingNotice;
 
 import javax.persistence.*;
@@ -61,7 +61,7 @@ public class Plubbing extends BaseEntity {
 
     // 모임(1) - 플러빙 일정(다)
     @OneToMany(mappedBy = "plubbing", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<PlubbingCalendar> calendarList;
+    private List<Calendar> calendarList;
 
     // 모임(1) - 회원_모임페이지(다) # 다대다 용
     @OneToMany(mappedBy = "plubbing", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -81,7 +81,7 @@ public class Plubbing extends BaseEntity {
 
     // 모임(1) - 투두(다)
     @OneToMany(mappedBy = "plubbing", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<PlubbingTodo> todoList;
+    private List<TodoTimeline> todoTimelineList;
 
     // 모임(1) - 아카이브(다)
     @OneToMany(mappedBy = "plubbing", cascade = CascadeType.ALL, orphanRemoval = true)
