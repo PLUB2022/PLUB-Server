@@ -6,16 +6,18 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import plub.plubserver.common.dto.CommentDto.*;
 import plub.plubserver.domain.account.model.Account;
-import plub.plubserver.domain.feed.repository.PlubbingFeedRepository;
-import plub.plubserver.domain.notice.dto.PlubbingNoticeDto.*;
+import plub.plubserver.domain.notice.dto.NoticeDto.*;
+import plub.plubserver.domain.notice.repository.NoticeCommentRepository;
+import plub.plubserver.domain.notice.repository.NoticeRepository;
 
 import java.util.List;
 
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
-public class PlubbingNoticeService {
-    private final PlubbingFeedRepository plubbingFeedRepository;
+public class NoticeService {
+    private final NoticeRepository noticeRepository;
+    private final NoticeCommentRepository noticeCommentRepository;
 
     public NoticeIdResponse createNotice(Long plubbingId, Account owner, CreateNoticeRequest createNoticeRequest) {
         return new NoticeIdResponse(1L);

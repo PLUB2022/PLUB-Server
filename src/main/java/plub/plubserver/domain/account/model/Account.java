@@ -4,8 +4,12 @@ import lombok.*;
 import plub.plubserver.common.model.BaseEntity;
 import plub.plubserver.domain.archive.model.Archive;
 import plub.plubserver.domain.calendar.model.CalendarAttend;
-import plub.plubserver.domain.feed.model.PlubbingFeed;
+import plub.plubserver.domain.feed.model.Feed;
+import plub.plubserver.domain.feed.model.FeedComment;
+import plub.plubserver.domain.feed.model.FeedLike;
 import plub.plubserver.domain.message.model.Message;
+import plub.plubserver.domain.notice.model.NoticeComment;
+import plub.plubserver.domain.notice.model.NoticeLike;
 import plub.plubserver.domain.notification.model.Notification;
 import plub.plubserver.domain.plubbing.config.PlubbingCode;
 import plub.plubserver.domain.plubbing.exception.PlubbingException;
@@ -16,7 +20,7 @@ import plub.plubserver.domain.recruit.model.AppliedAccount;
 import plub.plubserver.domain.recruit.model.Bookmark;
 import plub.plubserver.domain.todo.model.Todo;
 import plub.plubserver.domain.todo.model.TodoTimeline;
-import plub.plubserver.domain.notice.model.PlubbingNotice;
+import plub.plubserver.domain.notice.model.Notice;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -87,11 +91,27 @@ public class Account extends BaseEntity {
 
     // 회원(1) - 게시판(다)
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<PlubbingFeed> feedList = new ArrayList<>();
+    private List<Feed> feedList = new ArrayList<>();
+
+    // 회원(1) - 게시판 좋아요(다)
+    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<FeedLike> feedLikeList = new ArrayList<>();
+
+    // 회원(1) - 게시판 댓글(다)
+    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<FeedComment> feedCommentList = new ArrayList<>();
 
     // 회원(1) - 공지(다)
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<PlubbingNotice> noticeList = new ArrayList<>();
+    private List<Notice> noticeList = new ArrayList<>();
+
+    // 회원(1) - 공지 좋아요(다)
+    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<NoticeLike>  noticeLikeList = new ArrayList<>();
+
+    // 회원(1) - 공지 댓글(다)
+    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<NoticeComment> noticeCommentList = new ArrayList<>();
 
     // 회원(1) - 참석여부(다)
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)

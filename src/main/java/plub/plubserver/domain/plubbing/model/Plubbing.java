@@ -5,12 +5,12 @@ import plub.plubserver.common.model.BaseEntity;
 import plub.plubserver.domain.archive.model.Archive;
 import plub.plubserver.domain.calendar.model.Calendar;
 import plub.plubserver.domain.category.model.PlubbingSubCategory;
-import plub.plubserver.domain.feed.model.PlubbingFeed;
+import plub.plubserver.domain.feed.model.Feed;
 import plub.plubserver.domain.plubbing.dto.PlubbingDto.UpdatePlubbingRequest;
 import plub.plubserver.domain.recruit.dto.RecruitDto.UpdateRecruitRequest;
 import plub.plubserver.domain.recruit.model.Recruit;
 import plub.plubserver.domain.todo.model.TodoTimeline;
-import plub.plubserver.domain.notice.model.PlubbingNotice;
+import plub.plubserver.domain.notice.model.Notice;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -69,11 +69,11 @@ public class Plubbing extends BaseEntity {
 
     // 모임(1) - 플러빙 공지(다)
     @OneToMany(mappedBy = "plubbing", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<PlubbingNotice> notices;
+    private List<Notice> noticeList;
 
     // 모임(1) - 게시판(다)
     @OneToMany(mappedBy = "plubbing", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<PlubbingFeed> feeds = new ArrayList<>();
+    private List<Feed> feedList;
 
     // 모임(1) - 모임 카테고리(다)
     @OneToMany(mappedBy = "plubbing", cascade = CascadeType.ALL, orphanRemoval = true)

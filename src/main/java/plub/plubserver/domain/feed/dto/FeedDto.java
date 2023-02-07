@@ -1,19 +1,20 @@
 package plub.plubserver.domain.feed.dto;
 
 import lombok.Builder;
-import org.springframework.data.domain.Page;
 import plub.plubserver.common.dto.CommentDto.*;
-import plub.plubserver.common.dto.PageResponse;
 import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.feed.model.FeedType;
-import plub.plubserver.domain.feed.model.PlubbingFeed;
+import plub.plubserver.domain.feed.model.Feed;
 import plub.plubserver.domain.feed.model.ViewType;
+import plub.plubserver.domain.plubbing.model.Plubbing;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-public class PlubbingFeedDto {
+public class FeedDto {
 
     public record CreateFeedRequest(
             @NotBlank @Size(max = 20)
@@ -31,15 +32,27 @@ public class PlubbingFeedDto {
         public CreateFeedRequest {
         }
 
-        public PlubbingFeed toEntity() {
-            return PlubbingFeed.builder()
+        public Feed toEntity(Plubbing plubbing, Account account) {
+            String contentValue = this.content;
+            String feedImageValue = this.feedImage;
+            if (this.feedType.equals("LINE")) {
+                feedImageValue = "";
+            } else if (this.feedType.equals("PHOTO")) {
+                contentValue = "";
+            }
+            return Feed.builder()
                     .title(this.title)
-                    .content(this.content)
-                    .feedImage(this.feedImage)
+                    .content(contentValue)
+                    .feedImage(feedImageValue)
                     .feedType(FeedType.valueOf(this.feedType))
                     .viewType(ViewType.NORMAL)
                     .visibility(true)
                     .pin(false)
+                    .pinedAt(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
+                    .likeCount(0)
+                    .commentCount(0)
+                    .plubbing(plubbing)
+                    .account(account)
                     .build();
         }
     }
@@ -67,6 +80,8 @@ public class PlubbingFeedDto {
             String feedImage,
             String createdAt,
             boolean pin,
+            long likeCount,
+            long commentCount,
             String profileImage,
             String nickname,
             Long plubbingId
@@ -75,19 +90,21 @@ public class PlubbingFeedDto {
         public FeedCardResponse {
         }
 
-        public static FeedCardResponse of(PlubbingFeed plubbingFeed, Account account) {
+        public static FeedCardResponse of(Feed feed) {
             return FeedCardResponse.builder()
-                    .feedId(plubbingFeed.getId())
-                    .feedType(plubbingFeed.getFeedType().toString())
-                    .viewType(plubbingFeed.getViewType().toString())
-                    .title(plubbingFeed.getTitle())
-                    .content(plubbingFeed.getContent())
-                    .feedImage(plubbingFeed.getFeedImage())
-                    .createdAt(plubbingFeed.getCreatedAt())
-                    .pin(plubbingFeed.isPin())
-                    .profileImage(account.getProfileImage())
-                    .nickname(account.getNickname())
-                    .plubbingId(plubbingFeed.getPlubbing().getId())
+                    .feedId(feed.getId())
+                    .feedType(feed.getFeedType().toString())
+                    .viewType(feed.getViewType().toString())
+                    .title(feed.getTitle())
+                    .content(feed.getContent())
+                    .feedImage(feed.getFeedImage())
+                    .createdAt(feed.getCreatedAt())
+                    .pin(feed.isPin())
+                    .likeCount(feed.getLikeCount())
+                    .commentCount(feed.getCommentCount())
+                    .profileImage(feed.getAccount().getProfileImage())
+                    .nickname(feed.getAccount().getNickname())
+                    .plubbingId(feed.getPlubbing().getId())
                     .build();
         }
     }
@@ -122,6 +139,24 @@ public class PlubbingFeedDto {
     ) {
         @Builder
         public FeedResponse {
+        }
+
+        public static FeedResponse of(Feed feed, List<CommentResponse> comments) {
+            return FeedResponse.builder()
+                    .feedId(feed.getId())
+                    .feedType(feed.getFeedType().toString())
+                    .viewType(feed.getViewType().toString())
+                    .title(feed.getTitle())
+                    .content(feed.getContent())
+                    .feedImage(feed.getFeedImage())
+                    .createdAt(feed.getCreatedAt())
+                    .pin(feed.isPin())
+                    .profileImage(feed.getAccount().getProfileImage())
+                    .nickname(feed.getAccount().getNickname())
+                    .likeCount(feed.getLikeCount())
+                    .commentCount(comments.size())
+                    .comments(comments)
+                    .build();
         }
     }
 
