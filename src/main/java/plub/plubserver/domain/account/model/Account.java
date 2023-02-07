@@ -7,7 +7,6 @@ import plub.plubserver.domain.calendar.model.CalendarAttend;
 import plub.plubserver.domain.feed.model.Feed;
 import plub.plubserver.domain.feed.model.FeedComment;
 import plub.plubserver.domain.feed.model.FeedLike;
-import plub.plubserver.domain.message.model.Message;
 import plub.plubserver.domain.notice.model.NoticeComment;
 import plub.plubserver.domain.notice.model.NoticeLike;
 import plub.plubserver.domain.notification.model.Notification;
