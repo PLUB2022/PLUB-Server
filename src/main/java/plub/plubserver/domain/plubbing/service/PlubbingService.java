@@ -101,6 +101,17 @@ public class PlubbingService {
         // Plubbing 엔티티 생성 및 저장
         Plubbing plubbing = plubbingRepository.save(createPlubbingRequest.toEntity());
 
+        // 이미지 설정
+        String mainImage = createPlubbingRequest.mainImage();
+        if (createPlubbingRequest.mainImage() == null || createPlubbingRequest.mainImage().equals("")) {
+            SubCategory subCategory = createPlubbingRequest.subCategoryIds()
+                    .stream()
+                    .map(categoryService::getSubCategory)
+                    .findFirst().orElseThrow(() -> new PlubbingException(PlubbingCode.NOT_FOUND_SUB_CATEGORY));
+            mainImage = subCategory.getDefaultImage();
+        }
+        plubbing.setMainImage(mainImage);
+
         // days 매핑
         plubbing.addPlubbingMeetingDay(createPlubbingRequest.getPlubbingMeetingDay(plubbing));
 

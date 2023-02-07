@@ -47,12 +47,11 @@ public class CategoryService {
         return true;
     }
 
-    public boolean createSubCategory(String name, int sequence, Long categoryId) {
+    public void createSubCategory(String name, int sequence, Long categoryId, String defaultImage) {
         Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new CategoryException(CategoryCode.NOT_FOUND_CATEGORY));
-        SubCategory categorySub = SubCategory.toCategorySub(name, sequence, category);
+        SubCategory categorySub = SubCategory.toSubCategory(name, sequence, category, defaultImage);
         subCategoryRepository.save(categorySub);
-        return true;
     }
 
     public AllCategoryListResponse getAllCategory() {

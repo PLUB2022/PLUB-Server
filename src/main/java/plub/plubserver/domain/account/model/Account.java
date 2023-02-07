@@ -22,6 +22,7 @@ import plub.plubserver.domain.todo.model.Todo;
 import plub.plubserver.domain.todo.model.TodoTimeline;
 import plub.plubserver.domain.notice.model.Notice;
 
+
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -64,10 +65,6 @@ public class Account extends BaseEntity {
     // 회원(1) - 알람(다)
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Notification> alarms = new ArrayList<>();
-
-    // 회원(1) - 쪽지(다)
-    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Message> messages = new ArrayList<>();
 
     // 회원(1) - 회원_모집페이지(다) # 다대다 용
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)

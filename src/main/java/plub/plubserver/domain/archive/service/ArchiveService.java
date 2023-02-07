@@ -39,17 +39,6 @@ public class ArchiveService {
                 archiveRepository.findAllByPlubbingIdOrderBySequenceDesc(plubbingId, pageable)
                 .map(ArchiveCardResponse::of)
         );
-//        List<ArchiveCardResponse> archiveCardList = new ArrayList<>();
-//        archiveCardList.add(ArchiveCardResponse.builder()
-//                .archiveId(1L)
-//                .title("title")
-//                .image("image")
-//                .imageCount(1)
-//                .sequence(1)
-//                .createdAt("2021-08-01 00:00:00")
-//                .build());
-//        Page<ArchiveCardResponse> archiveCardPage = new PageImpl<>(archiveCardList, pageable, 0);
-//        return ArchiveCardListResponse.of(archiveCardPage);
     }
 
     public ArchiveCardResponse getArchive(Long plubbingId, Long archiveId) {
