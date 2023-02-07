@@ -56,9 +56,9 @@ public class Account extends BaseEntity {
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<BanAccount> bannedAccounts = new ArrayList<>();
 
-    // 회원(1) - 알람(다)
+    // 회원(1) - 푸시 알림(다)
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Notification> alarms = new ArrayList<>();
+    private List<Notification> notifications = new ArrayList<>();
 
     // 회원(1) - 회원_모집페이지(다) # 다대다 용
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -157,5 +157,10 @@ public class Account extends BaseEntity {
     public void addArchive(Archive archive) {
         if (archiveList == null) archiveList = new ArrayList<>();
         archiveList.add(archive);
+    }
+
+    public void addNotification(Notification notification) {
+        if (notifications == null) notifications = new ArrayList<>();
+        notifications.add(notification);
     }
 }

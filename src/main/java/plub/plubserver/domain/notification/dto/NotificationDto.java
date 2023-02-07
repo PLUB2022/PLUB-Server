@@ -9,10 +9,16 @@ public class NotificationDto {
     /**
      * Request
      */
-    public record NotificationRequest(
-            String targetToken,
+    public record DirectPushRequest(
+            Long accountId,
             String title,
-            String body
+            String content
+    ) { }
+
+    public record PlubbingPushRequest(
+            Long plubbingId,
+            String title,
+            String content
     ) { }
 
 
@@ -24,9 +30,12 @@ public class NotificationDto {
     ) {
     }
 
-    public record TotalReceivedAccountNumResponse(
-            int totalReceivedAccountNum
+    public record ReceivedAccountsResponse(
+            List<Long> accountIds,
+            int count
     ) {
+        @Builder public ReceivedAccountsResponse {
+        }
     }
     
     public record NotificationResponse(
@@ -41,9 +50,9 @@ public class NotificationDto {
         public static NotificationResponse of(Notification notification) {
             return NotificationResponse.builder()
                     .title(notification.getTitle())
-                    .body(notification.getBody())
+                    .body(notification.getContent())
                     .createdAt(notification.getCreatedAt())
-                    .isRead(false) // TODO : 읽음 여부 체크
+                    .isRead(true)
                     .build();
             
         }

@@ -1,8 +1,6 @@
 package plub.plubserver.domain.notification.model;
 
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import plub.plubserver.common.model.BaseEntity;
 import plub.plubserver.domain.account.model.Account;
 
@@ -10,6 +8,8 @@ import javax.persistence.*;
 
 @Entity
 @Getter
+@AllArgsConstructor
+@Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Notification extends BaseEntity {
 
@@ -19,7 +19,7 @@ public class Notification extends BaseEntity {
     private Long id;
 
     private String title;
-    private String body;
+    private String content;
 
     private boolean isRead;
 

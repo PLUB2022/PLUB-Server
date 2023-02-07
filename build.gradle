@@ -61,9 +61,17 @@ dependencies {
 	// redis
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 
-	//queryDSL
+	// queryDSL
 	implementation "com.querydsl:querydsl-jpa:${queryDslVersion}"
 	implementation "com.querydsl:querydsl-apt:${queryDslVersion}"
+
+	// fcm
+	implementation("com.google.firebase:firebase-admin:6.8.1")
+	implementation("com.squareup.okhttp3:okhttp:4.9.1")
+
+	// json simple
+	implementation("com.googlecode.json-simple:json-simple:1.1.1")
+
 }
 
 tasks.named('test') {
