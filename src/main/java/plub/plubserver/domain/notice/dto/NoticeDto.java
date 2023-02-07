@@ -7,7 +7,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 import java.util.List;
 
-public class PlubbingNoticeDto {
+public class NoticeDto {
     public record CreateNoticeRequest(
             @NotBlank @Size(max = 15)
             String title,

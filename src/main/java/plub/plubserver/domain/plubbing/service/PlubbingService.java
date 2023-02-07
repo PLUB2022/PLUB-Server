@@ -156,7 +156,7 @@ public class PlubbingService {
                 .stream()
                 .filter(AccountPlubbing::isHost)
                 .findFirst()
-                .orElseThrow(() -> new PlubbingException(PlubbingCode.NOT_HOST))
+                .orElseThrow(() -> new PlubbingException(PlubbingCode.NOT_HOST_ERROR))
                 .getAccount();
     }
 
@@ -164,7 +164,12 @@ public class PlubbingService {
     public void checkHost(Account account, Plubbing plubbing) {
         AccountPlubbing accountPlubbing = accountPlubbingRepository.findByAccountAndPlubbing(account, plubbing)
                 .orElseThrow(() -> new PlubbingException(PlubbingCode.NOT_MEMBER_ERROR));
-        if (!accountPlubbing.isHost()) throw new PlubbingException(PlubbingCode.NOT_HOST);
+        if (!accountPlubbing.isHost()) throw new PlubbingException(PlubbingCode.NOT_HOST_ERROR);
+    }
+
+    public void checkMember(Account account, Plubbing plubbing) {
+        AccountPlubbing accountPlubbing = accountPlubbingRepository.findByAccountAndPlubbing(account, plubbing)
+                .orElseThrow(() -> new PlubbingException(PlubbingCode.NOT_MEMBER_ERROR));
     }
 
     public void checkHost(Plubbing plubbing) {
