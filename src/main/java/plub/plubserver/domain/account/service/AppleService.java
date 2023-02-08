@@ -115,11 +115,10 @@ public class AppleService {
     public PrivateKey getPrivateKey() {
         log.info("getPrivateKey 호출 됨");
         try {
-            //ClassPathResource resource = new ClassPathResource(appleSignKeyFilePath);
+//            ClassPathResource resource = new ClassPathResource(appleSignKeyFilePath);
+//            String privateKey1 = new String(Files.readAllBytes(Paths.get(resource.getURI())));
+//            log.info("privateKey1: {}", privateKey1);
             String privateKey = appleKey;
-            log.info("privateKey : {}", privateKey);
-            //String privateKey = new String(Files.readAllBytes(Paths.get(resource.getURI())));
-            //System.out.println("privateKey = " + privateKey);
             Reader pemReader = new StringReader(privateKey);
             log.info("peReader 호출됨");
             PEMParser pemParser = new PEMParser(pemReader);
