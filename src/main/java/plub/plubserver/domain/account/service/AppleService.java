@@ -113,17 +113,12 @@ public class AppleService {
         try {
             ClassPathResource resource = new ClassPathResource(appleSignKeyFilePath);
             logTest1 = logTest1 + " 1000 " + Arrays.toString(Files.readAllBytes(Paths.get(resource.getURI())));
-            //String privateKey = appleKey;
-            String privateKey = new String(Files.readAllBytes(Paths.get(resource.getURI())));
-            System.out.println("privateKey = " + privateKey);
+            String privateKey = appleKey;
+            //String privateKey = new String(Files.readAllBytes(Paths.get(resource.getURI())));
             Reader pemReader = new StringReader(privateKey);
-            logTest1 = logTest1 + "3";
             PEMParser pemParser = new PEMParser(pemReader);
-            logTest1 = logTest1 + "4";
             JcaPEMKeyConverter converter = new JcaPEMKeyConverter();
-            logTest1 = logTest1 + "5";
             PrivateKeyInfo object = (PrivateKeyInfo) pemParser.readObject();
-            logTest1 = logTest1 + "6";
             return converter.getPrivateKey(object);
         } catch (Exception e) {
             throw new AuthException(AuthCode.APPLE_LOGIN_ERROR, e.getMessage()+ logTest1);
