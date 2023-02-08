@@ -112,6 +112,8 @@ public class AppleService {
         String logTest1 = "getPrivateKey";
         try {
             ClassPathResource resource = new ClassPathResource(appleSignKeyFilePath);
+//            ClassPathResource resource = new ClassPathResource("apple_sign_key.p8");
+
             logTest1 = logTest1 + " 1 " + resource;
             logTest1 = logTest1 + " 10 " + resource.getFilename();
             logTest1 = logTest1 + " 100 " + resource.getURI();

@@ -10,10 +10,7 @@ import plub.plubserver.domain.notification.model.Notification;
 import plub.plubserver.domain.plubbing.model.Plubbing;
 import plub.plubserver.domain.plubbing.service.PlubbingService;
 
-import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 
 import static plub.plubserver.domain.notification.dto.NotificationDto.*;
 
@@ -27,29 +24,30 @@ public class NotificationService {
     private final AccountService accountService;
     private final PlubbingService plubbingService;
 
-    private Long pushMessage(Account receiver, String title, String content) {
-        CompletableFuture<Boolean> result = fcmService.sendPushMessage(
+    private void pushMessage(Account receiver, String title, String content) {
+        CompletableFuture<Boolean> future = fcmService.sendPushMessage(
                 receiver.getFcmToken(),
                 title,
                 content
         );
-        try {
-            if (result.isDone() && result.get()) {
-                Notification notification = Notification.builder()
-                        .account(receiver)
-                        .title(title)
-                        .content(content)
-                        .isRead(false)
-                        .build();
-                receiver.addNotification(notification);
-                return receiver.getId();
+        future.thenAccept(success -> {
+            if (success) {
+                createNotification(receiver, title, content);
             } else {
-                log.warn("accountId:{} push failed.", receiver.getId());
+                log.warn("accountId={} push failed.", receiver.getId());
             }
-        } catch (ExecutionException | InterruptedException e) {
-            log.warn("accountId:{} push failed. detail {}", receiver.getId(), e.getMessage());
-        }
-        return null;
+        });
+    }
+
+    @Transactional
+    public void createNotification(Account account, String title, String content) {
+        Notification notification = Notification.builder()
+                .account(account)
+                .title(title)
+                .content(content)
+                .isRead(false)
+                .build();
+        account.addNotification(notification);
     }
 
     @Transactional
@@ -62,18 +60,37 @@ public class NotificationService {
     @Transactional
     public ReceivedAccountsResponse sendToPlubbing(PlubbingPushRequest plubbingPushRequest) {
         Plubbing plubbing = plubbingService.getPlubbing(plubbingPushRequest.plubbingId());
-        List<Long> receivedIds = plubbing.getAccountPlubbingList().stream()
-                .map(it -> pushMessage(
-                        it.getAccount(),
-                        plubbingPushRequest.title(),
-                        plubbingPushRequest.content()
-                        ))
-                .filter(Objects::nonNull)
-                .toList();
-        return ReceivedAccountsResponse.builder()
-                .accountIds(receivedIds)
-                .count(receivedIds.size())
-                .build();
+//        List<Long> receivedIds = plubbing.getAccountPlubbingList().stream()
+//                .map(it -> pushMessage(
+//                        it.getAccount(),
+//                        plubbingPushRequest.title(),
+//                        plubbingPushRequest.content()
+//                        ))
+//                .filter(Objects::nonNull)
+//                .toList();
+//        List<Long> receivedIds = plubbing.getAccountPlubbingList().stream()
+//                .map(it -> pushMessage(
+//                        it.getAccount(),
+//                        plubbingPushRequest.title(),
+//                        plubbingPushRequest.content()
+//                        ))
+//                .toList();
+//        return ReceivedAccountsResponse.builder()
+//                .accountIds(receivedIds)
+//                .count(receivedIds.size())
+//                .build();
+        return null;
+    }
+
+    @Transactional
+    public ReceivedAccountsResponse sendToAll() {
+        for (int i = 0 ; i<100_000; i++) {
+            fcmService.sendPushMessage(
+                    "fcmToken",
+                    "title",
+                    "content");
+        }
+        return null;
     }
 
     public NotificationListResponse getMyNotifications() {
@@ -88,9 +105,4 @@ public class NotificationService {
                 .toList()
         );
     }
-
-    public String checkIsRead() {
-        return "success";
-    }
-
 }

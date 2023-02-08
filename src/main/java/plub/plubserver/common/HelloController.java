@@ -11,4 +11,5 @@ public class HelloController {
     public String hello() {
         return "PLUB REST API Server is running!!";
     }
+
 }
