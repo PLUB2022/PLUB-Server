@@ -21,8 +21,6 @@ import plub.plubserver.domain.account.dto.AppleDto;
 import plub.plubserver.domain.account.exception.AuthException;
 import plub.plubserver.domain.account.model.SocialType;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.Reader;
 import java.io.StringReader;
 import java.math.BigInteger;
@@ -58,6 +56,8 @@ public class AppleService {
     private Object appleSignKeyId;
     @Value("${apple.appleSignKeyFilePath}")
     private String appleSignKeyFilePath;
+    @Value("${apple.appleKey}")
+    private String appleKey;
 
     public OAuthIdAndRefreshTokenResponse requestAppleToken(SocialLoginRequest socialLoginRequest) {
         AppleCodeResponse appleAuthToken = generateAuthToken(socialLoginRequest.authorizationCode());
@@ -109,21 +109,13 @@ public class AppleService {
     }
 
     public PrivateKey getPrivateKey() {
-        String logTest1 = "getPrivateKey";
+        String logTest1 = " ";
         try {
             ClassPathResource resource = new ClassPathResource(appleSignKeyFilePath);
-            logTest1 = logTest1 + " 1 " + resource;
-            logTest1 = logTest1 + " 10 " + resource.getFilename();
-            logTest1 = logTest1 + " 100 " + resource.getURI();
-
-            BufferedReader br = new BufferedReader(new FileReader(resource.getFile()));
-            String s = br.readLine();
-            System.out.println("s = " + s);
-            
             logTest1 = logTest1 + " 1000 " + Arrays.toString(Files.readAllBytes(Paths.get(resource.getURI())));
-
+            //String privateKey = appleKey;
             String privateKey = new String(Files.readAllBytes(Paths.get(resource.getURI())));
-            logTest1 = logTest1 + "2";
+            System.out.println("privateKey = " + privateKey);
             Reader pemReader = new StringReader(privateKey);
             logTest1 = logTest1 + "3";
             PEMParser pemParser = new PEMParser(pemReader);
