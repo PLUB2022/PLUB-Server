@@ -10,7 +10,6 @@ import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
 import org.bouncycastle.openssl.PEMParser;
 import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
@@ -25,8 +24,6 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
@@ -60,12 +57,16 @@ public class AppleService {
     private String appleKey;
 
     public OAuthIdAndRefreshTokenResponse requestAppleToken(SocialLoginRequest socialLoginRequest) {
+        log.info("requestAppleToken");
         AppleCodeResponse appleAuthToken = generateAuthToken(socialLoginRequest.authorizationCode());
+        log.info("appleAuthToken : {}", appleAuthToken);
         String appleId = getAppleId(socialLoginRequest.accessToken());
+        log.info("appleId : {}", appleId);
         return OAuthIdAndRefreshTokenResponse.to(appleId, appleAuthToken.refreshToken());
     }
 
     public AppleCodeResponse generateAuthToken(String authorizationCode) {
+        log.info("generateAuthToken 호출됨");
         String authUrl = "https://appleid.apple.com/auth/token";
 
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
@@ -78,12 +79,15 @@ public class AppleService {
         headers.setContentType(MediaType.valueOf(MediaType.APPLICATION_FORM_URLENCODED_VALUE));
         HttpEntity<MultiValueMap<String, String>> httpEntity = new HttpEntity<>(params, headers);
         ResponseEntity<AppleCodeResponse> response = restTemplate.postForEntity(authUrl, httpEntity, AppleCodeResponse.class);
+        log.info("response: {}", response.getBody());
         return response.getBody();
     }
 
     // Authorization Code로 Token 발급 받기
     public String createClientSecret() {
+        log.info("createClientSecret 호출 됨");
         Date expirationDate = Date.from(LocalDateTime.now().plusDays(30).atZone(ZoneId.systemDefault()).toInstant());
+        log.info("expirationDate: {}", expirationDate);
         Map<String, Object> jwtHeader = new HashMap<>();
         jwtHeader.put("kid", appleSignKeyId);
         jwtHeader.put("alg", "ES256");
@@ -109,24 +113,26 @@ public class AppleService {
     }
 
     public PrivateKey getPrivateKey() {
-        String logTest1 = " ";
+        log.info("getPrivateKey 호출 됨");
         try {
-            ClassPathResource resource = new ClassPathResource(appleSignKeyFilePath);
-            logTest1 = logTest1 + " 1000 " + Arrays.toString(Files.readAllBytes(Paths.get(resource.getURI())));
+            //ClassPathResource resource = new ClassPathResource(appleSignKeyFilePath);
             String privateKey = appleKey;
+            log.info("privateKey : {}", privateKey);
             //String privateKey = new String(Files.readAllBytes(Paths.get(resource.getURI())));
-            System.out.println("privateKey = " + privateKey);
+            //System.out.println("privateKey = " + privateKey);
             Reader pemReader = new StringReader(privateKey);
-            logTest1 = logTest1 + "3";
+            log.info("peReader 호출됨");
             PEMParser pemParser = new PEMParser(pemReader);
-            logTest1 = logTest1 + "4";
+            log.info("pemParser 호출됨");
             JcaPEMKeyConverter converter = new JcaPEMKeyConverter();
-            logTest1 = logTest1 + "5";
+            log.info("converter 호출됨");
             PrivateKeyInfo object = (PrivateKeyInfo) pemParser.readObject();
-            logTest1 = logTest1 + "6";
+            log.info("object 호출됨");
             return converter.getPrivateKey(object);
         } catch (Exception e) {
-            throw new AuthException(AuthCode.APPLE_LOGIN_ERROR, e.getMessage()+ logTest1);
+            log.error("getPrivateKey message : {}", e.getMessage());
+            log.error("getPrivateKey exception : {}", e.getClass().getSimpleName());
+            throw new AuthException(AuthCode.APPLE_LOGIN_ERROR, e.getMessage());
         }
     }
 
