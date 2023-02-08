@@ -31,7 +31,7 @@ jobs:
           YAML_FILE_NAME: application-secret.yml
           APPLE_FILE_NAME: apple_sign_key.p8
         run: echo $YAML_SECRET | base64 --decode > $YAML_DIR/$YAML_FILE_NAME &&
-             echo $APPLE_SECRET | base64 --decode > $YAML_DIR/$APPLE_FILE_NAME
+             echo $APPLE_SECRET > $YAML_DIR/$APPLE_FILE_NAME
 
       - name: Build with Gradle
         run: ./gradlew bootJar
