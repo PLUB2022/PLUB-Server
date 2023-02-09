@@ -50,17 +50,17 @@ public class FeedService {
 
     public PageResponse<FeedCardResponse> getFeedList(Account account, Long plubbingId, Pageable pageable) {
         Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
-        plubbingService.checkMember(account, plubbing);
+        Boolean isHost = plubbingService.isHost(account, plubbing);
         List<FeedCardResponse> feedCardList = feedRepository.findAllByPlubbingAndPinAndVisibility(plubbing, false, true)
-                .stream().map(FeedCardResponse::of).toList();
+                .stream().map((Feed feed) -> FeedCardResponse.of(feed, isAuthor(account, feed), isHost)).toList();
         return PageResponse.of(pageable, feedCardList);
     }
 
     public FeedListResponse getPinedFeedList(Account account, Long plubbingId) {
         Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
-        plubbingService.checkMember(account, plubbing);
+        Boolean isHost = plubbingService.isHost(account, plubbing);
         List<FeedCardResponse> pinedFeedCardList = feedRepository.findAllByPlubbingAndPinAndVisibility(plubbing, true, true)
-                .stream().map(FeedCardResponse::of).toList();
+                .stream().map((Feed feed) -> FeedCardResponse.of(feed, isAuthor(account, feed), isHost)).toList();
         return FeedListResponse.of(pinedFeedCardList);
     }
 
@@ -89,10 +89,10 @@ public class FeedService {
     public FeedResponse getFeed(Account account, Long feedId) {
         Feed feed = getFeed(feedId);
         checkFeedStatus(feed);
-        plubbingService.checkMember(account, feed.getPlubbing());
+        Boolean isHost = plubbingService.isHost(account, feed.getPlubbing());
         List<CommentResponse> commentResponses = feedCommentRepository.findAllByFeedAndVisibility(feed, true)
                 .stream().map(CommentResponse::ofFeedComment).toList();
-        return FeedResponse.of(feed, commentResponses);
+        return FeedResponse.of(feed, commentResponses, isAuthor(account, feed), isHost);
     }
 
     @Transactional
@@ -158,9 +158,12 @@ public class FeedService {
     }
 
     public void checkAuthor(Account account, Feed feed) {
-        if (!feed.getAccount().equals(account)) {
+        if (!feed.getAccount().equals(account))
             throw new FeedException(NOT_AUTHOR_ERROR);
-        }
+    }
+
+    public Boolean isAuthor(Account account, Feed feed) {
+        return feed.getAccount().equals(account);
     }
 
     private void checkFeedStatus(Feed feed) {

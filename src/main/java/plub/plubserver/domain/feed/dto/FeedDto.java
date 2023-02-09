@@ -79,18 +79,20 @@ public class FeedDto {
             String content,
             String feedImage,
             String createdAt,
-            boolean pin,
-            long likeCount,
-            long commentCount,
+            Boolean pin,
+            int likeCount,
+            int commentCount,
             String profileImage,
             String nickname,
-            Long plubbingId
+            Long plubbingId,
+            Boolean isAuthor,
+            Boolean isHost
     ) {
         @Builder
         public FeedCardResponse {
         }
 
-        public static FeedCardResponse of(Feed feed) {
+        public static FeedCardResponse of(Feed feed, Boolean isAuthor, Boolean isHost) {
             return FeedCardResponse.builder()
                     .feedId(feed.getId())
                     .feedType(feed.getFeedType().toString())
@@ -105,6 +107,8 @@ public class FeedDto {
                     .profileImage(feed.getAccount().getProfileImage())
                     .nickname(feed.getAccount().getNickname())
                     .plubbingId(feed.getPlubbing().getId())
+                    .isAuthor(isAuthor)
+                    .isHost(isHost)
                     .build();
         }
     }
@@ -133,15 +137,17 @@ public class FeedDto {
             boolean pin,
             String profileImage,
             String nickname,
-            long likeCount,
-            long commentCount,
+            Boolean isAuthor,
+            Boolean isHost,
+            int likeCount,
+            int commentCount,
             List<CommentResponse> comments
     ) {
         @Builder
         public FeedResponse {
         }
 
-        public static FeedResponse of(Feed feed, List<CommentResponse> comments) {
+        public static FeedResponse of(Feed feed, List<CommentResponse> comments, Boolean isAuthor, Boolean isHost) {
             return FeedResponse.builder()
                     .feedId(feed.getId())
                     .feedType(feed.getFeedType().toString())
@@ -154,6 +160,8 @@ public class FeedDto {
                     .profileImage(feed.getAccount().getProfileImage())
                     .nickname(feed.getAccount().getNickname())
                     .likeCount(feed.getLikeCount())
+                    .isAuthor(isAuthor)
+                    .isHost(isHost)
                     .commentCount(comments.size())
                     .comments(comments)
                     .build();

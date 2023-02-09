@@ -168,7 +168,7 @@ public class PlubbingService {
     }
 
     public void checkMember(Account account, Plubbing plubbing) {
-        AccountPlubbing accountPlubbing = accountPlubbingRepository.findByAccountAndPlubbing(account, plubbing)
+        accountPlubbingRepository.findByAccountAndPlubbing(account, plubbing)
                 .orElseThrow(() -> new PlubbingException(PlubbingCode.NOT_MEMBER_ERROR));
     }
 
@@ -178,6 +178,12 @@ public class PlubbingService {
 
     public void checkHost(Long plubbingId) {
         checkHost(getPlubbing(plubbingId));
+    }
+
+    public Boolean isHost(Account account, Plubbing plubbing) {
+        AccountPlubbing accountPlubbing = accountPlubbingRepository.findByAccountAndPlubbing(account, plubbing)
+                .orElseThrow(() -> new PlubbingException(PlubbingCode.NOT_MEMBER_ERROR));
+        return accountPlubbing.isHost();
     }
 
     /**
