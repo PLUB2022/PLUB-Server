@@ -7,6 +7,7 @@ import plub.plubserver.domain.calendar.model.CalendarAttend;
 import plub.plubserver.domain.feed.model.Feed;
 import plub.plubserver.domain.feed.model.FeedComment;
 import plub.plubserver.domain.feed.model.FeedLike;
+import plub.plubserver.domain.notice.model.Notice;
 import plub.plubserver.domain.notice.model.NoticeComment;
 import plub.plubserver.domain.notice.model.NoticeLike;
 import plub.plubserver.domain.notification.model.Notification;
@@ -19,14 +20,10 @@ import plub.plubserver.domain.recruit.model.AppliedAccount;
 import plub.plubserver.domain.recruit.model.Bookmark;
 import plub.plubserver.domain.todo.model.Todo;
 import plub.plubserver.domain.todo.model.TodoTimeline;
-import plub.plubserver.domain.notice.model.Notice;
-
 
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
-
-import static plub.plubserver.domain.account.dto.AccountDto.AccountRequest;
 
 @Entity
 @Getter
@@ -126,13 +123,13 @@ public class Account extends BaseEntity {
     private List<TodoTimeline> timeLineList = new ArrayList<>();
 
 
-    // TODO : DTO에 변환로직이 가도록 수정해야함
-    public AccountRequest toAccountRequestDto() {
-        return new AccountRequest(email, email + "plub", nickname, socialType.getSocialName());
-    }
 
     public void setIdForTest(Long id) {
         this.id = id;
+    }
+
+    public void updateProfileImage(String profileImage) {
+        this.profileImage = profileImage;
     }
 
     public void updateProfile(String newNickname, String newIntroduce, String newProfileImage) {

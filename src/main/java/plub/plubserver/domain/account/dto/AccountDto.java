@@ -1,38 +1,15 @@
 package plub.plubserver.domain.account.dto;
 
 import io.swagger.annotations.ApiModelProperty;
-import lombok.*;
+import lombok.Builder;
 import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.account.model.SocialType;
 
-import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
-
 import java.util.List;
-
-import static plub.plubserver.domain.account.dto.AuthDto.LoginRequest;
 
 // TODO : 검증 로직 추가할 것 (길이제한 등등)
 public class AccountDto {
-    public record AccountRequest(
-            @ApiModelProperty(value = "이메일", example = "plub@example.com")
-            String email,
-            @ApiModelProperty(value = "비밀번호", example = "비밀번호")
-            String password,
-            @ApiModelProperty(value = "닉네임", example = "플럽")
-            @Pattern(regexp = "^([0-9|a-z|A-Z|ㄱ-ㅎ|ㅏ-ㅣ|가-힣]*$)",
-                    message = "닉네임에 공백과 특수문자가 포함될 수 없습니다.")
-            String nickname,
-            @ApiModelProperty(value = "소셜타입", example = "GOOGLE/KAKAO/APPLE")
-            String socialType
-    ) {
-        public LoginRequest toLoginRequest() {
-            return LoginRequest.builder()
-                    .email(email)
-                    .password(password)
-                    .build();
-        }
-    }
 
     public record AccountInfoResponse(
             @ApiModelProperty(value = "이메일", example = "plub@example.com")
