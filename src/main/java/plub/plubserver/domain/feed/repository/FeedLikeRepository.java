@@ -7,4 +7,6 @@ import plub.plubserver.domain.feed.model.FeedLike;
 
 public interface FeedLikeRepository extends JpaRepository<FeedLike, Long> {
     boolean existsByAccountAndFeed(Account account, Feed feed);
+
+    void deleteByAccountAndFeed(Account account, Feed feed);
 }

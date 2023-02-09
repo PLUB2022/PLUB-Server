@@ -41,19 +41,23 @@ public class CommentDto {
             String content,
             String profileImage,
             String nickname,
-            String createdAt
+            String createdAt,
+            Boolean isCommentAuthor,
+            Boolean isFeedAuthor
     ) {
         @Builder
         public CommentResponse {
         }
 
-        public static CommentResponse ofFeedComment(FeedComment feedComment) {
+        public static CommentResponse ofFeedComment(FeedComment feedComment, Boolean isCommentAuthor, Boolean isFeedAuthor) {
             return CommentResponse.builder()
                     .commentId(feedComment.getId())
                     .content(feedComment.getContent())
                     .profileImage(feedComment.getAccount().getProfileImage())
                     .nickname(feedComment.getAccount().getNickname())
                     .createdAt(feedComment.getCreatedAt())
+                    .isCommentAuthor(isCommentAuthor)
+                    .isFeedAuthor(isFeedAuthor)
                     .build();
         }
 

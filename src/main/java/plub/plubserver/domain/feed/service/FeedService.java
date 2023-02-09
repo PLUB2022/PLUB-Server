@@ -52,7 +52,7 @@ public class FeedService {
         Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
         Boolean isHost = plubbingService.isHost(account, plubbing);
         List<FeedCardResponse> feedCardList = feedRepository.findAllByPlubbingAndPinAndVisibility(plubbing, false, true)
-                .stream().map((Feed feed) -> FeedCardResponse.of(feed, isAuthor(account, feed), isHost)).toList();
+                .stream().map((Feed feed) -> FeedCardResponse.of(feed, isFeedAuthor(account, feed), isHost)).toList();
         return PageResponse.of(pageable, feedCardList);
     }
 
@@ -60,7 +60,7 @@ public class FeedService {
         Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
         Boolean isHost = plubbingService.isHost(account, plubbing);
         List<FeedCardResponse> pinedFeedCardList = feedRepository.findAllByPlubbingAndPinAndVisibility(plubbing, true, true)
-                .stream().map((Feed feed) -> FeedCardResponse.of(feed, isAuthor(account, feed), isHost)).toList();
+                .stream().map((Feed feed) -> FeedCardResponse.of(feed, isFeedAuthor(account, feed), isHost)).toList();
         return FeedListResponse.of(pinedFeedCardList);
     }
 
@@ -70,7 +70,7 @@ public class FeedService {
         checkFeedStatus(feed);
         if (feed.getViewType().equals(ViewType.SYSTEM))
             throw new FeedException(CANNOT_DELETED_FEED);
-        checkAuthor(account, feed);
+        checkFeedAuthor(account, feed);
         feed.updateFeed(updateFeedRequest);
         return new FeedIdResponse(feedId);
     }
@@ -81,7 +81,7 @@ public class FeedService {
         checkFeedStatus(feed);
         if (feed.getViewType().equals(ViewType.SYSTEM))
             throw new FeedException(CANNOT_DELETED_FEED);
-        checkAuthor(account, feed);
+        checkFeedAuthor(account, feed);
         feed.softDelete();
         return new FeedMessage("soft delete feed");
     }
@@ -91,8 +91,8 @@ public class FeedService {
         checkFeedStatus(feed);
         Boolean isHost = plubbingService.isHost(account, feed.getPlubbing());
         List<CommentResponse> commentResponses = feedCommentRepository.findAllByFeedAndVisibility(feed, true)
-                .stream().map(CommentResponse::ofFeedComment).toList();
-        return FeedResponse.of(feed, commentResponses, isAuthor(account, feed), isHost);
+                .stream().map((FeedComment feedComment) -> CommentResponse.ofFeedComment(feedComment, isCommentAuthor(account, feedComment),isFeedAuthor(account, feed))).toList();
+        return FeedResponse.of(feed, commentResponses, isFeedAuthor(account, feed), isHost);
     }
 
     @Transactional
@@ -117,6 +117,7 @@ public class FeedService {
             return new FeedMessage(feedId + ", Like Success.");
         }
         else {
+            feedLikeRepository.deleteByAccountAndFeed(account, feed);
             feed.subLike();
             return new FeedMessage(feedId + ", Like Cancel.");
         }
@@ -137,7 +138,7 @@ public class FeedService {
     public CommentIdResponse updateFeedComment(Account account, Long commentId, UpdateCommentRequest updateCommentRequest) {
         FeedComment feedComment = getFeedComment(commentId);
         checkCommentStatus(feedComment);
-        checkAuthor(account, feedComment.getFeed());
+        checkCommentAuthor(account, feedComment);
         feedComment.updateFeedComment(updateCommentRequest);
         return new CommentIdResponse(commentId);
     }
@@ -146,7 +147,8 @@ public class FeedService {
     public CommentMessage deleteFeedComment(Account account, Long commentId) {
         FeedComment feedComment = getFeedComment(commentId);
         checkCommentStatus(feedComment);
-        checkAuthor(account, feedComment.getFeed());
+        if (!isFeedAuthor(account, feedComment.getFeed()) && !isCommentAuthor(account, feedComment))
+            throw new FeedException(NOT_AUTHOR_ERROR);
         feedComment.getFeed().subComment();
         feedComment.softDelete();
         return new CommentMessage("soft delete comment");
@@ -157,13 +159,15 @@ public class FeedService {
         return new CommentIdResponse(feedId);
     }
 
-    public void checkAuthor(Account account, Feed feed) {
+    public void checkFeedAuthor(Account account, Feed feed) {
         if (!feed.getAccount().equals(account))
             throw new FeedException(NOT_AUTHOR_ERROR);
     }
 
-    public Boolean isAuthor(Account account, Feed feed) {
-        return feed.getAccount().equals(account);
+    public void checkCommentAuthor(Account account, FeedComment feedComment) {
+        if (!feedComment.getAccount().equals(account)) {
+            throw new FeedException(NOT_AUTHOR_ERROR);
+        }
     }
 
     private void checkFeedStatus(Feed feed) {
@@ -176,6 +180,14 @@ public class FeedService {
             throw new FeedException(FeedCode.DELETED_STATUS_COMMENT);
     }
 
+    public Boolean isFeedAuthor(Account account, Feed feed) {
+        return feed.getAccount().equals(account);
+    }
+
+    public Boolean isCommentAuthor(Account account, FeedComment feedComment) {
+        return feedComment.getAccount().equals(account);
+    }
+
     // 더미용
     @Transactional
     public void makeSystem(long feedId) {
@@ -183,3 +195,5 @@ public class FeedService {
         feed.makeSystem();
     }
 }
+
+

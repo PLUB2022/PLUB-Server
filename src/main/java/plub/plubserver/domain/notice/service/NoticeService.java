@@ -43,9 +43,9 @@ public class NoticeService {
 
     public NoticeResponse getNotice(Account loginAccount, Long feedId) {
         return new NoticeResponse(1L, "noticeTitle1", "중요한 공지 내용 ~~~", "2020-02-02 12:12:00", 5L, 3L, List.of(
-                new CommentResponse(1L, "commentContent1", "2020-02-02 12:12:00", "profileUrl1", "nickname1"),
-                new CommentResponse(2L, "commentContent2", "2020-02-02 12:12:00", "profileUrl2", "nickname2"),
-                new CommentResponse(3L, "commentContent3", "2020-02-02 12:12:00", "profileUrl3", "nickname3")
+                new CommentResponse(1L, "commentContent1", "2020-02-02 12:12:00", "profileUrl1", "nickname1", true, true),
+                new CommentResponse(2L, "commentContent2", "2020-02-02 12:12:00", "profileUrl2", "nickname2", true, true),
+                new CommentResponse(3L, "commentContent3", "2020-02-02 12:12:00", "profileUrl3", "nickname3", true, true)
         ));
     }
 

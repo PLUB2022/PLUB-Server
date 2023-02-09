@@ -89,7 +89,7 @@ public class FeedController {
     }
 
     @ApiOperation(value = "게시글 댓글 생성")
-    @PostMapping("/feeds/{feedId}/comment")
+    @PostMapping("/feeds/{feedId}/comments")
     public ApiResponse<CommentIdResponse> createFeedComment(@PathVariable Long feedId,
                                                             @Valid @RequestBody CreateCommentRequest createCommentRequest) {
         Account loginAccount = accountService.getCurrentAccount();
@@ -97,7 +97,7 @@ public class FeedController {
     }
 
     @ApiOperation(value = "게시글 댓글 수정")
-    @PutMapping("/feeds/{feedId}/comment/{commentId}")
+    @PutMapping("/feeds/comments/{commentId}")
     public ApiResponse<CommentIdResponse> updateFeedComment(@PathVariable Long commentId,
                                                             @Valid @RequestBody UpdateCommentRequest updateCommentRequest) {
         Account loginAccount = accountService.getCurrentAccount();
@@ -105,14 +105,14 @@ public class FeedController {
     }
 
     @ApiOperation(value = "게시글 댓글 삭제")
-    @DeleteMapping("/feeds/{feedId}/comment/{commentId}")
+    @DeleteMapping("/feeds/comments/{commentId}")
     public ApiResponse<CommentMessage> deleteFeedComment(@PathVariable Long commentId) {
         Account loginAccount = accountService.getCurrentAccount();
         return success(feedService.deleteFeedComment(loginAccount, commentId));
     }
 
     @ApiOperation(value = "게시글 댓글 신고")
-    @PostMapping("/feeds/{feedId}/comment/{commentId}/report")
+    @PostMapping("/feeds/comments/{commentId}/report")
     public ApiResponse<CommentIdResponse> reportFeedComment(@PathVariable Long commentId) {
         Account loginAccount = accountService.getCurrentAccount();
         return success(feedService.reportFeedComment(loginAccount, commentId));
