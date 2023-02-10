@@ -28,9 +28,6 @@ public class Feed extends BaseEntity {
     private String feedImage;
 
     @NotNull
-    private boolean visibility;
-
-    @NotNull
     private boolean pin;
     protected String pinedAt;
 

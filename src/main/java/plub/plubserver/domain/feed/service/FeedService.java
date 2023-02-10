@@ -2,6 +2,7 @@ package plub.plubserver.domain.feed.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import plub.plubserver.common.dto.PageResponse;
@@ -51,7 +52,7 @@ public class FeedService {
     public PageResponse<FeedCardResponse> getFeedList(Account account, Long plubbingId, Pageable pageable) {
         Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
         Boolean isHost = plubbingService.isHost(account, plubbing);
-        List<FeedCardResponse> feedCardList = feedRepository.findAllByPlubbingAndPinAndVisibility(plubbing, false, true)
+        List<FeedCardResponse> feedCardList = feedRepository.findAllByPlubbingAndPinAndVisibility(plubbing, false, true, Sort.by("createdAt"))
                 .stream().map((Feed feed) -> FeedCardResponse.of(feed, isFeedAuthor(account, feed), isHost)).toList();
         return PageResponse.of(pageable, feedCardList);
     }
@@ -59,7 +60,7 @@ public class FeedService {
     public FeedListResponse getPinedFeedList(Account account, Long plubbingId) {
         Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
         Boolean isHost = plubbingService.isHost(account, plubbing);
-        List<FeedCardResponse> pinedFeedCardList = feedRepository.findAllByPlubbingAndPinAndVisibility(plubbing, true, true)
+        List<FeedCardResponse> pinedFeedCardList = feedRepository.findAllByPlubbingAndPinAndVisibility(plubbing, true, true, Sort.by("pinedAt"))
                 .stream().map((Feed feed) -> FeedCardResponse.of(feed, isFeedAuthor(account, feed), isHost)).toList();
         return FeedListResponse.of(pinedFeedCardList);
     }

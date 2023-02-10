@@ -66,6 +66,7 @@ public class CalendarService {
         return CalendarIdResponse.of(calendar.getId());
     }
 
+    @Transactional
     public CalendarMessage softDeleteCalendar(Long plubbingId, Long calendarId) {
         plubbingService.getPlubbing(plubbingId);
         Calendar calendar = calendarRepository.findById(calendarId)
