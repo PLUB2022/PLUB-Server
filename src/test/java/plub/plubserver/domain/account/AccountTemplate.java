@@ -1,7 +1,6 @@
 package plub.plubserver.domain.account;
 
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import plub.plubserver.domain.account.dto.AccountDto;
 import plub.plubserver.domain.account.dto.AuthDto;
 import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.account.model.Role;
@@ -63,11 +62,11 @@ public class AccountTemplate {
         return makeTestAccount(EMAIL2, PASSWORD2, NICKNAME, BIRTHDAY2, ROLE, GENDER2, SOCIAL_TYPE, INTRODUCE2);
     }
 
-    public static AccountDto.AccountRequest makeLoginRequest1() {
-        return new AccountDto.AccountRequest(EMAIL, PASSWORD, NICKNAME, SOCIAL_TYPE.getSocialName());
-    }
-
-    public static AccountDto.AccountRequest makeLoginRequest2() {
-        return new AccountDto.AccountRequest(EMAIL2, PASSWORD2, NICKNAME2, SOCIAL_TYPE.getSocialName());
-    }
+//    public static AccountDto.AccountRequest makeLoginRequest1() {
+//        return new AccountDto.AccountRequest(EMAIL, PASSWORD, NICKNAME, SOCIAL_TYPE.getSocialName());
+//    }
+//
+//    public static AccountDto.AccountRequest makeLoginRequest2() {
+//        return new AccountDto.AccountRequest(EMAIL2, PASSWORD2, NICKNAME2, SOCIAL_TYPE.getSocialName());
+//    }
 }
