@@ -8,6 +8,8 @@ import plub.plubserver.domain.plubbing.model.Plubbing;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -94,7 +96,7 @@ public class Feed extends BaseEntity {
             this.pin = true;
             this.viewType = ViewType.PIN;
         }
-        this.pinedAt = this.modifiedAt;
+        this.pinedAt = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
     }
 
     public void makeSystem() {
