@@ -7,6 +7,8 @@ import org.springframework.transaction.annotation.Transactional;
 import plub.plubserver.common.dto.CommentDto;
 import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.account.service.AccountService;
+import plub.plubserver.domain.archive.dto.ArchiveDto.ArchiveRequest;
+import plub.plubserver.domain.archive.service.ArchiveService;
 import plub.plubserver.domain.feed.dto.FeedDto;
 import plub.plubserver.domain.feed.service.FeedService;
 import plub.plubserver.domain.plubbing.dto.PlubbingDto.CreatePlubbingRequest;
@@ -22,6 +24,7 @@ import javax.annotation.PostConstruct;
 import java.util.List;
 
 import static plub.plubserver.common.dummy.DummyImage.PLUB_MAIN_LOGO;
+import static plub.plubserver.common.dummy.DummyImage.PLUB_PROFILE_TEST;
 
 @Order(2)
 @Component
@@ -34,6 +37,7 @@ public class PlubbingDummy {
     private final RecruitService recruitService;
     private final RecruitRepository recruitRepository;
     private final AppliedAccountRepository appliedAccountRepository;
+    private final ArchiveService archiveService;
 
     @PostConstruct
     public void init() {
@@ -145,7 +149,7 @@ public class PlubbingDummy {
                     .build();
             feedService.createFeed(1L, admin1, form);
             if (i % 4 == 0)
-                feedService.pinFeed(admin1, Long.valueOf(i));
+                feedService.pinFeed(admin1, (long) i);
         }
 
         for (int i = 11; i < 21; i++) {
@@ -157,7 +161,7 @@ public class PlubbingDummy {
                     .build();
             feedService.createFeed(1L, admin1, form);
             if (i % 4 == 0)
-                feedService.pinFeed(admin1, Long.valueOf(i));
+                feedService.pinFeed(admin1, (long) i);
         }
 
         for (int i = 21; i < 31; i++) {
@@ -169,7 +173,7 @@ public class PlubbingDummy {
                     .build();
             feedService.createFeed(1L, admin1, form);
             if (i % 4 == 0)
-                feedService.pinFeed(admin1, Long.valueOf(i));
+                feedService.pinFeed(admin1, (long) i);
         }
 
         for (int i = 1; i < 6; i++) {
@@ -194,6 +198,14 @@ public class PlubbingDummy {
                     .content("플러빙 댓글 " + i)
                     .build();
             feedService.createFeedComment(admin2, 1L, form);
+        }
+
+        for (int i = 0; i < 10; i++) {
+            ArchiveRequest archiveRequest = new ArchiveRequest(
+                    "테스트 아카이브" + i,
+                    List.of(PLUB_MAIN_LOGO, PLUB_MAIN_LOGO, PLUB_PROFILE_TEST)
+            );
+            archiveService.createArchive(1L, archiveRequest);
         }
     }
 }

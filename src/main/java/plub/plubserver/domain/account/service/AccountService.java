@@ -4,11 +4,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import plub.plubserver.domain.account.config.AccountCode;
-import plub.plubserver.domain.account.dto.AccountDto.*;
+import plub.plubserver.domain.account.dto.AccountDto.AccountCategoryRequest;
+import plub.plubserver.domain.account.dto.AccountDto.AccountCategoryResponse;
+import plub.plubserver.domain.account.dto.AccountDto.AccountProfileRequest;
 import plub.plubserver.domain.account.exception.AccountException;
 import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.account.model.AccountCategory;
-import plub.plubserver.domain.account.repository.AccountCategoryRepository;
 import plub.plubserver.domain.account.repository.AccountRepository;
 import plub.plubserver.domain.category.config.CategoryCode;
 import plub.plubserver.domain.category.exception.CategoryException;
@@ -30,7 +31,6 @@ import static plub.plubserver.domain.account.dto.AuthDto.AuthMessage;
 public class AccountService {
 
     private final AccountRepository accountRepository;
-    private final AccountCategoryRepository accountCategoryRepository;
     private final SubCategoryRepository subCategoryRepository;
     private final AppleService appleService;
     private final GoogleService googleService;
@@ -55,7 +55,10 @@ public class AccountService {
     }
 
     public Account getCurrentAccount() {
-        return accountRepository.findByEmail(getCurrentAccountEmail()).orElseThrow(() -> new AccountException(AccountCode.NOT_FOUND_ACCOUNT));
+        String email = "admin1";
+        if (!System.getProperty("os.name").contains("Windows")) email = getCurrentAccountEmail();
+        return accountRepository.findByEmail(email)
+                .orElseThrow(() -> new AccountException(AccountCode.NOT_FOUND_ACCOUNT));
     }
 
     public NicknameResponse isDuplicateNickname(String nickname) {

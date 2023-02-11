@@ -44,7 +44,7 @@ public class ArchiveDto {
     public record ArchiveCardResponse(
             Long archiveId,
             String title,
-            List<String> images,
+            List<String> images, // limit 3
             int imageCount,
             int sequence,
             String createdAt
@@ -59,10 +59,35 @@ public class ArchiveDto {
                     .title(archive.getTitle())
                     .images(archive.getImages().stream()
                             .map(ArchiveImage::getImage)
+                            .limit(3)
                             .toList())
                     .imageCount(archive.getImages().size())
                     .sequence(archive.getSequence())
-                    .createdAt(archive.getCreatedAt())
+                    .createdAt(archive.getCreatedAt().split(" ")[0])
+                    .build();
+        }
+    }
+
+    public record ArchiveResponse(
+            String title,
+            List<String> images,
+            int imageCount,
+            int sequence,
+            String createdAt
+    ) {
+        @Builder
+        public ArchiveResponse {
+        }
+
+        public static ArchiveResponse of(Archive archive) {
+            return ArchiveResponse.builder()
+                    .title(archive.getTitle())
+                    .images(archive.getImages().stream()
+                            .map(ArchiveImage::getImage)
+                            .toList())
+                    .imageCount(archive.getImages().size())
+                    .sequence(archive.getSequence())
+                    .createdAt(archive.getCreatedAt().split(" ")[0])
                     .build();
         }
     }

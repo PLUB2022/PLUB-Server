@@ -6,11 +6,13 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
+    open-in-view: false # open-in-view error remove
   servlet:
     multipart:
       max-file-size: 10MB
       max-request-size: 10MB
   #        format_sql: true
+
 
   mvc:
     pathmatch:
@@ -30,6 +32,9 @@ spring:
       pageable:
         default-page-size: 10
         one-indexed-parameters: true
+    jdbc:
+      repositories:
+        enabled: false
 
   profiles:
     active: secret
