@@ -47,8 +47,9 @@ public class ArchiveController {
             @PathVariable Long plubbingId,
             @Valid @RequestBody ArchiveRequest archiveRequest
     ) {
+        Account loginAccount = accountService.getCurrentAccount();
         return success(
-                archiveService.createArchive(plubbingId, archiveRequest)
+                archiveService.createArchive(loginAccount, plubbingId, archiveRequest)
         );
     }
 

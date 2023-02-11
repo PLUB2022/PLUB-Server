@@ -65,9 +65,7 @@ public class ArchiveService {
     }
 
     @Transactional
-    public ArchiveIdResponse createArchive(Long plubbingId, ArchiveRequest archiveRequest) {
-        Account loginAccount = accountService.getCurrentAccount();
-
+    public ArchiveIdResponse createArchive(Account loginAccount, Long plubbingId, ArchiveRequest archiveRequest) {
         Plubbing plubbing = loginAccount.getPlubbing(plubbingId);
 
         int sequence = archiveRepository.findFirstByPlubbingIdOrderBySequenceDesc(plubbingId)

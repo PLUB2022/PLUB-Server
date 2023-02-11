@@ -7,7 +7,6 @@ import org.springframework.transaction.annotation.Transactional;
 import plub.plubserver.common.dto.CommentDto;
 import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.account.service.AccountService;
-import plub.plubserver.domain.archive.dto.ArchiveDto.ArchiveRequest;
 import plub.plubserver.domain.archive.service.ArchiveService;
 import plub.plubserver.domain.feed.dto.FeedDto;
 import plub.plubserver.domain.feed.service.FeedService;
@@ -24,7 +23,6 @@ import javax.annotation.PostConstruct;
 import java.util.List;
 
 import static plub.plubserver.common.dummy.DummyImage.PLUB_MAIN_LOGO;
-import static plub.plubserver.common.dummy.DummyImage.PLUB_PROFILE_TEST;
 
 @Order(2)
 @Component
@@ -200,12 +198,13 @@ public class PlubbingDummy {
             feedService.createFeedComment(admin2, 1L, form);
         }
 
-        for (int i = 0; i < 10; i++) {
-            ArchiveRequest archiveRequest = new ArchiveRequest(
-                    "테스트 아카이브" + i,
-                    List.of(PLUB_MAIN_LOGO, PLUB_MAIN_LOGO, PLUB_PROFILE_TEST)
-            );
-            archiveService.createArchive(1L, archiveRequest);
-        }
+//        for (int i = 0; i < 10; i++) {
+//            ArchiveDto.ArchiveRequest archiveRequest = new ArchiveDto.ArchiveRequest(
+//                    "테스트 아카이브" + i,
+//                    List.of(PLUB_MAIN_LOGO, PLUB_MAIN_LOGO, PLUB_PROFILE_TEST)
+//            );
+//            archiveService.createArchive(admin1, 1L, archiveRequest);
+//        }
+
     }
 }
