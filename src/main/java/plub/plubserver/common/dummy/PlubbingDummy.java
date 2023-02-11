@@ -1,15 +1,11 @@
 package plub.plubserver.common.dummy;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.core.annotation.Order;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
-import plub.plubserver.common.dto.CommentDto;
 import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.account.service.AccountService;
-import plub.plubserver.domain.archive.service.ArchiveService;
-import plub.plubserver.domain.feed.dto.FeedDto;
-import plub.plubserver.domain.feed.service.FeedService;
 import plub.plubserver.domain.plubbing.dto.PlubbingDto.CreatePlubbingRequest;
 import plub.plubserver.domain.plubbing.model.Plubbing;
 import plub.plubserver.domain.plubbing.service.PlubbingService;
@@ -24,21 +20,23 @@ import java.util.List;
 
 import static plub.plubserver.common.dummy.DummyImage.PLUB_MAIN_LOGO;
 
-@Order(2)
-@Component
+@Slf4j
+@Component("plubbingDummy")
+@DependsOn("categoryDummy")
 @RequiredArgsConstructor
-@Transactional
 public class PlubbingDummy {
     private final PlubbingService plubbingService;
-    private final FeedService feedService;
     private final AccountService accountService;
     private final RecruitService recruitService;
     private final RecruitRepository recruitRepository;
     private final AppliedAccountRepository appliedAccountRepository;
-    private final ArchiveService archiveService;
 
     @PostConstruct
     public void init() {
+        if (recruitRepository.count() > 0) {
+            log.info("[1] 모집,모임이 존재하여 더미를 생성하지 않았습니다.");
+            return;
+        }
         Account admin1 = accountService.getAccountByEmail("admin1");
         Account admin2 = accountService.getAccountByEmail("admin2");
         for (int i = 0; i < 5; i++) {
@@ -104,6 +102,7 @@ public class PlubbingDummy {
             plubbingService.createPlubbing(admin1, form);
         }
 
+
         // 1번 모임에 더미 모임 멤버 추가
         List<AnswerRequest> answerRequests = List.of(
                 AnswerRequest.builder()
@@ -137,74 +136,6 @@ public class PlubbingDummy {
         // 전체 승인
         appliedAccountIds.forEach(it -> recruitService.acceptApplicant(admin1, 1L, it));
 
-        // 피드 더미 (plubbingId = 1)
-        for (int i = 1; i < 11; i++) {
-            FeedDto.CreateFeedRequest form = FeedDto.CreateFeedRequest.builder()
-                    .title("title" + i)
-                    .content("줄글 내용 ~~~ 어쩌구 게시글 " + i)
-                    .feedImage(PLUB_MAIN_LOGO)
-                    .feedType("PHOTO_LINE")
-                    .build();
-            feedService.createFeed(1L, admin1, form);
-            if (i % 4 == 0)
-                feedService.pinFeed(admin1, (long) i);
-        }
-
-        for (int i = 11; i < 21; i++) {
-            FeedDto.CreateFeedRequest form = FeedDto.CreateFeedRequest.builder()
-                    .title("title" + i)
-                    .content("줄글만 있는 게시글 ~~~ 즐거운 플러빙 ~~~ 저쩌구 게시글 " + i)
-                    .feedImage("")
-                    .feedType("LINE")
-                    .build();
-            feedService.createFeed(1L, admin1, form);
-            if (i % 4 == 0)
-                feedService.pinFeed(admin1, (long) i);
-        }
-
-        for (int i = 21; i < 31; i++) {
-            FeedDto.CreateFeedRequest form = FeedDto.CreateFeedRequest.builder()
-                    .title("title" + i)
-                    .content("")
-                    .feedImage(PLUB_MAIN_LOGO)
-                    .feedType("PHOTO")
-                    .build();
-            feedService.createFeed(1L, admin1, form);
-            if (i % 4 == 0)
-                feedService.pinFeed(admin1, (long) i);
-        }
-
-        for (int i = 1; i < 6; i++) {
-            FeedDto.CreateFeedRequest form = FeedDto.CreateFeedRequest.builder()
-                    .title(i + "번째 멤버와 함께 갑니다.")
-                    .content("<b>김밥먹고싶다</b> 님이 <b>요란한 한줄</b> 에 들어왔어요")
-                    .feedImage("")
-                    .feedType("LINE")
-                    .build();
-            feedService.createFeed(1L, admin1, form);
-            feedService.makeSystem(30L + i);
-        }
-
-        for (int i = 0; i < 5; i++) {
-            CommentDto.CreateCommentRequest form = CommentDto.CreateCommentRequest.builder()
-                    .content("아자자 댓글 " + i)
-                    .build();
-            feedService.createFeedComment(admin1, 1L, form);
-        }
-        for (int i = 0; i < 5; i++) {
-            CommentDto.CreateCommentRequest form = CommentDto.CreateCommentRequest.builder()
-                    .content("플러빙 댓글 " + i)
-                    .build();
-            feedService.createFeedComment(admin2, 1L, form);
-        }
-
-//        for (int i = 0; i < 10; i++) {
-//            ArchiveDto.ArchiveRequest archiveRequest = new ArchiveDto.ArchiveRequest(
-//                    "테스트 아카이브" + i,
-//                    List.of(PLUB_MAIN_LOGO, PLUB_MAIN_LOGO, PLUB_PROFILE_TEST)
-//            );
-//            archiveService.createArchive(admin1, 1L, archiveRequest);
-//        }
-
+        log.info("[2] 모임,모집 더미 생성 완료.");
     }
 }

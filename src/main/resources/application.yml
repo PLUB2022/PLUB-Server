@@ -32,9 +32,6 @@ spring:
       pageable:
         default-page-size: 10
         one-indexed-parameters: true
-    jdbc:
-      repositories:
-        enabled: false
 
   profiles:
     active: secret
