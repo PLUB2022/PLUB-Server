@@ -98,7 +98,9 @@ public class PlubbingDto {
             String roadAddress,
             String placeName,
             Double placePositionX,
-            Double placePositionY
+            Double placePositionY,
+
+            String time
     ) {
         @Builder
         public UpdatePlubbingRequest {

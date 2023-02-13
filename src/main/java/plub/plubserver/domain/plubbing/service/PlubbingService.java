@@ -235,7 +235,8 @@ public class PlubbingService {
      */
     @Transactional
     public PlubbingMessage endPlubbing(Long plubbingId) {
-        Plubbing plubbing = plubbingRepository.findById(plubbingId).orElseThrow(() -> new PlubbingException(PlubbingCode.NOT_FOUND_PLUBBING));
+        Plubbing plubbing = plubbingRepository.findById(plubbingId)
+                .orElseThrow(() -> new PlubbingException(PlubbingCode.NOT_FOUND_PLUBBING));
         checkHost(plubbing);
         List<AccountPlubbing> accountPlubbingList = accountPlubbingRepository.findAllByPlubbingId(plubbingId);
         if (plubbing.getStatus().equals(PlubbingStatus.END)) {
@@ -260,7 +261,7 @@ public class PlubbingService {
         return PlubbingIdResponse.of(plubbing);
     }
 
-    // 모임 정보 수정 : 날짜, 온/오프라인, 최대인원수
+    // 모임 정보 수정 : 날짜, 온/오프라인, 최대인원수, 시간
     @Transactional
     public PlubbingIdResponse updatePlubbing(Long plubbingId, UpdatePlubbingRequest updatePlubbingRequest) {
         Plubbing plubbing = getPlubbing(plubbingId);
@@ -314,6 +315,13 @@ public class PlubbingService {
     public PageResponse<PlubbingCardResponse> getPlubbingByCategory(Long categoryId, Pageable pageable, String sort) {
         Page<PlubbingCardResponse> plubbingCardResponses = plubbingRepository.findAllByCategoryId(categoryId, pageable, SortType.of(sort)).map(PlubbingCardResponse::of);
         return PageResponse.of(plubbingCardResponses);
+    }
+
+    // 모임 나가기
+    public void leavePlubbing(Long plubbingId) {
+        Plubbing plubbing = getPlubbing(plubbingId);
+        Account account = accountService.getCurrentAccount();
+        accountPlubbingRepository.deleteByPlubbingAndAccount(plubbing, account);
     }
 }
 

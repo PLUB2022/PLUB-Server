@@ -143,6 +143,7 @@ public class Plubbing extends BaseEntity {
         days.addAll(updatePlubbingRequest.getPlubbingMeetingDay(this));
         onOff = updatePlubbingRequest.getOnOff();
         maxAccountNum = updatePlubbingRequest.maxAccountNum();
+        time = updatePlubbingRequest.time();
     }
 
 

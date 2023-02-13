@@ -19,6 +19,8 @@ public interface AccountPlubbingRepository extends JpaRepository<AccountPlubbing
     Optional<AccountPlubbing> findByAccountAndPlubbing(Account currentAccount, Plubbing plubbing);
     Optional<AccountPlubbing> findByPlubbingId(Long plubbingId);
 
+    void deleteByPlubbingAndAccount(Plubbing plubbing, Account account);
+
 }
 
 
