@@ -11,6 +11,7 @@ import plub.plubserver.domain.archive.config.ArchiveCode;
 import plub.plubserver.domain.archive.dto.ArchiveDto.ArchiveCardResponse;
 import plub.plubserver.domain.archive.dto.ArchiveDto.ArchiveIdResponse;
 import plub.plubserver.domain.archive.dto.ArchiveDto.ArchiveRequest;
+import plub.plubserver.domain.archive.dto.ArchiveDto.ArchiveResponse;
 import plub.plubserver.domain.archive.exception.ArchiveException;
 import plub.plubserver.domain.archive.model.Archive;
 import plub.plubserver.domain.archive.model.ArchiveImage;
@@ -41,7 +42,7 @@ public class ArchiveService {
         );
     }
 
-    public ArchiveCardResponse getArchive(Long plubbingId, Long archiveId) {
+    public ArchiveResponse getArchive(Long plubbingId, Long archiveId) {
         Account account = accountService.getCurrentAccount();
         Plubbing plubbing = account.getPlubbing(plubbingId);
 
@@ -50,7 +51,7 @@ public class ArchiveService {
                 .findFirst()
                 .orElseThrow(() -> new ArchiveException(ArchiveCode.NOT_FOUND_ARCHIVE));
 
-        return ArchiveCardResponse.of(archive);
+        return ArchiveResponse.of(archive);
     }
 
     private static List<ArchiveImage> makeArchiveImageList(ArchiveRequest archiveRequest, Archive archive) {
@@ -64,12 +65,11 @@ public class ArchiveService {
     }
 
     @Transactional
-    public ArchiveIdResponse createArchive(
-            Account loginAccount,
-            Long plubbingId,
-            ArchiveRequest archiveRequest
-    ) {
-        Plubbing plubbing = loginAccount.getPlubbing(plubbingId);
+    public ArchiveIdResponse createArchive(Account loginAccount, Long plubbingId, ArchiveRequest archiveRequest) {
+//        Plubbing plubbing = loginAccount.getPlubbing(plubbingId);
+
+        Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
+
         int sequence = archiveRepository.findFirstByPlubbingIdOrderBySequenceDesc(plubbingId)
                 .map(Archive::getSequence)
                 .orElse(0) + 1;

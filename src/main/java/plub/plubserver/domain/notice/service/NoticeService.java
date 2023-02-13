@@ -6,16 +6,18 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import plub.plubserver.common.dto.CommentDto.*;
 import plub.plubserver.domain.account.model.Account;
-import plub.plubserver.domain.feed.repository.PlubbingFeedRepository;
-import plub.plubserver.domain.notice.dto.PlubbingNoticeDto.*;
+import plub.plubserver.domain.notice.dto.NoticeDto.*;
+import plub.plubserver.domain.notice.repository.NoticeCommentRepository;
+import plub.plubserver.domain.notice.repository.NoticeRepository;
 
 import java.util.List;
 
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
-public class PlubbingNoticeService {
-    private final PlubbingFeedRepository plubbingFeedRepository;
+public class NoticeService {
+    private final NoticeRepository noticeRepository;
+    private final NoticeCommentRepository noticeCommentRepository;
 
     public NoticeIdResponse createNotice(Long plubbingId, Account owner, CreateNoticeRequest createNoticeRequest) {
         return new NoticeIdResponse(1L);
@@ -41,9 +43,9 @@ public class PlubbingNoticeService {
 
     public NoticeResponse getNotice(Account loginAccount, Long feedId) {
         return new NoticeResponse(1L, "noticeTitle1", "중요한 공지 내용 ~~~", "2020-02-02 12:12:00", 5L, 3L, List.of(
-                new CommentResponse(1L, "commentContent1", "2020-02-02 12:12:00", "profileUrl1", "nickname1"),
-                new CommentResponse(2L, "commentContent2", "2020-02-02 12:12:00", "profileUrl2", "nickname2"),
-                new CommentResponse(3L, "commentContent3", "2020-02-02 12:12:00", "profileUrl3", "nickname3")
+                new CommentResponse(1L, "commentContent1", "2020-02-02 12:12:00", "profileUrl1", "nickname1", true, true),
+                new CommentResponse(2L, "commentContent2", "2020-02-02 12:12:00", "profileUrl2", "nickname2", true, true),
+                new CommentResponse(3L, "commentContent3", "2020-02-02 12:12:00", "profileUrl3", "nickname3", true, true)
         ));
     }
 

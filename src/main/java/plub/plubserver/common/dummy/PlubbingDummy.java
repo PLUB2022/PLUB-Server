@@ -1,9 +1,9 @@
 package plub.plubserver.common.dummy;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.core.annotation.Order;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.account.service.AccountService;
 import plub.plubserver.domain.plubbing.dto.PlubbingDto.CreatePlubbingRequest;
@@ -20,19 +20,23 @@ import java.util.List;
 
 import static plub.plubserver.common.dummy.DummyImage.PLUB_MAIN_LOGO;
 
-@Order(2)
-@Component
+@Slf4j
+@Component("plubbingDummy")
+@DependsOn("categoryDummy")
 @RequiredArgsConstructor
-public class PlubbingRecruitDummy {
+public class PlubbingDummy {
     private final PlubbingService plubbingService;
     private final AccountService accountService;
     private final RecruitService recruitService;
     private final RecruitRepository recruitRepository;
     private final AppliedAccountRepository appliedAccountRepository;
 
-    @Transactional
     @PostConstruct
     public void init() {
+        if (recruitRepository.count() > 0) {
+            log.info("[1] 모집,모임이 존재하여 더미를 생성하지 않았습니다.");
+            return;
+        }
         Account admin1 = accountService.getAccountByEmail("admin1");
         Account admin2 = accountService.getAccountByEmail("admin2");
         for (int i = 0; i < 5; i++) {
@@ -98,6 +102,7 @@ public class PlubbingRecruitDummy {
             plubbingService.createPlubbing(admin1, form);
         }
 
+
         // 1번 모임에 더미 모임 멤버 추가
         List<AnswerRequest> answerRequests = List.of(
                 AnswerRequest.builder()
@@ -130,5 +135,7 @@ public class PlubbingRecruitDummy {
 
         // 전체 승인
         appliedAccountIds.forEach(it -> recruitService.acceptApplicant(admin1, 1L, it));
+
+        log.info("[2] 모임,모집 더미 생성 완료.");
     }
 }

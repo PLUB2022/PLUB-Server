@@ -57,7 +57,7 @@ public class AuthService {
         Optional<Account> account = accountRepository.findByEmail(email);
         AuthMessage loginMessage;
         if (account.isPresent()) {
-            JwtDto jwtDto = login(account.get().toAccountRequestDto().toLoginRequest());
+            JwtDto jwtDto = login(LoginRequest.toLoginRequest(account.get()));
             account.get().updateRefreshToken(refreshToken);
             loginMessage = new AuthMessage(
                     jwtDto,
@@ -138,9 +138,9 @@ public class AuthService {
         accountRepository.save(account);
 
         account.updateAccountCategory(accountCategoryList);
+        account.updateProfileImage(profileImage);
 
-
-        JwtDto jwtDto = login(account.toAccountRequestDto().toLoginRequest());
+        JwtDto jwtDto = login(LoginRequest.toLoginRequest(account));
         account.updateRefreshToken(refreshToken);
 
         return new SignAuthMessage(

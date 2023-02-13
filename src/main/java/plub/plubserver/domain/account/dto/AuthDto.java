@@ -32,6 +32,14 @@ public class AuthDto {
         public LoginRequest {
         }
 
+        public static LoginRequest toLoginRequest(Account account) {
+            String email = account.getEmail();
+            return LoginRequest.builder()
+                    .email(email)
+                    .password(email+"plub")
+                    .build();
+        }
+
         public UsernamePasswordAuthenticationToken toAuthentication() {
             return new UsernamePasswordAuthenticationToken(email, password);
         }

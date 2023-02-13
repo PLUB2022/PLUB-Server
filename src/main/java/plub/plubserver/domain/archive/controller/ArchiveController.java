@@ -11,6 +11,7 @@ import plub.plubserver.domain.account.service.AccountService;
 import plub.plubserver.domain.archive.dto.ArchiveDto.ArchiveCardResponse;
 import plub.plubserver.domain.archive.dto.ArchiveDto.ArchiveIdResponse;
 import plub.plubserver.domain.archive.dto.ArchiveDto.ArchiveRequest;
+import plub.plubserver.domain.archive.dto.ArchiveDto.ArchiveResponse;
 import plub.plubserver.domain.archive.service.ArchiveService;
 
 import javax.validation.Valid;
@@ -34,7 +35,7 @@ public class ArchiveController {
     }
 
     @GetMapping("/{archiveId}")
-    public ApiResponse<ArchiveCardResponse> getArchive(
+    public ApiResponse<ArchiveResponse> getArchive(
             @PathVariable Long plubbingId,
             @PathVariable Long archiveId
     ) {

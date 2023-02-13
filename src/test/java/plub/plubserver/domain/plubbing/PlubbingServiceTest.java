@@ -208,6 +208,6 @@ public class PlubbingServiceTest {
         // when - then
         assertThatThrownBy(() -> plubbingService.checkHost(plubbing))
                 .isInstanceOf(PlubbingException.class)
-                .hasMessage(PlubbingCode.NOT_HOST.getMessage());
+                .hasMessage(PlubbingCode.NOT_HOST_ERROR.getMessage());
     }
 }

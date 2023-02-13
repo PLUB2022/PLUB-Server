@@ -26,12 +26,14 @@ public class RecruitDto {
 
     public record JoinedAccountDto(
             Long accountId,
-            String profileImage
+            String profileImage,
+            String nickname
     ) {
         public static JoinedAccountDto of(AccountPlubbing accountPlubbing) {
             return new JoinedAccountDto(
                     accountPlubbing.getAccount().getId(),
-                    accountPlubbing.getAccount().getProfileImage()
+                    accountPlubbing.getAccount().getProfileImage(),
+                    accountPlubbing.getAccount().getNickname()
             );
         }
     }

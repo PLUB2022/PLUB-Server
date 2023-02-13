@@ -10,7 +10,7 @@ public class SecurityUtils {
 
     public static String getCurrentAccountEmail() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || authentication.getName() ==null){
+        if (authentication == null || authentication.getName() == null) {
             throw new AccountException(AccountCode.NOT_FOUND_ACCOUNT);
         }
         return authentication.getName();

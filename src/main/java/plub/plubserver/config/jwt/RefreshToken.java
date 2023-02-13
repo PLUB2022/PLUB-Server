@@ -21,6 +21,7 @@ public class RefreshToken {
     @JoinColumn(name = "account_id")
     private Account account;
 
+    @Column(length = 1000)
     private String refreshToken;
 
     public void replace(String refreshToken) {
