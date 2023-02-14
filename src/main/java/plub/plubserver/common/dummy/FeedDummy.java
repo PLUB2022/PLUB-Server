@@ -86,13 +86,13 @@ public class FeedDummy {
             CommentDto.CreateCommentRequest form = CommentDto.CreateCommentRequest.builder()
                     .content("아자자 댓글 " + i)
                     .build();
-            feedService.createFeedComment(admin1, 1L, form);
+            feedService.createFeedComment(admin1, 1L, 1L, form);
         }
         for (int i = 0; i < 5; i++) {
             CommentDto.CreateCommentRequest form = CommentDto.CreateCommentRequest.builder()
                     .content("플러빙 댓글 " + i)
                     .build();
-            feedService.createFeedComment(admin2, 1L, form);
+            feedService.createFeedComment(admin2, 1L, 1L, form);
         }
 
         log.info("[3] 피드 더미 생성 완료.");

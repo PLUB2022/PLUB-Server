@@ -13,12 +13,10 @@ import plub.plubserver.domain.calendar.model.Calendar;
 import plub.plubserver.domain.calendar.model.CalendarAttend;
 import plub.plubserver.domain.calendar.repository.CalendarAttendRepository;
 import plub.plubserver.domain.calendar.repository.CalendarRepository;
-import plub.plubserver.domain.notification.aop.NotifyPlubbingMembers;
 import plub.plubserver.domain.notification.service.NotificationService;
 import plub.plubserver.domain.plubbing.model.AccountPlubbing;
 import plub.plubserver.domain.plubbing.model.Plubbing;
 import plub.plubserver.domain.plubbing.service.PlubbingService;
-import plub.plubserver.domain.notification.aop.NotifyDetail;
 
 import java.util.List;
 
@@ -41,7 +39,6 @@ public class CalendarService {
         return CalendarCardResponse.of(calendar);
     }
 
-    @NotifyPlubbingMembers(detail = NotifyDetail.NEW_PLUBBING_CALENDAR)
     @Transactional
     public CalendarIdResponse createCalendar(Account account, Long plubbingId, CreateCalendarRequest createCalendarResponse) {
         Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
@@ -58,10 +55,18 @@ public class CalendarService {
             calendarAttendRepository.save(calendarAttend);
         }
 
+        // 멤버들에게 푸시 알림
+        plubbing.getMembers().forEach(member -> {
+            notificationService.pushMessage(
+                    member,
+                    plubbing.getName(),
+                    "새로운 일정이 등록되었어요! 모이는 시간과 장소를 확인하고 참여해 보세요!\n : " + calendar.getTitle() + "," + calendar.getStaredAt() + " ~ " + calendar.getEndedAt() + "," + calendar.getPlaceName()
+            );
+        });
+
         return CalendarIdResponse.of(calendar.getId());
     }
 
-    @NotifyPlubbingMembers(detail = NotifyDetail.UPDATED_PLUBBING_CALENDAR)
     @Transactional
     public CalendarIdResponse updateCalendar(Account account, Long plubbingId, Long calendarId, UpdateCalendarRequest updateCalendarResponse) {
         Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
@@ -69,6 +74,16 @@ public class CalendarService {
         Calendar calendar = calendarRepository.findById(calendarId)
                 .orElseThrow(() -> new CalendarException(CalendarCode.NOT_FOUNT_CALENDAR));
         calendar.updateCalendar(updateCalendarResponse);
+
+        // 멤버들에게 푸시 알림
+        plubbing.getMembers().forEach(member -> {
+            notificationService.pushMessage(
+                    member,
+                    plubbing.getName(),
+                    "모임 일정이 수정되었어요. 어떻게 변경되었는지 확인해 볼까요?\n : " + calendar.getTitle() + "," + calendar.getStaredAt() + " ~ " + calendar.getEndedAt() + "," + calendar.getPlaceName()
+            );
+        });
+
         return CalendarIdResponse.of(calendar.getId());
     }
 

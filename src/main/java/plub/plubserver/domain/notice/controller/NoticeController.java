@@ -53,11 +53,13 @@ public class NoticeController {
     }
 
     @ApiOperation(value = "공지 수정")
-    @PutMapping("/notices/{noticeId}")
-    public ApiResponse<NoticeIdResponse> updateNotice(@PathVariable Long noticeId,
-                                                      @Valid @RequestBody UpdateNoticeRequest updateNoticeRequest) {
+    @PutMapping("/{plubbingId}/notices/{noticeId}")
+    public ApiResponse<NoticeIdResponse> updateNotice(
+            @PathVariable Long plubbingId,
+            @PathVariable Long noticeId,
+            @Valid @RequestBody UpdateNoticeRequest updateNoticeRequest) {
         Account loginAccount = accountService.getCurrentAccount();
-        return success(noticeService.updateNotice(loginAccount, noticeId, updateNoticeRequest));
+        return success(noticeService.updateNotice(loginAccount, plubbingId, noticeId, updateNoticeRequest));
     }
 
     @ApiOperation(value = "공지 삭제")

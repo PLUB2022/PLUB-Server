@@ -40,7 +40,7 @@ public class FcmService {
             credentials.refreshIfExpired();
             return credentials.getAccessToken().getTokenValue();
         } catch (IOException e) {
-            log.error("FCM getAccessToken Error : {}", e.getMessage());
+            log.warn("FCM getAccessToken Error : {}", e.getMessage());
             throw new NotificationException(NotificationCode.GET_FCM_ACCESS_TOKEN_ERROR);
         }
     }
@@ -52,7 +52,7 @@ public class FcmService {
             FcmMessage fcmMessage = new FcmMessage(false, message);
             return objectMapper.writeValueAsString(fcmMessage);
         } catch (JsonProcessingException e) {
-            log.error("FCM [makeMessage] Error : {}", e.getMessage());
+            log.warn("FCM [makeMessage] Error : {}", e.getMessage());
             throw new NotificationException(NotificationCode.FCM_MESSAGE_JSON_PARSING_ERROR);
         }
 
@@ -63,7 +63,7 @@ public class FcmService {
         String message = makeMessage(targetToken, title, body);
         String accessToken = getAccessToken();
         OkHttpClient client = new OkHttpClient();
-        String FCM_URL = "https://fcm.googleapis.com/v1/projects/Plub/messages:send";
+        String FCM_URL = "https://fcm.googleapis.com/v1/projects/plub-1668049761866/messages:send";
         Request request = new Request.Builder()
                 .url(FCM_URL)
                 .addHeader("Authorization", "Bearer " + accessToken)
@@ -74,14 +74,13 @@ public class FcmService {
             if (!response.isSuccessful() && response.body() != null) {
                 JSONObject responseBody = (JSONObject) jsonParser.parse(response.body().string());
                 String errorMessage = ((JSONObject) responseBody.get("error")).get("message").toString();
-                log.error("FCM [sendPushMessage] okHttp response is not OK : {}", errorMessage);
+                log.warn("FCM [sendPushMessage] okHttp response is not OK : {}", errorMessage);
                 return CompletableFuture.completedFuture(false);
             }
             return CompletableFuture.completedFuture(true);
         } catch (Exception e) {
-            log.error("FCM [sendPushMessage] I/O Exception : {}", e.getMessage());
+            log.warn("FCM [sendPushMessage] I/O Exception : {}", e.getMessage());
             throw new NotificationException(NotificationCode.SEND_FCM_PUSH_ERROR);
         }
-
     }
 }
