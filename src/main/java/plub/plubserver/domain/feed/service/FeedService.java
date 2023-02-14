@@ -91,8 +91,8 @@ public class FeedService {
         Feed feed = getFeed(feedId);
         checkFeedStatus(feed);
         Boolean isHost = plubbingService.isHost(account, feed.getPlubbing());
-        List<CommentResponse> commentResponses = feedCommentRepository.findAllByFeedAndVisibility(feed, true)
-                .stream().map((FeedComment feedComment) -> CommentResponse.ofFeedComment(feedComment, isCommentAuthor(account, feedComment),isFeedAuthor(account, feed))).toList();
+        List<FeedCommentResponse> commentResponses = feedCommentRepository.findAllByFeedAndVisibility(feed, true)
+                .stream().map((FeedComment feedComment) -> FeedCommentResponse.of(feedComment, isCommentAuthor(account, feedComment),isFeedAuthor(account, feed))).toList();
         return FeedResponse.of(feed, commentResponses, isFeedAuthor(account, feed), isHost);
     }
 
@@ -129,7 +129,7 @@ public class FeedService {
         Feed feed = getFeed(feedId);
         checkFeedStatus(feed);
         plubbingService.checkMember(account, feed.getPlubbing());
-        FeedComment feedComment = createCommentRequest.toEntity(feed, account);
+        FeedComment feedComment = createCommentRequest.toFeedComment(feed, account);
         feedCommentRepository.save(feedComment);
         feed.addComment();
         return new CommentIdResponse(feedComment.getId());
@@ -196,5 +196,3 @@ public class FeedService {
         feed.makeSystem();
     }
 }
-
-

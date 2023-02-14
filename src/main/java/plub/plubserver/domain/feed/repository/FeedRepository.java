@@ -13,4 +13,3 @@ public interface FeedRepository extends JpaRepository<Feed, Long> {
 
     Long countByPin(boolean pin);
 }
-

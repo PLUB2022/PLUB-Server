@@ -14,9 +14,9 @@ import plub.plubserver.common.dto.ApiResponse;
 public class NoticeExceptionHandler {
     @ExceptionHandler(NoticeException.class)
     public ResponseEntity<?> handle(NoticeException ex) {
-        log.warn("{}({}) - {}", ex.getClass().getSimpleName(), ex.feedCode.getStatusCode(), ex.getMessage());
+        log.warn("{}({}) - {}", ex.getClass().getSimpleName(), ex.noticeCode.getStatusCode(), ex.getMessage());
         return ResponseEntity
-                .status(ex.feedCode.getHttpCode())
-                .body(ApiResponse.error(ex.feedCode.getStatusCode(), ex.feedCode.getMessage()));
+                .status(ex.noticeCode.getHttpCode())
+                .body(ApiResponse.error(ex.noticeCode.getStatusCode(), ex.noticeCode.getMessage()));
     }
 }

@@ -6,7 +6,6 @@ import plub.plubserver.common.model.BaseEntity;
 import plub.plubserver.domain.account.model.Account;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
 
 @Entity
 @Getter
@@ -21,9 +20,6 @@ public class FeedComment extends BaseEntity {
     private Long id;
 
     private String content;
-
-    @NotNull
-    private boolean visibility;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "feed_id")

@@ -1,11 +1,11 @@
 package plub.plubserver.domain.notice.model;
 
 import lombok.*;
+import plub.plubserver.common.dto.CommentDto.*;
 import plub.plubserver.common.model.BaseEntity;
 import plub.plubserver.domain.account.model.Account;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
 
 @Entity
 @Getter
@@ -21,9 +21,6 @@ public class NoticeComment extends BaseEntity {
 
     private String content;
 
-    @NotNull
-    private boolean visibility;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "notice_id")
     private Notice notice;
@@ -31,4 +28,8 @@ public class NoticeComment extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "account_id")
     private Account account;
+
+    public void updateNoticeComment(UpdateCommentRequest request) {
+        this.content = request.content();
+    }
 }
