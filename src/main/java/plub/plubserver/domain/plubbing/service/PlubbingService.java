@@ -14,6 +14,8 @@ import plub.plubserver.domain.account.service.AccountService;
 import plub.plubserver.domain.category.model.PlubbingSubCategory;
 import plub.plubserver.domain.category.model.SubCategory;
 import plub.plubserver.domain.category.service.CategoryService;
+import plub.plubserver.domain.notification.aop.NotifyDetail;
+import plub.plubserver.domain.notification.aop.NotifyHost;
 import plub.plubserver.domain.plubbing.config.PlubbingCode;
 import plub.plubserver.domain.plubbing.dto.PlubbingDto.*;
 import plub.plubserver.domain.plubbing.exception.PlubbingException;
@@ -152,10 +154,7 @@ public class PlubbingService {
      * 호스트
      */
     public Account getHost(Long plubbingId) {
-        return accountPlubbingRepository.findByPlubbingId(plubbingId)
-                .stream()
-                .filter(AccountPlubbing::isHost)
-                .findFirst()
+        return accountPlubbingRepository.findByPlubbingIdAndIsHost(plubbingId)
                 .orElseThrow(() -> new PlubbingException(PlubbingCode.NOT_HOST_ERROR))
                 .getAccount();
     }
@@ -318,10 +317,13 @@ public class PlubbingService {
     }
 
     // 모임 나가기
+//    @Notify(who = ReceiverType.HOST, detail = NotifyDetail.LEAVE_PLUBBING)
+    @NotifyHost(detail = NotifyDetail.LEAVE_PLUBBING)
+    @Transactional
     public void leavePlubbing(Long plubbingId) {
-        Plubbing plubbing = getPlubbing(plubbingId);
-        Account account = accountService.getCurrentAccount();
-        accountPlubbingRepository.deleteByPlubbingAndAccount(plubbing, account);
+//        Plubbing plubbing = getPlubbing(plubbingId);
+//        Account account = accountService.getCurrentAccount();
+//        accountPlubbingRepository.deleteByPlubbingAndAccount(plubbing, account);
     }
 }
 

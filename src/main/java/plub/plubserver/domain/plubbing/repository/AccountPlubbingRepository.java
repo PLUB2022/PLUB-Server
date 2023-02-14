@@ -1,6 +1,8 @@
 package plub.plubserver.domain.plubbing.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.plubbing.model.AccountPlubbing;
 import plub.plubserver.domain.plubbing.model.AccountPlubbingStatus;
@@ -17,8 +19,9 @@ public interface AccountPlubbingRepository extends JpaRepository<AccountPlubbing
     boolean existsByAccountAndPlubbingId(Account currentAccount, Long plubbingId);
 
     Optional<AccountPlubbing> findByAccountAndPlubbing(Account currentAccount, Plubbing plubbing);
-    Optional<AccountPlubbing> findByPlubbingId(Long plubbingId);
 
+    @Query("select ap from AccountPlubbing ap where ap.plubbing.id = :plubbingId and ap.isHost = true")
+    Optional<AccountPlubbing> findByPlubbingIdAndIsHost(@Param("plubbingId") Long plubbingId);
     void deleteByPlubbingAndAccount(Plubbing plubbing, Account account);
 
 }

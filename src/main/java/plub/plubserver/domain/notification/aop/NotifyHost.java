@@ -7,8 +7,7 @@ import java.lang.annotation.Target;
 
 @Target({ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Notify {
-    ReceiverType who();
+public @interface NotifyHost {
     NotifyDetail detail();
     long plubbingId() default 0L;
 }

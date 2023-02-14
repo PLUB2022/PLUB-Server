@@ -2,15 +2,16 @@ package plub.plubserver.domain.plubbing.model;
 
 import lombok.*;
 import plub.plubserver.common.model.BaseEntity;
+import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.archive.model.Archive;
 import plub.plubserver.domain.calendar.model.Calendar;
 import plub.plubserver.domain.category.model.PlubbingSubCategory;
 import plub.plubserver.domain.feed.model.Feed;
+import plub.plubserver.domain.notice.model.Notice;
 import plub.plubserver.domain.plubbing.dto.PlubbingDto.UpdatePlubbingRequest;
 import plub.plubserver.domain.recruit.dto.RecruitDto.UpdateRecruitRequest;
 import plub.plubserver.domain.recruit.model.Recruit;
 import plub.plubserver.domain.todo.model.TodoTimeline;
-import plub.plubserver.domain.notice.model.Notice;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -176,5 +177,18 @@ public class Plubbing extends BaseEntity {
 
     public void setMainImage(String mainImage) {
         this.mainImage = mainImage;
+    }
+
+    public Account getHost() {
+        return accountPlubbingList.stream().filter(AccountPlubbing::isHost)
+                .findFirst()
+                .get()
+                .getAccount();
+    }
+
+    public List<Account> getMembers() {
+        return accountPlubbingList.stream()
+                .map(AccountPlubbing::getAccount)
+                .toList();
     }
 }

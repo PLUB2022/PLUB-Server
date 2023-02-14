@@ -106,4 +106,11 @@ public class PlubbingController {
     ) {
         return success(plubbingService.getPlubbingByCategory(categoryId, pageable, sort));
     }
+
+    @ApiOperation(value = "모임 나가기")
+    @GetMapping("/{plubbingId}/leave")
+    public ApiResponse<Boolean> leavePlubbing(@PathVariable Long plubbingId) {
+        plubbingService.leavePlubbing(plubbingId);
+        return success(true);
+    }
 }
