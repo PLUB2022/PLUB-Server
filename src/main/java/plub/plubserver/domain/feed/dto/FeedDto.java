@@ -47,7 +47,6 @@ public class FeedDto {
                     .feedType(FeedType.valueOf(this.feedType))
                     .viewType(ViewType.NORMAL)
                     .pin(false)
-                    .visibility(true)
                     .pinedAt(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
                     .likeCount(0)
                     .commentCount(0)

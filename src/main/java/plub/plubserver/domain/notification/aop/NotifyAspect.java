@@ -22,6 +22,7 @@ public class NotifyAspect {
     private final AccountService accountService;
     private final PlubbingService plubbingService;
     private final NotificationService notificationService;
+
     @AfterReturning("@annotation(plub.plubserver.domain.notification.aop.NotifyHost) && args(plubbingId)")
     public void notifyHost(JoinPoint joinPoint, Long plubbingId) {
         log.info("notifyHost 호출 됨.");
@@ -45,6 +46,37 @@ public class NotifyAspect {
         notificationService.pushMessage(host, title, content);
         log.info("푸시 알림 전송(notifyHost) - host={}, title={}, content={}",
                 host.getId(), title, content);
+        log.info("{}", plubbingId);
+    }
+
+    @AfterReturning("@annotation(plub.plubserver.domain.notification.aop.NotifyPlubbingMembers) && args(plubbingId)")
+    public void notifyPlubbingMembers(JoinPoint joinPoint, Long plubbingId) {
+        log.info("notifyPlubbingMembers 호출 됨.");
+        MethodSignature signature = (MethodSignature) joinPoint.getSignature();
+        Notify notify = signature.getMethod().getAnnotation(Notify.class);
+        String title = "";
+        String content = "";
+
+        if (notify.detail() == NotifyDetail.NEW_PLUBBING_CALENDAR) {
+            title = "NEW_PLUBBING_CALENDAR";
+            content = "NEW_PLUBBING_CALENDAR";
+        }
+
+        if (notify.detail() == NotifyDetail.UPDATED_PLUBBING_CALENDAR) {
+            title = "UPDATED_PLUBBING_CALENDAR";
+            content = "UPDATED_PLUBBING_CALENDAR";
+
+        }
+
+        Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
+        final String finalTitle = title;
+        final String finalContent = content;
+
+        plubbing.getMembers().forEach(member -> {
+            notificationService.pushMessage(member, finalTitle, finalContent);
+            log.info("푸시 알림 전송(notifyPlubbingMembers) - member={}, title={}, content={}",
+                    member.getId(), finalTitle, finalContent);
+        });
         log.info("{}", plubbingId);
     }
 
@@ -87,52 +119,6 @@ public class NotifyAspect {
         notificationService.pushMessage(receiver, title, content);
         log.info("푸시 알림 전송(notifyHost) - host={}, title={}, content={}",
                 receiver.getId(), title, content);
-    }
-
-    // 모임 일정 등록 및 수정, 공지
-    private void notifyPlubbingMembers(Notify notify, Long plubbingId) {
-        Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
-        String title = "";
-        String content = "";
-
-        if (notify.detail() == NotifyDetail.NEW_PLUBBING_NOTICE) {
-            title = "ACCEPT_RECRUIT";
-            content = "ACCEPT_RECRUIT";
-        }
-
-        if (notify.detail() == NotifyDetail.NEW_PLUBBING_DATE) {
-            title = "LEAVE_PLUBBING";
-            content = "LEAVE_PLUBBING";
-        }
-
-
-//        notificationService.pushMessage(receiver, title, content);
-//        log.info("푸시 알림 전송(notifyHost) - host={}, title={}, content={}",
-//                receiver.getId(), title, content);
-    }
-
-    // 참여신청, 모임 나가기
-    private void notifyHost(Notify notify, Long plubbingId) {
-//        Account host = plubbingService.getHost(plubbingId);
-        Account host = plubbingService.getPlubbing(plubbingId).getHost();
-        String title = "";
-        String content = "";
-
-        if (notify.detail() == NotifyDetail.APPLY_RECRUIT) {
-            title = "APPLY_RECRUIT";
-            content = "APPLY_RECRUIT";
-        }
-
-        if (notify.detail() == NotifyDetail.LEAVE_PLUBBING) {
-            title = "LEAVE_PLUBBING";
-            content = "LEAVE_PLUBBING";
-
-        }
-
-        notificationService.pushMessage(host, title, content);
-        log.info("푸시 알림 전송(notifyHost) - host={}, title={}, content={}",
-                host.getId(), title, content);
-        log.info("{}", plubbingId);
     }
 
 }

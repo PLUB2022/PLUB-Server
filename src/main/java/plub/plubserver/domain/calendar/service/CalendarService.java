@@ -13,9 +13,12 @@ import plub.plubserver.domain.calendar.model.Calendar;
 import plub.plubserver.domain.calendar.model.CalendarAttend;
 import plub.plubserver.domain.calendar.repository.CalendarAttendRepository;
 import plub.plubserver.domain.calendar.repository.CalendarRepository;
+import plub.plubserver.domain.notification.aop.NotifyPlubbingMembers;
+import plub.plubserver.domain.notification.service.NotificationService;
 import plub.plubserver.domain.plubbing.model.AccountPlubbing;
 import plub.plubserver.domain.plubbing.model.Plubbing;
 import plub.plubserver.domain.plubbing.service.PlubbingService;
+import plub.plubserver.domain.notification.aop.NotifyDetail;
 
 import java.util.List;
 
@@ -30,6 +33,7 @@ public class CalendarService {
     public final CalendarRepository calendarRepository;
     public final CalendarAttendRepository calendarAttendRepository;
     public final PlubbingService plubbingService;
+    public final NotificationService notificationService;
 
     public CalendarCardResponse getCalendarCard(Long calendarId) {
         Calendar calendar = calendarRepository.findById(calendarId)
@@ -37,6 +41,7 @@ public class CalendarService {
         return CalendarCardResponse.of(calendar);
     }
 
+    @NotifyPlubbingMembers(detail = NotifyDetail.NEW_PLUBBING_CALENDAR)
     @Transactional
     public CalendarIdResponse createCalendar(Account account, Long plubbingId, CreateCalendarRequest createCalendarResponse) {
         Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
@@ -56,6 +61,7 @@ public class CalendarService {
         return CalendarIdResponse.of(calendar.getId());
     }
 
+    @NotifyPlubbingMembers(detail = NotifyDetail.UPDATED_PLUBBING_CALENDAR)
     @Transactional
     public CalendarIdResponse updateCalendar(Account account, Long plubbingId, Long calendarId, UpdateCalendarRequest updateCalendarResponse) {
         Plubbing plubbing = plubbingService.getPlubbing(plubbingId);

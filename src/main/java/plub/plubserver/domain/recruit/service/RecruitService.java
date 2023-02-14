@@ -12,9 +12,9 @@ import plub.plubserver.domain.account.config.AccountCode;
 import plub.plubserver.domain.account.exception.AccountException;
 import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.account.service.AccountService;
-import plub.plubserver.domain.notification.aop.Notify;
+import plub.plubserver.domain.notification.aop.NotifyAccount;
 import plub.plubserver.domain.notification.aop.NotifyDetail;
-import plub.plubserver.domain.notification.aop.ReceiverType;
+import plub.plubserver.domain.notification.aop.NotifyHost;
 import plub.plubserver.domain.plubbing.dto.PlubbingDto.JoinedAccountsInfoResponse;
 import plub.plubserver.domain.plubbing.dto.PlubbingDto.PlubbingIdResponse;
 import plub.plubserver.domain.plubbing.model.AccountPlubbing;
@@ -165,6 +165,7 @@ public class RecruitService {
     /**
      * 모집 지원
      */
+    @NotifyHost(detail = NotifyDetail.APPLY_RECRUIT)
     @Transactional
     public PlubbingIdResponse applyRecruit(
             Account loginAccount,
@@ -227,7 +228,7 @@ public class RecruitService {
     /**
      * 지원자 승낙
      */
-    @Notify(who = ReceiverType.ACCOUNT, detail = NotifyDetail.ACCEPT_RECRUIT)
+    @NotifyAccount( detail = NotifyDetail.ACCEPT_RECRUIT)
     @Transactional
     public JoinedAccountsInfoResponse acceptApplicant(Account loginAccount, Long plubbingId, Long accountId) {
         Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
