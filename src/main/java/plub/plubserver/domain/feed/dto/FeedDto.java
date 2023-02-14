@@ -46,8 +46,8 @@ public class FeedDto {
                     .feedImage(feedImageValue)
                     .feedType(FeedType.valueOf(this.feedType))
                     .viewType(ViewType.NORMAL)
-                    .visibility(true)
                     .pin(false)
+                    .visibility(true)
                     .pinedAt(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
                     .likeCount(0)
                     .commentCount(0)
@@ -141,13 +141,13 @@ public class FeedDto {
             Boolean isHost,
             int likeCount,
             int commentCount,
-            List<CommentResponse> comments
+            List<FeedCommentResponse> comments
     ) {
         @Builder
         public FeedResponse {
         }
 
-        public static FeedResponse of(Feed feed, List<CommentResponse> comments, Boolean isAuthor, Boolean isHost) {
+        public static FeedResponse of(Feed feed, List<FeedCommentResponse> comments, Boolean isAuthor, Boolean isHost) {
             return FeedResponse.builder()
                     .feedId(feed.getId())
                     .feedType(feed.getFeedType().toString())

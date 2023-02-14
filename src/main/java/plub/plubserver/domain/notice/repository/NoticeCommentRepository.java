@@ -7,6 +7,6 @@ import plub.plubserver.domain.notice.model.NoticeComment;
 import java.util.List;
 
 public interface NoticeCommentRepository extends JpaRepository<NoticeComment, Long> {
-    List<NoticeComment> findAllByNotice(Notice notice);
+    List<NoticeComment> findAllByNoticeAndVisibility(Notice notice, boolean visibility);
 }
 

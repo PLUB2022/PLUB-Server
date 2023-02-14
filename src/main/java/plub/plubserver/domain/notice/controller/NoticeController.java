@@ -8,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
 import plub.plubserver.common.dto.ApiResponse;
+import plub.plubserver.common.dto.PageResponse;
 import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.account.service.AccountService;
 import plub.plubserver.common.dto.CommentDto.*;
@@ -38,11 +39,10 @@ public class NoticeController {
 
     @ApiOperation(value = "공지 목록 조회")
     @GetMapping("/{plubbingId}/notices")
-    public ApiResponse<NoticeListResponse> getNoticeList(@PathVariable Long plubbingId,
-                                                         @PageableDefault(size = 20) Pageable pageable) {
+    public ApiResponse<PageResponse<NoticeCardResponse>> getNoticeList(@PathVariable Long plubbingId,
+                                                          @PageableDefault(size = 20) Pageable pageable) {
         Account loginAccount = accountService.getCurrentAccount();
-        NoticeListResponse noticeList = noticeService.getNoticeList(loginAccount, plubbingId, pageable);
-        return success(noticeList);
+        return success(noticeService.getNoticeList(loginAccount, plubbingId, pageable));
     }
 
     @ApiOperation(value = "공지 상세 조회")
@@ -64,18 +64,26 @@ public class NoticeController {
     @DeleteMapping("/notices/{noticeId}")
     public ApiResponse<NoticeMessage> deleteNotice(@PathVariable Long noticeId) {
         Account loginAccount = accountService.getCurrentAccount();
-        return success(noticeService.deleteNotice(loginAccount, noticeId));
+        return success(noticeService.softDeleteNotice(loginAccount, noticeId));
     }
 
     @ApiOperation(value = "공지 좋아요")
     @PutMapping("/notices/{noticeId}/like")
-    public ApiResponse<NoticeIdResponse> likeNotice(@PathVariable Long noticeId) {
+    public ApiResponse<NoticeMessage> likeNotice(@PathVariable Long noticeId) {
         Account loginAccount = accountService.getCurrentAccount();
         return success(noticeService.likeNotice(loginAccount, noticeId));
     }
 
+    @ApiOperation(value = "공지별 댓글 조회")
+    @GetMapping("/notices/{noticeId}/comments")
+    public ApiResponse<PageResponse<NoticeCommentResponse>> getNoticeCommentList(@PathVariable Long noticeId,
+                                                                       @PageableDefault(size = 20) Pageable pageable) {
+        Account loginAccount = accountService.getCurrentAccount();
+        return success(noticeService.getNoticeCommentList(loginAccount, noticeId, pageable));
+    }
+
     @ApiOperation(value = "공지 댓글 생성")
-    @PostMapping("/notices/{noticeId}/comment")
+    @PostMapping("/notices/{noticeId}/comments")
     public ApiResponse<CommentIdResponse> createNoticeComment(@PathVariable Long noticeId,
                                                               @Valid @RequestBody CreateCommentRequest createCommentRequest) {
         Account loginAccount = accountService.getCurrentAccount();
@@ -83,7 +91,7 @@ public class NoticeController {
     }
 
     @ApiOperation(value = "공지 댓글 수정")
-    @PutMapping("/notices/{noticeId}/comment/{commentId}")
+    @PutMapping("/notices/comments/{commentId}")
     public ApiResponse<CommentIdResponse> updateNoticeComment(@PathVariable Long commentId,
                                                               @Valid @RequestBody UpdateCommentRequest updateCommentRequest) {
         Account loginAccount = accountService.getCurrentAccount();
@@ -91,14 +99,14 @@ public class NoticeController {
     }
 
     @ApiOperation(value = "공지 댓글 삭제")
-    @DeleteMapping("/notices/{noticeId}/comment/{commentId}")
+    @DeleteMapping("/notices/comments/{commentId}")
     public ApiResponse<CommentMessage> deleteNoticeComment(@PathVariable Long commentId) {
         Account loginAccount = accountService.getCurrentAccount();
         return success(noticeService.deleteNoticeComment(loginAccount, commentId));
     }
 
     @ApiOperation(value = "공지 댓글 신고")
-    @PostMapping("/notices/{noticeId}/comment/{commentId}/report")
+    @PostMapping("/notices/comments/{commentId}/report")
     public ApiResponse<CommentIdResponse> reportNoticeComment(@PathVariable Long commentId) {
         Account loginAccount = accountService.getCurrentAccount();
         return success(noticeService.reportNoticeComment(loginAccount, commentId));

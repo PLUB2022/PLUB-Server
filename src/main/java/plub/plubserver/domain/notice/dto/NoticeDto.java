@@ -1,11 +1,12 @@
 package plub.plubserver.domain.notice.dto;
 
 import lombok.Builder;
-import plub.plubserver.common.dto.CommentDto.*;
+import plub.plubserver.domain.account.model.Account;
+import plub.plubserver.domain.notice.model.Notice;
+import plub.plubserver.domain.plubbing.model.Plubbing;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
-import java.util.List;
 
 public class NoticeDto {
     public record CreateNoticeRequest(
@@ -17,6 +18,15 @@ public class NoticeDto {
     ) {
         @Builder
         public CreateNoticeRequest {
+        }
+
+        public Notice toEntity(Plubbing plubbing, Account account) {
+            return Notice.builder()
+                    .title(this.title)
+                    .content(this.content)
+                    .plubbing(plubbing)
+                    .account(account)
+                    .build();
         }
     }
 
@@ -38,18 +48,13 @@ public class NoticeDto {
         @Builder
         public NoticeCardResponse {
         }
-    }
 
-    public record NoticeListResponse(
-            List<NoticeCardResponse> notices
-    ) {
-        @Builder
-        public NoticeListResponse {
-        }
-
-        public static NoticeListResponse of(List<NoticeCardResponse> notices) {
-            return NoticeListResponse.builder()
-                    .notices(notices)
+        public static NoticeCardResponse of(Notice notice) {
+            return NoticeCardResponse.builder()
+                    .noticeId(notice.getId())
+                    .title(notice.getTitle())
+                    .content(notice.getContent())
+                    .createdAt(notice.getCreatedAt())
                     .build();
         }
     }
@@ -61,10 +66,23 @@ public class NoticeDto {
             String createdAt,
             long likeCount,
             long commentCount,
-            List<CommentResponse> comments
+            Boolean isAuthor
+
     ) {
         @Builder
         public NoticeResponse {
+        }
+
+        public static NoticeResponse of(Notice notice, Boolean isAuthor) {
+            return NoticeResponse.builder()
+                    .noticeId(notice.getId())
+                    .title(notice.getTitle())
+                    .content(notice.getContent())
+                    .createdAt(notice.getCreatedAt())
+                    .likeCount(notice.getLikeCount())
+                    .commentCount(notice.getCommentCount())
+                    .isAuthor(isAuthor)
+                    .build();
         }
     }
 
