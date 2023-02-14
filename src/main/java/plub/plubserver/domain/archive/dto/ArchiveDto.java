@@ -47,13 +47,14 @@ public class ArchiveDto {
             List<String> images, // limit 3
             int imageCount,
             int sequence,
-            String createdAt
+            String createdAt,
+            String accessType
     ) {
         @Builder
         public ArchiveCardResponse {
         }
 
-        public static ArchiveCardResponse of(Archive archive) {
+        public static ArchiveCardResponse of(Archive archive, String accessType) {
             return ArchiveCardResponse.builder()
                     .archiveId(archive.getId())
                     .title(archive.getTitle())
@@ -64,6 +65,7 @@ public class ArchiveDto {
                     .imageCount(archive.getImages().size())
                     .sequence(archive.getSequence())
                     .createdAt(archive.getCreatedAt().split(" ")[0])
+                    .accessType(accessType)
                     .build();
         }
     }

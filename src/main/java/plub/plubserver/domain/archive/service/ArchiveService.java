@@ -1,6 +1,8 @@
 package plub.plubserver.domain.archive.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,6 +21,7 @@ import plub.plubserver.domain.archive.repository.ArchiveRepository;
 import plub.plubserver.domain.plubbing.model.Plubbing;
 import plub.plubserver.domain.plubbing.service.PlubbingService;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -36,10 +39,23 @@ public class ArchiveService {
     }
 
     public PageResponse<ArchiveCardResponse> getArchiveList(Long plubbingId, Pageable pageable) {
-        return PageResponse.of(
-                archiveRepository.findAllByPlubbingIdOrderBySequenceDesc(plubbingId, pageable)
-                .map(ArchiveCardResponse::of)
-        );
+        Page<Archive> temp = archiveRepository.findAllByPlubbingIdOrderBySequenceDesc(plubbingId, pageable);
+
+        Account loginAccount = accountService.getCurrentAccount();
+
+        List<ArchiveCardResponse> result = new ArrayList<>();
+        String type = "normal";
+        for (Archive archive : temp) {
+            Account host = plubbingService.getHost(archive.getPlubbing().getId());
+            // 호스트
+            if (loginAccount.getId().equals(host.getId())) type = "host";
+            // 작성자
+            if (loginAccount.getId().equals(archive.getAccount().getId())) type = "author";
+            result.add(ArchiveCardResponse.of(archive, type));
+        }
+
+        Page<ArchiveCardResponse> pages = new PageImpl<>(result, pageable, temp.getTotalElements());
+        return PageResponse.of(pages);
     }
 
     public ArchiveResponse getArchive(Long plubbingId, Long archiveId) {
