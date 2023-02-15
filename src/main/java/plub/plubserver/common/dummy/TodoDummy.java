@@ -14,8 +14,8 @@ import javax.annotation.PostConstruct;
 import java.time.LocalDate;
 
 @Slf4j
-@Component("TodoDummy")
-@DependsOn("plubbingDummy")
+@Component("todoDummy")
+@DependsOn("feedDummy")
 @RequiredArgsConstructor
 public class TodoDummy {
     private final TodoService todoService;

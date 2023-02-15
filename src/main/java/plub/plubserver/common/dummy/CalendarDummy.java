@@ -14,8 +14,8 @@ import plub.plubserver.domain.calendar.service.CalendarService;
 import javax.annotation.PostConstruct;
 
 @Slf4j
-@Component("CalendarDummy")
-@DependsOn("plubbingDummy")
+@Component("calendarDummy")
+@DependsOn("todoDummy")
 @RequiredArgsConstructor
 public class CalendarDummy {
     private final CalendarService calendarService;

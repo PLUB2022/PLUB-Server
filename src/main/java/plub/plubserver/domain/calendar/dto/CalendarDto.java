@@ -78,7 +78,7 @@ public class CalendarDto {
         public CalendarCardResponse {
         }
 
-        public static CalendarCardResponse of(Calendar calendar) {
+        public static CalendarCardResponse of(Calendar calendar, CalendarAttendList calendarAttendList) {
             return CalendarCardResponse.builder()
                     .calendarId(calendar.getId())
                     .title(calendar.getTitle())
@@ -91,7 +91,7 @@ public class CalendarDto {
                     .address(calendar.getAddress())
                     .roadAddress(calendar.getRoadAddress())
                     .placeName(calendar.getPlaceName())
-                    .calendarAttendList(CalendarAttendList.of(calendar.getCalendarAttendList()))
+                    .calendarAttendList(calendarAttendList)
                     .build();
         }
     }
