@@ -16,6 +16,7 @@ import plub.plubserver.domain.notice.model.NoticeLike;
 import plub.plubserver.domain.notice.repository.NoticeCommentRepository;
 import plub.plubserver.domain.notice.repository.NoticeLikeRepository;
 import plub.plubserver.domain.notice.repository.NoticeRepository;
+import plub.plubserver.domain.notification.service.NotificationService;
 import plub.plubserver.domain.plubbing.model.Plubbing;
 import plub.plubserver.domain.plubbing.service.PlubbingService;
 
@@ -31,6 +32,7 @@ public class NoticeService {
     private final NoticeRepository noticeRepository;
     private final NoticeLikeRepository noticeLikeRepository;
     private final NoticeCommentRepository noticeCommentRepository;
+    private final NotificationService notificationService; // TODO : AOP로 의존성을 줄일 방법 생각하기
 
     public Notice getNotice(Long noticeId) {
         return noticeRepository.findById(noticeId).orElseThrow(() -> new NoticeException(NOT_FOUND_NOTICE));
@@ -44,16 +46,34 @@ public class NoticeService {
     public NoticeIdResponse createNotice(Long plubbingId, Account account, CreateNoticeRequest createNoticeRequest) {
         Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
         plubbingService.checkHost(plubbing);
-        Notice notice = createNoticeRequest.toEntity(plubbing, account);
-        noticeRepository.save(notice);
+        Notice notice = noticeRepository.save(createNoticeRequest.toEntity(plubbing, account));
+        account.addNotice(notice);
+
+        notifyToMembers(plubbing, notice);
+
         return new NoticeIdResponse(notice.getId());
+    }
+
+
+    // 모임 멤버들에게 새 공지 알림 전체 발송
+    private void notifyToMembers(Plubbing plubbing, Notice notice) {
+        plubbing.getMembers().forEach(member -> {
+            notificationService.pushMessage(
+                    member,
+                    "공지",
+                    plubbing.getName() + "에 새로운 공지가 등록되었어요. : " + notice.getTitle()
+            );
+        });
     }
 
     public PageResponse<NoticeCardResponse> getNoticeList(Account account, Long plubbingId, Pageable pageable) {
         Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
         plubbingService.checkMember(account, plubbing);
-        List<NoticeCardResponse> noticeCardResponses = noticeRepository.findAllByPlubbingAndVisibility(plubbing, true, Sort.by(Sort.Direction.DESC, "createdAt"))
-                .stream().map(NoticeCardResponse::of).toList();
+        List<NoticeCardResponse> noticeCardResponses = noticeRepository
+                .findAllByPlubbingAndVisibility(plubbing, true, Sort.by(Sort.Direction.DESC, "createdAt"))
+                .stream()
+                .map(NoticeCardResponse::of)
+                .toList();
         return PageResponse.of(pageable, noticeCardResponses);
     }
 
@@ -64,11 +84,15 @@ public class NoticeService {
         return NoticeResponse.of(notice, isNoticeAuthor(account, notice));
     }
 
+
     @Transactional
-    public NoticeIdResponse updateNotice(Account account, Long noticeId, UpdateNoticeRequest updateNoticeRequest) {
+    public NoticeIdResponse updateNotice(Account account, Long plubbingId, Long noticeId, UpdateNoticeRequest updateNoticeRequest) {
         Notice notice = getNotice(noticeId);
         plubbingService.checkHost(notice.getPlubbing());
         notice.updateFeed(updateNoticeRequest);
+
+        notifyToMembers(plubbingService.getPlubbing(plubbingId), notice);
+
         return new NoticeIdResponse(notice.getId());
     }
 
@@ -101,7 +125,9 @@ public class NoticeService {
         Notice notice = getNotice(noticeId);
         plubbingService.checkMember(account, notice.getPlubbing());
         List<NoticeCommentResponse> noticeCommentList = noticeCommentRepository.findAllByNoticeAndVisibility(notice, true)
-                .stream().map((NoticeComment noticeComment) -> NoticeCommentResponse.of(noticeComment, isCommentAuthor(account, noticeComment), isNoticeAuthor(account, notice))).toList();
+                .stream()
+                .map(it -> NoticeCommentResponse.of(it, isCommentAuthor(account, it), isNoticeAuthor(account, notice)))
+                .toList();
         return PageResponse.of(pageable, noticeCommentList);
     }
 
@@ -110,10 +136,20 @@ public class NoticeService {
         Notice notice = getNotice(noticeId);
         checkNoticeStatus(notice);
         plubbingService.checkMember(account, notice.getPlubbing());
-        NoticeComment noticeComment = createCommentRequest.toNoticeComment(notice, account);
-        noticeCommentRepository.save(noticeComment);
+        NoticeComment comment = noticeCommentRepository.save(createCommentRequest.toNoticeComment(notice, account));
+        account.addNoticeComment(comment);
         notice.addComment();
-        return new CommentIdResponse(noticeComment.getId());
+        
+        // 작성자에게 푸시 알림
+        notificationService.pushMessage(
+                comment.getAccount(),
+                notice.getTitle() + "에 새로운 댓글이 달렸습니다.",
+                account.getNickname() + ":" + comment.getContent()
+        );
+
+        // TODO : 대댓글 알림
+        
+        return new CommentIdResponse(comment.getId());
     }
 
     @Transactional

@@ -89,11 +89,13 @@ public class FeedController {
     }
 
     @ApiOperation(value = "게시글 댓글 생성")
-    @PostMapping("/feeds/{feedId}/comments")
-    public ApiResponse<CommentIdResponse> createFeedComment(@PathVariable Long feedId,
-                                                            @Valid @RequestBody CreateCommentRequest createCommentRequest) {
+    @PostMapping("/{plubbingId}/feeds/{feedId}/comments")
+    public ApiResponse<CommentIdResponse> createFeedComment(
+            @PathVariable Long plubbingId,
+            @PathVariable Long feedId,
+            @Valid @RequestBody CreateCommentRequest createCommentRequest) {
         Account loginAccount = accountService.getCurrentAccount();
-        return success(feedService.createFeedComment(loginAccount, feedId, createCommentRequest));
+        return success(feedService.createFeedComment(loginAccount, plubbingId, feedId, createCommentRequest));
     }
 
     @ApiOperation(value = "게시글 댓글 수정")

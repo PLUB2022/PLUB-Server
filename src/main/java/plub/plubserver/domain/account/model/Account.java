@@ -181,4 +181,19 @@ public class Account extends BaseEntity {
         if (notifications == null) notifications = new ArrayList<>();
         notifications.add(notification);
     }
+
+    public void addNoticeComment(NoticeComment noticeComment) {
+        if (noticeCommentList == null) noticeCommentList = new ArrayList<>();
+        noticeCommentList.add(noticeComment);
+    }
+
+    public void addFeedComment(FeedComment feedComment) {
+        if (feedCommentList == null) feedCommentList = new ArrayList<>();
+        feedCommentList.add(feedComment);
+    }
+
+    public void addNotice(Notice notice) {
+        if (noticeList == null) noticeList = new ArrayList<>();
+        noticeList.add(notice);
+    }
 }

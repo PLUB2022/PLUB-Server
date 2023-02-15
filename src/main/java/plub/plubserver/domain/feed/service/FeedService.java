@@ -15,6 +15,7 @@ import plub.plubserver.domain.feed.model.*;
 import plub.plubserver.domain.feed.repository.FeedCommentRepository;
 import plub.plubserver.domain.feed.repository.FeedLikeRepository;
 import plub.plubserver.domain.feed.repository.FeedRepository;
+import plub.plubserver.domain.notification.service.NotificationService;
 import plub.plubserver.domain.plubbing.model.Plubbing;
 import plub.plubserver.domain.plubbing.service.PlubbingService;
 
@@ -31,6 +32,7 @@ public class FeedService {
     private final FeedRepository feedRepository;
     private final FeedCommentRepository feedCommentRepository;
     private final FeedLikeRepository feedLikeRepository;
+    private final NotificationService notificationService;
 
     public Feed getFeed(Long feedId) {
         return feedRepository.findById(feedId).orElseThrow(() -> new FeedException(NOT_FOUND_FEED));
@@ -125,14 +127,31 @@ public class FeedService {
     }
 
     @Transactional
-    public CommentIdResponse createFeedComment(Account account, Long feedId, CreateCommentRequest createCommentRequest) {
+    public CommentIdResponse createFeedComment(
+            Account account,
+            Long plubbingId,
+            Long feedId,
+            CreateCommentRequest createCommentRequest
+    ) {
         Feed feed = getFeed(feedId);
         checkFeedStatus(feed);
         plubbingService.checkMember(account, feed.getPlubbing());
-        FeedComment feedComment = createCommentRequest.toFeedComment(feed, account);
-        feedCommentRepository.save(feedComment);
+        FeedComment comment = feedCommentRepository.save(createCommentRequest.toFeedComment(feed, account));
         feed.addComment();
-        return new CommentIdResponse(feedComment.getId());
+
+        // 작성자에게 푸시 알림
+        Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
+        Account author = feed.getAccount();
+        notificationService.pushMessage(
+                author,
+                plubbing.getName(),
+                account.getNickname() + " 님이 " + author.getNickname() + " 님의 게시글에 댓글을 남겼어요\n : " + comment.getContent()
+        );
+
+        // TODO : 대댓글 알림
+
+
+        return new CommentIdResponse(comment.getId());
     }
 
     @Transactional

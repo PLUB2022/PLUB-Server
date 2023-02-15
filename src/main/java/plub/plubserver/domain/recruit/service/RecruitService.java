@@ -15,6 +15,7 @@ import plub.plubserver.domain.account.service.AccountService;
 import plub.plubserver.domain.notification.aop.NotifyAccount;
 import plub.plubserver.domain.notification.aop.NotifyDetail;
 import plub.plubserver.domain.notification.aop.NotifyHost;
+import plub.plubserver.domain.notification.service.NotificationService;
 import plub.plubserver.domain.plubbing.dto.PlubbingDto.JoinedAccountsInfoResponse;
 import plub.plubserver.domain.plubbing.dto.PlubbingDto.PlubbingIdResponse;
 import plub.plubserver.domain.plubbing.model.AccountPlubbing;
@@ -47,6 +48,7 @@ public class RecruitService {
     private final AppliedAccountRepository appliedAccountRepository;
     private final PlubbingService plubbingService;
     private final RecruitRepository recruitRepository;
+    private final NotificationService notificationService;
 
     private Recruit getRecruitByPlubbingId(Long plubbingId) {
         return plubbingService.getPlubbing(plubbingId).getRecruit();
@@ -209,6 +211,16 @@ public class RecruitService {
         }
         appliedAccount.addAnswerList(answers);
         recruit.addAppliedAccount(appliedAccount);
+
+        // 호스트에게 푸시 알림
+        Plubbing plubbing = recruit.getPlubbing();
+        notificationService.pushMessage(
+                plubbing.getHost(),
+                plubbing.getName(),
+                plubbing.getName() + "에 새로운 지원자가 있어요! \n지원서를 확인하러 가볼까요? \uD83E\uDD29" // 별눈 이모지
+        );
+
+
         return new PlubbingIdResponse(plubbingId);
     }
 
@@ -228,7 +240,7 @@ public class RecruitService {
     /**
      * 지원자 승낙
      */
-    @NotifyAccount( detail = NotifyDetail.ACCEPT_RECRUIT)
+    @NotifyAccount(detail = NotifyDetail.ACCEPT_RECRUIT)
     @Transactional
     public JoinedAccountsInfoResponse acceptApplicant(Account loginAccount, Long plubbingId, Long accountId) {
         Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
@@ -249,8 +261,15 @@ public class RecruitService {
 
         plubbing.addAccountPlubbing(accountPlubbing);
 
-        // 명시적 호출을 해야지만 반영 됨...
+        // 명시적 호출을 해야지만 반영 됨
         plubbing.updateCurAccountNum();
+
+        // 지원자에게 푸시 알림
+        notificationService.pushMessage(
+                accountService.getAccount(accountId),
+                plubbing.getName(),
+                plubbing.getName() + "과 함께하게 되었어요! \n멤버들과 함께 즐겁고 유익한 시간 보내시길 바라요 \uD83D\uDE42" // 웃음 이모지
+        );
 
         return JoinedAccountsInfoResponse.of(plubbing);
     }
