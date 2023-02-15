@@ -159,4 +159,11 @@ public class TodoService {
         return TodoTimelineAllPageResponse.of(timelineResponsePage);
     }
 
+    // 회원 타임라인 날짜 조회
+    public TodoTimelineDateResponse getTodoCalendarDateList(Account currentAccount, Long plubbingId, int year, int month) {
+        Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
+        List<TodoTimeline> byAccountAndPlubbingAndDate = todoTimelineRepository.findByAccountAndPlubbingAndDate(currentAccount, plubbing.getId(), year, month);
+        return TodoTimelineDateResponse.of(byAccountAndPlubbingAndDate);
+    }
+
 }

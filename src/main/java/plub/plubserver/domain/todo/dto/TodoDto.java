@@ -14,6 +14,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,7 +29,8 @@ public class TodoDto {
             LocalDate date
     ) {
         @Builder
-        public CreateTodoRequest {}
+        public CreateTodoRequest {
+        }
 
         public Todo toEntity(Account account) {
             return Todo.builder()
@@ -55,7 +57,8 @@ public class TodoDto {
             int likes
     ) {
         @Builder
-        public TodoResponse {}
+        public TodoResponse {
+        }
 
         public static TodoResponse of(Todo todo) {
             return TodoResponse.builder()
@@ -78,7 +81,8 @@ public class TodoDto {
             List<TodoResponse> todoList
     ) {
         @Builder
-        public TodoTimelineResponse {}
+        public TodoTimelineResponse {
+        }
 
         public static TodoTimelineResponse of(TodoTimeline todoTimeline) {
             List<Todo> todoList = new ArrayList<>();
@@ -107,7 +111,8 @@ public class TodoDto {
             List<TodoTimelineResponse> todoTimelineList
     ) {
         @Builder
-        public TodoTimelineListResponse {}
+        public TodoTimelineListResponse {
+        }
 
         public static TodoTimelineListResponse of(List<TodoTimeline> todoTimelineList) {
             List<TodoTimelineResponse> todoTimelineResponseList = new ArrayList<>();
@@ -131,7 +136,8 @@ public class TodoDto {
             List<TodoResponse> todoList
     ) {
         @Builder
-        public TodoTimelineAllResponse {}
+        public TodoTimelineAllResponse {
+        }
 
         public static TodoTimelineAllResponse of(TodoTimeline todoTimeline) {
             List<Todo> todoList = new ArrayList<>();
@@ -162,7 +168,8 @@ public class TodoDto {
             PageResponse<TodoTimelineAllResponse> response
     ) {
         @Builder
-        public TodoTimelineAllPageResponse {}
+        public TodoTimelineAllPageResponse {
+        }
 
         public static TodoTimelineAllPageResponse of(Page<TodoTimelineAllResponse> todoTimelinePage) {
             return TodoTimelineAllPageResponse.builder()
@@ -172,13 +179,13 @@ public class TodoDto {
     }
 
 
-
     public record TodoTimelinePageResponse(
             AccountDto.AccountInfo accountInfo,
             PageResponse<TodoTimelineResponse> response
     ) {
         @Builder
-        public TodoTimelinePageResponse {}
+        public TodoTimelinePageResponse {
+        }
 
         public static TodoTimelinePageResponse of(Page<TodoTimelineResponse> todoTimelinePage, AccountDto.AccountInfo accountInfo) {
             return TodoTimelinePageResponse.builder()
@@ -198,7 +205,8 @@ public class TodoDto {
             LocalDate date
     ) {
         @Builder
-        public UpdateTodoRequest {}
+        public UpdateTodoRequest {
+        }
 
         public Todo toEntity(Todo todo) {
             return Todo.builder()
@@ -224,6 +232,29 @@ public class TodoDto {
             String proofImage
     ) {
         @Builder
-        public ProofTodoRequest {}
+        public ProofTodoRequest {
+        }
+    }
+
+    public record TodoTimelineDateResponse(
+            List<String> dateList
+    ) {
+        @Builder
+        public TodoTimelineDateResponse {
+        }
+
+        public static TodoTimelineDateResponse of(List<TodoTimeline> todoTimelineList) {
+            List<String> dateList = new ArrayList<>();
+
+            for (TodoTimeline todoTimeline : todoTimelineList) {
+                String format = todoTimeline.getDate().format(DateTimeFormatter.ofPattern("dd"));
+                dateList.add(format);
+            }
+
+            return TodoTimelineDateResponse.builder()
+                    .dateList(dateList)
+                    .build();
+        }
+
     }
 }

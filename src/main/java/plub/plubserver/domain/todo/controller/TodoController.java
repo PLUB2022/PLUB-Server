@@ -107,4 +107,13 @@ public class TodoController {
         Account currentAccount = accountService.getCurrentAccount();
         return success(todoService.proofTodo(currentAccount, plubbingId, todoId, request));
     }
+
+    @ApiOperation(value = "투두 월 달력 조회")
+    @GetMapping("/{plubbingId}/timeline/year/{year}/month/{month}")
+    public ApiResponse<TodoTimelineDateResponse> getTodoCalendarDateList(@PathVariable Long plubbingId,
+                                                             @PathVariable Integer year,
+                                                             @PathVariable Integer month) {
+        Account currentAccount = accountService.getCurrentAccount();
+        return success(todoService.getTodoCalendarDateList(currentAccount, plubbingId, year, month));
+    }
 }
