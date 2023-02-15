@@ -48,7 +48,6 @@ public class TodoService {
                     todoTimeline.updateTodo(todo);
                     todoTimelineRepository.save(todoTimeline);
                     todoRepository.save(todo);
-                    System.out.println("투두 타임라인 업데이트");
                 }, () -> {
                     // 투두 타임라인 생성
                     TodoTimeline todoTimeline = TodoTimeline.builder()
@@ -60,7 +59,6 @@ public class TodoService {
                     todo.updateTodoTimeline(todoTimeline);
                     todoTimelineRepository.save(todoTimeline);
                     todoRepository.save(todo);
-                    System.out.println("투두 타임라인 생성");
                 });
 
         return new TodoIdResponse(todo.getId());

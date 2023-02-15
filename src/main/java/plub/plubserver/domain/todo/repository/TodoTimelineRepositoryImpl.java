@@ -38,8 +38,7 @@ public class TodoTimelineRepositoryImpl implements TodoTimelineRepositoryCustom 
         LocalDate now = LocalDate.now();
         JPQLQuery<TodoTimeline> query = queryFactory
                 .selectFrom(todoTimeline)
-                .where(todoTimeline.plubbing.eq(plubbing))
-                .where(todoTimeline.date.loe(now))
+                .where(todoTimeline.plubbing.eq(plubbing), todoTimeline.date.loe(now))
                 .orderBy(todoTimeline.date.desc())
                 .distinct();
         return PageableExecutionUtils.getPage(
