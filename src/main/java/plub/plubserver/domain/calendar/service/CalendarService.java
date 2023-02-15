@@ -98,7 +98,7 @@ public class CalendarService {
         plubbingService.getPlubbing(plubbingId);
         Calendar calendar = calendarRepository.findById(calendarId)
                 .orElseThrow(() -> new CalendarException(CalendarCode.NOT_FOUNT_CALENDAR));
-        List<CalendarAttend> attendList = calendarAttendRepository.findByCalendarId(calendar.getId());
+        List<CalendarAttend> attendList = calendarAttendRepository.findByCalendarIdOrderByAttendStatus(calendar.getId());
         return CalendarAttendList.of(attendList);
 
     }

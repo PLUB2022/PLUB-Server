@@ -8,5 +8,5 @@ import java.util.Optional;
 
 public interface CalendarAttendRepository extends JpaRepository<CalendarAttend, Long> {
     Optional<CalendarAttend> findByCalendarIdAndAccountId(Long calendarId, Long accountId);
-    List<CalendarAttend> findByCalendarId(Long calendarId);
+    List<CalendarAttend> findByCalendarIdOrderByAttendStatus(Long calendarId);
 }

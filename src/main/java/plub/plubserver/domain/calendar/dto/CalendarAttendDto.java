@@ -11,13 +11,14 @@ import java.util.List;
 public class CalendarAttendDto {
 
     public record CalendarAttendResponse(
-        Long calendarAttendId,
-        String nickname,
-        String profileImage,
-        String AttendStatus
+            Long calendarAttendId,
+            String nickname,
+            String profileImage,
+            String AttendStatus
     ) {
         @Builder
-        public CalendarAttendResponse{}
+        public CalendarAttendResponse {
+        }
 
         public static CalendarAttendResponse of(CalendarAttend calendarAttend) {
             return CalendarAttendResponse.builder()
@@ -33,7 +34,8 @@ public class CalendarAttendDto {
             List<CalendarAttendResponse> calendarAttendList
     ) {
         @Builder
-        public CalendarAttendList{}
+        public CalendarAttendList {
+        }
 
         public static CalendarAttendList of(List<CalendarAttend> calendarAttendList) {
             return CalendarAttendList.builder()
@@ -45,10 +47,11 @@ public class CalendarAttendDto {
     }
 
     public record CheckAttendRequest(
-        String attendStatus
+            String attendStatus
     ) {
         @Builder
-        public CheckAttendRequest {}
+        public CheckAttendRequest {
+        }
 
         public CalendarAttend toEntity(Calendar mockCalendar, Account account) {
             return CalendarAttend.builder()
