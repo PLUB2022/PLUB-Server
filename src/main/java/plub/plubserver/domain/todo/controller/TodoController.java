@@ -60,7 +60,7 @@ public class TodoController {
     }
 
     @ApiOperation(value = "특정 회원 투두 타임라인 조회")
-    @GetMapping("/{plubbingId}/timeline/account/{accountId}")
+    @GetMapping("/{plubbingId}/timeline/accounts/{accountId}")
     public ApiResponse<TodoTimelinePageResponse> getTodoListTest(@PathVariable Long plubbingId,
                                                                  @PathVariable Long accountId,
                                                                  @PageableDefault Pageable pageable) {

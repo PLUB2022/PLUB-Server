@@ -2,6 +2,7 @@ package plub.plubserver.common.exception;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.BindException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
@@ -84,5 +85,13 @@ public class GlobalExceptionHandler {
     protected ApiResponse<?> handleMaxUploadSizeException(final MaxUploadSizeExceededException ex) {
         log.warn("{} - {}", ex.getClass().getSimpleName(), ex.getMessage());
         return error(AWS_S3_FILE_SIZE_EXCEEDED.getStatusCode(), AWS_S3_FILE_SIZE_EXCEEDED.getMessage());
+    }
+
+    // LocalDateTime 파싱 에러
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+    protected ApiResponse<?> handleHttpMessageNotReadableException(final HttpMessageNotReadableException ex) {
+        log.warn("{} - {}", ex.getClass().getSimpleName(), ex.getMessage());
+        return error(INVALID_INPUT_VALUE.getStatusCode(), INVALID_INPUT_VALUE.getMessage());
     }
 }
