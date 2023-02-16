@@ -302,13 +302,14 @@ public class PlubbingDto {
             Double placePositionY,
             int curAccountNum,
             int remainAccountNum,
-            boolean isBookmarked
+            boolean isBookmarked,
+            boolean isHost
     ) {
         @Builder
         public PlubbingCardResponse {
         }
 
-        public static PlubbingCardResponse of(Plubbing plubbing) {
+        public static PlubbingCardResponse of(Plubbing plubbing, boolean isHost, Boolean isBookmarked) {
             return PlubbingCardResponse.builder()
                     .plubbingId(plubbing.getId())
                     .name(plubbing.getName())
@@ -326,6 +327,8 @@ public class PlubbingDto {
                     .placePositionY(plubbing.getPlubbingPlace().getPlacePositionY())
                     .curAccountNum(plubbing.getCurAccountNum())
                     .remainAccountNum(plubbing.getMaxAccountNum() - plubbing.getCurAccountNum())
+                    .isHost(isHost)
+                    .isBookmarked(isBookmarked)
                     .build();
         }
     }

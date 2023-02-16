@@ -26,8 +26,11 @@ import plub.plubserver.domain.recruit.dto.RecruitDto.UpdateRecruitRequest;
 import plub.plubserver.domain.recruit.model.Recruit;
 import plub.plubserver.domain.recruit.model.RecruitQuestion;
 import plub.plubserver.domain.recruit.model.RecruitStatus;
+import plub.plubserver.domain.recruit.repository.BookmarkRepository;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -35,11 +38,12 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class PlubbingService {
     private final PlubbingRepository plubbingRepository;
-    private final AccountCategoryRepository accountCategoryRepository;
     private final CategoryService categoryService;
     private final AccountService accountService;
-    private final AccountPlubbingRepository accountPlubbingRepository;
     private final NotificationService notificationService;
+    private final AccountCategoryRepository accountCategoryRepository;
+    private final AccountPlubbingRepository accountPlubbingRepository;
+    private final BookmarkRepository bookmarkRepository;
 
     public Plubbing getPlubbing(Long plubbingId) {
         return plubbingRepository.findById(plubbingId)
@@ -166,11 +170,6 @@ public class PlubbingService {
         if (!accountPlubbing.isHost()) throw new PlubbingException(PlubbingCode.NOT_HOST_ERROR);
     }
 
-    public void checkMember(Account account, Plubbing plubbing) {
-        accountPlubbingRepository.findByAccountAndPlubbing(account, plubbing)
-                .orElseThrow(() -> new PlubbingException(PlubbingCode.NOT_MEMBER_ERROR));
-    }
-
     public void checkHost(Plubbing plubbing) {
         checkHost(accountService.getCurrentAccount(), plubbing);
     }
@@ -180,9 +179,8 @@ public class PlubbingService {
     }
 
     public Boolean isHost(Account account, Plubbing plubbing) {
-        AccountPlubbing accountPlubbing = accountPlubbingRepository.findByAccountAndPlubbing(account, plubbing)
-                .orElseThrow(() -> new PlubbingException(PlubbingCode.NOT_MEMBER_ERROR));
-        return accountPlubbing.isHost();
+       Optional<AccountPlubbing> accountPlubbing = accountPlubbingRepository.findByAccountAndPlubbing(account, plubbing);
+        return accountPlubbing.map(AccountPlubbing::isHost).orElse(false);
     }
 
     /**
@@ -303,37 +301,32 @@ public class PlubbingService {
         if (!myAccount.getAccountCategories().isEmpty()) {
             List<SubCategory> subCategories = accountCategoryRepository.findAllByAccount(myAccount)
                     .stream().map(AccountCategory::getCategorySub).toList();
-            Page<PlubbingCardResponse> plubbingCardResponses = plubbingRepository.findAllBySubCategory(subCategories, pageable).map(PlubbingCardResponse::of);
+            Page<PlubbingCardResponse> plubbingCardResponses = plubbingRepository.findAllBySubCategory(subCategories, pageable)
+                    .map(p -> PlubbingCardResponse.of(p, isHost(myAccount, p), isBookmarked(myAccount, p)));
             return PageResponse.of(plubbingCardResponses);
         } else {
-            Page<PlubbingCardResponse> plubbingCardResponses = plubbingRepository.findAllByViews(pageable).map(PlubbingCardResponse::of);
+            Page<PlubbingCardResponse> plubbingCardResponses = plubbingRepository.findAllByViews(pageable)
+                    .map(p -> PlubbingCardResponse.of(p, isHost(myAccount, p), isBookmarked(myAccount, p)));
             return PageResponse.of(plubbingCardResponses);
         }
     }
 
     public PageResponse<PlubbingCardResponse> getPlubbingByCategory(Long categoryId, Pageable pageable, String sort, PlubbingCardRequest plubbingCardRequest) {
-        if (plubbingCardRequest == null)
-            return PageResponse.of(plubbingRepository.findAllByCategoryId(categoryId, pageable, SortType.of(sort)).map(PlubbingCardResponse::of));
+        Account myAccount = accountService.getCurrentAccount();
+        if (plubbingCardRequest == null) {
+            return PageResponse.of(plubbingRepository.findAllByCategoryId(categoryId, pageable, SortType.of(sort))
+                    .map(p -> PlubbingCardResponse.of(p, isHost(myAccount, p), isBookmarked(myAccount, p))));
+        }
+
+        Integer accountNum = plubbingCardRequest.accountNum();
         List<Long> subCategoryId = plubbingCardRequest.subCategoryId();
         List<String> days = plubbingCardRequest.days();
-        Integer accountNum = plubbingCardRequest.accountNum();
-        Page<PlubbingCardResponse> plubbingCardResponses;
-        if (subCategoryId == null && days == null  && accountNum == null)
-            plubbingCardResponses = plubbingRepository.findAllByCategoryId(categoryId, pageable, SortType.of(sort)).map(PlubbingCardResponse::of);
-        else if (subCategoryId == null && days == null )
-            plubbingCardResponses = plubbingRepository.findAllByCategoryIdAndAccountNum(categoryId, accountNum, pageable, SortType.of(sort)).map(PlubbingCardResponse::of);
-        else if (subCategoryId == null && accountNum == null)
-            plubbingCardResponses = plubbingRepository.findAllByCategoryIdAndDays(categoryId, days, pageable, SortType.of(sort)).map(PlubbingCardResponse::of);
-        else if (days == null && accountNum == null)
-            plubbingCardResponses = plubbingRepository.findAllByCategoryIdAndSubCategoryId(categoryId, subCategoryId, pageable, SortType.of(sort)).map(PlubbingCardResponse::of);
-        else if (subCategoryId == null)
-            plubbingCardResponses = plubbingRepository.findAllByCategoryIdAndDaysAndAccountNum(categoryId, days, accountNum, pageable, SortType.of(sort)).map(PlubbingCardResponse::of);
-        else if (days == null)
-            plubbingCardResponses = plubbingRepository.findAllByCategoryIdAndSubCategoryIdAndAccountNum(categoryId, subCategoryId, accountNum, pageable, SortType.of(sort)).map(PlubbingCardResponse::of);
-        else if (accountNum == null)
-            plubbingCardResponses = plubbingRepository.findAllByCategoryIdAndSubCategoryIdAndDays(categoryId, subCategoryId, days, pageable, SortType.of(sort)).map(PlubbingCardResponse::of);
-        else
-            plubbingCardResponses = plubbingRepository.findAllByCategoryIdAndSubCategoryIdAndDaysAndAccountNum(categoryId, subCategoryId, days, accountNum, pageable, SortType.of(sort)).map(PlubbingCardResponse::of);
+        List<MeetingDay> meetingDays = new ArrayList<>();
+        if (days != null)
+            meetingDays = days.stream().map(MeetingDay::valueOf).toList();
+
+        Page<PlubbingCardResponse> plubbingCardResponses = plubbingRepository.findAllByCategoryIdAndSubCategoryIdAndDaysAndAccountNum(categoryId, subCategoryId, meetingDays, accountNum, pageable, SortType.of(sort))
+                .map(p -> PlubbingCardResponse.of(p, isHost(myAccount, p), isBookmarked(myAccount, p)));
         return PageResponse.of(plubbingCardResponses);
     }
 
@@ -350,7 +343,15 @@ public class PlubbingService {
                 plubbing.getName(),
                 account.getNickname() + "님이 모임을 나갔어요."
         );
+    }
 
+    public void checkMember(Account account, Plubbing plubbing) {
+        accountPlubbingRepository.findByAccountAndPlubbing(account, plubbing)
+                .orElseThrow(() -> new PlubbingException(PlubbingCode.NOT_MEMBER_ERROR));
+    }
+
+    public Boolean isBookmarked(Account account, Plubbing plubbing) {
+        return bookmarkRepository.existsByAccountAndRecruit(account, plubbing.getRecruit());
     }
 }
 

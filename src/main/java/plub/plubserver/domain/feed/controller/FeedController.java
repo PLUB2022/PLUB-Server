@@ -28,19 +28,22 @@ public class FeedController {
     private final FeedService feedService;
     private final AccountService accountService;
 
-
     @ApiOperation(value = "게시판 글 작성")
     @PostMapping("/{plubbingId}/feeds")
-    public ApiResponse<FeedIdResponse> createFeed(@PathVariable Long plubbingId,
-                                                  @Valid @RequestBody CreateFeedRequest createFeedRequest) {
+    public ApiResponse<FeedIdResponse> createFeed(
+            @PathVariable Long plubbingId,
+            @Valid @RequestBody CreateFeedRequest createFeedRequest
+    ) {
         Account loginAccount = accountService.getCurrentAccount();
         return success(feedService.createFeed(plubbingId, loginAccount, createFeedRequest));
     }
 
     @ApiOperation(value = "게시판 조회")
     @GetMapping("/{plubbingId}/feeds")
-    public ApiResponse<PageResponse<FeedCardResponse>> getFeedList(@PathVariable Long plubbingId,
-                                                                   @PageableDefault(size = 20) Pageable pageable) {
+    public ApiResponse<PageResponse<FeedCardResponse>> getFeedList(
+            @PathVariable Long plubbingId,
+            @PageableDefault(size = 20) Pageable pageable
+    ) {
         Account loginAccount = accountService.getCurrentAccount();
         return success(feedService.getFeedList(loginAccount, plubbingId, pageable));
     }
@@ -61,8 +64,10 @@ public class FeedController {
 
     @ApiOperation(value = "게시글 수정")
     @PutMapping("/feeds/{feedId}")
-    public ApiResponse<FeedIdResponse> updateFeed(@PathVariable Long feedId,
-                                                  @Valid @RequestBody UpdateFeedRequest updateFeedRequest) {
+    public ApiResponse<FeedIdResponse> updateFeed(
+            @PathVariable Long feedId,
+            @Valid @RequestBody UpdateFeedRequest updateFeedRequest
+    ) {
         Account loginAccount = accountService.getCurrentAccount();
         return success(feedService.updateFeed(loginAccount, feedId, updateFeedRequest));
     }
@@ -100,8 +105,10 @@ public class FeedController {
 
     @ApiOperation(value = "게시글 댓글 수정")
     @PutMapping("/feeds/comments/{commentId}")
-    public ApiResponse<CommentIdResponse> updateFeedComment(@PathVariable Long commentId,
-                                                            @Valid @RequestBody UpdateCommentRequest updateCommentRequest) {
+    public ApiResponse<CommentIdResponse> updateFeedComment(
+            @PathVariable Long commentId,
+            @Valid @RequestBody UpdateCommentRequest updateCommentRequest
+    ) {
         Account loginAccount = accountService.getCurrentAccount();
         return success(feedService.updateFeedComment(loginAccount, commentId, updateCommentRequest));
     }

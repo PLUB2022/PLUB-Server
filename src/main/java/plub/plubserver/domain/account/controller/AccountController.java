@@ -59,7 +59,8 @@ public class AccountController {
     @ApiOperation(value = "회원 관심사 등록")
     @PostMapping("/interest")
     public ApiResponse<AccountCategoryResponse> createAccountCategory(
-            @Valid @RequestBody AccountCategoryRequest accountCategoryRequest) {
+            @Valid @RequestBody AccountCategoryRequest accountCategoryRequest
+    ) {
         return success(accountService.createAccountCategory(accountCategoryRequest));
     }
 

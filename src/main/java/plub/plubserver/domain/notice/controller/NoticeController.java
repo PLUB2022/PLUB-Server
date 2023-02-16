@@ -31,22 +31,26 @@ public class NoticeController {
 
     @ApiOperation(value = "공지 작성")
     @PostMapping("/{plubbingId}/notices")
-    public ApiResponse<NoticeIdResponse> createNotice(@PathVariable Long plubbingId,
-                                                      @Valid @RequestBody CreateNoticeRequest createNoticeRequest) {
+    public ApiResponse<NoticeIdResponse> createNotice(
+            @PathVariable Long plubbingId,
+            @Valid @RequestBody CreateNoticeRequest createNoticeRequest
+    ) {
         Account loginAccount = accountService.getCurrentAccount();
         return success(noticeService.createNotice(plubbingId, loginAccount, createNoticeRequest));
     }
 
     @ApiOperation(value = "공지 목록 조회")
     @GetMapping("/{plubbingId}/notices")
-    public ApiResponse<PageResponse<NoticeCardResponse>> getNoticeList(@PathVariable Long plubbingId,
-                                                          @PageableDefault(size = 20) Pageable pageable) {
+    public ApiResponse<PageResponse<NoticeCardResponse>> getNoticeList(
+            @PathVariable Long plubbingId,
+            @PageableDefault(size = 20) Pageable pageable
+    ) {
         Account loginAccount = accountService.getCurrentAccount();
         return success(noticeService.getNoticeList(loginAccount, plubbingId, pageable));
     }
 
     @ApiOperation(value = "공지 상세 조회")
-    @GetMapping("/notices/{noticeId}")
+    @GetMapping("/{plubbingId}/notices/{noticeId}")
     public ApiResponse<NoticeResponse> getNotice(@PathVariable Long noticeId) {
         Account loginAccount = accountService.getCurrentAccount();
         return success(noticeService.getNotice(loginAccount, noticeId));
@@ -57,58 +61,65 @@ public class NoticeController {
     public ApiResponse<NoticeIdResponse> updateNotice(
             @PathVariable Long plubbingId,
             @PathVariable Long noticeId,
-            @Valid @RequestBody UpdateNoticeRequest updateNoticeRequest) {
+            @Valid @RequestBody UpdateNoticeRequest updateNoticeRequest
+    ) {
         Account loginAccount = accountService.getCurrentAccount();
         return success(noticeService.updateNotice(loginAccount, plubbingId, noticeId, updateNoticeRequest));
     }
 
     @ApiOperation(value = "공지 삭제")
-    @DeleteMapping("/notices/{noticeId}")
+    @DeleteMapping("/{plubbingId}/notices/{noticeId}")
     public ApiResponse<NoticeMessage> deleteNotice(@PathVariable Long noticeId) {
         Account loginAccount = accountService.getCurrentAccount();
         return success(noticeService.softDeleteNotice(loginAccount, noticeId));
     }
 
     @ApiOperation(value = "공지 좋아요")
-    @PutMapping("/notices/{noticeId}/like")
+    @PutMapping("/{plubbingId}/notices/{noticeId}/like")
     public ApiResponse<NoticeMessage> likeNotice(@PathVariable Long noticeId) {
         Account loginAccount = accountService.getCurrentAccount();
         return success(noticeService.likeNotice(loginAccount, noticeId));
     }
 
     @ApiOperation(value = "공지별 댓글 조회")
-    @GetMapping("/notices/{noticeId}/comments")
-    public ApiResponse<PageResponse<NoticeCommentResponse>> getNoticeCommentList(@PathVariable Long noticeId,
-                                                                       @PageableDefault(size = 20) Pageable pageable) {
+    @GetMapping("/{plubbingId}/notices/{noticeId}/comments")
+    public ApiResponse<PageResponse<NoticeCommentResponse>> getNoticeCommentList(
+            @PathVariable Long noticeId,
+            @PageableDefault(size = 20) Pageable pageable
+    ) {
         Account loginAccount = accountService.getCurrentAccount();
         return success(noticeService.getNoticeCommentList(loginAccount, noticeId, pageable));
     }
 
     @ApiOperation(value = "공지 댓글 생성")
-    @PostMapping("/notices/{noticeId}/comments")
-    public ApiResponse<CommentIdResponse> createNoticeComment(@PathVariable Long noticeId,
-                                                              @Valid @RequestBody CreateCommentRequest createCommentRequest) {
+    @PostMapping("/{plubbingId}/notices/{noticeId}/comments")
+    public ApiResponse<CommentIdResponse> createNoticeComment(
+            @PathVariable Long noticeId,
+            @Valid @RequestBody CreateCommentRequest createCommentRequest
+    ) {
         Account loginAccount = accountService.getCurrentAccount();
         return success(noticeService.createNoticeComment(loginAccount, noticeId, createCommentRequest));
     }
 
     @ApiOperation(value = "공지 댓글 수정")
-    @PutMapping("/notices/comments/{commentId}")
-    public ApiResponse<CommentIdResponse> updateNoticeComment(@PathVariable Long commentId,
-                                                              @Valid @RequestBody UpdateCommentRequest updateCommentRequest) {
+    @PutMapping("/{plubbingId}/notices/comments/{commentId}")
+    public ApiResponse<CommentIdResponse> updateNoticeComment(
+            @PathVariable Long commentId,
+            @Valid @RequestBody UpdateCommentRequest updateCommentRequest
+    ) {
         Account loginAccount = accountService.getCurrentAccount();
         return success(noticeService.updateNoticeComment(loginAccount, commentId, updateCommentRequest));
     }
 
     @ApiOperation(value = "공지 댓글 삭제")
-    @DeleteMapping("/notices/comments/{commentId}")
+    @DeleteMapping("/{plubbingId}/notices/comments/{commentId}")
     public ApiResponse<CommentMessage> deleteNoticeComment(@PathVariable Long commentId) {
         Account loginAccount = accountService.getCurrentAccount();
         return success(noticeService.deleteNoticeComment(loginAccount, commentId));
     }
 
     @ApiOperation(value = "공지 댓글 신고")
-    @PostMapping("/notices/comments/{commentId}/report")
+    @PostMapping("/{plubbingId}/notices/comments/{commentId}/report")
     public ApiResponse<CommentIdResponse> reportNoticeComment(@PathVariable Long commentId) {
         Account loginAccount = accountService.getCurrentAccount();
         return success(noticeService.reportNoticeComment(loginAccount, commentId));

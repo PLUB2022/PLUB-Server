@@ -53,6 +53,7 @@ public class FeedService {
 
     public PageResponse<FeedCardResponse> getFeedList(Account account, Long plubbingId, Pageable pageable) {
         Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
+        plubbingService.checkMember(account, plubbing);
         Boolean isHost = plubbingService.isHost(account, plubbing);
         List<FeedCardResponse> feedCardList = feedRepository.findAllByPlubbingAndPinAndVisibility(plubbing, false, true, Sort.by(Sort.Direction.DESC,"createdAt"))
                 .stream().map((Feed feed) -> FeedCardResponse.of(feed, isFeedAuthor(account, feed), isHost)).toList();
@@ -61,6 +62,7 @@ public class FeedService {
 
     public FeedListResponse getPinedFeedList(Account account, Long plubbingId) {
         Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
+        plubbingService.checkMember(account, plubbing);
         Boolean isHost = plubbingService.isHost(account, plubbing);
         List<FeedCardResponse> pinedFeedCardList = feedRepository.findAllByPlubbingAndPinAndVisibility(plubbing, true, true, Sort.by(Sort.Direction.DESC, "pinedAt"))
                 .stream().map((Feed feed) -> FeedCardResponse.of(feed, isFeedAuthor(account, feed), isHost)).toList();
@@ -92,6 +94,7 @@ public class FeedService {
     public FeedResponse getFeed(Account account, Long feedId) {
         Feed feed = getFeed(feedId);
         checkFeedStatus(feed);
+        plubbingService.checkMember(account, feed.getPlubbing());
         Boolean isHost = plubbingService.isHost(account, feed.getPlubbing());
         List<FeedCommentResponse> commentResponses = feedCommentRepository.findAllByFeedAndVisibility(feed, true)
                 .stream().map((FeedComment feedComment) -> FeedCommentResponse.of(feedComment, isCommentAuthor(account, feedComment),isFeedAuthor(account, feed))).toList();
