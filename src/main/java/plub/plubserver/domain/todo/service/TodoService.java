@@ -48,7 +48,6 @@ public class TodoService {
                     todoTimeline.updateTodo(todo);
                     todoTimelineRepository.save(todoTimeline);
                     todoRepository.save(todo);
-                    System.out.println("투두 타임라인 업데이트");
                 }, () -> {
                     // 투두 타임라인 생성
                     TodoTimeline todoTimeline = TodoTimeline.builder()
@@ -60,7 +59,6 @@ public class TodoService {
                     todo.updateTodoTimeline(todoTimeline);
                     todoTimelineRepository.save(todoTimeline);
                     todoRepository.save(todo);
-                    System.out.println("투두 타임라인 생성");
                 });
 
         return new TodoIdResponse(todo.getId());
@@ -159,6 +157,13 @@ public class TodoService {
         Page<TodoTimelineAllResponse> timelineResponsePage = todoTimelineRepository.findAllByPlubbing(plubbing, pageable)
                 .map(TodoTimelineAllResponse::of);
         return TodoTimelineAllPageResponse.of(timelineResponsePage);
+    }
+
+    // 회원 타임라인 날짜 조회
+    public TodoTimelineDateResponse getTodoCalendarDateList(Account currentAccount, Long plubbingId, int year, int month) {
+        Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
+        List<TodoTimeline> byAccountAndPlubbingAndDate = todoTimelineRepository.findByAccountAndPlubbingAndDate(currentAccount, plubbing.getId(), year, month);
+        return TodoTimelineDateResponse.of(byAccountAndPlubbingAndDate);
     }
 
 }

@@ -31,7 +31,7 @@ public class CalendarController {
     @ApiOperation(value = "일정 생성")
     @PostMapping("/{plubbingId}/calendar")
     public ApiResponse<CalendarIdResponse> createCalendar(@PathVariable Long plubbingId,
-                                                         @Valid @RequestBody CreateCalendarRequest createCalendarRequest) {
+                                                          @Valid @RequestBody CreateCalendarRequest createCalendarRequest) {
         Account currentAccount = accountService.getCurrentAccount();
         return success(calendarService.createCalendar(currentAccount, plubbingId, createCalendarRequest));
     }
@@ -39,8 +39,8 @@ public class CalendarController {
     @ApiOperation(value = "일정 수정")
     @PutMapping("/{plubbingId}/calendar/{calendarId}")
     public ApiResponse<CalendarIdResponse> updateCalendar(@PathVariable Long plubbingId,
-                                                         @PathVariable Long calendarId,
-                                                         @Valid @RequestBody UpdateCalendarRequest updateCalendarRequest) {
+                                                          @PathVariable Long calendarId,
+                                                          @Valid @RequestBody UpdateCalendarRequest updateCalendarRequest) {
         Account currentAccount = accountService.getCurrentAccount();
         return success(calendarService.updateCalendar(currentAccount, plubbingId, calendarId, updateCalendarRequest));
     }
@@ -48,7 +48,7 @@ public class CalendarController {
     @ApiOperation(value = "일정 삭제")
     @DeleteMapping("/{plubbingId}/calendar/{calendarId}")
     public ApiResponse<CalendarMessage> deleteCalendar(@PathVariable Long plubbingId,
-                                                         @PathVariable Long calendarId) {
+                                                       @PathVariable Long calendarId) {
         return success(calendarService.softDeleteCalendar(plubbingId, calendarId));
     }
 
@@ -68,8 +68,8 @@ public class CalendarController {
     @ApiOperation(value = "참석 여부 선택")
     @PutMapping("/{plubbingId}/calendar/{calendarId}/attend")
     public ApiResponse<CalendarAttendResponse> attendCalendar(@PathVariable Long plubbingId,
-                                                          @PathVariable Long calendarId,
-                                                          @Valid @RequestBody CheckAttendRequest calendarAttendRequest) {
+                                                              @PathVariable Long calendarId,
+                                                              @Valid @RequestBody CheckAttendRequest calendarAttendRequest) {
         Account currentAccount = accountService.getCurrentAccount();
         return success(calendarService.checkAttend(currentAccount, plubbingId, calendarId, calendarAttendRequest));
     }
@@ -80,6 +80,4 @@ public class CalendarController {
                                                          @PathVariable Long calendarId) {
         return success(calendarService.getAttendList(plubbingId, calendarId));
     }
-
-
 }

@@ -7,7 +7,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
 import plub.plubserver.domain.account.model.Account;
+import plub.plubserver.domain.plubbing.model.Plubbing;
 import plub.plubserver.domain.todo.model.TodoTimeline;
+
+import java.time.LocalDate;
+import java.util.List;
 
 import static plub.plubserver.domain.todo.model.QTodoTimeline.todoTimeline;
 
@@ -18,9 +22,10 @@ public class TodoTimelineRepositoryImpl implements TodoTimelineRepositoryCustom 
 
     @Override
     public Page<TodoTimeline> findByAccount(Account account, Pageable pageable) {
+        LocalDate now = LocalDate.now();
         JPQLQuery<TodoTimeline> query = queryFactory
                 .selectFrom(todoTimeline)
-                .where(todoTimeline.todoList.any().account.eq(account))
+                .where(todoTimeline.todoList.any().account.eq(account), todoTimeline.date.loe(now))
                 .orderBy(todoTimeline.date.desc())
                 .distinct();
         return PageableExecutionUtils.getPage(
@@ -28,5 +33,32 @@ public class TodoTimelineRepositoryImpl implements TodoTimelineRepositoryCustom 
                 pageable,
                 query::fetchCount
         );
+    }
+
+    @Override
+    public Page<TodoTimeline> findAllByPlubbing(Plubbing plubbing, Pageable pageable) {
+        LocalDate now = LocalDate.now();
+        JPQLQuery<TodoTimeline> query = queryFactory
+                .selectFrom(todoTimeline)
+                .where(todoTimeline.plubbing.eq(plubbing), todoTimeline.date.loe(now))
+                .orderBy(todoTimeline.date.desc())
+                .distinct();
+        return PageableExecutionUtils.getPage(
+                query.fetch(),
+                pageable,
+                query::fetchCount
+        );
+    }
+
+    @Override
+    public List<TodoTimeline> findByAccountAndPlubbingAndDate(Account account, Long id, int year, int month) {
+        return queryFactory
+                .selectFrom(todoTimeline)
+                .where(todoTimeline.todoList.any().account.eq(account), todoTimeline.plubbing.id.eq(id),
+                        todoTimeline.date.year().eq(year),
+                        todoTimeline.date.month().eq(month))
+                .orderBy(todoTimeline.date.desc())
+                .distinct()
+                .fetch();
     }
 }

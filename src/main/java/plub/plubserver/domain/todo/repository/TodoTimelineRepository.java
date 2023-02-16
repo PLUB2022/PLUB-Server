@@ -1,10 +1,7 @@
 package plub.plubserver.domain.todo.repository;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import plub.plubserver.domain.account.model.Account;
-import plub.plubserver.domain.plubbing.model.Plubbing;
 import plub.plubserver.domain.todo.model.TodoTimeline;
 
 import java.time.LocalDate;
@@ -14,5 +11,4 @@ import java.util.Optional;
 public interface TodoTimelineRepository extends JpaRepository<TodoTimeline, Long>, TodoTimelineRepositoryCustom {
     Optional<TodoTimeline> findByDateAndAccount(LocalDate date, Account account);
     List<TodoTimeline> findByDate(LocalDate date);
-    Page<TodoTimeline> findAllByPlubbing(Plubbing plubbing, Pageable pageable);
 }
