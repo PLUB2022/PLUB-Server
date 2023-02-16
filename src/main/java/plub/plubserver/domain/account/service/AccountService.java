@@ -55,9 +55,7 @@ public class AccountService {
     }
 
     public Account getCurrentAccount() {
-        String email = getCurrentAccountEmail();
-        if (email == null) email = "admin1";
-        return accountRepository.findByEmail(email)
+        return accountRepository.findByEmail(getCurrentAccountEmail())
                 .orElseThrow(() -> new AccountException(AccountCode.NOT_FOUND_ACCOUNT));
     }
 

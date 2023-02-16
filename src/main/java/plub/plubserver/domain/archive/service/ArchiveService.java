@@ -116,7 +116,7 @@ public class ArchiveService {
         // 작성자 체크
         if (loginAccount.getPlubbing(plubbingId).getArchives().stream()
                 .noneMatch(it -> it.getId().equals(archiveId)))
-            throw new ArchiveException(ArchiveCode.IS_NOT_WRITER);
+            throw new ArchiveException(ArchiveCode.IS_NOT_AUTHOR);
     }
 
     // only for 작성자, 호스트

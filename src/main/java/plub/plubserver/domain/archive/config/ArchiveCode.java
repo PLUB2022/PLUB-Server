@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum ArchiveCode {
     NOT_FOUND_ARCHIVE(404, 3010, "not found archive error."),
-    IS_NOT_WRITER(403, 3020, "this account is not this archive writer."),;
+    IS_NOT_AUTHOR(403, 3020, "this account is not this archive author."),;
 
     private final int HttpCode;
     private final int statusCode;
