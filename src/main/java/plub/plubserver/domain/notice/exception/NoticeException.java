@@ -6,7 +6,7 @@ import plub.plubserver.domain.notice.config.NoticeCode;
 
 @ResponseStatus(value = HttpStatus.BAD_REQUEST)
 public class NoticeException extends RuntimeException {
-    NoticeCode noticeCode;
+    public NoticeCode noticeCode;
 
     public NoticeException(NoticeCode noticeCode) {
         super(noticeCode.getMessage());

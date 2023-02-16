@@ -3,7 +3,7 @@ package plub.plubserver.domain.category.exception;
 import plub.plubserver.domain.category.config.CategoryCode;
 
 public class CategoryException extends RuntimeException {
-    CategoryCode categoryError;
+    public CategoryCode categoryError;
 
     public CategoryException(CategoryCode categoryError) {
         super(categoryError.getMessage());

@@ -5,9 +5,9 @@ import plub.plubserver.domain.account.config.AuthCode;
 import java.util.HashMap;
 
 public class AuthException extends RuntimeException {
-    AuthCode authError;
-    Object data;
-    String message;
+    public AuthCode authError;
+    public Object data;
+    public String message;
 
     public AuthException(AuthCode authError) {
         super(authError.getMessage());

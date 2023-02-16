@@ -6,7 +6,7 @@ import plub.plubserver.domain.feed.config.FeedCode;
 
 @ResponseStatus(value = HttpStatus.BAD_REQUEST)
 public class FeedException extends RuntimeException {
-    FeedCode feedCode;
+    public FeedCode feedCode;
 
     public FeedException(FeedCode feedCode) {
         super(feedCode.getMessage());

@@ -2,6 +2,7 @@ package plub.plubserver.common.exception;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.BindException;
 import org.springframework.validation.FieldError;
@@ -12,6 +13,17 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import plub.plubserver.common.dto.ApiResponse;
+import plub.plubserver.domain.account.exception.AccountException;
+import plub.plubserver.domain.account.exception.AuthException;
+import plub.plubserver.domain.archive.exception.ArchiveException;
+import plub.plubserver.domain.calendar.exception.CalendarException;
+import plub.plubserver.domain.category.exception.CategoryException;
+import plub.plubserver.domain.feed.exception.FeedException;
+import plub.plubserver.domain.notice.exception.NoticeException;
+import plub.plubserver.domain.notification.exception.NotificationException;
+import plub.plubserver.domain.plubbing.exception.PlubbingException;
+import plub.plubserver.domain.recruit.exception.RecruitException;
+import plub.plubserver.domain.todo.exception.TodoException;
 import plub.plubserver.util.s3.exception.AwsS3Exception;
 
 import javax.validation.ConstraintViolationException;
@@ -93,5 +105,96 @@ public class GlobalExceptionHandler {
     protected ApiResponse<?> handleHttpMessageNotReadableException(final HttpMessageNotReadableException ex) {
         log.warn("{} - {}", ex.getClass().getSimpleName(), ex.getMessage());
         return error(INVALID_INPUT_VALUE.getStatusCode(), INVALID_INPUT_VALUE.getMessage());
+    }
+
+    /**
+     * 도메인 예외 처리
+     */
+    @ExceptionHandler(AccountException.class)
+    public ResponseEntity<?> handle(AccountException ex) {
+        log.warn("{}({}) - {}", ex.getClass().getSimpleName(), ex.accountError.getStatusCode(), ex.getMessage());
+        return ResponseEntity
+                .status(ex.accountError.getHttpCode())
+                .body(ApiResponse.error(ex.accountError.getStatusCode(), ex.accountError.getMessage()));
+    }
+
+    @ExceptionHandler(AuthException.class)
+    public ResponseEntity<?> handle(AuthException ex) {
+        log.warn("{}({}) - {}", ex.getClass().getSimpleName(), ex.authError.getStatusCode(), ex.getMessage());
+        return ResponseEntity
+                .status(ex.authError.getHttpCode())
+                .body(ApiResponse.error(ex.authError.getStatusCode(), ex.data, ex.authError.getMessage() + ex.message));
+    }
+
+    @ExceptionHandler(ArchiveException.class)
+    public ResponseEntity<?> handle(ArchiveException ex) {
+        log.warn("{}({}) - {}", ex.getClass().getSimpleName(), ex.archiveError.getStatusCode(), ex.getMessage());
+        return ResponseEntity
+                .status(ex.archiveError.getHttpCode())
+                .body(ApiResponse.error(ex.archiveError.getStatusCode(), ex.archiveError.getMessage() + ex.getMessage()));
+    }
+
+    @ExceptionHandler(CalendarException.class)
+    public ResponseEntity<?> handle(CalendarException ex) {
+        log.warn("{}({}) - {}", ex.getClass().getSimpleName(), ex.calendarCode.getStatusCode(), ex.getMessage());
+        return ResponseEntity
+                .status(ex.calendarCode.getHttpCode())
+                .body(ApiResponse.error(ex.calendarCode.getStatusCode(), ex.calendarCode.getMessage()));
+    }
+
+    @ExceptionHandler(CategoryException.class)
+    public ResponseEntity<?> handle(CategoryException ex) {
+        log.warn("{}({}) - {}", ex.getClass().getSimpleName(), ex.categoryError.getStatusCode(), ex.getMessage());
+        return ResponseEntity
+                .status(ex.categoryError.getHttpCode())
+                .body(ApiResponse.error(ex.categoryError.getStatusCode(), ex.categoryError.getMessage()));
+    }
+
+    @ExceptionHandler(FeedException.class)
+    public ResponseEntity<?> handle(FeedException ex) {
+        log.warn("{}({}) - {}", ex.getClass().getSimpleName(), ex.feedCode.getStatusCode(), ex.getMessage());
+        return ResponseEntity
+                .status(ex.feedCode.getHttpCode())
+                .body(ApiResponse.error(ex.feedCode.getStatusCode(), ex.feedCode.getMessage()));
+    }
+
+    @ExceptionHandler(NoticeException.class)
+    public ResponseEntity<?> handle(NoticeException ex) {
+        log.warn("{}({}) - {}", ex.getClass().getSimpleName(), ex.noticeCode.getStatusCode(), ex.getMessage());
+        return ResponseEntity
+                .status(ex.noticeCode.getHttpCode())
+                .body(ApiResponse.error(ex.noticeCode.getStatusCode(), ex.noticeCode.getMessage()));
+    }
+
+    @ExceptionHandler(NotificationException.class)
+    public ResponseEntity<?> handle(NotificationException ex) {
+        log.warn("{}({}) - {}", ex.getClass().getSimpleName(), ex.notificationCode.getStatusCode(), ex.getMessage());
+        return ResponseEntity
+                .status(ex.notificationCode.getHttpCode())
+                .body(ApiResponse.error(ex.notificationCode.getStatusCode(), ex.notificationCode.getMessage()));
+    }
+
+    @ExceptionHandler(PlubbingException.class)
+    public ResponseEntity<?> handle(PlubbingException ex) {
+        log.warn("{}({}) - {}", ex.getClass().getSimpleName(), ex.plubbingCode.getStatusCode(), ex.getMessage());
+        return ResponseEntity
+                .status(ex.plubbingCode.getHttpCode())
+                .body(ApiResponse.error(ex.plubbingCode.getStatusCode(), ex.plubbingCode.getMessage()));
+    }
+
+    @ExceptionHandler(RecruitException.class)
+    public ResponseEntity<?> handle(RecruitException ex) {
+        log.warn("{}({}) - {}", ex.getClass().getSimpleName(), ex.recruitCode.getStatusCode(), ex.getMessage());
+        return ResponseEntity
+                .status(ex.recruitCode.getHttpCode())
+                .body(ApiResponse.error(ex.recruitCode.getStatusCode(), ex.recruitCode.getMessage()));
+    }
+
+    @ExceptionHandler(TodoException.class)
+    public ResponseEntity<?> handle(TodoException ex) {
+        log.warn("{}({}) - {}", ex.getClass().getSimpleName(), ex.todoCode.getHttpCode(), ex.getMessage());
+        return ResponseEntity
+                .status(ex.todoCode.getHttpCode())
+                .body(ApiResponse.error(ex.todoCode.getStatusCode(), ex.todoCode.getMessage()));
     }
 }
