@@ -12,9 +12,6 @@ import plub.plubserver.domain.account.config.AccountCode;
 import plub.plubserver.domain.account.exception.AccountException;
 import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.account.service.AccountService;
-import plub.plubserver.domain.notification.aop.NotifyAccount;
-import plub.plubserver.domain.notification.aop.NotifyDetail;
-import plub.plubserver.domain.notification.aop.NotifyHost;
 import plub.plubserver.domain.notification.service.NotificationService;
 import plub.plubserver.domain.plubbing.dto.PlubbingDto.JoinedAccountsInfoResponse;
 import plub.plubserver.domain.plubbing.dto.PlubbingDto.PlubbingIdResponse;
@@ -118,7 +115,9 @@ public class RecruitService {
      */
     // 등록, 취소
     @Transactional
-    public BookmarkResponse bookmark(Account account, Long plubbingId) {
+    public BookmarkResponse bookmark(Account loginAccount, Long plubbingId) {
+        // 영속성 컨텍스트로 다시 불러오기 - no session lazy 예외 핸들용
+        Account account = accountService.getAccount(loginAccount.getId());
         Recruit recruit = getRecruitByPlubbingId(plubbingId);
         Optional<Bookmark> bookmark = account.getBookmarkList().stream()
                 .filter(b -> b.getRecruit().equals(recruit))
@@ -167,7 +166,6 @@ public class RecruitService {
     /**
      * 모집 지원
      */
-    @NotifyHost(detail = NotifyDetail.APPLY_RECRUIT)
     @Transactional
     public PlubbingIdResponse applyRecruit(
             Account loginAccount,
@@ -240,7 +238,6 @@ public class RecruitService {
     /**
      * 지원자 승낙
      */
-    @NotifyAccount(detail = NotifyDetail.ACCEPT_RECRUIT)
     @Transactional
     public JoinedAccountsInfoResponse acceptApplicant(Account loginAccount, Long plubbingId, Long accountId) {
         Plubbing plubbing = plubbingService.getPlubbing(plubbingId);

@@ -41,17 +41,15 @@ public class ArchiveService {
     public PageResponse<ArchiveCardResponse> getArchiveList(Long plubbingId, Pageable pageable) {
         Page<Archive> temp = archiveRepository.findAllByPlubbingIdOrderBySequenceDesc(plubbingId, pageable);
 
+        // 로그인한 사용자를 기반으로 액세스 타입 체크
         Account loginAccount = accountService.getCurrentAccount();
-
         List<ArchiveCardResponse> result = new ArrayList<>();
-        String type = "normal";
+        String accessType = "normal";
         for (Archive archive : temp) {
             Account host = plubbingService.getHost(archive.getPlubbing().getId());
-            // 호스트
-            if (loginAccount.getId().equals(host.getId())) type = "host";
-            // 작성자
-            if (loginAccount.getId().equals(archive.getAccount().getId())) type = "author";
-            result.add(ArchiveCardResponse.of(archive, type));
+            if (loginAccount.getId().equals(host.getId())) accessType = "host";
+            if (loginAccount.getId().equals(archive.getAccount().getId())) accessType = "author";
+            result.add(ArchiveCardResponse.of(archive, accessType));
         }
 
         Page<ArchiveCardResponse> pages = new PageImpl<>(result, pageable, temp.getTotalElements());
@@ -82,8 +80,6 @@ public class ArchiveService {
 
     @Transactional
     public ArchiveIdResponse createArchive(Account loginAccount, Long plubbingId, ArchiveRequest archiveRequest) {
-//        Plubbing plubbing = loginAccount.getPlubbing(plubbingId);
-
         Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
 
         int sequence = archiveRepository.findFirstByPlubbingIdOrderBySequenceDesc(plubbingId)

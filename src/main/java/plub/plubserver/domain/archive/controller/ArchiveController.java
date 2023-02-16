@@ -1,5 +1,7 @@
 package plub.plubserver.domain.archive.controller;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -21,11 +23,13 @@ import static plub.plubserver.common.dto.ApiResponse.success;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/plubbings/{plubbingId}/archives")
+@Api(tags = "아카이브 API", hidden = true)
 public class ArchiveController {
 
     private final ArchiveService archiveService;
     private final AccountService accountService;
 
+    @ApiOperation(value = "아카이브 전체 조회")
     @GetMapping
     public ApiResponse<PageResponse<ArchiveCardResponse>> getArchiveList(
             @PathVariable Long plubbingId,
@@ -34,6 +38,7 @@ public class ArchiveController {
         return success(archiveService.getArchiveList(plubbingId, pageable));
     }
 
+    @ApiOperation(value = "아카이브 상세 조회")
     @GetMapping("/{archiveId}")
     public ApiResponse<ArchiveResponse> getArchive(
             @PathVariable Long plubbingId,
@@ -42,6 +47,7 @@ public class ArchiveController {
         return success(archiveService.getArchive(plubbingId, archiveId));
     }
 
+    @ApiOperation(value = "아카이브 생성")
     @PostMapping
     public ApiResponse<ArchiveIdResponse> createArchive(
             @PathVariable Long plubbingId,
@@ -53,6 +59,7 @@ public class ArchiveController {
         );
     }
 
+    @ApiOperation(value = "아카이브 수정")
     @PutMapping("/{archiveId}")
     public ApiResponse<ArchiveIdResponse> updateArchive(
             @PathVariable("plubbingId") Long plubbingId,
@@ -65,6 +72,7 @@ public class ArchiveController {
         );
     }
 
+    @ApiOperation(value = "아카이브 삭제")
     @DeleteMapping("/{archiveId}")
     public ApiResponse<ArchiveIdResponse> deleteArchive(
             @PathVariable("plubbingId") Long plubbingId,

@@ -40,7 +40,9 @@ public class PlubbingController {
 
     @ApiOperation(value = "내 모임 조회")
     @GetMapping("/my")
-    public ApiResponse<MyPlubbingListResponse> getMyPlubbing(@RequestParam(required = false) Boolean isHost) {
+    public ApiResponse<MyPlubbingListResponse> getMyPlubbing(
+            @RequestParam(required = false) Boolean isHost
+    ) {
         return success(plubbingService.getMyPlubbing(isHost));
     }
 
