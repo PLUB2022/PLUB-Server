@@ -102,9 +102,10 @@ public class PlubbingController {
     public ApiResponse<PageResponse<PlubbingCardResponse>> getPlubbingByCategory(
             @PathVariable Long categoryId,
             @PageableDefault Pageable pageable,
-            @RequestParam("sort") String sort
+            @RequestParam("sort") String sort,
+            @RequestBody(required = false) PlubbingCardRequest plubbingCardRequest
     ) {
-        return success(plubbingService.getPlubbingByCategory(categoryId, pageable, sort));
+        return success(plubbingService.getPlubbingByCategory(categoryId, pageable, sort, plubbingCardRequest));
     }
 
     @ApiOperation(value = "모임 나가기")

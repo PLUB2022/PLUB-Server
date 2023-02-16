@@ -116,6 +116,17 @@ public class PlubbingDto {
         }
     }
 
+    public record PlubbingCardRequest(
+            List<Long> subCategoryId,
+            List<String> days,
+            @Range(min = 4, max = 10)
+            Integer accountNum
+    ) {
+        @Builder
+        public PlubbingCardRequest {
+        }
+    }
+
     /**
      * Response
      */

@@ -311,8 +311,29 @@ public class PlubbingService {
         }
     }
 
-    public PageResponse<PlubbingCardResponse> getPlubbingByCategory(Long categoryId, Pageable pageable, String sort) {
-        Page<PlubbingCardResponse> plubbingCardResponses = plubbingRepository.findAllByCategoryId(categoryId, pageable, SortType.of(sort)).map(PlubbingCardResponse::of);
+    public PageResponse<PlubbingCardResponse> getPlubbingByCategory(Long categoryId, Pageable pageable, String sort, PlubbingCardRequest plubbingCardRequest) {
+        if (plubbingCardRequest == null)
+            return PageResponse.of(plubbingRepository.findAllByCategoryId(categoryId, pageable, SortType.of(sort)).map(PlubbingCardResponse::of));
+        List<Long> subCategoryId = plubbingCardRequest.subCategoryId();
+        List<String> days = plubbingCardRequest.days();
+        Integer accountNum = plubbingCardRequest.accountNum();
+        Page<PlubbingCardResponse> plubbingCardResponses;
+        if (subCategoryId == null && days == null  && accountNum == null)
+            plubbingCardResponses = plubbingRepository.findAllByCategoryId(categoryId, pageable, SortType.of(sort)).map(PlubbingCardResponse::of);
+        else if (subCategoryId == null && days == null )
+            plubbingCardResponses = plubbingRepository.findAllByCategoryIdAndAccountNum(categoryId, accountNum, pageable, SortType.of(sort)).map(PlubbingCardResponse::of);
+        else if (subCategoryId == null && accountNum == null)
+            plubbingCardResponses = plubbingRepository.findAllByCategoryIdAndDays(categoryId, days, pageable, SortType.of(sort)).map(PlubbingCardResponse::of);
+        else if (days == null && accountNum == null)
+            plubbingCardResponses = plubbingRepository.findAllByCategoryIdAndSubCategoryId(categoryId, subCategoryId, pageable, SortType.of(sort)).map(PlubbingCardResponse::of);
+        else if (subCategoryId == null)
+            plubbingCardResponses = plubbingRepository.findAllByCategoryIdAndDaysAndAccountNum(categoryId, days, accountNum, pageable, SortType.of(sort)).map(PlubbingCardResponse::of);
+        else if (days == null)
+            plubbingCardResponses = plubbingRepository.findAllByCategoryIdAndSubCategoryIdAndAccountNum(categoryId, subCategoryId, accountNum, pageable, SortType.of(sort)).map(PlubbingCardResponse::of);
+        else if (accountNum == null)
+            plubbingCardResponses = plubbingRepository.findAllByCategoryIdAndSubCategoryIdAndDays(categoryId, subCategoryId, days, pageable, SortType.of(sort)).map(PlubbingCardResponse::of);
+        else
+            plubbingCardResponses = plubbingRepository.findAllByCategoryIdAndSubCategoryIdAndDaysAndAccountNum(categoryId, subCategoryId, days, accountNum, pageable, SortType.of(sort)).map(PlubbingCardResponse::of);
         return PageResponse.of(plubbingCardResponses);
     }
 
