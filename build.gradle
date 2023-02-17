@@ -73,6 +73,8 @@ dependencies {
 	// aop
 	implementation("org.springframework.boot:spring-boot-starter-aop")
 
+	// geo ip
+	implementation("com.maxmind.geoip2:geoip2:2.15.0")
 }
 
 tasks.named('test') {
