@@ -1,6 +1,7 @@
 package plub.plubserver.domain.archive.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -23,7 +24,7 @@ import plub.plubserver.domain.plubbing.service.PlubbingService;
 
 import java.util.ArrayList;
 import java.util.List;
-
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -39,8 +40,8 @@ public class ArchiveService {
     }
 
     public PageResponse<ArchiveCardResponse> getArchiveList(Long plubbingId, Pageable pageable) {
+        Plubbing plubbing = plubbingService.getPlubbing(plubbingId); // plubbingId 존재여부 검사
         Page<Archive> temp = archiveRepository.findAllByPlubbingIdOrderBySequenceDesc(plubbingId, pageable);
-
         // 로그인한 사용자를 기반으로 액세스 타입 체크
         Account loginAccount = accountService.getCurrentAccount();
         List<ArchiveCardResponse> result = new ArrayList<>();
@@ -51,14 +52,12 @@ public class ArchiveService {
             if (loginAccount.getId().equals(archive.getAccount().getId())) accessType = "author";
             result.add(ArchiveCardResponse.of(archive, accessType));
         }
-
         Page<ArchiveCardResponse> pages = new PageImpl<>(result, pageable, temp.getTotalElements());
         return PageResponse.of(pages);
     }
 
     public ArchiveResponse getArchive(Long plubbingId, Long archiveId) {
-        Account account = accountService.getCurrentAccount();
-        Plubbing plubbing = account.getPlubbing(plubbingId);
+        Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
 
         Archive archive = plubbing.getArchives().stream()
                 .filter(it -> it.getId().equals(archiveId))
@@ -80,6 +79,7 @@ public class ArchiveService {
 
     @Transactional
     public ArchiveIdResponse createArchive(Account loginAccount, Long plubbingId, ArchiveRequest archiveRequest) {
+        Account account = accountService.getAccount(loginAccount.getId());
         Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
 
         int sequence = archiveRepository.findFirstByPlubbingIdOrderBySequenceDesc(plubbingId)
@@ -103,7 +103,7 @@ public class ArchiveService {
 
         // Archive 저장
         plubbing.addArchive(archive);
-        loginAccount.addArchive(archive);
+        account.addArchive(archive);
 
         return ArchiveIdResponse.of(archive);
     }
