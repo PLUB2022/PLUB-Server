@@ -5,14 +5,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import plub.plubserver.domain.account.config.AccountCode;
+import plub.plubserver.common.exception.StatusCode;
 import plub.plubserver.domain.account.dto.AccountDto;
 import plub.plubserver.domain.account.exception.AccountException;
 import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.account.repository.AccountRepository;
 import plub.plubserver.domain.plubbing.model.Plubbing;
 import plub.plubserver.domain.plubbing.service.PlubbingService;
-import plub.plubserver.domain.todo.config.TodoCode;
 import plub.plubserver.domain.todo.exception.TodoException;
 import plub.plubserver.domain.todo.model.Todo;
 import plub.plubserver.domain.todo.model.TodoTimeline;
@@ -68,7 +67,7 @@ public class TodoService {
     public TodoResponse getTodo(Long plubbingId, Long todoId) {
         plubbingService.getPlubbing(plubbingId);
         Todo todo = todoRepository.findById(todoId)
-                .orElseThrow(() -> new TodoException(TodoCode.NOT_FOUNT_TODO));
+                .orElseThrow(() -> new TodoException(StatusCode.NOT_FOUNT_TODO));
         return TodoResponse.of(todo);
     }
 
@@ -84,7 +83,7 @@ public class TodoService {
     public TodoMessage deleteTodoList(Long plubbingId, Long todoId) {
         plubbingService.getPlubbing(plubbingId);
         Todo todo = todoRepository.findById(todoId)
-                .orElseThrow(() -> new TodoException(TodoCode.NOT_FOUNT_TODO));
+                .orElseThrow(() -> new TodoException(StatusCode.NOT_FOUNT_TODO));
         todoRepository.delete(todo);
         return new TodoMessage("투두 삭제 성공");
     }
@@ -94,9 +93,9 @@ public class TodoService {
     public TodoResponse updateTodo(Account currentAccount, Long plubbingId, Long todoId, UpdateTodoRequest request) {
         plubbingService.getPlubbing(plubbingId);
         Todo todo = todoRepository.findByIdAndAccount(todoId, currentAccount)
-                .orElseThrow(() -> new TodoException(TodoCode.NOT_FOUNT_TODO));
+                .orElseThrow(() -> new TodoException(StatusCode.NOT_FOUNT_TODO));
         if (todo.isChecked())
-            throw new TodoException(TodoCode.ALREADY_CHECKED_TODO);
+            throw new TodoException(StatusCode.ALREADY_CHECKED_TODO);
 
         todo.updateTodoDateAndContent(request.date(), request.content());
         return TodoResponse.of(todo);
@@ -107,7 +106,7 @@ public class TodoService {
     public TodoIdResponse completeTodo(Account currentAccount, Long plubbingId, Long todoId) {
         plubbingService.getPlubbing(plubbingId);
         Todo todo = todoRepository.findByIdAndAccount(todoId, currentAccount)
-                .orElseThrow(() -> new TodoException(TodoCode.NOT_FOUNT_TODO));
+                .orElseThrow(() -> new TodoException(StatusCode.NOT_FOUNT_TODO));
         todo.updateTodoIsChecked(true);
         return new TodoIdResponse(todo.getId());
     }
@@ -117,9 +116,9 @@ public class TodoService {
     public TodoIdResponse cancelTodo(Account currentAccount, Long plubbingId, Long todoId) {
         plubbingService.getPlubbing(plubbingId);
         Todo todo = todoRepository.findByIdAndAccount(todoId, currentAccount)
-                .orElseThrow(() -> new TodoException(TodoCode.NOT_FOUNT_TODO));
+                .orElseThrow(() -> new TodoException(StatusCode.NOT_FOUNT_TODO));
         if (todo.isProof())
-            throw new TodoException(TodoCode.ALREADY_PROOF_TODO);
+            throw new TodoException(StatusCode.ALREADY_PROOF_TODO);
         todo.updateTodoIsChecked(false);
         return new TodoIdResponse(todo.getId());
     }
@@ -129,22 +128,22 @@ public class TodoService {
     public TodoResponse proofTodo(Account currentAccount, Long plubbingId, Long todoId, ProofTodoRequest proofImage) {
         plubbingService.getPlubbing(plubbingId);
         Todo todo = todoRepository.findByIdAndAccount(todoId, currentAccount)
-                .orElseThrow(() -> new TodoException(TodoCode.NOT_FOUNT_TODO));
+                .orElseThrow(() -> new TodoException(StatusCode.NOT_FOUNT_TODO));
         if (todo.isChecked()) {
             todo.updateTodoProofImage(proofImage.proofImage());
             todo.updateTodoIsProof(true);
             return TodoResponse.of(todo);
         } else if (todo.isProof()) {
-            throw new TodoException(TodoCode.ALREADY_PROOF_TODO);
+            throw new TodoException(StatusCode.ALREADY_PROOF_TODO);
         } else {
-            throw new TodoException(TodoCode.NOT_COMPLETE_TODO);
+            throw new TodoException(StatusCode.NOT_COMPLETE_TODO);
         }
     }
 
     // 회원 타임라인 조회
     public TodoTimelinePageResponse getAccountTodoTimelinePage(Long plubbingId, Long accountId, Pageable pageable) {
         Account account = accountRepository.findById(accountId)
-                .orElseThrow(() -> new AccountException(AccountCode.NOT_FOUND_ACCOUNT));
+                .orElseThrow(() -> new AccountException(StatusCode.NOT_FOUND_ACCOUNT));
         plubbingService.getPlubbing(plubbingId);
         Page<TodoTimelineResponse> todoTimelinePage = todoTimelineRepository.findByAccount(account, pageable)
                 .map(TodoTimelineResponse::of);

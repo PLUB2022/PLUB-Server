@@ -1,12 +1,11 @@
 package plub.plubserver.domain.account.exception;
 
-import plub.plubserver.domain.account.config.AccountCode;
+import plub.plubserver.common.exception.PlubException;
+import plub.plubserver.common.exception.StatusCode;
 
-public class AccountException extends RuntimeException {
-    public AccountCode accountError;
+public class AccountException extends PlubException {
 
-    public AccountException(AccountCode accountError) {
-        super(accountError.getMessage());
-        this.accountError = accountError;
+    public AccountException(StatusCode statusCode) {
+        super(statusCode);
     }
 }

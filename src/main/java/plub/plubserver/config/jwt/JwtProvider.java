@@ -8,8 +8,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
+import plub.plubserver.common.exception.StatusCode;
 import plub.plubserver.config.security.PrincipalDetailService;
-import plub.plubserver.domain.account.config.AuthCode;
 import plub.plubserver.domain.account.exception.AuthException;
 import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.account.model.Role;
@@ -62,7 +62,7 @@ public class JwtProvider {
     public String resolveSignToken(String rawToken) {
         if (rawToken != null && rawToken.startsWith("Bearer "))
             return rawToken.replace("Bearer ", "");
-        else throw new AuthException(AuthCode.SIGNUP_TOKEN_ERROR);
+        else throw new AuthException(StatusCode.SIGNUP_TOKEN_ERROR);
     }
 
     // Sign Token 생성
@@ -172,14 +172,14 @@ public class JwtProvider {
                     .parseClaimsJws(refreshToken)
                     .getBody();
             if (body.get("tokenType") == null || !body.get("tokenType").equals("refresh"))
-                throw new AuthException(AuthCode.IS_NOT_REFRESH);
+                throw new AuthException(StatusCode.IS_NOT_REFRESH);
         } catch (ExpiredJwtException e) {
-            throw new AuthException(AuthCode.EXPIRED_REFRESH);
+            throw new AuthException(StatusCode.EXPIRED_REFRESH);
         }
         RefreshToken findRefreshToken = refreshTokenRepository
                 .findByRefreshToken(refreshToken)
                 .orElseThrow(
-                        () -> new AuthException(AuthCode.NOT_FOUND_REFRESH_TOKEN)
+                        () -> new AuthException(StatusCode.NOT_FOUND_REFRESH_TOKEN)
                 );
 
         Account account = findRefreshToken.getAccount();

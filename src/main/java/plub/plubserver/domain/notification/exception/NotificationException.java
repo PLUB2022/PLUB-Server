@@ -1,11 +1,11 @@
 package plub.plubserver.domain.notification.exception;
 
-import plub.plubserver.domain.notification.config.NotificationCode;
+import plub.plubserver.common.exception.PlubException;
+import plub.plubserver.common.exception.StatusCode;
 
-public class NotificationException extends RuntimeException {
-    public NotificationCode notificationCode;
-    public NotificationException(NotificationCode notificationCode) {
-        super(notificationCode.getMessage());
-        this.notificationCode = notificationCode;
+public class NotificationException extends PlubException {
+
+    public NotificationException(StatusCode statusCode) {
+        super(statusCode);
     }
 }

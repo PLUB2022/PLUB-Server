@@ -5,8 +5,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import plub.plubserver.common.exception.StatusCode;
 import plub.plubserver.domain.account.model.Account;
-import plub.plubserver.domain.calendar.config.CalendarCode;
 import plub.plubserver.domain.calendar.exception.CalendarException;
 import plub.plubserver.domain.calendar.model.AttendStatus;
 import plub.plubserver.domain.calendar.model.Calendar;
@@ -36,7 +36,7 @@ public class CalendarService {
 
     public CalendarCardResponse getCalendarCard(Long calendarId) {
         Calendar calendar = calendarRepository.findById(calendarId)
-                .orElseThrow(() -> new CalendarException(CalendarCode.NOT_FOUNT_CALENDAR));
+                .orElseThrow(() -> new CalendarException(StatusCode.NOT_FOUNT_CALENDAR));
         List<CalendarAttend> calendarAttendList = calendar.getCalendarAttendList().stream()
                 .filter(calendarAttend -> calendarAttend.getAttendStatus().equals(AttendStatus.YES))
                 .collect(Collectors.toList());
@@ -77,7 +77,7 @@ public class CalendarService {
         Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
         plubbingService.checkHost(account, plubbing);
         Calendar calendar = calendarRepository.findById(calendarId)
-                .orElseThrow(() -> new CalendarException(CalendarCode.NOT_FOUNT_CALENDAR));
+                .orElseThrow(() -> new CalendarException(StatusCode.NOT_FOUNT_CALENDAR));
         calendar.updateCalendar(updateCalendarResponse);
 
         // 멤버들에게 푸시 알림
@@ -96,7 +96,7 @@ public class CalendarService {
     public CalendarMessage softDeleteCalendar(Long plubbingId, Long calendarId) {
         plubbingService.getPlubbing(plubbingId);
         Calendar calendar = calendarRepository.findById(calendarId)
-                .orElseThrow(() -> new CalendarException(CalendarCode.NOT_FOUNT_CALENDAR));
+                .orElseThrow(() -> new CalendarException(StatusCode.NOT_FOUNT_CALENDAR));
         calendar.softDelete();
         return new CalendarMessage("soft delete calendar");
     }
@@ -105,10 +105,10 @@ public class CalendarService {
     public CalendarAttendResponse checkAttend(Account account, Long plubbingId, Long calendarId, CheckAttendRequest calendarAttendRequest) {
         plubbingService.getPlubbing(plubbingId);
         Calendar calendar = calendarRepository.findById(calendarId)
-                .orElseThrow(() -> new CalendarException(CalendarCode.NOT_FOUNT_CALENDAR));
+                .orElseThrow(() -> new CalendarException(StatusCode.NOT_FOUNT_CALENDAR));
         AttendStatus attendStatus = AttendStatus.valueOf(calendarAttendRequest.attendStatus());
         CalendarAttend calendarAttend = calendarAttendRepository.findByCalendarIdAndAccountId(calendar.getId(), account.getId())
-                .orElseThrow(() -> new CalendarException(CalendarCode.NOT_FOUNT_CALENDAR_ATTEND));
+                .orElseThrow(() -> new CalendarException(StatusCode.NOT_FOUNT_CALENDAR_ATTEND));
         calendarAttend.updateAttendStatus(attendStatus);
         return CalendarAttendResponse.of(calendarAttend);
     }
@@ -129,7 +129,7 @@ public class CalendarService {
     public CalendarAttendList getAttendList(Long plubbingId, Long calendarId) {
         plubbingService.getPlubbing(plubbingId);
         Calendar calendar = calendarRepository.findById(calendarId)
-                .orElseThrow(() -> new CalendarException(CalendarCode.NOT_FOUNT_CALENDAR));
+                .orElseThrow(() -> new CalendarException(StatusCode.NOT_FOUNT_CALENDAR));
         List<CalendarAttend> attendList = calendarAttendRepository.findByCalendarIdOrderByAttendStatus(calendar.getId());
         return CalendarAttendList.of(attendList);
 

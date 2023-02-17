@@ -1,12 +1,11 @@
 package plub.plubserver.domain.recruit.exception;
 
-import plub.plubserver.domain.recruit.config.RecruitCode;
+import plub.plubserver.common.exception.PlubException;
+import plub.plubserver.common.exception.StatusCode;
 
-public class RecruitException extends RuntimeException {
-    public RecruitCode recruitCode;
+public class RecruitException extends PlubException {
 
-    public RecruitException(RecruitCode recruitCode) {
-        super(recruitCode.getMessage());
-        this.recruitCode = recruitCode;
+    public RecruitException(StatusCode statusCode) {
+        super(statusCode);
     }
 }

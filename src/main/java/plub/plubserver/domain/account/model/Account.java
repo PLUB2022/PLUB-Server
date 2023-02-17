@@ -1,6 +1,7 @@
 package plub.plubserver.domain.account.model;
 
 import lombok.*;
+import plub.plubserver.common.exception.StatusCode;
 import plub.plubserver.common.model.BaseEntity;
 import plub.plubserver.domain.archive.model.Archive;
 import plub.plubserver.domain.calendar.model.CalendarAttend;
@@ -11,7 +12,6 @@ import plub.plubserver.domain.notice.model.Notice;
 import plub.plubserver.domain.notice.model.NoticeComment;
 import plub.plubserver.domain.notice.model.NoticeLike;
 import plub.plubserver.domain.notification.model.Notification;
-import plub.plubserver.domain.plubbing.config.PlubbingCode;
 import plub.plubserver.domain.plubbing.exception.PlubbingException;
 import plub.plubserver.domain.plubbing.model.AccountPlubbing;
 import plub.plubserver.domain.plubbing.model.Plubbing;
@@ -168,7 +168,7 @@ public class Account extends BaseEntity {
         return accountPlubbingList.stream()
                 .filter(it -> it.getPlubbing().getId().equals(plubbingId))
                 .findFirst()
-                .orElseThrow(() -> new PlubbingException(PlubbingCode.NOT_FOUND_PLUBBING))
+                .orElseThrow(() -> new PlubbingException(StatusCode.NOT_FOUND_PLUBBING))
                 .getPlubbing();
     }
 

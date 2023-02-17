@@ -8,20 +8,18 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import plub.plubserver.common.exception.StatusCode;
 import plub.plubserver.config.jwt.JwtDto;
 import plub.plubserver.config.jwt.JwtProvider;
 import plub.plubserver.config.jwt.RefreshToken;
 import plub.plubserver.config.jwt.RefreshTokenRepository;
 import plub.plubserver.config.security.PrincipalDetails;
-import plub.plubserver.domain.account.config.AccountCode;
-import plub.plubserver.domain.account.config.AuthCode;
 import plub.plubserver.domain.account.exception.AccountException;
 import plub.plubserver.domain.account.exception.AuthException;
 import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.account.model.AccountCategory;
 import plub.plubserver.domain.account.model.Role;
 import plub.plubserver.domain.account.repository.AccountRepository;
-import plub.plubserver.domain.category.config.CategoryCode;
 import plub.plubserver.domain.category.exception.CategoryException;
 import plub.plubserver.domain.category.model.SubCategory;
 import plub.plubserver.domain.category.repository.SubCategoryRepository;
@@ -61,12 +59,12 @@ public class AuthService {
             account.get().updateRefreshToken(refreshToken);
             loginMessage = new AuthMessage(
                     jwtDto,
-                    AuthCode.LOGIN.getMessage()
+                    StatusCode.LOGIN.getMessage()
             );
         } else {
             String signToken = jwtProvider.createSignToken(email, refreshToken);
             SignToken signTokenResponse = new SignToken(signToken);
-            throw new AuthException(signTokenResponse, AuthCode.NEED_TO_SIGNUP);
+            throw new AuthException(StatusCode.NEED_TO_SIGNUP, signTokenResponse);
         }
         return loginMessage;
     }
@@ -84,7 +82,7 @@ public class AuthService {
     public SignAuthMessage signUp(SignUpRequest signUpRequest) {
         String signToken = signUpRequest.signToken();
         if (!jwtProvider.validate(signToken))
-            throw new AuthException(AuthCode.SIGNUP_TOKEN_ERROR);
+            throw new AuthException(StatusCode.SIGNUP_TOKEN_ERROR);
 
         SigningAccount signKey = jwtProvider.getSignKey(signToken);
         String email = signKey.email() + "@" + signKey.socialType();
@@ -127,7 +125,8 @@ public class AuthService {
         List<Long> categoryList = signUpRequest.categoryList();
         List<AccountCategory> accountCategoryList = new ArrayList<>();
         for (Long id : categoryList) {
-            SubCategory subCategory = subCategoryRepository.findById(id).orElseThrow(() -> new CategoryException(CategoryCode.NOT_FOUND_CATEGORY));
+            SubCategory subCategory = subCategoryRepository.findById(id)
+                    .orElseThrow(() -> new CategoryException(StatusCode.NOT_FOUND_CATEGORY));
             AccountCategory accountCategory = AccountCategory.builder()
                     .account(account)
                     .categorySub(subCategory)
@@ -145,16 +144,16 @@ public class AuthService {
 
         return new SignAuthMessage(
                 jwtDto,
-                AuthCode.SIGNUP_COMPLETE.getMessage()
+                StatusCode.SIGNUP_COMPLETE.getMessage()
         );
     }
 
     private void checkDuplicationEmailAndNickName(String email, String nickname) {
         if (accountRepository.existsByEmail(email)) {
-            throw new AccountException(AccountCode.EMAIL_DUPLICATION);
+            throw new AccountException(StatusCode.EMAIL_DUPLICATION);
         }
         if (accountRepository.existsByNickname(nickname)) {
-            throw new AccountException(AccountCode.NICKNAME_DUPLICATION);
+            throw new AccountException(StatusCode.NICKNAME_DUPLICATION);
         }
     }
 
@@ -177,10 +176,10 @@ public class AuthService {
     public String logout() {
         Account account = accountRepository
                 .findByEmail(getCurrentAccountEmail())
-                .orElseThrow(() -> new AccountException(AccountCode.NOT_FOUND_ACCOUNT));
+                .orElseThrow(() -> new AccountException(StatusCode.NOT_FOUND_ACCOUNT));
         RefreshToken refreshToken = refreshTokenRepository
                 .findByAccount(account)
-                .orElseThrow(() -> new AuthException(AuthCode.NOT_FOUND_REFRESH_TOKEN));
+                .orElseThrow(() -> new AuthException(StatusCode.NOT_FOUND_REFRESH_TOKEN));
         refreshTokenRepository.delete(refreshToken);
         refreshTokenRepository.flush();
         return "로그아웃 완료";
@@ -188,14 +187,15 @@ public class AuthService {
 
     public AuthMessage loginAdmin(LoginRequest loginRequest) {
         String email = loginRequest.email();
-        Account admin = accountRepository.findByEmail(email).orElseThrow(() -> new AccountException(AccountCode.NOT_FOUND_ACCOUNT));
+        Account admin = accountRepository.findByEmail(email)
+                .orElseThrow(() -> new AccountException(StatusCode.NOT_FOUND_ACCOUNT));
         if (!admin.getRole().equals(Role.ROLE_ADMIN)) {
-            throw new AccountException(AccountCode.ROLE_ACCESS_ERROR);
+            throw new AccountException(StatusCode.ROLE_ACCESS_ERROR);
         }
         JwtDto jwtDto = login(loginRequest);
         return new AuthMessage(
                 jwtDto,
-                AuthCode.LOGIN.getMessage()
+                StatusCode.LOGIN.getMessage()
         );
     }
 }

@@ -11,7 +11,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
-import plub.plubserver.common.exception.CommonErrorCode;
+import plub.plubserver.common.exception.StatusCode;
 import plub.plubserver.util.s3.S3SaveDir;
 import plub.plubserver.util.s3.dto.AwsS3Dto.FileDto;
 import plub.plubserver.util.s3.dto.AwsS3Dto.FileListDto;
@@ -44,7 +44,7 @@ public class AwsS3Service {
 
         List<MultipartFile> files = uploadFileRequest.files();
         if (CollectionUtils.isEmpty(files)) {
-            throw new AwsS3Exception(CommonErrorCode.INVALID_INPUT_VALUE);
+            throw new AwsS3Exception(StatusCode.INVALID_INPUT_VALUE);
         }
         List<FileDto> result = uploadFileRequest.files().stream()
                 .map(file -> uploadV2(file, uploadFileRequest.type(), currentAccountEmail))
@@ -67,7 +67,7 @@ public class AwsS3Service {
             amazonS3Client.putObject(new PutObjectRequest(bucketPath, fileName, inputStream, objectMetadata)
                     .withCannedAcl(CannedAccessControlList.PublicRead));
         } catch (RuntimeException | IOException e) {
-            throw new AwsS3Exception(CommonErrorCode.AWS_S3_UPLOAD_FAIL);
+            throw new AwsS3Exception(StatusCode.AWS_S3_UPLOAD_FAIL);
         }
 
         String fileUrl = amazonS3Client.getUrl(bucketPath, fileName).toString();
@@ -76,7 +76,7 @@ public class AwsS3Service {
 
     private void validateFileExists(MultipartFile multipartFile) {
         if (multipartFile.isEmpty()) {
-            throw new AwsS3Exception(CommonErrorCode.AWS_S3_UPLOAD_FAIL);
+            throw new AwsS3Exception(StatusCode.AWS_S3_UPLOAD_FAIL);
         }
     }
 
@@ -104,7 +104,7 @@ public class AwsS3Service {
 
         List<String> urls = updateFileRequest.toDeleteUrls();
         if (CollectionUtils.isEmpty(urls)) {
-            throw new AwsS3Exception(CommonErrorCode.AWS_S3_UPLOAD_FAIL);
+            throw new AwsS3Exception(StatusCode.AWS_S3_UPLOAD_FAIL);
         }
 
         updateFileRequest.toDeleteUrls().forEach(file -> delete(type, file));
@@ -130,7 +130,7 @@ public class AwsS3Service {
             amazonS3Client.deleteObject(new DeleteObjectRequest(bucketPath, filename));
         } catch (Exception e) {
             log.warn("S3 파일 삭제 실패 = {}", e.getMessage());
-            throw new AwsS3Exception(CommonErrorCode.AWS_S3_DELETE_FAIL);
+            throw new AwsS3Exception(StatusCode.AWS_S3_DELETE_FAIL);
         }
     }
 

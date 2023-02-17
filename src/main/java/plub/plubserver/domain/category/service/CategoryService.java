@@ -3,8 +3,8 @@ package plub.plubserver.domain.category.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import plub.plubserver.common.exception.StatusCode;
 import plub.plubserver.domain.category.dto.CategoryDto.*;
-import plub.plubserver.domain.category.config.CategoryCode;
 import plub.plubserver.domain.category.exception.CategoryException;
 import plub.plubserver.domain.category.model.Category;
 import plub.plubserver.domain.category.model.SubCategory;
@@ -24,7 +24,7 @@ public class CategoryService {
 
     public SubCategory getSubCategory(Long categoryId) {
         return subCategoryRepository.findById(categoryId)
-                .orElseThrow(() -> new CategoryException(CategoryCode.NOT_FOUND_CATEGORY));
+                .orElseThrow(() -> new CategoryException(StatusCode.NOT_FOUND_CATEGORY));
     }
 
     public CategoryListResponse getCategoryList() {
@@ -49,7 +49,7 @@ public class CategoryService {
 
     public void createSubCategory(String name, int sequence, Long categoryId, String defaultImage) {
         Category category = categoryRepository.findById(categoryId)
-                .orElseThrow(() -> new CategoryException(CategoryCode.NOT_FOUND_CATEGORY));
+                .orElseThrow(() -> new CategoryException(StatusCode.NOT_FOUND_CATEGORY));
         SubCategory categorySub = SubCategory.toSubCategory(name, sequence, category, defaultImage);
         subCategoryRepository.save(categorySub);
     }

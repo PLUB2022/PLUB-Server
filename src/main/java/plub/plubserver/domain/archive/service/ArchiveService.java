@@ -7,9 +7,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import plub.plubserver.common.dto.PageResponse;
+import plub.plubserver.common.exception.StatusCode;
 import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.account.service.AccountService;
-import plub.plubserver.domain.archive.config.ArchiveCode;
 import plub.plubserver.domain.archive.dto.ArchiveDto.ArchiveCardResponse;
 import plub.plubserver.domain.archive.dto.ArchiveDto.ArchiveIdResponse;
 import plub.plubserver.domain.archive.dto.ArchiveDto.ArchiveRequest;
@@ -35,7 +35,7 @@ public class ArchiveService {
 
     private Archive getArchive(Long archiveId) {
         return archiveRepository.findById(archiveId)
-                .orElseThrow(() -> new ArchiveException(ArchiveCode.NOT_FOUND_ARCHIVE));
+                .orElseThrow(() -> new ArchiveException(StatusCode.NOT_FOUND_ARCHIVE));
     }
 
     public PageResponse<ArchiveCardResponse> getArchiveList(Long plubbingId, Pageable pageable) {
@@ -63,7 +63,7 @@ public class ArchiveService {
         Archive archive = plubbing.getArchives().stream()
                 .filter(it -> it.getId().equals(archiveId))
                 .findFirst()
-                .orElseThrow(() -> new ArchiveException(ArchiveCode.NOT_FOUND_ARCHIVE));
+                .orElseThrow(() -> new ArchiveException(StatusCode.NOT_FOUND_ARCHIVE));
 
         return ArchiveResponse.of(archive);
     }
@@ -116,7 +116,7 @@ public class ArchiveService {
         // 작성자 체크
         if (loginAccount.getPlubbing(plubbingId).getArchives().stream()
                 .noneMatch(it -> it.getId().equals(archiveId)))
-            throw new ArchiveException(ArchiveCode.IS_NOT_AUTHOR);
+            throw new ArchiveException(StatusCode.NOT_ARCHIVE_AUTHOR);
     }
 
     // only for 작성자, 호스트

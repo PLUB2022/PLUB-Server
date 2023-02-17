@@ -1,8 +1,8 @@
 package plub.plubserver.domain.plubbing.model;
 
 import lombok.*;
+import plub.plubserver.common.exception.StatusCode;
 import plub.plubserver.common.model.BaseEntity;
-import plub.plubserver.domain.account.config.AccountCode;
 import plub.plubserver.domain.account.exception.AccountException;
 import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.archive.model.Archive;
@@ -198,7 +198,7 @@ public class Plubbing extends BaseEntity {
         return accountPlubbingList.stream()
                 .filter(accountPlubbing -> accountPlubbing.getAccount().getId().equals(accountId))
                 .findFirst()
-                .orElseThrow(() -> new AccountException(AccountCode.NOT_FOUND_ACCOUNT))
+                .orElseThrow(() -> new AccountException(StatusCode.NOT_FOUND_ACCOUNT))
                 .getAccount();
     }
 }

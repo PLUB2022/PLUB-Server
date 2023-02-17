@@ -7,8 +7,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import plub.plubserver.common.dto.PageResponse;
+import plub.plubserver.common.exception.StatusCode;
 import plub.plubserver.common.model.SortType;
-import plub.plubserver.domain.account.config.AccountCode;
 import plub.plubserver.domain.account.exception.AccountException;
 import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.account.service.AccountService;
@@ -20,7 +20,6 @@ import plub.plubserver.domain.plubbing.model.AccountPlubbingStatus;
 import plub.plubserver.domain.plubbing.model.Plubbing;
 import plub.plubserver.domain.plubbing.repository.AccountPlubbingRepository;
 import plub.plubserver.domain.plubbing.service.PlubbingService;
-import plub.plubserver.domain.recruit.config.RecruitCode;
 import plub.plubserver.domain.recruit.dto.QuestionDto.AnswerRequest;
 import plub.plubserver.domain.recruit.dto.QuestionDto.QuestionListResponse;
 import plub.plubserver.domain.recruit.dto.QuestionDto.QuestionResponse;
@@ -178,12 +177,12 @@ public class RecruitService {
         accountPlubbingRepository.findByAccountAndPlubbing(loginAccount, recruit.getPlubbing())
                 .ifPresent(accountPlubbing -> {
                     if (accountPlubbing.isHost())
-                        throw new RecruitException(RecruitCode.HOST_RECRUIT_ERROR);
+                        throw new RecruitException(StatusCode.HOST_RECRUIT_ERROR);
                 });
 
         // 이미 지원했는지 확인
         if (appliedAccountRepository.existsByAccountAndRecruit(loginAccount, recruit))
-            throw new RecruitException(RecruitCode.ALREADY_APPLIED_RECRUIT);
+            throw new RecruitException(StatusCode.ALREADY_APPLIED_RECRUIT);
 
         // 지원자 생성
         AppliedAccount appliedAccount = AppliedAccount.builder()
@@ -199,7 +198,7 @@ public class RecruitService {
             RecruitQuestion question = questions.stream()
                     .filter(it -> it.getId().equals(ar.questionId()))
                     .findFirst()
-                    .orElseThrow(() -> new RecruitException(RecruitCode.NOT_FOUND_QUESTION));
+                    .orElseThrow(() -> new RecruitException(StatusCode.NOT_FOUND_QUESTION));
 
             answers.add(RecruitQuestionAnswer.builder()
                     .recruitQuestion(question)
@@ -231,7 +230,7 @@ public class RecruitService {
         // recruit 에서 지원자를 찾기
         return appliedAccountRepository
                 .findByAccountIdAndRecruitId(accountId, recruit.getId())
-                .orElseThrow(() -> new AccountException(AccountCode.NOT_FOUND_ACCOUNT));
+                .orElseThrow(() -> new AccountException(StatusCode.NOT_FOUND_ACCOUNT));
     }
 
 
@@ -245,7 +244,7 @@ public class RecruitService {
 
         if (appliedAccount.getStatus().equals(ApplicantStatus.ACCEPTED) ||
                 appliedAccount.getStatus().equals(ApplicantStatus.REJECTED))
-            throw new RecruitException(RecruitCode.ALREADY_ACCEPTED);
+            throw new RecruitException(StatusCode.ALREADY_ACCEPTED);
         appliedAccount.accept();
 
         // 모임에 해당 지원자 추가
@@ -280,7 +279,7 @@ public class RecruitService {
 
         if (appliedAccount.getStatus().equals(ApplicantStatus.REJECTED) ||
                 appliedAccount.getStatus().equals(ApplicantStatus.ACCEPTED))
-            throw new RecruitException(RecruitCode.ALREADY_REJECTED);
+            throw new RecruitException(StatusCode.ALREADY_REJECTED);
         appliedAccount.reject();
 
         Plubbing plubbing = plubbingService.getPlubbing(plubbingId);

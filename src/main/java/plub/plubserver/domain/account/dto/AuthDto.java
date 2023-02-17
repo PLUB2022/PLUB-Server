@@ -5,8 +5,8 @@ import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import plub.plubserver.common.exception.StatusCode;
 import plub.plubserver.config.jwt.JwtDto;
-import plub.plubserver.domain.account.config.AccountCode;
 import plub.plubserver.domain.account.exception.AccountException;
 import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.account.model.Role;
@@ -83,7 +83,7 @@ public class AuthDto {
                 return SocialType.KAKAO;
             } else if (socialType.equalsIgnoreCase(SocialType.APPLE.name())) {
                 return SocialType.APPLE;
-            } else throw new AccountException(AccountCode.SOCIAL_TYPE_ERROR);
+            } else throw new AccountException(StatusCode.SOCIAL_TYPE_ERROR);
         }
 
         public Account toAccount(String email, String socialType, PasswordEncoder passwordEncoder) {
