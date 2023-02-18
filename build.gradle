@@ -75,6 +75,9 @@ dependencies {
 
 	// geo ip
 	implementation("com.maxmind.geoip2:geoip2:2.15.0")
+
+	// cloudWatch log
+	implementation("ca.pjer:logback-awslogs-appender:1.6.0")
 }
 
 tasks.named('test') {
