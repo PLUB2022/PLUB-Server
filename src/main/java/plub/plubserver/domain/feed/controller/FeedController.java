@@ -56,41 +56,54 @@ public class FeedController {
     }
 
     @ApiOperation(value = "게시글 상세 조회")
-    @GetMapping("/feeds/{feedId}")
-    public ApiResponse<FeedResponse> getFeed(@PathVariable Long feedId) {
+    @GetMapping("/{plubbingId}/feeds/{feedId}")
+    public ApiResponse<FeedResponse> getFeed(
+            @PathVariable Long plubbingId,
+            @PathVariable Long feedId
+    ) {
         Account loginAccount = accountService.getCurrentAccount();
-        return success(feedService.getFeed(loginAccount, feedId));
+        return success(feedService.getFeed(loginAccount, plubbingId, feedId));
     }
 
     @ApiOperation(value = "게시글 수정")
-    @PutMapping("/feeds/{feedId}")
+    @PutMapping("/{plubbingId}/feeds/{feedId}")
     public ApiResponse<FeedIdResponse> updateFeed(
+            @PathVariable Long plubbingId,
             @PathVariable Long feedId,
             @Valid @RequestBody UpdateFeedRequest updateFeedRequest
     ) {
         Account loginAccount = accountService.getCurrentAccount();
-        return success(feedService.updateFeed(loginAccount, feedId, updateFeedRequest));
+        return success(feedService.updateFeed(loginAccount, plubbingId, feedId, updateFeedRequest));
     }
 
     @ApiOperation(value = "게시글 삭제")
-    @DeleteMapping("/feeds/{feedId}")
-    public ApiResponse<FeedMessage> deleteFeed(@PathVariable Long feedId) {
+    @DeleteMapping("/{plubbingId}/feeds/{feedId}")
+    public ApiResponse<FeedMessage> deleteFeed(
+            @PathVariable Long plubbingId,
+            @PathVariable Long feedId
+    ) {
         Account loginAccount = accountService.getCurrentAccount();
-        return success(feedService.softDeleteFeed(loginAccount, feedId));
+        return success(feedService.softDeleteFeed(loginAccount, plubbingId, feedId));
     }
 
     @ApiOperation(value = "게시글 고정")
-    @PutMapping("/feeds/{feedId}/pin")
-    public ApiResponse<FeedIdResponse> pinFeed(@PathVariable Long feedId) {
+    @PutMapping("/{plubbingId}/feeds/{feedId}/pin")
+    public ApiResponse<FeedIdResponse> pinFeed(
+            @PathVariable Long plubbingId,
+            @PathVariable Long feedId
+    ) {
         Account loginAccount = accountService.getCurrentAccount();
-        return success(feedService.pinFeed(loginAccount, feedId));
+        return success(feedService.pinFeed(loginAccount, plubbingId, feedId));
     }
 
     @ApiOperation(value = "게시글 좋아요")
-    @PutMapping("/feeds/{feedId}/like")
-    public ApiResponse<FeedMessage> likeFeed(@PathVariable Long feedId) {
+    @PutMapping("/{plubbingId}/feeds/{feedId}/like")
+    public ApiResponse<FeedMessage> likeFeed(
+            @PathVariable Long plubbingId,
+            @PathVariable Long feedId
+    ) {
         Account loginAccount = accountService.getCurrentAccount();
-        return success(feedService.likeFeed(loginAccount, feedId));
+        return success(feedService.likeFeed(loginAccount, plubbingId, feedId));
     }
 
     @ApiOperation(value = "게시글 댓글 생성")
@@ -104,26 +117,36 @@ public class FeedController {
     }
 
     @ApiOperation(value = "게시글 댓글 수정")
-    @PutMapping("/feeds/comments/{commentId}")
+    @PutMapping("/{plubbingId}/feeds/{feedId}/comments/{commentId}")
     public ApiResponse<CommentIdResponse> updateFeedComment(
+            @PathVariable Long plubbingId,
+            @PathVariable Long feedId,
             @PathVariable Long commentId,
             @Valid @RequestBody UpdateCommentRequest updateCommentRequest
     ) {
         Account loginAccount = accountService.getCurrentAccount();
-        return success(feedService.updateFeedComment(loginAccount, commentId, updateCommentRequest));
+        return success(feedService.updateFeedComment(loginAccount, plubbingId, feedId, commentId, updateCommentRequest));
     }
 
     @ApiOperation(value = "게시글 댓글 삭제")
-    @DeleteMapping("/feeds/comments/{commentId}")
-    public ApiResponse<CommentMessage> deleteFeedComment(@PathVariable Long commentId) {
+    @DeleteMapping("/{plubbingId}/feeds/{feedId}/comments/{commentId}")
+    public ApiResponse<CommentMessage> deleteFeedComment(
+            @PathVariable Long plubbingId,
+            @PathVariable Long feedId,
+            @PathVariable Long commentId
+    ) {
         Account loginAccount = accountService.getCurrentAccount();
-        return success(feedService.deleteFeedComment(loginAccount, commentId));
+        return success(feedService.deleteFeedComment(loginAccount, plubbingId, feedId, commentId));
     }
 
     @ApiOperation(value = "게시글 댓글 신고")
-    @PostMapping("/feeds/comments/{commentId}/report")
-    public ApiResponse<CommentIdResponse> reportFeedComment(@PathVariable Long commentId) {
+    @PostMapping("/{plubbingId}/feeds/{feedId}/comments/{commentId}/report")
+    public ApiResponse<CommentIdResponse> reportFeedComment(
+            @PathVariable Long plubbingId,
+            @PathVariable Long feedId,
+            @PathVariable Long commentId
+    ) {
         Account loginAccount = accountService.getCurrentAccount();
-        return success(feedService.reportFeedComment(loginAccount, commentId));
+        return success(feedService.reportFeedComment(loginAccount, plubbingId, feedId, commentId));
     }
 }

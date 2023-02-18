@@ -28,7 +28,6 @@ public class NoticeController {
     private final NoticeService noticeService;
     private final AccountService accountService;
 
-
     @ApiOperation(value = "공지 작성")
     @PostMapping("/{plubbingId}/notices")
     public ApiResponse<NoticeIdResponse> createNotice(
@@ -63,15 +62,13 @@ public class NoticeController {
             @PathVariable Long noticeId,
             @Valid @RequestBody UpdateNoticeRequest updateNoticeRequest
     ) {
-        Account loginAccount = accountService.getCurrentAccount();
-        return success(noticeService.updateNotice(loginAccount, plubbingId, noticeId, updateNoticeRequest));
+        return success(noticeService.updateNotice(plubbingId, noticeId, updateNoticeRequest));
     }
 
     @ApiOperation(value = "공지 삭제")
     @DeleteMapping("/{plubbingId}/notices/{noticeId}")
     public ApiResponse<NoticeMessage> deleteNotice(@PathVariable Long noticeId) {
-        Account loginAccount = accountService.getCurrentAccount();
-        return success(noticeService.softDeleteNotice(loginAccount, noticeId));
+        return success(noticeService.softDeleteNotice(noticeId));
     }
 
     @ApiOperation(value = "공지 좋아요")

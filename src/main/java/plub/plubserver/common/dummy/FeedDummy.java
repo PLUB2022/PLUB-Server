@@ -44,7 +44,7 @@ public class FeedDummy {
                     .build();
             feedService.createFeed(1L, admin1, form);
             if (i % 4 == 0)
-                feedService.pinFeed(admin1, (long) i);
+                feedService.pinFeed(admin1, 1L, (long) i);
         }
 
         for (int i = 11; i < 21; i++) {
@@ -56,7 +56,7 @@ public class FeedDummy {
                     .build();
             feedService.createFeed(1L, admin1, form);
             if (i % 4 == 0)
-                feedService.pinFeed(admin1, (long) i);
+                feedService.pinFeed(admin1, 1L, (long) i);
         }
 
         for (int i = 21; i < 31; i++) {
@@ -68,7 +68,7 @@ public class FeedDummy {
                     .build();
             feedService.createFeed(1L, admin1, form);
             if (i % 4 == 0)
-                feedService.pinFeed(admin1, (long) i);
+                feedService.pinFeed(admin1, 1L, (long) i);
         }
 
         for (int i = 1; i < 6; i++) {

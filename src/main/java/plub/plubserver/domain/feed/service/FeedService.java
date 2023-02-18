@@ -72,7 +72,8 @@ public class FeedService {
     }
 
     @Transactional
-    public FeedIdResponse updateFeed(Account account, Long feedId, UpdateFeedRequest updateFeedRequest) {
+    public FeedIdResponse updateFeed(Account account, Long plubbingId, Long feedId, UpdateFeedRequest updateFeedRequest) {
+        plubbingService.getPlubbing(plubbingId);
         Feed feed = getFeed(feedId);
         checkFeedStatus(feed);
         if (feed.getViewType().equals(ViewType.SYSTEM))
@@ -83,7 +84,8 @@ public class FeedService {
     }
 
     @Transactional
-    public FeedMessage softDeleteFeed(Account account, Long feedId) {
+    public FeedMessage softDeleteFeed(Account account, Long plubbingId, Long feedId) {
+        plubbingService.getPlubbing(plubbingId);
         Feed feed = getFeed(feedId);
         checkFeedStatus(feed);
         if (feed.getViewType().equals(ViewType.SYSTEM))
@@ -93,7 +95,8 @@ public class FeedService {
         return new FeedMessage("soft delete feed");
     }
 
-    public FeedResponse getFeed(Account account, Long feedId) {
+    public FeedResponse getFeed(Account account, Long plubbingId, Long feedId) {
+        plubbingService.getPlubbing(plubbingId);
         Feed feed = getFeed(feedId);
         checkFeedStatus(feed);
         plubbingService.checkMember(account, feed.getPlubbing());
@@ -104,7 +107,8 @@ public class FeedService {
     }
 
     @Transactional
-    public FeedIdResponse pinFeed(Account account, Long feedId) {
+    public FeedIdResponse pinFeed(Account account, Long plubbingId, Long feedId) {
+        plubbingService.getPlubbing(plubbingId);
         Feed feed = getFeed(feedId);
         checkFeedStatus(feed);
         if (feedRepository.countByPin(true) > 20)
@@ -115,7 +119,8 @@ public class FeedService {
     }
 
     @Transactional
-    public FeedMessage likeFeed(Account account, Long feedId) {
+    public FeedMessage likeFeed(Account account, Long plubbingId, Long feedId) {
+        plubbingService.getPlubbing(plubbingId);
         Feed feed = getFeed(feedId);
         checkFeedStatus(feed);
         plubbingService.checkMember(account, feed.getPlubbing());
@@ -160,7 +165,9 @@ public class FeedService {
     }
 
     @Transactional
-    public CommentIdResponse updateFeedComment(Account account, Long commentId, UpdateCommentRequest updateCommentRequest) {
+    public CommentIdResponse updateFeedComment(Account account, Long plubbingId, Long feedId, Long commentId, UpdateCommentRequest updateCommentRequest) {
+        plubbingService.getPlubbing(plubbingId);
+        getFeed(feedId);
         FeedComment feedComment = getFeedComment(commentId);
         checkCommentStatus(feedComment);
         checkCommentAuthor(account, feedComment);
@@ -169,7 +176,9 @@ public class FeedService {
     }
 
     @Transactional
-    public CommentMessage deleteFeedComment(Account account, Long commentId) {
+    public CommentMessage deleteFeedComment(Account account, Long plubbingId, Long feedId, Long commentId) {
+        plubbingService.getPlubbing(plubbingId);
+        getFeed(feedId);
         FeedComment feedComment = getFeedComment(commentId);
         checkCommentStatus(feedComment);
         if (!isFeedAuthor(account, feedComment.getFeed()) && !isCommentAuthor(account, feedComment))
@@ -180,8 +189,8 @@ public class FeedService {
     }
 
     //TODO
-    public CommentIdResponse reportFeedComment(Account account, Long feedId) {
-        return new CommentIdResponse(feedId);
+    public CommentIdResponse reportFeedComment(Account account, Long plubbingId, Long feedId, Long commentId) {
+        return new CommentIdResponse(commentId);
     }
 
     public void checkFeedAuthor(Account account, Feed feed) {

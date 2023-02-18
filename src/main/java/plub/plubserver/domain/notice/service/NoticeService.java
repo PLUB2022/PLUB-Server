@@ -9,6 +9,7 @@ import plub.plubserver.common.dto.CommentDto.*;
 import plub.plubserver.common.dto.PageResponse;
 import plub.plubserver.common.exception.StatusCode;
 import plub.plubserver.domain.account.model.Account;
+import plub.plubserver.domain.account.service.AccountService;
 import plub.plubserver.domain.notice.dto.NoticeDto.*;
 import plub.plubserver.domain.notice.exception.NoticeException;
 import plub.plubserver.domain.notice.model.Notice;
@@ -29,6 +30,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class NoticeService {
     private final PlubbingService plubbingService;
+    private final AccountService accountService;
     private final NoticeRepository noticeRepository;
     private final NoticeLikeRepository noticeLikeRepository;
     private final NoticeCommentRepository noticeCommentRepository;
@@ -46,10 +48,11 @@ public class NoticeService {
 
     @Transactional
     public NoticeIdResponse createNotice(Long plubbingId, Account account, CreateNoticeRequest createNoticeRequest) {
+        Account currentAccount = accountService.getAccount(account.getId());
         Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
         plubbingService.checkHost(plubbing);
-        Notice notice = noticeRepository.save(createNoticeRequest.toEntity(plubbing, account));
-        account.addNotice(notice);
+        Notice notice = noticeRepository.save(createNoticeRequest.toEntity(plubbing, currentAccount));
+        currentAccount.addNotice(notice);
 
         notifyToMembers(plubbing, notice);
 
@@ -69,8 +72,9 @@ public class NoticeService {
     }
 
     public PageResponse<NoticeCardResponse> getNoticeList(Account account, Long plubbingId, Pageable pageable) {
+        Account currentAccount = accountService.getAccount(account.getId());
         Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
-        plubbingService.checkMember(account, plubbing);
+        plubbingService.checkMember(currentAccount, plubbing);
         List<NoticeCardResponse> noticeCardResponses = noticeRepository
                 .findAllByPlubbingAndVisibility(plubbing, true, Sort.by(Sort.Direction.DESC, "createdAt"))
                 .stream()
@@ -80,15 +84,16 @@ public class NoticeService {
     }
 
     public NoticeResponse getNotice(Account account, Long noticeId) {
+        Account currentAccount = accountService.getAccount(account.getId());
         Notice notice = getNotice(noticeId);
         checkNoticeStatus(notice);
-        plubbingService.checkMember(account, notice.getPlubbing());
-        return NoticeResponse.of(notice, isNoticeAuthor(account, notice));
+        plubbingService.checkMember(currentAccount, notice.getPlubbing());
+        return NoticeResponse.of(notice, isNoticeAuthor(currentAccount, notice));
     }
 
 
     @Transactional
-    public NoticeIdResponse updateNotice(Account account, Long plubbingId, Long noticeId, UpdateNoticeRequest updateNoticeRequest) {
+    public NoticeIdResponse updateNotice(Long plubbingId, Long noticeId, UpdateNoticeRequest updateNoticeRequest) {
         Notice notice = getNotice(noticeId);
         plubbingService.checkHost(notice.getPlubbing());
         notice.updateFeed(updateNoticeRequest);
@@ -99,7 +104,7 @@ public class NoticeService {
     }
 
     @Transactional
-    public NoticeMessage softDeleteNotice(Account account, Long noticeId) {
+    public NoticeMessage softDeleteNotice(Long noticeId) {
         Notice notice = getNotice(noticeId);
         plubbingService.checkHost(notice.getPlubbing());
         notice.softDelete();
@@ -108,45 +113,48 @@ public class NoticeService {
 
     @Transactional
     public NoticeMessage likeNotice(Account account, Long noticeId) {
+        Account currentAccount = accountService.getAccount(account.getId());
         Notice notice = getNotice(noticeId);
         checkNoticeStatus(notice);
-        plubbingService.checkMember(account, notice.getPlubbing());
-        if (!noticeLikeRepository.existsByAccountAndNotice(account, notice)) {
-            noticeLikeRepository.save(NoticeLike.builder().notice(notice).account(account).build());
+        plubbingService.checkMember(currentAccount, notice.getPlubbing());
+        if (!noticeLikeRepository.existsByAccountAndNotice(currentAccount, notice)) {
+            noticeLikeRepository.save(NoticeLike.builder().notice(notice).account(currentAccount).build());
             notice.addLike();
             return new NoticeMessage(noticeId + ", Like Success.");
         }
         else {
-            noticeLikeRepository.deleteByAccountAndNotice(account, notice);
+            noticeLikeRepository.deleteByAccountAndNotice(currentAccount, notice);
             notice.subLike();
             return new NoticeMessage(noticeId + ", Like Cancel.");
         }
     }
 
     public PageResponse<NoticeCommentResponse> getNoticeCommentList(Account account, Long noticeId, Pageable pageable) {
+        Account currentAccount = accountService.getAccount(account.getId());
         Notice notice = getNotice(noticeId);
         plubbingService.checkMember(account, notice.getPlubbing());
         List<NoticeCommentResponse> noticeCommentList = noticeCommentRepository.findAllByNoticeAndVisibility(notice, true)
                 .stream()
-                .map(it -> NoticeCommentResponse.of(it, isCommentAuthor(account, it), isNoticeAuthor(account, notice)))
+                .map(it -> NoticeCommentResponse.of(it, isCommentAuthor(currentAccount, it), isNoticeAuthor(currentAccount, notice)))
                 .toList();
         return PageResponse.of(pageable, noticeCommentList);
     }
 
     @Transactional
     public CommentIdResponse createNoticeComment(Account account, Long noticeId, CreateCommentRequest createCommentRequest) {
+        Account currentAccount = accountService.getAccount(account.getId());
         Notice notice = getNotice(noticeId);
         checkNoticeStatus(notice);
-        plubbingService.checkMember(account, notice.getPlubbing());
-        NoticeComment comment = noticeCommentRepository.save(createCommentRequest.toNoticeComment(notice, account));
-        account.addNoticeComment(comment);
+        plubbingService.checkMember(currentAccount, notice.getPlubbing());
+        NoticeComment comment = noticeCommentRepository.save(createCommentRequest.toNoticeComment(notice, currentAccount));
+        currentAccount.addNoticeComment(comment);
         notice.addComment();
         
         // 작성자에게 푸시 알림
         notificationService.pushMessage(
                 comment.getAccount(),
                 notice.getTitle() + "에 새로운 댓글이 달렸습니다.",
-                account.getNickname() + ":" + comment.getContent()
+                currentAccount.getNickname() + ":" + comment.getContent()
         );
 
         // TODO : 대댓글 알림
@@ -156,17 +164,19 @@ public class NoticeService {
 
     @Transactional
     public CommentIdResponse updateNoticeComment(Account account, Long commentId, UpdateCommentRequest updateCommentRequest) {
+        Account currentAccount = accountService.getAccount(account.getId());
         NoticeComment noticeComment = getNoticeComment(commentId);
-        checkCommentAuthor(account, noticeComment);
+        checkCommentAuthor(currentAccount, noticeComment);
         noticeComment.updateNoticeComment(updateCommentRequest);
         return new CommentIdResponse(commentId);
     }
 
     @Transactional
     public CommentMessage deleteNoticeComment(Account account, Long commentId) {
+        Account currentAccount = accountService.getAccount(account.getId());
         NoticeComment noticeComment = getNoticeComment(commentId);
         checkCommentStatus(noticeComment);
-        if (!noticeComment.getNotice().getAccount().equals(account) && !noticeComment.getAccount().equals(account))
+        if (!noticeComment.getNotice().getAccount().equals(currentAccount) && !noticeComment.getAccount().equals(currentAccount))
             throw new NoticeException(StatusCode.NOT_NOTICE_AUTHOR_ERROR);
         noticeComment.getNotice().subComment();
         noticeComment.softDelete();

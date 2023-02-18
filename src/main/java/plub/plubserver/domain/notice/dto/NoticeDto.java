@@ -86,7 +86,7 @@ public class NoticeDto {
         }
     }
 
-    public record NoticeIdResponse(Long feedId) {
+    public record NoticeIdResponse(Long noticeId) {
     }
 
     public record NoticeMessage(Object result) {
