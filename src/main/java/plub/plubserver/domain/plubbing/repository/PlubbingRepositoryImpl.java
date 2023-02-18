@@ -25,54 +25,43 @@ public class PlubbingRepositoryImpl implements PlubbingRepositoryCustom {
 
     @Override
     public Page<Plubbing> findAllBySubCategory(List<SubCategory> subCategories, Pageable pageable) {
+       List<Plubbing> result = queryFactory
+               .selectFrom(plubbing)
+               .join(plubbing.plubbingSubCategories, plubbingSubCategory)
+               .join(plubbingSubCategory.subCategory, subCategory)
+               .where(subCategory.in(subCategories),
+                       plubbing.status.eq(PlubbingStatus.ACTIVE),
+                       plubbing.visibility.eq(true),
+                       plubbing.recruit.status.eq(RecruitStatus.RECRUITING))
+               .offset(pageable.getOffset())
+               .limit(pageable.getPageSize())
+               .distinct()
+               .fetch();
+
         return PageableExecutionUtils.getPage(
-                queryFactory
-                        .selectFrom(plubbing)
-                        .join(plubbing.plubbingSubCategories, plubbingSubCategory)
-                        .join(plubbingSubCategory.subCategory, subCategory)
-                        .where(subCategory.in(subCategories),
-                                plubbing.status.eq(PlubbingStatus.ACTIVE),
-                                plubbing.visibility.eq(true),
-                                plubbing.recruit.status.eq(RecruitStatus.RECRUITING))
-                        .offset(pageable.getOffset())
-                        .limit(pageable.getPageSize())
-                        .distinct()
-                        .fetch(),
+                result,
                 pageable,
-                () -> queryFactory
-                        .selectFrom(plubbing)
-                        .join(plubbing.plubbingSubCategories, plubbingSubCategory)
-                        .join(plubbingSubCategory.subCategory, subCategory)
-                        .where(subCategory.in(subCategories),
-                                plubbing.status.eq(PlubbingStatus.ACTIVE),
-                                plubbing.visibility.eq(true),
-                                plubbing.recruit.status.eq(RecruitStatus.RECRUITING))
-                        .distinct()
-                        .fetch().size()
+                result::size
         );
     }
 
     @Override
     public Page<Plubbing> findAllByViews(Pageable pageable) {
+        List<Plubbing> result = queryFactory
+                .selectFrom(plubbing)
+                .where(plubbing.status.eq(PlubbingStatus.ACTIVE),
+                        plubbing.visibility.eq(true),
+                        plubbing.recruit.status.eq(RecruitStatus.RECRUITING))
+                .orderBy(plubbing.views.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .distinct()
+                .fetch();
+
         return PageableExecutionUtils.getPage(
-                queryFactory
-                        .selectFrom(plubbing)
-                        .where(plubbing.status.eq(PlubbingStatus.ACTIVE),
-                                plubbing.visibility.eq(true),
-                                plubbing.recruit.status.eq(RecruitStatus.RECRUITING))
-                        .orderBy(plubbing.views.desc())
-                        .offset(pageable.getOffset())
-                        .limit(pageable.getPageSize())
-                        .distinct()
-                        .fetch(),
+                result,
                 pageable,
-                () -> queryFactory
-                        .selectFrom(plubbing)
-                        .where(plubbing.status.eq(PlubbingStatus.ACTIVE),
-                                plubbing.visibility.eq(true),
-                                plubbing.recruit.status.eq(RecruitStatus.RECRUITING))
-                        .distinct()
-                        .fetch().size()
+                result::size
         );
     }
 
@@ -86,31 +75,24 @@ public class PlubbingRepositoryImpl implements PlubbingRepositoryCustom {
             order = plubbing.modifiedAt.desc();
         }
 
+        List<Plubbing> result = queryFactory
+                .selectFrom(plubbing)
+                .join(plubbing.plubbingSubCategories, plubbingSubCategory)
+                .join(plubbingSubCategory.subCategory, subCategory)
+                .where(subCategory.category.id.eq(categoryId),
+                        plubbing.status.eq(PlubbingStatus.ACTIVE),
+                        plubbing.visibility.eq(true),
+                        plubbing.recruit.status.eq(RecruitStatus.RECRUITING))
+                .orderBy(order)
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .distinct()
+                .fetch();
+
         return PageableExecutionUtils.getPage(
-                queryFactory
-                        .selectFrom(plubbing)
-                        .join(plubbing.plubbingSubCategories, plubbingSubCategory)
-                        .join(plubbingSubCategory.subCategory, subCategory)
-                        .where(subCategory.category.id.eq(categoryId),
-                                plubbing.status.eq(PlubbingStatus.ACTIVE),
-                                plubbing.visibility.eq(true),
-                                plubbing.recruit.status.eq(RecruitStatus.RECRUITING))
-                        .orderBy(order)
-                        .offset(pageable.getOffset())
-                        .limit(pageable.getPageSize())
-                        .distinct()
-                        .fetch(),
+                result,
                 pageable,
-                () -> queryFactory
-                        .selectFrom(plubbing)
-                        .join(plubbing.plubbingSubCategories, plubbingSubCategory)
-                        .join(plubbingSubCategory.subCategory, subCategory)
-                        .where(subCategory.category.id.eq(categoryId),
-                                plubbing.status.eq(PlubbingStatus.ACTIVE),
-                                plubbing.visibility.eq(true),
-                                plubbing.recruit.status.eq(RecruitStatus.RECRUITING))
-                        .distinct()
-                        .fetch().size()
+                result::size
         );
     }
 
@@ -124,37 +106,27 @@ public class PlubbingRepositoryImpl implements PlubbingRepositoryCustom {
             order = plubbing.modifiedAt.desc();
         }
 
+        List<Plubbing> result = queryFactory
+                .selectFrom(plubbing)
+                .join(plubbing.days, plubbingMeetingDay)
+                .join(plubbing.plubbingSubCategories, plubbingSubCategory)
+                .join(plubbingSubCategory.subCategory, subCategory)
+                .where(inSubCategoryId(subCategoryId),
+                        eqAccountNum(accountNum),
+                        inDays(meetingDays),
+                        subCategory.category.id.eq(categoryId),
+                        plubbing.status.eq(PlubbingStatus.ACTIVE),
+                        plubbing.visibility.eq(true))
+                .orderBy(order)
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .distinct()
+                .fetch();
+
         return PageableExecutionUtils.getPage(
-                queryFactory
-                        .selectFrom(plubbing)
-                        .join(plubbing.days, plubbingMeetingDay)
-                        .join(plubbing.plubbingSubCategories, plubbingSubCategory)
-                        .join(plubbingSubCategory.subCategory, subCategory)
-                        .where(inSubCategoryId(subCategoryId),
-                                eqAccountNum(accountNum),
-                                inDays(meetingDays),
-                                subCategory.category.id.eq(categoryId),
-                                plubbing.status.eq(PlubbingStatus.ACTIVE),
-                                plubbing.visibility.eq(true))
-                        .orderBy(order)
-                        .offset(pageable.getOffset())
-                        .limit(pageable.getPageSize())
-                        .distinct()
-                        .fetch(),
+                result,
                 pageable,
-                () -> queryFactory
-                        .selectFrom(plubbing)
-                        .join(plubbing.days, plubbingMeetingDay)
-                        .join(plubbing.plubbingSubCategories, plubbingSubCategory)
-                        .join(plubbingSubCategory.subCategory, subCategory)
-                        .where(inSubCategoryId(subCategoryId),
-                                eqAccountNum(accountNum),
-                                inDays(meetingDays),
-                                subCategory.category.id.eq(categoryId),
-                                plubbing.status.eq(PlubbingStatus.ACTIVE),
-                                plubbing.visibility.eq(true))
-                        .distinct()
-                        .fetch().size()
+                result::size
         );
     }
 

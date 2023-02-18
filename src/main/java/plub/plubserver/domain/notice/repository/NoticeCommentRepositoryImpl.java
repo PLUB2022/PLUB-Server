@@ -8,6 +8,8 @@ import org.springframework.data.support.PageableExecutionUtils;
 import plub.plubserver.domain.notice.model.Notice;
 import plub.plubserver.domain.notice.model.NoticeComment;
 
+import java.util.List;
+
 import static plub.plubserver.domain.notice.model.QNoticeComment.noticeComment;
 
 @RequiredArgsConstructor
@@ -16,28 +18,20 @@ public class NoticeCommentRepositoryImpl implements NoticeCommentRepositoryCusto
 
     @Override
     public Page<NoticeComment> findAllByNotice(Notice notice, Pageable pageable) {
+        List<NoticeComment> result = queryFactory
+                .selectFrom(noticeComment)
+                .where(noticeComment.notice.eq(notice),
+                        noticeComment.visibility.eq(true))
+                .orderBy(noticeComment.groupId.desc(),
+                        noticeComment.depth.asc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .distinct().fetch();
+
         return PageableExecutionUtils.getPage(
-                queryFactory
-                        .selectFrom(noticeComment)
-                        .where(noticeComment.notice.eq(notice),
-                                noticeComment.visibility.eq(true))
-                        .orderBy(noticeComment.groupId.desc(),
-                                noticeComment.depth.asc())
-                        .offset(pageable.getOffset())
-                        .limit(pageable.getPageSize())
-                        .distinct()
-                        .fetch(),
+                result,
                 pageable,
-                () -> queryFactory
-                        .selectFrom(noticeComment)
-                        .where(noticeComment.notice.eq(notice),
-                                noticeComment.visibility.eq(true))
-                        .orderBy(noticeComment.groupId.desc(),
-                                noticeComment.depth.asc())
-                        .offset(pageable.getOffset())
-                        .limit(pageable.getPageSize())
-                        .distinct()
-                        .fetch().size()
+                result::size
         );
     }
 }

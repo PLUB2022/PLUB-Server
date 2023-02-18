@@ -9,6 +9,8 @@ import plub.plubserver.domain.feed.model.Feed;
 import plub.plubserver.domain.feed.model.FeedComment;
 
 
+import java.util.List;
+
 import static plub.plubserver.domain.feed.model.QFeedComment.feedComment;
 
 @RequiredArgsConstructor
@@ -17,28 +19,19 @@ public class FeedCommentRepositoryImpl implements FeedCommentRepositoryCustom {
 
     @Override
     public Page<FeedComment> findAllByFeed(Feed feed, Pageable pageable) {
+        List<FeedComment> result = queryFactory
+                .selectFrom(feedComment)
+                .where(feedComment.feed.eq(feed),
+                        feedComment.visibility.eq(true))
+                .orderBy(feedComment.groupId.desc(),
+                        feedComment.depth.asc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .distinct().fetch();
         return PageableExecutionUtils.getPage(
-                queryFactory
-                        .selectFrom(feedComment)
-                        .where(feedComment.feed.eq(feed),
-                                feedComment.visibility.eq(true))
-                        .orderBy(feedComment.groupId.desc(),
-                                feedComment.depth.asc())
-                        .offset(pageable.getOffset())
-                        .limit(pageable.getPageSize())
-                        .distinct()
-                        .fetch(),
+                result,
                 pageable,
-                () -> queryFactory
-                        .selectFrom(feedComment)
-                        .where(feedComment.feed.eq(feed),
-                                feedComment.visibility.eq(true))
-                        .orderBy(feedComment.groupId.desc(),
-                                feedComment.depth.asc())
-                        .offset(pageable.getOffset())
-                        .limit(pageable.getPageSize())
-                        .distinct()
-                        .fetch().size()
+                result::size
         );
     }
 }
