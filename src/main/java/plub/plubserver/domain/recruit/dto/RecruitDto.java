@@ -210,7 +210,7 @@ public class RecruitDto {
                     .title(recruit.getTitle())
                     .introduce(recruit.getIntroduce())
                     .days(plubbing.getDays().stream()
-                            .map(it -> it.getDay().toKorean())
+                            .map(it -> it.getDay().name())
                             .toList())
                     .name(plubbing.getName())
                     .mainImage(plubbing.getMainImage())
