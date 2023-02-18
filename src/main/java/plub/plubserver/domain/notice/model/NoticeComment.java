@@ -6,6 +6,8 @@ import plub.plubserver.common.model.BaseEntity;
 import plub.plubserver.domain.account.model.Account;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -21,6 +23,19 @@ public class NoticeComment extends BaseEntity {
 
     private String content;
 
+    private Long groupId;
+
+    @Builder.Default
+    private Long depth = 0L;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "parent_id")
+    private NoticeComment parent;
+
+    @Builder.Default
+    @OneToMany(mappedBy = "parent", orphanRemoval = true)
+    private List<NoticeComment> children = new ArrayList<>();
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "notice_id")
     private Notice notice;
@@ -31,5 +46,18 @@ public class NoticeComment extends BaseEntity {
 
     public void updateNoticeComment(UpdateCommentRequest request) {
         this.content = request.content();
+    }
+
+    public void addChildComment(NoticeComment child) {
+        this.children.add(child);
+        child.parent = this;
+    }
+
+    public void setDepth(NoticeComment parent) {
+        this.depth = parent.getDepth() + 1;
+    }
+
+    public void setGroupId(Long groupId) {
+        this.groupId = groupId;
     }
 }

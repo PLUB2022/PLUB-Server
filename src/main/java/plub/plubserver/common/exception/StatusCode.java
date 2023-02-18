@@ -72,22 +72,19 @@ public enum StatusCode {
      * Feed
      */
     NOT_FOUND_FEED(404, 8010, "not found feed error."),
-    NOT_FOUND_FEED_COMMENT(404, 8020, "not found feed comment error."),
+    NOT_FOUND_COMMENT(404, 8020, "not found comment error."),
     NOT_FEED_AUTHOR_ERROR(403, 8030, "not feed author error."),
     DELETED_STATUS_FEED(400, 8040, "deleted status feed error."),
     CANNOT_DELETED_FEED(400, 8050, "system feed cannot be deleted."),
-    DELETED_STATUS_COMMENT(400, 8060, "deleted status feed comment error."),
+    DELETED_STATUS_COMMENT(400, 8060, "deleted status comment error."),
     MAX_FEED_PIN(400, 8070, "max feed pin error."),
 
     /**
      * Notice
      */
     NOT_FOUND_NOTICE(404, 8510, "not found notice error."),
-    NOT_FOUND_NOTICE_COMMENT(404, 8520, "not found notice comment error."),
-    NOT_NOTICE_AUTHOR_ERROR(403, 8530, "not notice author error."),
-    DELETED_STATUS_NOTICE(400, 8540, "deleted status notice error."),
-    DELETED_STATUS_NOTICE_COMMENT(400, 8550, "deleted status notice comment error."),
-
+    NOT_NOTICE_AUTHOR_ERROR(403, 8520, "not notice author error."),
+    DELETED_STATUS_NOTICE(400, 8530, "deleted status notice error."),
     /**
      * Notification
      */

@@ -1,6 +1,7 @@
 package plub.plubserver.domain.notice.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -43,7 +44,7 @@ public class NoticeService {
 
     public NoticeComment getNoticeComment(Long commentId) {
         return noticeCommentRepository.findById(commentId)
-                .orElseThrow(() -> new NoticeException(StatusCode.NOT_FOUND_NOTICE_COMMENT));
+                .orElseThrow(() -> new NoticeException(StatusCode.NOT_FOUND_COMMENT));
     }
 
     @Transactional
@@ -83,14 +84,14 @@ public class NoticeService {
         return PageResponse.of(pageable, noticeCardResponses);
     }
 
-    public NoticeResponse getNotice(Account account, Long noticeId) {
+    public NoticeResponse getNotice(Account account, Long plubbingId, Long noticeId) {
+        plubbingService.getPlubbing(plubbingId);
         Account currentAccount = accountService.getAccount(account.getId());
         Notice notice = getNotice(noticeId);
         checkNoticeStatus(notice);
         plubbingService.checkMember(currentAccount, notice.getPlubbing());
         return NoticeResponse.of(notice, isNoticeAuthor(currentAccount, notice));
     }
-
 
     @Transactional
     public NoticeIdResponse updateNotice(Long plubbingId, Long noticeId, UpdateNoticeRequest updateNoticeRequest) {
@@ -104,7 +105,8 @@ public class NoticeService {
     }
 
     @Transactional
-    public NoticeMessage softDeleteNotice(Long noticeId) {
+    public NoticeMessage softDeleteNotice(Long plubbingId, Long noticeId) {
+        plubbingService.getPlubbing(plubbingId);
         Notice notice = getNotice(noticeId);
         plubbingService.checkHost(notice.getPlubbing());
         notice.softDelete();
@@ -112,7 +114,8 @@ public class NoticeService {
     }
 
     @Transactional
-    public NoticeMessage likeNotice(Account account, Long noticeId) {
+    public NoticeMessage likeNotice(Account account, Long plubbingId, Long noticeId) {
+        plubbingService.getPlubbing(plubbingId);
         Account currentAccount = accountService.getAccount(account.getId());
         Notice notice = getNotice(noticeId);
         checkNoticeStatus(notice);
@@ -121,35 +124,52 @@ public class NoticeService {
             noticeLikeRepository.save(NoticeLike.builder().notice(notice).account(currentAccount).build());
             notice.addLike();
             return new NoticeMessage(noticeId + ", Like Success.");
-        }
-        else {
+        } else {
             noticeLikeRepository.deleteByAccountAndNotice(currentAccount, notice);
             notice.subLike();
             return new NoticeMessage(noticeId + ", Like Cancel.");
         }
     }
 
-    public PageResponse<NoticeCommentResponse> getNoticeCommentList(Account account, Long noticeId, Pageable pageable) {
+    public PageResponse<NoticeCommentResponse> getNoticeCommentList(Account account, Long plubbingId, Long noticeId, Pageable pageable) {
+        plubbingService.getPlubbing(plubbingId);
         Account currentAccount = accountService.getAccount(account.getId());
         Notice notice = getNotice(noticeId);
         plubbingService.checkMember(account, notice.getPlubbing());
-        List<NoticeCommentResponse> noticeCommentList = noticeCommentRepository.findAllByNoticeAndVisibility(notice, true)
-                .stream()
-                .map(it -> NoticeCommentResponse.of(it, isCommentAuthor(currentAccount, it), isNoticeAuthor(currentAccount, notice)))
-                .toList();
-        return PageResponse.of(pageable, noticeCommentList);
+        Page<NoticeCommentResponse> noticeCommentList = noticeCommentRepository.findAllByNotice(notice, pageable)
+                .map(it -> NoticeCommentResponse.of(it, isCommentAuthor(currentAccount, it), isNoticeAuthor(currentAccount, notice)));
+        return PageResponse.of(noticeCommentList);
     }
 
     @Transactional
-    public CommentIdResponse createNoticeComment(Account account, Long noticeId, CreateCommentRequest createCommentRequest) {
+    public CommentIdResponse createNoticeComment(Account account, Long plubbingId, Long noticeId, CreateCommentRequest createCommentRequest) {
+        plubbingService.getPlubbing(plubbingId);
         Account currentAccount = accountService.getAccount(account.getId());
         Notice notice = getNotice(noticeId);
         checkNoticeStatus(notice);
         plubbingService.checkMember(currentAccount, notice.getPlubbing());
+
+        NoticeComment parentComment = null;
+        if (createCommentRequest.parentCommentId() != null) {
+            parentComment = getNoticeComment(createCommentRequest.parentCommentId());
+            if (!parentComment.getNotice().getId().equals(notice.getId()))
+                throw new NoticeException(StatusCode.NOT_FOUND_NOTICE);
+        }
+
         NoticeComment comment = noticeCommentRepository.save(createCommentRequest.toNoticeComment(notice, currentAccount));
+        if (parentComment != null) {
+            parentComment.addChildComment(comment);
+            comment.setDepth(parentComment);
+            comment.setGroupId(parentComment.getGroupId());
+            noticeCommentRepository.save(parentComment);
+            noticeCommentRepository.save(comment);
+        } else {
+            comment.setGroupId(comment.getId());
+        }
+
         currentAccount.addNoticeComment(comment);
         notice.addComment();
-        
+
         // 작성자에게 푸시 알림
         notificationService.pushMessage(
                 comment.getAccount(),
@@ -158,12 +178,14 @@ public class NoticeService {
         );
 
         // TODO : 대댓글 알림
-        
+
         return new CommentIdResponse(comment.getId());
     }
 
     @Transactional
-    public CommentIdResponse updateNoticeComment(Account account, Long commentId, UpdateCommentRequest updateCommentRequest) {
+    public CommentIdResponse updateNoticeComment(Account account, Long plubbingId, Long noticeId, Long commentId, UpdateCommentRequest updateCommentRequest) {
+        plubbingService.getPlubbing(plubbingId);
+        getNotice(noticeId);
         Account currentAccount = accountService.getAccount(account.getId());
         NoticeComment noticeComment = getNoticeComment(commentId);
         checkCommentAuthor(currentAccount, noticeComment);
@@ -172,19 +194,37 @@ public class NoticeService {
     }
 
     @Transactional
-    public CommentMessage deleteNoticeComment(Account account, Long commentId) {
+    public CommentMessage deleteNoticeComment(Account account, Long plubbingId, Long noticeId, Long commentId) {
+        plubbingService.getPlubbing(plubbingId);
+        getNotice(noticeId);
         Account currentAccount = accountService.getAccount(account.getId());
         NoticeComment noticeComment = getNoticeComment(commentId);
         checkCommentStatus(noticeComment);
+
         if (!noticeComment.getNotice().getAccount().equals(currentAccount) && !noticeComment.getAccount().equals(currentAccount))
             throw new NoticeException(StatusCode.NOT_NOTICE_AUTHOR_ERROR);
+
+        if (noticeComment.getChildren().size() != 0)
+            deleteChildComment(noticeComment);
+
         noticeComment.getNotice().subComment();
         noticeComment.softDelete();
         return new CommentMessage("soft delete comment");
     }
 
+    private void deleteChildComment(NoticeComment noticeComment) {
+        if (noticeComment.getChildren().size() == 0)
+            return;
+        noticeComment.getChildren().forEach(it -> {
+            it.softDelete();
+            it.getNotice().subComment();
+            deleteChildComment(it);
+            noticeCommentRepository.save(it);
+        });
+    }
+
     // TODO
-    public CommentIdResponse reportNoticeComment(Account account, Long commentId) {
+    public CommentIdResponse reportNoticeComment(Account account, Long plubbingId, Long noticeId, Long commentId) {
         return new CommentIdResponse(1L);
     }
 
@@ -195,21 +235,21 @@ public class NoticeService {
 
     private void checkCommentStatus(NoticeComment noticeComment) {
         if (!noticeComment.isVisibility())
-            throw new NoticeException(StatusCode.DELETED_STATUS_NOTICE_COMMENT);
+            throw new NoticeException(StatusCode.DELETED_STATUS_COMMENT);
     }
 
     public void checkCommentAuthor(Account account, NoticeComment noticeComment) {
         checkCommentStatus(noticeComment);
-        if (!noticeComment.getAccount().equals(account)) {
-            throw new NoticeException(StatusCode.NOT_FOUND_FEED_COMMENT);
+        if (!noticeComment.getAccount().getId().equals(account.getId())) {
+            throw new NoticeException(StatusCode.NOT_FOUND_COMMENT);
         }
     }
 
     public Boolean isNoticeAuthor(Account account, Notice notice) {
-        return notice.getAccount().equals(account);
+        return notice.getAccount().getId().equals(account.getId());
     }
 
     public Boolean isCommentAuthor(Account account, NoticeComment noticeComment) {
-        return noticeComment.getAccount().equals(account);
+        return noticeComment.getAccount().getId().equals(account.getId());
     }
 }

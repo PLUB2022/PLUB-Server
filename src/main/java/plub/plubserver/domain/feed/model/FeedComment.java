@@ -6,6 +6,8 @@ import plub.plubserver.common.model.BaseEntity;
 import plub.plubserver.domain.account.model.Account;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -21,6 +23,19 @@ public class FeedComment extends BaseEntity {
 
     private String content;
 
+    private Long groupId;
+
+    @Builder.Default
+    private Long depth = 0L;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "parent_id")
+    private FeedComment parent;
+
+    @Builder.Default
+    @OneToMany(mappedBy = "parent", orphanRemoval = true)
+    private List<FeedComment> children = new ArrayList<>();
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "feed_id")
     private Feed feed;
@@ -31,5 +46,18 @@ public class FeedComment extends BaseEntity {
 
     public void updateFeedComment(UpdateCommentRequest request) {
         this.content = request.content();
+    }
+
+    public void addChildComment(FeedComment child) {
+        this.children.add(child);
+        child.parent = this;
+    }
+
+    public void setDepth(FeedComment parent) {
+        this.depth = parent.getDepth() + 1;
+    }
+
+    public void setGroupId(Long groupId) {
+        this.groupId = groupId;
     }
 }

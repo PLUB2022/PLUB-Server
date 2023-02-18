@@ -1,7 +1,6 @@
 package plub.plubserver.domain.feed.dto;
 
 import lombok.Builder;
-import plub.plubserver.common.dto.CommentDto.*;
 import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.feed.model.FeedType;
 import plub.plubserver.domain.feed.model.Feed;
@@ -139,14 +138,12 @@ public class FeedDto {
             Boolean isAuthor,
             Boolean isHost,
             int likeCount,
-            int commentCount,
-            List<FeedCommentResponse> comments
-    ) {
+            int commentCount) {
         @Builder
         public FeedResponse {
         }
 
-        public static FeedResponse of(Feed feed, List<FeedCommentResponse> comments, Boolean isAuthor, Boolean isHost) {
+        public static FeedResponse of(Feed feed, Boolean isAuthor, Boolean isHost) {
             return FeedResponse.builder()
                     .feedId(feed.getId())
                     .feedType(feed.getFeedType().toString())
@@ -161,8 +158,7 @@ public class FeedDto {
                     .likeCount(feed.getLikeCount())
                     .isAuthor(isAuthor)
                     .isHost(isHost)
-                    .commentCount(comments.size())
-                    .comments(comments)
+                    .commentCount(feed.getCommentCount())
                     .build();
         }
     }

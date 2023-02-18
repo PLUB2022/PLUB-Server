@@ -1,6 +1,7 @@
 package plub.plubserver.domain.feed.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -41,7 +42,7 @@ public class FeedService {
 
     public FeedComment getFeedComment(Long commentId) {
         return feedCommentRepository.findById(commentId)
-                .orElseThrow(() -> new FeedException(StatusCode.NOT_FOUND_FEED_COMMENT));
+                .orElseThrow(() -> new FeedException(StatusCode.NOT_FOUND_COMMENT));
     }
 
     @Transactional
@@ -57,7 +58,7 @@ public class FeedService {
         Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
         plubbingService.checkMember(account, plubbing);
         Boolean isHost = plubbingService.isHost(account, plubbing);
-        List<FeedCardResponse> feedCardList = feedRepository.findAllByPlubbingAndPinAndVisibility(plubbing, false, true, Sort.by(Sort.Direction.DESC,"createdAt"))
+        List<FeedCardResponse> feedCardList = feedRepository.findAllByPlubbingAndPinAndVisibility(plubbing, false, true, Sort.by(Sort.Direction.DESC, "createdAt"))
                 .stream().map((Feed feed) -> FeedCardResponse.of(feed, isFeedAuthor(account, feed), isHost)).toList();
         return PageResponse.of(pageable, feedCardList);
     }
@@ -101,9 +102,7 @@ public class FeedService {
         checkFeedStatus(feed);
         plubbingService.checkMember(account, feed.getPlubbing());
         Boolean isHost = plubbingService.isHost(account, feed.getPlubbing());
-        List<FeedCommentResponse> commentResponses = feedCommentRepository.findAllByFeedAndVisibility(feed, true)
-                .stream().map((FeedComment feedComment) -> FeedCommentResponse.of(feedComment, isCommentAuthor(account, feedComment),isFeedAuthor(account, feed))).toList();
-        return FeedResponse.of(feed, commentResponses, isFeedAuthor(account, feed), isHost);
+        return FeedResponse.of(feed, isFeedAuthor(account, feed), isHost);
     }
 
     @Transactional
@@ -128,12 +127,21 @@ public class FeedService {
             feedLikeRepository.save(FeedLike.builder().feed(feed).account(account).build());
             feed.addLike();
             return new FeedMessage(feedId + ", Like Success.");
-        }
-        else {
+        } else {
             feedLikeRepository.deleteByAccountAndFeed(account, feed);
             feed.subLike();
             return new FeedMessage(feedId + ", Like Cancel.");
         }
+    }
+
+    public PageResponse<FeedCommentResponse> getFeedCommentList(Account account, Long plubbingId, Long feedId, Pageable pageable) {
+        plubbingService.getPlubbing(plubbingId);
+        Feed feed = getFeed(feedId);
+        checkFeedStatus(feed);
+        plubbingService.checkMember(account, feed.getPlubbing());
+        Page<FeedCommentResponse> feedCommentList = feedCommentRepository.findAllByFeed(feed, pageable)
+                .map(it -> FeedCommentResponse.of(it, isCommentAuthor(account, it), isFeedAuthor(account, feed)));
+        return PageResponse.of(feedCommentList);
     }
 
     @Transactional
@@ -146,7 +154,25 @@ public class FeedService {
         Feed feed = getFeed(feedId);
         checkFeedStatus(feed);
         plubbingService.checkMember(account, feed.getPlubbing());
+
+        FeedComment parentComment = null;
+        if (createCommentRequest.parentCommentId() != null) {
+            parentComment = getFeedComment(createCommentRequest.parentCommentId());
+            if (!parentComment.getFeed().getId().equals(feed.getId()))
+                throw new FeedException(StatusCode.NOT_FOUND_FEED);
+        }
+
         FeedComment comment = feedCommentRepository.save(createCommentRequest.toFeedComment(feed, account));
+        if (parentComment != null) {
+            parentComment.addChildComment(comment);
+            comment.setDepth(parentComment);
+            comment.setGroupId(parentComment.getGroupId());
+            feedCommentRepository.save(parentComment);
+            feedCommentRepository.save(comment);
+        } else {
+            comment.setGroupId(comment.getId());
+        }
+
         feed.addComment();
 
         // 작성자에게 푸시 알림
@@ -181,11 +207,27 @@ public class FeedService {
         getFeed(feedId);
         FeedComment feedComment = getFeedComment(commentId);
         checkCommentStatus(feedComment);
+
         if (!isFeedAuthor(account, feedComment.getFeed()) && !isCommentAuthor(account, feedComment))
             throw new FeedException(StatusCode.NOT_FEED_AUTHOR_ERROR);
+
+        if (feedComment.getChildren().size() != 0)
+            deleteChildComment(feedComment);
+
         feedComment.getFeed().subComment();
         feedComment.softDelete();
         return new CommentMessage("soft delete comment");
+    }
+
+    private void deleteChildComment(FeedComment feedComment) {
+        if (feedComment.getChildren().size() == 0)
+            return;
+        feedComment.getChildren().forEach(it -> {
+            it.softDelete();
+            it.getFeed().subComment();
+            deleteChildComment(it);
+            feedCommentRepository.save(it);
+        });
     }
 
     //TODO
@@ -194,12 +236,12 @@ public class FeedService {
     }
 
     public void checkFeedAuthor(Account account, Feed feed) {
-        if (!feed.getAccount().equals(account))
+        if (!feed.getAccount().getId().equals(account.getId()))
             throw new FeedException(StatusCode.NOT_FEED_AUTHOR_ERROR);
     }
 
     public void checkCommentAuthor(Account account, FeedComment feedComment) {
-        if (!feedComment.getAccount().equals(account)) {
+        if (!feedComment.getAccount().getId().equals(account.getId())) {
             throw new FeedException(StatusCode.NOT_FEED_AUTHOR_ERROR);
         }
     }
@@ -215,11 +257,11 @@ public class FeedService {
     }
 
     public Boolean isFeedAuthor(Account account, Feed feed) {
-        return feed.getAccount().equals(account);
+        return feed.getAccount().getId().equals(account.getId());
     }
 
     public Boolean isCommentAuthor(Account account, FeedComment feedComment) {
-        return feedComment.getAccount().equals(account);
+        return feedComment.getAccount().getId().equals(account.getId());
     }
 
     // 더미용

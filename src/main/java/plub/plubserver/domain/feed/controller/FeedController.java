@@ -106,6 +106,17 @@ public class FeedController {
         return success(feedService.likeFeed(loginAccount, plubbingId, feedId));
     }
 
+    @ApiOperation(value = "게시글별 댓글 조회")
+    @GetMapping("{plubbingId}/feeds/{feedId}/comments")
+    public ApiResponse<PageResponse<FeedCommentResponse>> getFeedCommentList(
+            @PathVariable Long plubbingId,
+            @PathVariable Long feedId,
+            @PageableDefault(size = 20) Pageable pageable
+    ) {
+        Account loginAccount = accountService.getCurrentAccount();
+        return success(feedService.getFeedCommentList(loginAccount, plubbingId, feedId, pageable));
+    }
+
     @ApiOperation(value = "게시글 댓글 생성")
     @PostMapping("/{plubbingId}/feeds/{feedId}/comments")
     public ApiResponse<CommentIdResponse> createFeedComment(
