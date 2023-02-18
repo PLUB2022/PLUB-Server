@@ -91,6 +91,8 @@ public class AwsS3Service {
             case "profile" -> S3SaveDir.ACCOUNT_PROFILE;
             case "plubbing-main" -> S3SaveDir.PLUBBING_MAIN_IMAGE;
             case "archive" -> S3SaveDir.PLUBBING_ARCHIVE;
+            case "feed" -> S3SaveDir.PLUBBING_FEED;
+            case "todo" -> S3SaveDir.PLUBBING_TODO;
             // 추후 더 추가될 것
             default -> S3SaveDir.ACCOUNT_PROFILE;
         };
