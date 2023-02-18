@@ -9,7 +9,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.stereotype.Component;
 import plub.plubserver.common.dto.ApiResponse;
-import plub.plubserver.domain.account.config.AuthCode;
+import plub.plubserver.common.exception.StatusCode;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -30,7 +30,7 @@ public class JwtAccessDeniedHandler implements AccessDeniedHandler {
         response.setCharacterEncoding("utf-8");
         response.setStatus(HttpStatus.FORBIDDEN.value());
         String body = objectMapper.writeValueAsString(
-                ApiResponse.error(AuthCode.FILTER_ROLE_FORBIDDEN.getStatusCode(), AuthCode.FILTER_ROLE_FORBIDDEN.getMessage())
+                ApiResponse.error(StatusCode.FILTER_ROLE_FORBIDDEN.getStatusCode(), StatusCode.FILTER_ROLE_FORBIDDEN.getMessage())
         );
         response.getWriter().write(body);
     }

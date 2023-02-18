@@ -13,7 +13,7 @@ import org.json.simple.parser.JSONParser;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import plub.plubserver.domain.notification.config.NotificationCode;
+import plub.plubserver.common.exception.StatusCode;
 import plub.plubserver.domain.notification.dto.FcmDto.Notification;
 import plub.plubserver.domain.notification.exception.NotificationException;
 
@@ -41,7 +41,7 @@ public class FcmService {
             return credentials.getAccessToken().getTokenValue();
         } catch (IOException e) {
             log.warn("FCM getAccessToken Error : {}", e.getMessage());
-            throw new NotificationException(NotificationCode.GET_FCM_ACCESS_TOKEN_ERROR);
+            throw new NotificationException(StatusCode.GET_FCM_ACCESS_TOKEN_ERROR);
         }
     }
 
@@ -53,7 +53,7 @@ public class FcmService {
             return objectMapper.writeValueAsString(fcmMessage);
         } catch (JsonProcessingException e) {
             log.warn("FCM [makeMessage] Error : {}", e.getMessage());
-            throw new NotificationException(NotificationCode.FCM_MESSAGE_JSON_PARSING_ERROR);
+            throw new NotificationException(StatusCode.FCM_MESSAGE_JSON_PARSING_ERROR);
         }
 
     }
@@ -80,7 +80,7 @@ public class FcmService {
             return CompletableFuture.completedFuture(true);
         } catch (Exception e) {
             log.warn("FCM [sendPushMessage] I/O Exception : {}", e.getMessage());
-            throw new NotificationException(NotificationCode.SEND_FCM_PUSH_ERROR);
+            throw new NotificationException(StatusCode.SEND_FCM_PUSH_ERROR);
         }
     }
 }

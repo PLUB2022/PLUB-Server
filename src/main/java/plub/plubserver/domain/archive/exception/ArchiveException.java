@@ -1,11 +1,10 @@
 package plub.plubserver.domain.archive.exception;
 
-import plub.plubserver.domain.archive.config.ArchiveCode;
+import plub.plubserver.common.exception.PlubException;
+import plub.plubserver.common.exception.StatusCode;
 
-public class ArchiveException extends RuntimeException {
-    public ArchiveCode archiveError;
-    public ArchiveException(ArchiveCode archiveError) {
-        super(archiveError.getMessage());
-        this.archiveError = archiveError;
+public class ArchiveException extends PlubException {
+    public ArchiveException(StatusCode statusCode) {
+        super(statusCode);
     }
 }

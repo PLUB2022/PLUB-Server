@@ -5,13 +5,16 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import plub.plubserver.common.dto.PageResponse;
-import plub.plubserver.domain.account.model.Account;
-import plub.plubserver.domain.feed.config.FeedCode;
-import plub.plubserver.domain.feed.dto.FeedDto.*;
 import plub.plubserver.common.dto.CommentDto.*;
+import plub.plubserver.common.dto.PageResponse;
+import plub.plubserver.common.exception.StatusCode;
+import plub.plubserver.domain.account.model.Account;
+import plub.plubserver.domain.feed.dto.FeedDto.*;
 import plub.plubserver.domain.feed.exception.FeedException;
-import plub.plubserver.domain.feed.model.*;
+import plub.plubserver.domain.feed.model.Feed;
+import plub.plubserver.domain.feed.model.FeedComment;
+import plub.plubserver.domain.feed.model.FeedLike;
+import plub.plubserver.domain.feed.model.ViewType;
 import plub.plubserver.domain.feed.repository.FeedCommentRepository;
 import plub.plubserver.domain.feed.repository.FeedLikeRepository;
 import plub.plubserver.domain.feed.repository.FeedRepository;
@@ -20,8 +23,6 @@ import plub.plubserver.domain.plubbing.model.Plubbing;
 import plub.plubserver.domain.plubbing.service.PlubbingService;
 
 import java.util.List;
-
-import static plub.plubserver.domain.feed.config.FeedCode.*;
 
 @Service
 @Transactional(readOnly = true)
@@ -35,11 +36,12 @@ public class FeedService {
     private final NotificationService notificationService;
 
     public Feed getFeed(Long feedId) {
-        return feedRepository.findById(feedId).orElseThrow(() -> new FeedException(NOT_FOUND_FEED));
+        return feedRepository.findById(feedId).orElseThrow(() -> new FeedException(StatusCode.NOT_FOUND_FEED));
     }
 
     public FeedComment getFeedComment(Long commentId) {
-        return feedCommentRepository.findById(commentId).orElseThrow(() -> new FeedException(NOT_FOUND_COMMENT));
+        return feedCommentRepository.findById(commentId)
+                .orElseThrow(() -> new FeedException(StatusCode.NOT_FOUND_FEED_COMMENT));
     }
 
     @Transactional
@@ -74,7 +76,7 @@ public class FeedService {
         Feed feed = getFeed(feedId);
         checkFeedStatus(feed);
         if (feed.getViewType().equals(ViewType.SYSTEM))
-            throw new FeedException(CANNOT_DELETED_FEED);
+            throw new FeedException(StatusCode.CANNOT_DELETED_FEED);
         checkFeedAuthor(account, feed);
         feed.updateFeed(updateFeedRequest);
         return new FeedIdResponse(feedId);
@@ -85,7 +87,7 @@ public class FeedService {
         Feed feed = getFeed(feedId);
         checkFeedStatus(feed);
         if (feed.getViewType().equals(ViewType.SYSTEM))
-            throw new FeedException(CANNOT_DELETED_FEED);
+            throw new FeedException(StatusCode.CANNOT_DELETED_FEED);
         checkFeedAuthor(account, feed);
         feed.softDelete();
         return new FeedMessage("soft delete feed");
@@ -106,7 +108,7 @@ public class FeedService {
         Feed feed = getFeed(feedId);
         checkFeedStatus(feed);
         if (feedRepository.countByPin(true) > 20)
-            throw new FeedException(MAX_FEED_PIN);
+            throw new FeedException(StatusCode.MAX_FEED_PIN);
         plubbingService.checkHost(account, feed.getPlubbing());
         feed.pin();
         return new FeedIdResponse(feedId);
@@ -171,7 +173,7 @@ public class FeedService {
         FeedComment feedComment = getFeedComment(commentId);
         checkCommentStatus(feedComment);
         if (!isFeedAuthor(account, feedComment.getFeed()) && !isCommentAuthor(account, feedComment))
-            throw new FeedException(NOT_AUTHOR_ERROR);
+            throw new FeedException(StatusCode.NOT_FEED_AUTHOR_ERROR);
         feedComment.getFeed().subComment();
         feedComment.softDelete();
         return new CommentMessage("soft delete comment");
@@ -184,23 +186,23 @@ public class FeedService {
 
     public void checkFeedAuthor(Account account, Feed feed) {
         if (!feed.getAccount().equals(account))
-            throw new FeedException(NOT_AUTHOR_ERROR);
+            throw new FeedException(StatusCode.NOT_FEED_AUTHOR_ERROR);
     }
 
     public void checkCommentAuthor(Account account, FeedComment feedComment) {
         if (!feedComment.getAccount().equals(account)) {
-            throw new FeedException(NOT_AUTHOR_ERROR);
+            throw new FeedException(StatusCode.NOT_FEED_AUTHOR_ERROR);
         }
     }
 
     private void checkFeedStatus(Feed feed) {
         if (!feed.isVisibility())
-            throw new FeedException(FeedCode.DELETED_STATUS_FEED);
+            throw new FeedException(StatusCode.DELETED_STATUS_FEED);
     }
 
     private void checkCommentStatus(FeedComment feedComment) {
         if (!feedComment.isVisibility())
-            throw new FeedException(FeedCode.DELETED_STATUS_COMMENT);
+            throw new FeedException(StatusCode.DELETED_STATUS_COMMENT);
     }
 
     public Boolean isFeedAuthor(Account account, Feed feed) {

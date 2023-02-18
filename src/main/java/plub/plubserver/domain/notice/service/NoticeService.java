@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import plub.plubserver.common.dto.CommentDto.*;
 import plub.plubserver.common.dto.PageResponse;
+import plub.plubserver.common.exception.StatusCode;
 import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.notice.dto.NoticeDto.*;
 import plub.plubserver.domain.notice.exception.NoticeException;
@@ -22,7 +23,6 @@ import plub.plubserver.domain.plubbing.service.PlubbingService;
 
 import java.util.List;
 
-import static plub.plubserver.domain.notice.config.NoticeCode.*;
 
 @Service
 @Transactional(readOnly = true)
@@ -35,11 +35,13 @@ public class NoticeService {
     private final NotificationService notificationService; // TODO : AOP로 의존성을 줄일 방법 생각하기
 
     public Notice getNotice(Long noticeId) {
-        return noticeRepository.findById(noticeId).orElseThrow(() -> new NoticeException(NOT_FOUND_NOTICE));
+        return noticeRepository.findById(noticeId)
+                .orElseThrow(() -> new NoticeException(StatusCode.NOT_FOUND_NOTICE));
     }
 
     public NoticeComment getNoticeComment(Long commentId) {
-        return noticeCommentRepository.findById(commentId).orElseThrow(() -> new NoticeException(NOT_FOUND_COMMENT));
+        return noticeCommentRepository.findById(commentId)
+                .orElseThrow(() -> new NoticeException(StatusCode.NOT_FOUND_NOTICE_COMMENT));
     }
 
     @Transactional
@@ -165,7 +167,7 @@ public class NoticeService {
         NoticeComment noticeComment = getNoticeComment(commentId);
         checkCommentStatus(noticeComment);
         if (!noticeComment.getNotice().getAccount().equals(account) && !noticeComment.getAccount().equals(account))
-            throw new NoticeException(NOT_AUTHOR_ERROR);
+            throw new NoticeException(StatusCode.NOT_NOTICE_AUTHOR_ERROR);
         noticeComment.getNotice().subComment();
         noticeComment.softDelete();
         return new CommentMessage("soft delete comment");
@@ -178,18 +180,18 @@ public class NoticeService {
 
     private void checkNoticeStatus(Notice notice) {
         if (!notice.isVisibility())
-            throw new NoticeException(DELETED_STATUS_NOTICE);
+            throw new NoticeException(StatusCode.DELETED_STATUS_NOTICE);
     }
 
     private void checkCommentStatus(NoticeComment noticeComment) {
         if (!noticeComment.isVisibility())
-            throw new NoticeException(DELETED_STATUS_COMMENT);
+            throw new NoticeException(StatusCode.DELETED_STATUS_NOTICE_COMMENT);
     }
 
     public void checkCommentAuthor(Account account, NoticeComment noticeComment) {
         checkCommentStatus(noticeComment);
         if (!noticeComment.getAccount().equals(account)) {
-            throw new NoticeException(NOT_FOUND_COMMENT);
+            throw new NoticeException(StatusCode.NOT_FOUND_FEED_COMMENT);
         }
     }
 

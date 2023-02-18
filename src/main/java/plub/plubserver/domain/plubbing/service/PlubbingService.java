@@ -6,6 +6,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import plub.plubserver.common.dto.PageResponse;
+import plub.plubserver.common.exception.StatusCode;
 import plub.plubserver.common.model.SortType;
 import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.account.model.AccountCategory;
@@ -15,7 +16,6 @@ import plub.plubserver.domain.category.model.PlubbingSubCategory;
 import plub.plubserver.domain.category.model.SubCategory;
 import plub.plubserver.domain.category.service.CategoryService;
 import plub.plubserver.domain.notification.service.NotificationService;
-import plub.plubserver.domain.plubbing.config.PlubbingCode;
 import plub.plubserver.domain.plubbing.dto.PlubbingDto.*;
 import plub.plubserver.domain.plubbing.exception.PlubbingException;
 import plub.plubserver.domain.plubbing.model.*;
@@ -47,7 +47,7 @@ public class PlubbingService {
 
     public Plubbing getPlubbing(Long plubbingId) {
         return plubbingRepository.findById(plubbingId)
-                .orElseThrow(() -> new PlubbingException(PlubbingCode.NOT_FOUND_PLUBBING));
+                .orElseThrow(() -> new PlubbingException(StatusCode.NOT_FOUND_PLUBBING));
     }
 
     private void createRecruit(CreatePlubbingRequest createPlubbingRequest, Plubbing plubbing) {
@@ -113,7 +113,7 @@ public class PlubbingService {
             SubCategory subCategory = createPlubbingRequest.subCategoryIds()
                     .stream()
                     .map(categoryService::getSubCategory)
-                    .findFirst().orElseThrow(() -> new PlubbingException(PlubbingCode.NOT_FOUND_SUB_CATEGORY));
+                    .findFirst().orElseThrow(() -> new PlubbingException(StatusCode.NOT_FOUND_SUB_CATEGORY));
             mainImage = subCategory.getDefaultImage();
         }
         plubbing.setMainImage(mainImage);
@@ -159,15 +159,15 @@ public class PlubbingService {
      */
     public Account getHost(Long plubbingId) {
         return accountPlubbingRepository.findByPlubbingIdAndIsHost(plubbingId)
-                .orElseThrow(() -> new PlubbingException(PlubbingCode.NOT_HOST_ERROR))
+                .orElseThrow(() -> new PlubbingException(StatusCode.NOT_HOST_ERROR))
                 .getAccount();
     }
 
     // 호스트 여부 검사
     public void checkHost(Account account, Plubbing plubbing) {
         AccountPlubbing accountPlubbing = accountPlubbingRepository.findByAccountAndPlubbing(account, plubbing)
-                .orElseThrow(() -> new PlubbingException(PlubbingCode.NOT_MEMBER_ERROR));
-        if (!accountPlubbing.isHost()) throw new PlubbingException(PlubbingCode.NOT_HOST_ERROR);
+                .orElseThrow(() -> new PlubbingException(StatusCode.NOT_MEMBER_ERROR));
+        if (!accountPlubbing.isHost()) throw new PlubbingException(StatusCode.NOT_HOST_ERROR);
     }
 
     public void checkHost(Plubbing plubbing) {
@@ -197,9 +197,10 @@ public class PlubbingService {
     public MainPlubbingResponse getMainPlubbing(Long plubbingId) {
         Account currentAccount = accountService.getCurrentAccount();
         if (!accountPlubbingRepository.existsByAccountAndPlubbingId(currentAccount, plubbingId))
-            throw new PlubbingException(PlubbingCode.FORBIDDEN_ACCESS_PLUBBING);
+            throw new PlubbingException(StatusCode.FORBIDDEN_ACCESS_PLUBBING);
 
-        Plubbing plubbing = plubbingRepository.findById(plubbingId).orElseThrow(() -> new PlubbingException(PlubbingCode.NOT_FOUND_PLUBBING));
+        Plubbing plubbing = plubbingRepository.findById(plubbingId)
+                .orElseThrow(() -> new PlubbingException(StatusCode.NOT_FOUND_PLUBBING));
         checkPlubbingStatus(plubbing);
 
         List<Account> accounts = accountPlubbingRepository.findAllByPlubbingId(plubbingId)
@@ -215,7 +216,8 @@ public class PlubbingService {
      */
     @Transactional
     public PlubbingMessage deletePlubbing(Long plubbingId) {
-        Plubbing plubbing = plubbingRepository.findById(plubbingId).orElseThrow(() -> new PlubbingException(PlubbingCode.NOT_FOUND_PLUBBING));
+        Plubbing plubbing = plubbingRepository.findById(plubbingId)
+                .orElseThrow(() -> new PlubbingException(StatusCode.NOT_FOUND_PLUBBING));
         checkPlubbingStatus(plubbing);
         checkHost(plubbing);
 
@@ -233,7 +235,7 @@ public class PlubbingService {
     @Transactional
     public PlubbingMessage endPlubbing(Long plubbingId) {
         Plubbing plubbing = plubbingRepository.findById(plubbingId)
-                .orElseThrow(() -> new PlubbingException(PlubbingCode.NOT_FOUND_PLUBBING));
+                .orElseThrow(() -> new PlubbingException(StatusCode.NOT_FOUND_PLUBBING));
         checkHost(plubbing);
         List<AccountPlubbing> accountPlubbingList = accountPlubbingRepository.findAllByPlubbingId(plubbingId);
         if (plubbing.getStatus().equals(PlubbingStatus.END)) {
@@ -293,7 +295,7 @@ public class PlubbingService {
 
     private void checkPlubbingStatus(Plubbing plubbing) {
         if (plubbing.getStatus().equals(PlubbingStatus.END) || !plubbing.isVisibility())
-            throw new PlubbingException(PlubbingCode.DELETED_STATUS_PLUBBING);
+            throw new PlubbingException(StatusCode.DELETED_STATUS_PLUBBING);
     }
 
     public PageResponse<PlubbingCardResponse> getRecommendation(Pageable pageable) {
@@ -311,7 +313,12 @@ public class PlubbingService {
         }
     }
 
-    public PageResponse<PlubbingCardResponse> getPlubbingByCategory(Long categoryId, Pageable pageable, String sort, PlubbingCardRequest plubbingCardRequest) {
+    public PageResponse<PlubbingCardResponse> getPlubbingByCategory(
+            Long categoryId,
+            Pageable pageable,
+            String sort,
+            PlubbingCardRequest plubbingCardRequest
+    ) {
         Account myAccount = accountService.getCurrentAccount();
         if (plubbingCardRequest == null) {
             return PageResponse.of(plubbingRepository.findAllByCategoryId(categoryId, pageable, SortType.of(sort))
@@ -325,7 +332,8 @@ public class PlubbingService {
         if (days != null)
             meetingDays = days.stream().map(MeetingDay::valueOf).toList();
 
-        Page<PlubbingCardResponse> plubbingCardResponses = plubbingRepository.findAllByCategoryIdAndSubCategoryIdAndDaysAndAccountNum(categoryId, subCategoryId, meetingDays, accountNum, pageable, SortType.of(sort))
+        Page<PlubbingCardResponse> plubbingCardResponses = plubbingRepository
+                .findAllByCategoryIdAndSubCategoryIdAndDaysAndAccountNum(categoryId, subCategoryId, meetingDays, accountNum, pageable, SortType.of(sort))
                 .map(p -> PlubbingCardResponse.of(p, isHost(myAccount, p), isBookmarked(myAccount, p)));
         return PageResponse.of(plubbingCardResponses);
     }
@@ -347,7 +355,7 @@ public class PlubbingService {
 
     public void checkMember(Account account, Plubbing plubbing) {
         accountPlubbingRepository.findByAccountAndPlubbing(account, plubbing)
-                .orElseThrow(() -> new PlubbingException(PlubbingCode.NOT_MEMBER_ERROR));
+                .orElseThrow(() -> new PlubbingException(StatusCode.NOT_MEMBER_ERROR));
     }
 
     public Boolean isBookmarked(Account account, Plubbing plubbing) {

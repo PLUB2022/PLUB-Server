@@ -1,15 +1,11 @@
 package plub.plubserver.domain.notice.exception;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import plub.plubserver.domain.notice.config.NoticeCode;
+import plub.plubserver.common.exception.PlubException;
+import plub.plubserver.common.exception.StatusCode;
 
-@ResponseStatus(value = HttpStatus.BAD_REQUEST)
-public class NoticeException extends RuntimeException {
-    public NoticeCode noticeCode;
+public class NoticeException extends PlubException {
 
-    public NoticeException(NoticeCode noticeCode) {
-        super(noticeCode.getMessage());
-        this.noticeCode = noticeCode;
+    public NoticeException(StatusCode statusCode) {
+        super(statusCode);
     }
 }

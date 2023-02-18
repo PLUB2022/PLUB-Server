@@ -3,7 +3,7 @@ package plub.plubserver.domain.account.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import plub.plubserver.domain.account.config.AccountCode;
+import plub.plubserver.common.exception.StatusCode;
 import plub.plubserver.domain.account.dto.AccountDto.AccountCategoryRequest;
 import plub.plubserver.domain.account.dto.AccountDto.AccountCategoryResponse;
 import plub.plubserver.domain.account.dto.AccountDto.AccountProfileRequest;
@@ -11,7 +11,6 @@ import plub.plubserver.domain.account.exception.AccountException;
 import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.account.model.AccountCategory;
 import plub.plubserver.domain.account.repository.AccountRepository;
-import plub.plubserver.domain.category.config.CategoryCode;
 import plub.plubserver.domain.category.exception.CategoryException;
 import plub.plubserver.domain.category.model.SubCategory;
 import plub.plubserver.domain.category.repository.SubCategoryRepository;
@@ -39,34 +38,38 @@ public class AccountService {
 
     // 회원 정보 조회
     public AccountInfoResponse getMyAccount() {
-        return accountRepository.findByEmail(getCurrentAccountEmail()).map(AccountInfoResponse::of).orElseThrow(() -> new AccountException(AccountCode.NOT_FOUND_ACCOUNT));
+        return accountRepository.findByEmail(getCurrentAccountEmail()).map(AccountInfoResponse::of)
+                .orElseThrow(() -> new AccountException(StatusCode.NOT_FOUND_ACCOUNT));
     }
 
     public AccountInfoResponse getAccount(String nickname) {
-        return accountRepository.findByNickname(nickname).map(AccountInfoResponse::of).orElseThrow(() -> new AccountException(AccountCode.NOT_FOUND_ACCOUNT));
+        return accountRepository.findByNickname(nickname).map(AccountInfoResponse::of)
+                .orElseThrow(() -> new AccountException(StatusCode.NOT_FOUND_ACCOUNT));
     }
 
     public Account getAccount(Long accountId) {
-        return accountRepository.findById(accountId).orElseThrow(() -> new AccountException(AccountCode.NOT_FOUND_ACCOUNT));
+        return accountRepository.findById(accountId)
+                .orElseThrow(() -> new AccountException(StatusCode.NOT_FOUND_ACCOUNT));
     }
 
     public Account getAccountByEmail(String email) {
-        return accountRepository.findByEmail(email).orElseThrow(() -> new AccountException(AccountCode.NOT_FOUND_ACCOUNT));
+        return accountRepository.findByEmail(email)
+                .orElseThrow(() -> new AccountException(StatusCode.NOT_FOUND_ACCOUNT));
     }
 
     public Account getCurrentAccount() {
         return accountRepository.findByEmail(getCurrentAccountEmail())
-                .orElseThrow(() -> new AccountException(AccountCode.NOT_FOUND_ACCOUNT));
+                .orElseThrow(() -> new AccountException(StatusCode.NOT_FOUND_ACCOUNT));
     }
 
     public NicknameResponse isDuplicateNickname(String nickname) {
         String pattern = "^[0-9|a-z|A-Z|ㄱ-ㅎ|ㅏ-ㅣ|가-힣]*$";
         if (!Pattern.matches(pattern, nickname)) {
-            throw new AccountException(AccountCode.NICKNAME_ERROR);
+            throw new AccountException(StatusCode.NICKNAME_ERROR);
         }
         if (!accountRepository.existsByNickname(nickname)) {
             return new NicknameResponse(true);
-        } else throw new AccountException(AccountCode.NICKNAME_DUPLICATION);
+        } else throw new AccountException(StatusCode.NICKNAME_DUPLICATION);
     }
 
     // 회원 정보 수정
@@ -75,7 +78,7 @@ public class AccountService {
         Account myAccount = getCurrentAccount();
 
         NicknameResponse duplicateNickname = isDuplicateNickname(profileRequest.nickname());
-        if (!duplicateNickname.isAvailableNickname()) throw new AccountException(AccountCode.NICKNAME_DUPLICATION);
+        if (!duplicateNickname.isAvailableNickname()) throw new AccountException(StatusCode.NICKNAME_DUPLICATION);
 
         myAccount.updateProfile(profileRequest.nickname(), profileRequest.introduce(), profileRequest.profileImageUrl());
         return AccountInfoResponse.of(myAccount);
@@ -95,7 +98,7 @@ public class AccountService {
         } else if (socialName.equalsIgnoreCase("Apple")) {
             result = appleService.revokeApple(refreshToken);
         } else {
-            throw new AccountException(AccountCode.SOCIAL_TYPE_ERROR);
+            throw new AccountException(StatusCode.SOCIAL_TYPE_ERROR);
         }
         return new AuthMessage(result, "revoke result.");
     }
@@ -105,7 +108,8 @@ public class AccountService {
         Account myAccount = getCurrentAccount();
         List<AccountCategory> accountCategoryList = new ArrayList<>();
         for (Long id : accountCategoryRequest.subCategories()) {
-            SubCategory subCategory = subCategoryRepository.findById(id).orElseThrow(() -> new CategoryException(CategoryCode.NOT_FOUND_CATEGORY));
+            SubCategory subCategory = subCategoryRepository.findById(id)
+                    .orElseThrow(() -> new CategoryException(StatusCode.NOT_FOUND_CATEGORY));
             AccountCategory accountCategory = AccountCategory.builder()
                     .account(myAccount)
                     .categorySub(subCategory)

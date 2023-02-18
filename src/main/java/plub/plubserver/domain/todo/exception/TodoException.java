@@ -1,12 +1,11 @@
 package plub.plubserver.domain.todo.exception;
 
-import plub.plubserver.domain.todo.config.TodoCode;
+import plub.plubserver.common.exception.PlubException;
+import plub.plubserver.common.exception.StatusCode;
 
-public class TodoException extends RuntimeException {
-    public TodoCode todoCode;
+public class TodoException extends PlubException {
 
-    public TodoException(TodoCode todoCode) {
-        super(todoCode.getMessage());
-        this.todoCode = todoCode;
+    public TodoException(StatusCode statusCode) {
+        super(statusCode);
     }
 }

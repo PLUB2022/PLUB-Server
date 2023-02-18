@@ -1,12 +1,11 @@
 package plub.plubserver.domain.calendar.exception;
 
-import plub.plubserver.domain.calendar.config.CalendarCode;
+import plub.plubserver.common.exception.PlubException;
+import plub.plubserver.common.exception.StatusCode;
 
-public class CalendarException extends RuntimeException {
-    public CalendarCode calendarCode;
+public class CalendarException extends PlubException {
 
-    public CalendarException(CalendarCode calendarCode) {
-        super(calendarCode.getMessage());
-        this.calendarCode = calendarCode;
+    public CalendarException(StatusCode statusCode) {
+        super(statusCode);
     }
 }

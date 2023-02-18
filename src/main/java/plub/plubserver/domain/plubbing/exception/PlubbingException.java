@@ -1,15 +1,11 @@
 package plub.plubserver.domain.plubbing.exception;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import plub.plubserver.domain.plubbing.config.PlubbingCode;
+import plub.plubserver.common.exception.PlubException;
+import plub.plubserver.common.exception.StatusCode;
 
-@ResponseStatus(value = HttpStatus.BAD_REQUEST)
-public class PlubbingException extends RuntimeException {
-    public PlubbingCode plubbingCode;
+public class PlubbingException extends PlubException {
 
-    public PlubbingException(PlubbingCode plubbingCode) {
-        super(plubbingCode.getMessage());
-        this.plubbingCode = plubbingCode;
+    public PlubbingException(StatusCode statusCode) {
+        super(statusCode);
     }
 }
