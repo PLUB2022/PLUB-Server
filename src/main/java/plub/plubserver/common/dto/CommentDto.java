@@ -56,7 +56,8 @@ public class CommentDto {
             Boolean isCommentAuthor,
             Boolean isFeedAuthor,
             String commentType,
-            Long parentCommentId
+            Long parentCommentId,
+            Long groupId
     ) {
         @Builder
         public FeedCommentResponse {
@@ -73,6 +74,7 @@ public class CommentDto {
                     .isFeedAuthor(isFeedAuthor)
                     .commentType(feedComment.getParent() == null ? "COMMENT" : "REPLY")
                     .parentCommentId(feedComment.getParent() == null ? null : feedComment.getParent().getId())
+                    .groupId(feedComment.getGroupId())
                     .build();
         }
     }
@@ -86,7 +88,8 @@ public class CommentDto {
             Boolean isCommentAuthor,
             Boolean isNoticeAuthor,
             String commentType,
-            Long parentCommentId
+            Long parentCommentId,
+            Long groupId
     ) {
         @Builder
         public NoticeCommentResponse {
@@ -103,6 +106,7 @@ public class CommentDto {
                     .isNoticeAuthor(isNoticeAuthor)
                     .commentType(noticeComment.getParent() == null ? "COMMENT" : "REPLY")
                     .parentCommentId(noticeComment.getParent() == null ? null : noticeComment.getParent().getId())
+                    .groupId(noticeComment.getGroupId())
                     .build();
         }
     }
