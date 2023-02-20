@@ -5,17 +5,23 @@ import org.springframework.data.domain.Page;
 import plub.plubserver.common.dto.PageResponse;
 import plub.plubserver.domain.calendar.model.Calendar;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+
 import static plub.plubserver.domain.calendar.dto.CalendarAttendDto.CalendarAttendList;
 
 public class CalendarDto {
 
     public record CreateCalendarRequest(
+            @NotBlank
             String title,
+            @NotBlank
             String memo,
             String staredAt,
             String endedAt,
             String startTime,
             String endTime,
+            @NotNull
             boolean isAllDay,
             String address,
             String roadAddress,

@@ -44,11 +44,41 @@ public class CalendarService {
         return CalendarCardResponse.of(calendar, list);
     }
 
+    public CreateCalendarRequest checkCalender(CreateCalendarRequest request) {
+        String startTime = request.startTime();
+        String endTime = request.endTime();
+        String address = request.address();
+        String roadAddress = request.roadAddress();
+        String placeName = request.placeName();
+        if (request.isAllDay()) {
+            startTime = "00:00";
+            endTime = "23:59";
+        }
+        if (request.address() == null || request.roadAddress() == null || request.placeName() == null) {
+            address = " ";
+            roadAddress = " ";
+            placeName = " ";
+        }
+        return CreateCalendarRequest.builder()
+                .title(request.title())
+                .memo(request.memo())
+                .staredAt(request.staredAt())
+                .endedAt(request.endedAt())
+                .startTime(startTime)
+                .endTime(endTime)
+                .isAllDay(request.isAllDay())
+                .address(address)
+                .roadAddress(roadAddress)
+                .placeName(placeName)
+                .build();
+    }
+
     @Transactional
-    public CalendarIdResponse createCalendar(Account account, Long plubbingId, CreateCalendarRequest createCalendarResponse) {
+    public CalendarIdResponse createCalendar(Account account, Long plubbingId, CreateCalendarRequest request) {
         Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
         plubbingService.checkHost(account, plubbing);
-        Calendar calendar = createCalendarResponse.toEntity(account.getId());
+        CreateCalendarRequest createCalendarRequest = checkCalender(request);
+        Calendar calendar = createCalendarRequest.toEntity(account.getId());
         calendarRepository.save(calendar);
         List<AccountPlubbing> accountPlubbingList = plubbing.getAccountPlubbingList();
         for (AccountPlubbing accountPlubbing : accountPlubbingList) {
