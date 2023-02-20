@@ -18,6 +18,7 @@ import plub.plubserver.domain.plubbing.model.Plubbing;
 import plub.plubserver.domain.policy.model.Policy;
 import plub.plubserver.domain.recruit.model.AppliedAccount;
 import plub.plubserver.domain.recruit.model.Bookmark;
+import plub.plubserver.domain.report.model.Report;
 import plub.plubserver.domain.todo.model.Todo;
 import plub.plubserver.domain.todo.model.TodoTimeline;
 
@@ -122,6 +123,9 @@ public class Account extends BaseEntity {
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TodoTimeline> timeLineList = new ArrayList<>();
 
+    // 회원(1) - 신고(다)
+    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Report> reportList = new ArrayList<>();
 
 
     public void setIdForTest(Long id) {

@@ -6,16 +6,22 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import plub.plubserver.common.dto.ApiResponse;
+import plub.plubserver.domain.account.model.Account;
+import plub.plubserver.domain.account.service.AccountService;
 import plub.plubserver.domain.notification.dto.FcmDto;
 import plub.plubserver.domain.notification.service.FcmService;
+import plub.plubserver.domain.report.service.ReportService;
 
 import static plub.plubserver.common.dto.ApiResponse.success;
+import static plub.plubserver.domain.report.dto.ReportDto.CreateReportRequest;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/test")
 public class TestController {
     private final FcmService fcmService;
+    private final ReportService reportService;
+    private final AccountService accountService;
 
     @PostMapping
     public ApiResponse<?> testAuthCode(@RequestBody TestDto.AuthCodeRequest authCodeDto) {
@@ -31,5 +37,11 @@ public class TestController {
     @PostMapping("/push/single")
     public ApiResponse<?> testPushSingle(@RequestBody FcmDto.PushMessage form) {
         return success(fcmService.sendPushMessage(form.targetToken(), form.title(), form.body()));
+    }
+
+    @PostMapping("/report")
+    public ApiResponse<?> testReport(@RequestBody CreateReportRequest request) {
+        Account currentAccount = accountService.getCurrentAccount();
+        return success(reportService.createReport(request, currentAccount));
     }
 }
