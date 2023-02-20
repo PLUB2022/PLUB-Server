@@ -1,5 +1,6 @@
 package plub.plubserver.domain.recruit.model;
 
+
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor

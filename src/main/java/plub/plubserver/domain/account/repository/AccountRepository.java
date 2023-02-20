@@ -18,4 +18,7 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
      */
     @Query("select count(a) from Account a where a.createdAt like concat(:createdAt, '%')")
     Long countByCreatedAt(@Param("createdAt") String createdAt);
+
+    @Query("select count(a) from Account a where a.createdAt like %:thisMonth%")
+    Long countByCreatedAtMonthly(@Param("thisMonth") String thisMonth);
 }

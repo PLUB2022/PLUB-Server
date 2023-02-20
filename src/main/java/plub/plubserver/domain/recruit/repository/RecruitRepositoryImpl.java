@@ -44,11 +44,9 @@ public class RecruitRepositoryImpl implements RecruitRepositoryCustom {
         };
 
         OrderSpecifier<?> order; // types : String, Integer
-        if (sortType == SortType.POPULAR) {
-            order = recruit.views.desc();
-        } else {
-            order = recruit.modifiedAt.desc();
-        }
+        if (sortType == SortType.POPULAR) order = recruit.views.desc();
+        else order = recruit.modifiedAt.desc();
+
         return PageableExecutionUtils.getPage(middleQuery
                         .orderBy(order)
                         .offset(pageable.getOffset())
