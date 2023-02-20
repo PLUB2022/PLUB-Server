@@ -15,7 +15,6 @@ import static plub.plubserver.common.dto.ApiResponse.success;
 @RequiredArgsConstructor
 @RequestMapping("/api/test")
 public class TestController {
-
     private final FcmService fcmService;
 
     @PostMapping
