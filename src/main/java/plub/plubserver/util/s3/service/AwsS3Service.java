@@ -59,7 +59,7 @@ public class AwsS3Service {
 
         ObjectMetadata objectMetadata = new ObjectMetadata();
         objectMetadata.setContentType(multipartFile.getContentType());
-
+        objectMetadata.setContentLength(multipartFile.getSize());
         S3SaveDir savePath = getS3SaveDir(type);
         String bucketPath = bucket + savePath.path;
 

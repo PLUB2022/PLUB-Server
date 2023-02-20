@@ -30,8 +30,6 @@
         <retentionTimeDays>0</retentionTimeDays>
         <accessKeyId>${AWS_ACCESS_KEY}</accessKeyId>
         <secretAccessKey>${AWS_SECRET_KEY}</secretAccessKey>
-<!--        <accessKeyId>AKIAW73OHCMDXTMHPFMC</accessKeyId>-->
-<!--        <secretAccessKey>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</secretAccessKey>-->
     </appender>
 
     <root level="INFO">
