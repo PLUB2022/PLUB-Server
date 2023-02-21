@@ -6,6 +6,8 @@ import plub.plubserver.common.model.SortType;
 import plub.plubserver.domain.recruit.model.Recruit;
 import plub.plubserver.domain.recruit.model.RecruitSearchType;
 
+import java.util.List;
+
 public interface RecruitRepositoryCustom {
     Page<Recruit> search(
             Pageable pageable,
@@ -13,4 +15,6 @@ public interface RecruitRepositoryCustom {
             RecruitSearchType type,
             String keyword
     );
+
+    List<Long> findAllBookmarkedRecruitIdByAccountId(Long accountId);
 }

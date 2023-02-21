@@ -44,6 +44,10 @@ public class Recruit extends BaseEntity {
     @OneToMany(mappedBy = "recruit", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<RecruitQuestion> recruitQuestionList = new ArrayList<>();
 
+    // 모집(1) - 북마크(다)
+    @OneToMany(mappedBy = "recruit", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Bookmark> bookmarkList = new ArrayList<>();
+
     /**
      * methods
      */

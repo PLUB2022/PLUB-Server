@@ -30,7 +30,7 @@ public class RecruitController {
     private final RecruitService recruitService;
     private final AccountService accountService;
 
-    @ApiOperation(value = "모집 전체 조회")
+    @ApiOperation(value = "모집 검색")
     @GetMapping("/recruit")
     public ApiResponse<PageResponse<RecruitCardResponse>> searchRecruit(
             @PageableDefault(sort = "id", direction = Sort.Direction.DESC) Pageable pageable,

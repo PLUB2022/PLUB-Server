@@ -124,7 +124,7 @@ public class AuthDto {
                     .birthday("19971103")
                     .gender("M")
                     .introduce("introduce dummy")
-                    .fcmToken("dJKVIWjaSzyr9TKGVM6X-h:APA91bGlbYCxslKPKZTA87lPx1TWFoeROX0bIeVmqMNytutvWxMDaKN7qyoTXVNI0bUyhnJxeTfecmgj1L5wWpssB0-DdeTeg1j0WkCfTiUMaF4UZ3NCMaqqbqvK_hwLsX3eGpZ2q-W4")
+                    .fcmToken("f7mGlaDUTNSx5NOJ8k39bW:APA91bEogtcJPEcYrk5JGxU9GTOB1vq38oI3Jkntu0RgIjSe5pjfr1tAS_oD75ihUBg8Fr2bJ-sy9b_eIzWlbb26MdcpM_dqGVEYzXoVjgXi3P1FlsgpzxbjKPq40iX4Vnxil3GH-7-b")
                     .role(Role.ROLE_USER)
                     .build();
         }

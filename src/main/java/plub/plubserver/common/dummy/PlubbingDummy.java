@@ -62,7 +62,7 @@ public class PlubbingDummy {
             plubbingService.createPlubbing(admin2, form);
         }
 
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < 15; i++) {
             CreatePlubbingRequest form = CreatePlubbingRequest.builder()
                     .subCategoryIds(List.of(66L)) // 프로그래밍?
                     .title("프로그래밍 모임" + i)

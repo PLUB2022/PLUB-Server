@@ -82,6 +82,7 @@ public class NoticeService {
                 .map(NoticeCardResponse::of)
                 .toList();
         return PageResponse.of(pageable, noticeCardResponses);
+//        return null;
     }
 
     public NoticeResponse getNotice(Account account, Long plubbingId, Long noticeId) {
