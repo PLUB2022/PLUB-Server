@@ -100,7 +100,7 @@ public class PlubbingController {
     }
 
     @ApiOperation(value = "카테고리별 모임 조회")
-    @GetMapping("/categories/{categoryId}")
+    @PostMapping("/categories/{categoryId}")
     public ApiResponse<PageResponse<PlubbingCardResponse>> getPlubbingByCategory(
             @PathVariable Long categoryId,
             @PageableDefault Pageable pageable,
