@@ -16,5 +16,5 @@ public interface PlubbingRepositoryCustom {
 
     Page<Plubbing> findAllByCategoryId(Long categoryId, Pageable pageable, SortType sortType);
 
-    Page<Plubbing> findAllByCategoryIdAndSubCategoryIdAndDaysAndAccountNum(Long categoryId, List<Long> subCategoryId, List<MeetingDay> meetingDays, Integer accountNum, Pageable pageable, SortType sortType);
+    Page<Plubbing> findAllByCategory(Long categoryId, List<Long> subCategoryId, List<MeetingDay> meetingDays, Integer accountNum, Pageable pageable, SortType sortType);
 }

@@ -94,8 +94,21 @@ public class FeedDummy {
                     .build();
             feedService.createFeedComment(admin2, 1L, 1L, form);
         }
+        for (int i = 0; i < 5; i++) {
+            CommentDto.CreateCommentRequest form = CommentDto.CreateCommentRequest.builder()
+                    .content("대댓글 " + i)
+                    .parentCommentId(1L)
+                    .build();
+            feedService.createFeedComment(admin1, 1L, 1L, form);
+        }
+        for (int i = 0; i < 5; i++) {
+            CommentDto.CreateCommentRequest form = CommentDto.CreateCommentRequest.builder()
+                    .content("대대댓글 " + i)
+                    .parentCommentId(15L + i)
+                    .build();
+            feedService.createFeedComment(admin1, 1L, 1L, form);
+        }
 
         log.info("[3] 피드 더미 생성 완료.");
-
     }
 }
