@@ -2,6 +2,7 @@ package plub.plubserver.domain.plubbing.repository;
 
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -25,44 +26,40 @@ public class PlubbingRepositoryImpl implements PlubbingRepositoryCustom {
 
     @Override
     public Page<Plubbing> findAllBySubCategory(List<SubCategory> subCategories, Pageable pageable) {
-       List<Plubbing> result = queryFactory
-               .selectFrom(plubbing)
-               .join(plubbing.plubbingSubCategories, plubbingSubCategory)
-               .join(plubbingSubCategory.subCategory, subCategory)
-               .where(subCategory.in(subCategories),
-                       plubbing.status.eq(PlubbingStatus.ACTIVE),
-                       plubbing.visibility.eq(true),
-                       plubbing.recruit.status.eq(RecruitStatus.RECRUITING))
-               .offset(pageable.getOffset())
-               .limit(pageable.getPageSize())
-               .distinct()
-               .fetch();
+        JPQLQuery<Plubbing> query = queryFactory
+                .selectFrom(plubbing)
+                .join(plubbing.plubbingSubCategories, plubbingSubCategory)
+                .join(plubbingSubCategory.subCategory, subCategory)
+                .where(subCategory.in(subCategories),
+                        plubbing.status.eq(PlubbingStatus.ACTIVE),
+                        plubbing.visibility.eq(true),
+                        plubbing.recruit.status.eq(RecruitStatus.RECRUITING))
+                .distinct();
 
         return PageableExecutionUtils.getPage(
-                result,
+                query.offset(pageable.getOffset())
+                        .limit(pageable.getPageSize())
+                        .fetch(),
                 pageable,
-                result::size
-        );
+                query::fetchCount);
     }
 
     @Override
     public Page<Plubbing> findAllByViews(Pageable pageable) {
-        List<Plubbing> result = queryFactory
+        JPQLQuery<Plubbing> query = queryFactory
                 .selectFrom(plubbing)
                 .where(plubbing.status.eq(PlubbingStatus.ACTIVE),
                         plubbing.visibility.eq(true),
                         plubbing.recruit.status.eq(RecruitStatus.RECRUITING))
-                .orderBy(plubbing.views.desc())
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
-                .distinct()
-                .fetch();
+                .distinct();
 
         return PageableExecutionUtils.getPage(
-                result,
+                query.orderBy(plubbing.views.desc())
+                        .offset(pageable.getOffset())
+                        .limit(pageable.getPageSize())
+                        .fetch(),
                 pageable,
-                result::size
-        );
+                query::fetchCount);
     }
 
     @Override
@@ -75,7 +72,7 @@ public class PlubbingRepositoryImpl implements PlubbingRepositoryCustom {
             order = plubbing.modifiedAt.desc();
         }
 
-        List<Plubbing> result = queryFactory
+        JPQLQuery<Plubbing> query = queryFactory
                 .selectFrom(plubbing)
                 .join(plubbing.plubbingSubCategories, plubbingSubCategory)
                 .join(plubbingSubCategory.subCategory, subCategory)
@@ -83,21 +80,19 @@ public class PlubbingRepositoryImpl implements PlubbingRepositoryCustom {
                         plubbing.status.eq(PlubbingStatus.ACTIVE),
                         plubbing.visibility.eq(true),
                         plubbing.recruit.status.eq(RecruitStatus.RECRUITING))
-                .orderBy(order)
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
-                .distinct()
-                .fetch();
+                .distinct();
 
         return PageableExecutionUtils.getPage(
-                result,
+                query.orderBy(order)
+                        .offset(pageable.getOffset())
+                        .limit(pageable.getPageSize())
+                        .fetch(),
                 pageable,
-                result::size
-        );
+                query::fetchCount);
     }
 
     @Override
-    public Page<Plubbing> findAllByCategoryIdAndSubCategoryIdAndDaysAndAccountNum(Long categoryId, List<Long> subCategoryId, List<MeetingDay> meetingDays, Integer accountNum, Pageable pageable, SortType sortType) {
+    public Page<Plubbing> findAllByCategory(Long categoryId, List<Long> subCategoryId, List<MeetingDay> meetingDays, Integer accountNum, Pageable pageable, SortType sortType) {
 
         OrderSpecifier<?> order;
         if (sortType == SortType.POPULAR) {
@@ -106,7 +101,7 @@ public class PlubbingRepositoryImpl implements PlubbingRepositoryCustom {
             order = plubbing.modifiedAt.desc();
         }
 
-        List<Plubbing> result = queryFactory
+        JPQLQuery<Plubbing> query = queryFactory
                 .selectFrom(plubbing)
                 .join(plubbing.days, plubbingMeetingDay)
                 .join(plubbing.plubbingSubCategories, plubbingSubCategory)
@@ -117,17 +112,15 @@ public class PlubbingRepositoryImpl implements PlubbingRepositoryCustom {
                         subCategory.category.id.eq(categoryId),
                         plubbing.status.eq(PlubbingStatus.ACTIVE),
                         plubbing.visibility.eq(true))
-                .orderBy(order)
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
-                .distinct()
-                .fetch();
+                .distinct();
 
         return PageableExecutionUtils.getPage(
-                result,
+                query.orderBy(order)
+                        .offset(pageable.getOffset())
+                        .limit(pageable.getPageSize())
+                        .fetch(),
                 pageable,
-                result::size
-        );
+                query::fetchCount);
     }
 
     private BooleanExpression eqAccountNum(Integer accountNum) {

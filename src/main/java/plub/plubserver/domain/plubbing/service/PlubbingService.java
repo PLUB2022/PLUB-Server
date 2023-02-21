@@ -179,7 +179,7 @@ public class PlubbingService {
     }
 
     public Boolean isHost(Account account, Plubbing plubbing) {
-       Optional<AccountPlubbing> accountPlubbing = accountPlubbingRepository.findByAccountAndPlubbing(account, plubbing);
+        Optional<AccountPlubbing> accountPlubbing = accountPlubbingRepository.findByAccountAndPlubbing(account, plubbing);
         return accountPlubbing.map(AccountPlubbing::isHost).orElse(false);
     }
 
@@ -333,7 +333,7 @@ public class PlubbingService {
             meetingDays = days.stream().map(MeetingDay::valueOf).toList();
 
         Page<PlubbingCardResponse> plubbingCardResponses = plubbingRepository
-                .findAllByCategoryIdAndSubCategoryIdAndDaysAndAccountNum(categoryId, subCategoryId, meetingDays, accountNum, pageable, SortType.of(sort))
+                .findAllByCategory(categoryId, subCategoryId, meetingDays, accountNum, pageable, SortType.of(sort))
                 .map(p -> PlubbingCardResponse.of(p, isHost(myAccount, p), isBookmarked(myAccount, p)));
         return PageResponse.of(plubbingCardResponses);
     }

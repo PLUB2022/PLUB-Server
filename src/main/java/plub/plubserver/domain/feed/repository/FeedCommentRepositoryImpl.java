@@ -1,5 +1,6 @@
 package plub.plubserver.domain.feed.repository;
 
+import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -7,9 +8,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
 import plub.plubserver.domain.feed.model.Feed;
 import plub.plubserver.domain.feed.model.FeedComment;
-
-
-import java.util.List;
 
 import static plub.plubserver.domain.feed.model.QFeedComment.feedComment;
 
@@ -19,19 +17,19 @@ public class FeedCommentRepositoryImpl implements FeedCommentRepositoryCustom {
 
     @Override
     public Page<FeedComment> findAllByFeed(Feed feed, Pageable pageable) {
-        List<FeedComment> result = queryFactory
+        JPQLQuery<FeedComment> query = queryFactory
                 .selectFrom(feedComment)
                 .where(feedComment.feed.eq(feed),
                         feedComment.visibility.eq(true))
-                .orderBy(feedComment.groupId.desc(),
-                        feedComment.depth.asc())
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
-                .distinct().fetch();
+                .distinct();
+
         return PageableExecutionUtils.getPage(
-                result,
+                query.orderBy(feedComment.groupId.desc(),
+                                feedComment.depth.asc())
+                        .offset(pageable.getOffset())
+                        .limit(pageable.getPageSize())
+                        .fetch(),
                 pageable,
-                result::size
-        );
+                query::fetchCount);
     }
 }

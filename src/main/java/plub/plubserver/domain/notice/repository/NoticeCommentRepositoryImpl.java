@@ -1,5 +1,6 @@
 package plub.plubserver.domain.notice.repository;
 
+import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -7,8 +8,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
 import plub.plubserver.domain.notice.model.Notice;
 import plub.plubserver.domain.notice.model.NoticeComment;
-
-import java.util.List;
 
 import static plub.plubserver.domain.notice.model.QNoticeComment.noticeComment;
 
@@ -18,20 +17,19 @@ public class NoticeCommentRepositoryImpl implements NoticeCommentRepositoryCusto
 
     @Override
     public Page<NoticeComment> findAllByNotice(Notice notice, Pageable pageable) {
-        List<NoticeComment> result = queryFactory
+        JPQLQuery<NoticeComment> query = queryFactory
                 .selectFrom(noticeComment)
                 .where(noticeComment.notice.eq(notice),
                         noticeComment.visibility.eq(true))
-                .orderBy(noticeComment.groupId.desc(),
-                        noticeComment.depth.asc())
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
-                .distinct().fetch();
+                .distinct();
 
         return PageableExecutionUtils.getPage(
-                result,
+                query.orderBy(noticeComment.groupId.desc(),
+                                noticeComment.depth.asc())
+                        .offset(pageable.getOffset())
+                        .limit(pageable.getPageSize())
+                        .fetch(),
                 pageable,
-                result::size
-        );
+                query::fetchCount);
     }
 }
