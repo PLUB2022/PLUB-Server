@@ -114,8 +114,8 @@ public enum StatusCode {
      */
     HOST_RECRUIT_ERROR(400, 6050, "host cannot apply it's own plubbings."),
     NOT_FOUND_QUESTION(404, 6060, "not found question error."),
+    NOT_APPLIED_RECRUIT(400, 6065, "this applicant is not applied."),
     ALREADY_APPLIED_RECRUIT(400, 6070, "this applicant is already applied."),
-
     ALREADY_ACCEPTED(400, 6080, "this applicant is already accepted."),
 
     ALREADY_REJECTED(400, 6090, "this applicant is already rejected."),

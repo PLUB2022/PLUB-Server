@@ -113,4 +113,12 @@ public class RecruitController {
         Account loginAccount = accountService.getCurrentAccount();
         return success(recruitService.rejectApplicant(loginAccount, plubbingId, applicantId));
     }
+
+    @GetMapping("/{plubbingId}/recruit/applicants/my")
+    public ApiResponse<AppliedAccountResponse> getMyApplicants(
+            @PathVariable Long plubbingId
+    ) {
+        Account loginAccount = accountService.getCurrentAccount();
+        return success(recruitService.getMyAppliedAccount(loginAccount, plubbingId));
+    }
 }

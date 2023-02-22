@@ -78,6 +78,14 @@ public class RecruitService {
         );
     }
 
+    public AppliedAccountResponse getMyAppliedAccount(Account account, Long plubbingId) {
+        Recruit recruit = getRecruitByPlubbingId(plubbingId);
+        return AppliedAccountResponse.of(
+                appliedAccountRepository.findByAccountAndRecruit(account, recruit)
+                        .orElseThrow(() -> new RecruitException(StatusCode.NOT_APPLIED_RECRUIT))
+        );
+    }
+
     /**
      * 모집글 검색
      */
