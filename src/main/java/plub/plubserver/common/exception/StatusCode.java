@@ -63,6 +63,11 @@ public enum StatusCode {
     POLICY_NOT_FOUND(404, 4010, "policy not found."),
 
     /**
+     * Announcement
+     */
+    NOT_FOUND_ANNOUNCEMENT(404, 5010, "not found announcement error."),
+
+    /**
      * Calender
      */
     NOT_FOUNT_CALENDAR(404, 7050, "not fount calendar."),
