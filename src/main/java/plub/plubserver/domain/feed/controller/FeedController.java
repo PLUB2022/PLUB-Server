@@ -160,4 +160,13 @@ public class FeedController {
         Account loginAccount = accountService.getCurrentAccount();
         return success(feedService.reportFeedComment(loginAccount, plubbingId, feedId, commentId));
     }
+
+    @ApiOperation(value = "마이페이지 - 내 게시글 조회")
+    @GetMapping("/{plubbingId}/feeds/my")
+    public ApiResponse<PageResponse<FeedCardResponse>> getMyFeedList(
+            @PathVariable Long plubbingId,
+            @PageableDefault(size = 20) Pageable pageable) {
+        Account loginAccount = accountService.getCurrentAccount();
+        return success(feedService.getMyFeedList(loginAccount, plubbingId, pageable));
+    }
 }
