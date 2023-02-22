@@ -116,4 +116,12 @@ public class PlubbingController {
         plubbingService.leavePlubbing(plubbingId);
         return success(true);
     }
+
+    @ApiOperation(value = "마이페이지 - 모임 조회")
+    @GetMapping("/all/my")
+    public ApiResponse<MyPlubbingListResponse> getPlubbingByAccount(
+            @RequestParam("status") String status
+    ) {
+        return success(plubbingService.getMyPlubbingByStatus(status));
+    }
 }
