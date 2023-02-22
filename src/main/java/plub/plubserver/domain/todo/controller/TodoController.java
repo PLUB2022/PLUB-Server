@@ -138,4 +138,13 @@ public class TodoController {
         Account currentAccount = accountService.getCurrentAccount();
         return success(todoService.getTodoCalendarDateList(currentAccount, plubbingId, year, month));
     }
+
+    @ApiOperation(value = "마이페이지 - 내 투두 조회")
+    @GetMapping("/{plubbingId}/timeline/my")
+    public ApiResponse<TodoTimelinePageResponse> getMyTodoList(
+            @PathVariable Long plubbingId,
+            @PageableDefault Pageable pageable) {
+        Account currentAccount = accountService.getCurrentAccount();
+        return success(todoService.getMyTodoTimelinePage(currentAccount, plubbingId, pageable));
+    }
 }

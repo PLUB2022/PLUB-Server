@@ -14,4 +14,6 @@ public interface AppliedAccountRepository extends JpaRepository<AppliedAccount, 
 
     // for test
     List<AppliedAccount> findAllByRecruitId(Long recruitId);
+
+    Optional<AppliedAccount> findByAccountAndRecruit(Account account, Recruit recruit);
 }

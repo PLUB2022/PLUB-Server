@@ -6,7 +6,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import plub.plubserver.common.exception.StatusCode;
-import plub.plubserver.domain.account.dto.AccountDto;
 import plub.plubserver.domain.account.exception.AccountException;
 import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.account.repository.AccountRepository;
@@ -21,6 +20,7 @@ import plub.plubserver.domain.todo.repository.TodoTimelineRepository;
 import java.time.LocalDate;
 import java.util.List;
 
+import static plub.plubserver.domain.account.dto.AccountDto.AccountInfo;
 import static plub.plubserver.domain.todo.dto.TodoDto.*;
 
 @Service
@@ -140,14 +140,23 @@ public class TodoService {
         }
     }
 
+    // 내 타임라인 조회
+    public TodoTimelinePageResponse getMyTodoTimelinePage(Account account, Long plubbingId, Pageable pageable) {
+        return getTodoTimelinePageResponse(plubbingId, pageable, account);
+    }
+
     // 회원 타임라인 조회
     public TodoTimelinePageResponse getAccountTodoTimelinePage(Long plubbingId, Long accountId, Pageable pageable) {
         Account account = accountRepository.findById(accountId)
                 .orElseThrow(() -> new AccountException(StatusCode.NOT_FOUND_ACCOUNT));
+        return getTodoTimelinePageResponse(plubbingId, pageable, account);
+    }
+
+    private TodoTimelinePageResponse getTodoTimelinePageResponse(Long plubbingId, Pageable pageable, Account account) {
         plubbingService.getPlubbing(plubbingId);
         Page<TodoTimelineResponse> todoTimelinePage = todoTimelineRepository.findByAccount(account, pageable)
                 .map(TodoTimelineResponse::of);
-        return TodoTimelinePageResponse.of(todoTimelinePage, AccountDto.AccountInfo.of(account));
+        return TodoTimelinePageResponse.of(todoTimelinePage, AccountInfo.of(account));
     }
 
     // 타임라인 전체 조회

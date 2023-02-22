@@ -230,6 +230,13 @@ public class FeedService {
         });
     }
 
+    public PageResponse<FeedCardResponse> getMyFeedList(Account account, Long plubbingId, Pageable pageable) {
+        Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
+        List<FeedCardResponse> myFeedCardList = feedRepository.findAllByPlubbingAndAccountAndVisibility(plubbing, account,true, Sort.by(Sort.Direction.DESC,"createdAt"))
+                .stream().map((Feed feed) -> FeedCardResponse.of(feed, true, true)).toList();
+        return PageResponse.of(pageable, myFeedCardList);
+    }
+
     //TODO
     public CommentIdResponse reportFeedComment(Account account, Long plubbingId, Long feedId, Long commentId) {
         return new CommentIdResponse(commentId);

@@ -56,6 +56,17 @@ public enum StatusCode {
     NOT_FOUND_ARCHIVE(404, 3010, "not found archive error."),
     NOT_ARCHIVE_AUTHOR(403, 3020, "this account is not this archive author."),
 
+
+    /**
+     * Policy
+     */
+    POLICY_NOT_FOUND(404, 4010, "policy not found."),
+
+    /**
+     * Announcement
+     */
+    NOT_FOUND_ANNOUNCEMENT(404, 5010, "not found announcement error."),
+
     /**
      * Calender
      */
@@ -108,8 +119,8 @@ public enum StatusCode {
      */
     HOST_RECRUIT_ERROR(400, 6050, "host cannot apply it's own plubbings."),
     NOT_FOUND_QUESTION(404, 6060, "not found question error."),
+    NOT_APPLIED_RECRUIT(400, 6065, "this applicant is not applied."),
     ALREADY_APPLIED_RECRUIT(400, 6070, "this applicant is already applied."),
-
     ALREADY_ACCEPTED(400, 6080, "this applicant is already accepted."),
 
     ALREADY_REJECTED(400, 6090, "this applicant is already rejected."),

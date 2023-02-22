@@ -3,6 +3,7 @@ package plub.plubserver.domain.account.model;
 import lombok.*;
 import plub.plubserver.common.exception.StatusCode;
 import plub.plubserver.common.model.BaseEntity;
+import plub.plubserver.domain.account.exception.AccountException;
 import plub.plubserver.domain.archive.model.Archive;
 import plub.plubserver.domain.calendar.model.CalendarAttend;
 import plub.plubserver.domain.feed.model.Feed;
@@ -15,7 +16,6 @@ import plub.plubserver.domain.notification.model.Notification;
 import plub.plubserver.domain.plubbing.exception.PlubbingException;
 import plub.plubserver.domain.plubbing.model.AccountPlubbing;
 import plub.plubserver.domain.plubbing.model.Plubbing;
-import plub.plubserver.domain.policy.model.Policy;
 import plub.plubserver.domain.recruit.model.AppliedAccount;
 import plub.plubserver.domain.recruit.model.Bookmark;
 import plub.plubserver.domain.todo.model.Todo;
@@ -76,7 +76,7 @@ public class Account extends BaseEntity {
 
     // 회원(1) - 정책(다)
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Policy> policyList = new ArrayList<>();
+    private List<AccountPolicy> accountPolicyList = new ArrayList<>();
 
     // 회원(1) - 북마크(다)
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -146,8 +146,8 @@ public class Account extends BaseEntity {
         this.accountCategories = accountCategories;
     }
 
-    public void updateAccountPolicy(List<Policy> policyList) {
-        this.policyList = policyList;
+    public void updateAccountPolicy(List<AccountPolicy> accountPolicyList) {
+        this.accountPolicyList = accountPolicyList;
     }
 
     public void setAccountCategory(List<AccountCategory> accountCategories) {
@@ -195,5 +195,11 @@ public class Account extends BaseEntity {
     public void addNotice(Notice notice) {
         if (noticeList == null) noticeList = new ArrayList<>();
         noticeList.add(notice);
+    }
+
+    public void isAdmin() {
+        if (!this.getRole().equals(Role.ROLE_ADMIN)) {
+            throw new AccountException(StatusCode.ROLE_ACCESS_ERROR);
+        }
     }
 }

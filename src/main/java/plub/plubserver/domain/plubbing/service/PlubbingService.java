@@ -211,6 +211,15 @@ public class PlubbingService {
         return MainPlubbingResponse.of(plubbing, accounts);
     }
 
+    public MyPlubbingListResponse getMyPlubbingByStatus(String accountPlubbingStatus) {
+        Account currentAccount = accountService.getCurrentAccount();
+        AccountPlubbingStatus plubbingStatus = AccountPlubbingStatus.valueOf(accountPlubbingStatus.toUpperCase());
+        List<MyPlubbingResponse> myPlubbingResponses = accountPlubbingRepository.findAllByAccountAndAccountPlubbingStatus(currentAccount, plubbingStatus)
+                .stream().map(MyPlubbingResponse::of).collect(Collectors.toList());
+        return MyPlubbingListResponse.of(myPlubbingResponses);
+    }
+
+
     /**
      * 모임 삭제 (soft delete)
      */
