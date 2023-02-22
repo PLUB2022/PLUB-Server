@@ -15,7 +15,6 @@ import plub.plubserver.domain.notification.model.Notification;
 import plub.plubserver.domain.plubbing.exception.PlubbingException;
 import plub.plubserver.domain.plubbing.model.AccountPlubbing;
 import plub.plubserver.domain.plubbing.model.Plubbing;
-import plub.plubserver.domain.policy.model.Policy;
 import plub.plubserver.domain.recruit.model.AppliedAccount;
 import plub.plubserver.domain.recruit.model.Bookmark;
 import plub.plubserver.domain.todo.model.Todo;
@@ -76,7 +75,7 @@ public class Account extends BaseEntity {
 
     // 회원(1) - 정책(다)
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Policy> policyList = new ArrayList<>();
+    private List<AccountPolicy> accountPolicyList = new ArrayList<>();
 
     // 회원(1) - 북마크(다)
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -146,8 +145,8 @@ public class Account extends BaseEntity {
         this.accountCategories = accountCategories;
     }
 
-    public void updateAccountPolicy(List<Policy> policyList) {
-        this.policyList = policyList;
+    public void updateAccountPolicy(List<AccountPolicy> accountPolicyList) {
+        this.accountPolicyList = accountPolicyList;
     }
 
     public void setAccountCategory(List<AccountCategory> accountCategories) {

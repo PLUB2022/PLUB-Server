@@ -56,6 +56,12 @@ public enum StatusCode {
     NOT_FOUND_ARCHIVE(404, 3010, "not found archive error."),
     NOT_ARCHIVE_AUTHOR(403, 3020, "this account is not this archive author."),
 
+
+    /**
+     * Policy
+     */
+    POLICY_NOT_FOUND(404, 4010, "policy not found."),
+
     /**
      * Calender
      */
