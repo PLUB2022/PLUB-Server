@@ -3,6 +3,7 @@ package plub.plubserver.domain.account.model;
 import lombok.*;
 import plub.plubserver.common.exception.StatusCode;
 import plub.plubserver.common.model.BaseEntity;
+import plub.plubserver.domain.account.exception.AccountException;
 import plub.plubserver.domain.archive.model.Archive;
 import plub.plubserver.domain.calendar.model.CalendarAttend;
 import plub.plubserver.domain.feed.model.Feed;
@@ -194,5 +195,11 @@ public class Account extends BaseEntity {
     public void addNotice(Notice notice) {
         if (noticeList == null) noticeList = new ArrayList<>();
         noticeList.add(notice);
+    }
+
+    public void isAdmin() {
+        if (!this.getRole().equals(Role.ROLE_ADMIN)) {
+            throw new AccountException(StatusCode.ROLE_ACCESS_ERROR);
+        }
     }
 }

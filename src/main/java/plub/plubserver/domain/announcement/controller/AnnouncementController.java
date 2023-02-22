@@ -8,6 +8,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
+import plub.plubserver.domain.account.model.Account;
+import plub.plubserver.domain.account.service.AccountService;
 import plub.plubserver.domain.announcement.service.AnnouncementService;
 
 import javax.validation.Valid;
@@ -22,12 +24,15 @@ import static plub.plubserver.domain.announcement.dto.AnnouncementDto.*;
 public class AnnouncementController {
 
     private final AnnouncementService announcementService;
+    private final AccountService accountService;
+
     @ApiOperation(value = "앱 공지사항 생성")
     @PostMapping("")
     public AnnouncementIdResponse createAnnouncement(
             @Valid @RequestBody AnnouncementRequest createAnnouncementRequest
     ) {
-        return announcementService.createAnnouncement(createAnnouncementRequest);
+        Account currentAccount = accountService.getCurrentAccount();
+        return announcementService.createAnnouncement(currentAccount, createAnnouncementRequest);
     }
 
     @ApiOperation(value = "앱 공지사항 전체 조회")
@@ -51,7 +56,8 @@ public class AnnouncementController {
     public AnnouncementMessage deleteAnnouncement(
             @PathVariable Long announcementId
     ) {
-        return announcementService.softDeleteAnnouncement(announcementId);
+        Account currentAccount = accountService.getCurrentAccount();
+        return announcementService.softDeleteAnnouncement(announcementId, currentAccount);
     }
 
     @ApiOperation(value = "앱 공지사항 수정")
@@ -60,7 +66,8 @@ public class AnnouncementController {
             @PathVariable Long announcementId,
             @Valid @RequestBody AnnouncementRequest updateAnnouncementRequest
     ) {
-        return announcementService.updateAnnouncement(announcementId, updateAnnouncementRequest);
+        Account currentAccount = accountService.getCurrentAccount();
+        return announcementService.updateAnnouncement(announcementId, currentAccount, updateAnnouncementRequest);
     }
 
 }
