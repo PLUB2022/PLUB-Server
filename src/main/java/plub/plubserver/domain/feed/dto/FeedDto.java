@@ -128,6 +128,7 @@ public class FeedDto {
             Long feedId,
             String feedType,
             String viewType,
+            String plubbingName,
             String title,
             String content,
             String feedImage,
@@ -148,6 +149,7 @@ public class FeedDto {
                     .feedId(feed.getId())
                     .feedType(feed.getFeedType().toString())
                     .viewType(feed.getViewType().toString())
+                    .plubbingName(feed.getPlubbing().getName())
                     .title(feed.getTitle())
                     .content(feed.getContent())
                     .feedImage(feed.getFeedImage())
