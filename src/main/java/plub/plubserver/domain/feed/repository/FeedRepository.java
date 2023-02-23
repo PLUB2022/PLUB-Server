@@ -1,5 +1,7 @@
 package plub.plubserver.domain.feed.repository;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import plub.plubserver.domain.account.model.Account;
@@ -10,9 +12,12 @@ import java.util.List;
 
 public interface FeedRepository extends JpaRepository<Feed, Long> {
 
+    Page<Feed> findAllByPlubbingAndAccountAndVisibility(Plubbing plubbing, Account account, Boolean visibility,Pageable pageable);
+
+    Page<Feed> findAllByPlubbingAndPinAndVisibility(Plubbing plubbing, Boolean pin, Boolean visibility, Pageable pageable);
+
     List<Feed> findAllByPlubbingAndPinAndVisibility(Plubbing plubbing, Boolean pin, Boolean visibility, Sort sort);
 
     Long countByPin(boolean pin);
 
-    List<Feed> findAllByPlubbingAndAccountAndVisibility(Plubbing plubbing, Account account, Boolean visibility, Sort sort);
 }
