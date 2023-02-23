@@ -30,7 +30,7 @@ public class RecruitController {
     private final RecruitService recruitService;
     private final AccountService accountService;
 
-    @ApiOperation(value = "모집 전체 조회")
+    @ApiOperation(value = "모집 검색")
     @GetMapping("/recruit")
     public ApiResponse<PageResponse<RecruitCardResponse>> searchRecruit(
             @PageableDefault(sort = "id", direction = Sort.Direction.DESC) Pageable pageable,
@@ -112,5 +112,13 @@ public class RecruitController {
     ) {
         Account loginAccount = accountService.getCurrentAccount();
         return success(recruitService.rejectApplicant(loginAccount, plubbingId, applicantId));
+    }
+
+    @GetMapping("/{plubbingId}/recruit/applicants/my")
+    public ApiResponse<AppliedAccountResponse> getMyApplicants(
+            @PathVariable Long plubbingId
+    ) {
+        Account loginAccount = accountService.getCurrentAccount();
+        return success(recruitService.getMyAppliedAccount(loginAccount, plubbingId));
     }
 }

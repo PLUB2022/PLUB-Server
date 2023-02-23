@@ -7,12 +7,12 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import plub.plubserver.common.exception.StatusCode;
 import plub.plubserver.domain.account.AccountTemplate;
 import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.account.service.AccountService;
 import plub.plubserver.domain.category.model.SubCategory;
 import plub.plubserver.domain.category.service.CategoryService;
-import plub.plubserver.domain.plubbing.config.PlubbingCode;
 import plub.plubserver.domain.plubbing.dto.PlubbingDto.CreatePlubbingRequest;
 import plub.plubserver.domain.plubbing.dto.PlubbingDto.UpdatePlubbingRequest;
 import plub.plubserver.domain.plubbing.exception.PlubbingException;
@@ -208,6 +208,6 @@ public class PlubbingServiceTest {
         // when - then
         assertThatThrownBy(() -> plubbingService.checkHost(plubbing))
                 .isInstanceOf(PlubbingException.class)
-                .hasMessage(PlubbingCode.NOT_HOST_ERROR.getMessage());
+                .hasMessage(StatusCode.NOT_HOST_ERROR.getMessage());
     }
 }

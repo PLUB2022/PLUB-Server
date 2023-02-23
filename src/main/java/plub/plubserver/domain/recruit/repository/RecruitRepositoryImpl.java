@@ -4,6 +4,7 @@ import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
@@ -11,11 +12,16 @@ import plub.plubserver.common.model.SortType;
 import plub.plubserver.domain.recruit.model.Recruit;
 import plub.plubserver.domain.recruit.model.RecruitSearchType;
 
+import java.util.List;
+
+import static plub.plubserver.domain.account.model.QAccount.account;
 import static plub.plubserver.domain.category.model.QPlubbingSubCategory.plubbingSubCategory;
 import static plub.plubserver.domain.category.model.QSubCategory.subCategory;
 import static plub.plubserver.domain.plubbing.model.QPlubbing.plubbing;
+import static plub.plubserver.domain.recruit.model.QBookmark.bookmark;
 import static plub.plubserver.domain.recruit.model.QRecruit.recruit;
 
+@Slf4j
 @RequiredArgsConstructor
 public class RecruitRepositoryImpl implements RecruitRepositoryCustom {
 
@@ -44,17 +50,26 @@ public class RecruitRepositoryImpl implements RecruitRepositoryCustom {
         };
 
         OrderSpecifier<?> order; // types : String, Integer
-        if (sortType == SortType.POPULAR) {
-            order = recruit.views.desc();
-        } else {
-            order = recruit.modifiedAt.desc();
-        }
+        if (sortType == SortType.POPULAR) order = recruit.views.desc();
+        else order = recruit.modifiedAt.desc();
         return PageableExecutionUtils.getPage(middleQuery
-                        .orderBy(order)
-                        .offset(pageable.getOffset())
-                        .limit(pageable.getPageSize())
-                        .fetch(),
+                .orderBy(order)
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch(),
                 pageable,
                 middleQuery::fetchCount);
+    }
+
+    @Override
+    public List<Long> findAllBookmarkedRecruitIdByAccountId(Long accountId) {
+        return queryFactory.selectFrom(bookmark)
+                .leftJoin(bookmark.account, account)
+                .fetchJoin()
+                .where(bookmark.account.id.eq(accountId))
+                .fetch()
+                .stream()
+                .map(it -> it.getRecruit().getId())
+                .toList();
     }
 }

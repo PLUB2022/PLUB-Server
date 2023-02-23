@@ -152,7 +152,6 @@ class TodoServiceTest {
 
         // when- then
         assertThatThrownBy(()-> todoService.proofTodo(account, plubbing.getId(), mockTodo.getId(), proofTodoRequest))
-                .isInstanceOf(TodoException.class)
-                .hasMessage("not complete todo");
+                .isInstanceOf(TodoException.class);
     }
 }

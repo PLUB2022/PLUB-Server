@@ -1,8 +1,8 @@
 spring:
-  # DB 설정
+  profiles:
+    default: secret-local
+
   jpa:
-    hibernate:
-      ddl-auto: create
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
@@ -11,7 +11,6 @@ spring:
     multipart:
       max-file-size: 10MB
       max-request-size: 10MB
-
 
   mvc:
     pathmatch:
@@ -32,8 +31,6 @@ spring:
         default-page-size: 10
         one-indexed-parameters: true
 
-  profiles:
-    active: secret
 
 # 에러 응답 설정
 server:

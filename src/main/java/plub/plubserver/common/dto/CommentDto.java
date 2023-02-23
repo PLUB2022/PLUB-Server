@@ -1,6 +1,7 @@
 package plub.plubserver.common.dto;
 
 import lombok.Builder;
+import org.springframework.lang.Nullable;
 import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.feed.model.Feed;
 import plub.plubserver.domain.feed.model.FeedComment;
@@ -12,7 +13,9 @@ import javax.validation.constraints.Size;
 public class CommentDto {
     public record CreateCommentRequest(
             @Size(max = 100)
-            String content
+            String content,
+            @Nullable
+            Long parentCommentId
     ) {
         @Builder
         public CreateCommentRequest {
@@ -51,7 +54,10 @@ public class CommentDto {
             String nickname,
             String createdAt,
             Boolean isCommentAuthor,
-            Boolean isFeedAuthor
+            Boolean isFeedAuthor,
+            String commentType,
+            Long parentCommentId,
+            Long groupId
     ) {
         @Builder
         public FeedCommentResponse {
@@ -66,6 +72,9 @@ public class CommentDto {
                     .createdAt(feedComment.getCreatedAt())
                     .isCommentAuthor(isCommentAuthor)
                     .isFeedAuthor(isFeedAuthor)
+                    .commentType(feedComment.getParent() == null ? "COMMENT" : "REPLY")
+                    .parentCommentId(feedComment.getParent() == null ? null : feedComment.getParent().getId())
+                    .groupId(feedComment.getGroupId())
                     .build();
         }
     }
@@ -77,7 +86,10 @@ public class CommentDto {
             String nickname,
             String createdAt,
             Boolean isCommentAuthor,
-            Boolean isNoticeAuthor
+            Boolean isNoticeAuthor,
+            String commentType,
+            Long parentCommentId,
+            Long groupId
     ) {
         @Builder
         public NoticeCommentResponse {
@@ -92,6 +104,9 @@ public class CommentDto {
                     .createdAt(noticeComment.getCreatedAt())
                     .isCommentAuthor(isCommentAuthor)
                     .isNoticeAuthor(isNoticeAuthor)
+                    .commentType(noticeComment.getParent() == null ? "COMMENT" : "REPLY")
+                    .parentCommentId(noticeComment.getParent() == null ? null : noticeComment.getParent().getId())
+                    .groupId(noticeComment.getGroupId())
                     .build();
         }
     }

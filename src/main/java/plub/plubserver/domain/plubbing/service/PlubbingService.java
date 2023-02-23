@@ -179,7 +179,7 @@ public class PlubbingService {
     }
 
     public Boolean isHost(Account account, Plubbing plubbing) {
-       Optional<AccountPlubbing> accountPlubbing = accountPlubbingRepository.findByAccountAndPlubbing(account, plubbing);
+        Optional<AccountPlubbing> accountPlubbing = accountPlubbingRepository.findByAccountAndPlubbing(account, plubbing);
         return accountPlubbing.map(AccountPlubbing::isHost).orElse(false);
     }
 
@@ -210,6 +210,15 @@ public class PlubbingService {
 
         return MainPlubbingResponse.of(plubbing, accounts);
     }
+
+    public MyPlubbingListResponse getMyPlubbingByStatus(String accountPlubbingStatus) {
+        Account currentAccount = accountService.getCurrentAccount();
+        AccountPlubbingStatus plubbingStatus = AccountPlubbingStatus.valueOf(accountPlubbingStatus.toUpperCase());
+        List<MyPlubbingResponse> myPlubbingResponses = accountPlubbingRepository.findAllByAccountAndAccountPlubbingStatus(currentAccount, plubbingStatus)
+                .stream().map(MyPlubbingResponse::of).collect(Collectors.toList());
+        return MyPlubbingListResponse.of(myPlubbingResponses);
+    }
+
 
     /**
      * 모임 삭제 (soft delete)
@@ -333,7 +342,7 @@ public class PlubbingService {
             meetingDays = days.stream().map(MeetingDay::valueOf).toList();
 
         Page<PlubbingCardResponse> plubbingCardResponses = plubbingRepository
-                .findAllByCategoryIdAndSubCategoryIdAndDaysAndAccountNum(categoryId, subCategoryId, meetingDays, accountNum, pageable, SortType.of(sort))
+                .findAllByCategory(categoryId, subCategoryId, meetingDays, accountNum, pageable, SortType.of(sort))
                 .map(p -> PlubbingCardResponse.of(p, isHost(myAccount, p), isBookmarked(myAccount, p)));
         return PageResponse.of(plubbingCardResponses);
     }

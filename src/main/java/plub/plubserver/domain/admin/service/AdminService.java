@@ -4,13 +4,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import plub.plubserver.domain.account.repository.AccountRepository;
-import plub.plubserver.domain.admin.dto.AdminDto.AccountPlubbingStatResponse;
-import plub.plubserver.domain.admin.dto.AdminDto.InquiryReportResponse;
-import plub.plubserver.domain.admin.dto.AdminDto.LikePlubbingStatResponse;
-import plub.plubserver.domain.admin.dto.AdminDto.WeeklySummaryResponse;
+import plub.plubserver.domain.admin.dto.AdminDto.*;
 import plub.plubserver.domain.plubbing.repository.PlubbingRepository;
 
 import java.time.LocalDate;
+import java.time.Month;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
@@ -40,16 +38,45 @@ public class AdminService {
     }
 
     // 일자별 요약
-    public List<WeeklySummaryResponse> getWeeklySummary() {
-        return getWeekDatesFromToday().stream()
+    public WeeklySummaryResponse getWeeklySummary() {
+        List<WeeklySummaryDto> week = getWeekDatesFromToday().stream()
                 .map(day -> {
                     Long accounts = accountRepository.countByCreatedAt(day);
                     Long plubbings = plubbingRepository.countByCreatedAt(day);
                     Long inquires = 0L; // TODO
                     Long reports = 0L; // TODO
-                    return new WeeklySummaryResponse(day, plubbings, accounts, inquires, reports);
+                    return new WeeklySummaryDto(day, plubbings, accounts, inquires, reports);
                 })
                 .toList();
+        Long weeklyPlubbings = week.stream()
+                .map(WeeklySummaryDto::plubbings)
+                .reduce(0L, Long::sum);
+        Long weeklyAccounts = week.stream()
+                .map(WeeklySummaryDto::accounts)
+                .reduce(0L, Long::sum);
+        Long weeklyInquires = week.stream()
+                .map(WeeklySummaryDto::inquires)
+                .reduce(0L, Long::sum);
+        Long weeklyReports = week.stream()
+                .map(WeeklySummaryDto::reports)
+                .reduce(0L, Long::sum);
+        Month thisMonth = LocalDate.now().getMonth();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM");
+        Long monthlyAccounts = accountRepository.countByCreatedAtMonthly(formatter.format(thisMonth));
+        Long monthlyPlubbings = plubbingRepository.countByCreatedAtMonthly(formatter.format(thisMonth));
+        Long monthlyInquires = 0L; // TODO
+        Long monthlyReports = 0L; // TODO
+        return WeeklySummaryResponse.builder()
+                .week(week)
+                .weeklyTotalPlubbings(weeklyPlubbings)
+                .weeklyTotalAccounts(weeklyAccounts)
+                .weeklyTotalInquires(weeklyInquires)
+                .weeklyTotalReports(weeklyReports)
+                .monthlyTotalPlubbings(monthlyPlubbings)
+                .monthlyTotalAccounts(monthlyAccounts)
+                .monthlyTotalInquires(monthlyInquires)
+                .monthlyTotalReports(monthlyReports)
+                .build();
     }
     // TODO : 문의, 신고 조회
     public List<InquiryReportResponse> getInquiryReport() {

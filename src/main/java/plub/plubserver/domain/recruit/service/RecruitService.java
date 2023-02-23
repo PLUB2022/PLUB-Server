@@ -78,6 +78,14 @@ public class RecruitService {
         );
     }
 
+    public AppliedAccountResponse getMyAppliedAccount(Account account, Long plubbingId) {
+        Recruit recruit = getRecruitByPlubbingId(plubbingId);
+        return AppliedAccountResponse.of(
+                appliedAccountRepository.findByAccountAndRecruit(account, recruit)
+                        .orElseThrow(() -> new RecruitException(StatusCode.NOT_APPLIED_RECRUIT))
+        );
+    }
+
     /**
      * 모집글 검색
      */
@@ -87,26 +95,22 @@ public class RecruitService {
             RecruitSearchType type,
             String keyword
     ) {
+        Account account = accountService.getCurrentAccount();
 
-        Page<Recruit> recruitPage = recruitRepository.search(
+        // 북마크 여부 체크해서 DTO로 반환
+        List<Long> bookmarkedRecruitIds = recruitRepository.findAllBookmarkedRecruitIdByAccountId(account.getId());
+
+        Page<RecruitCardResponse> search = recruitRepository.search(
                 pageable,
                 SortType.of(sort),
                 type,
                 keyword
-        );
-        Account account = accountService.getCurrentAccount();
-
-        // 북마크 여부 체크해서 DTO로 반환
-        List<Long> bookmarkedPlubbingIds = account.getBookmarkList().stream()
-                .map(it -> it.getRecruit().getPlubbing().getId())
-                .toList();
-
-        List<RecruitCardResponse> cardList = recruitPage.map(it -> {
-            boolean isBookmarked = bookmarkedPlubbingIds.contains(it.getPlubbing().getId());
+        ).map(it -> {
+            boolean isBookmarked = bookmarkedRecruitIds.contains(it.getPlubbing().getId());
             return RecruitCardResponse.of(it, isBookmarked);
-        }).toList();
+        });
 
-        return PageResponse.of(pageable, cardList);
+        return PageResponse.of(search);
     }
 
     /**

@@ -62,11 +62,8 @@ public class AccountTemplate {
         return makeTestAccount(EMAIL2, PASSWORD2, NICKNAME, BIRTHDAY2, ROLE, GENDER2, SOCIAL_TYPE, INTRODUCE2);
     }
 
-//    public static AccountDto.AccountRequest makeLoginRequest1() {
-//        return new AccountDto.AccountRequest(EMAIL, PASSWORD, NICKNAME, SOCIAL_TYPE.getSocialName());
-//    }
-//
-//    public static AccountDto.AccountRequest makeLoginRequest2() {
-//        return new AccountDto.AccountRequest(EMAIL2, PASSWORD2, NICKNAME2, SOCIAL_TYPE.getSocialName());
-//    }
+    public static Account makeAccountAdmin(){
+        return makeTestAccount(EMAIL2, PASSWORD2, NICKNAME2, BIRTHDAY2, Role.ROLE_ADMIN, GENDER2, SOCIAL_TYPE, INTRODUCE2);
+
+    }
 }

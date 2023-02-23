@@ -211,7 +211,8 @@ public class PlubbingDto {
             String name,
             String goal,
             String mainImage,
-            List<MeetingDay> days
+            List<MeetingDay> days,
+            boolean isHost
     ) {
         @Builder
         public MyPlubbingResponse {
@@ -227,6 +228,7 @@ public class PlubbingDto {
                     .days(plubbing.getDays().stream()
                             .map(PlubbingMeetingDay::getDay)
                             .toList())
+                    .isHost(accountPlubbing.isHost())
                     .build();
         }
     }

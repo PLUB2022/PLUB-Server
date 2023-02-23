@@ -15,5 +15,8 @@ public interface PlubbingRepository extends JpaRepository<Plubbing, Long>, Plubb
     Long countByCreatedAt(@Param("createdAt") String createdAt);
 
     List<Plubbing> findTop10ByOrderByViewsDesc();
+
+    @Query("select count(b) from Plubbing b where b.createdAt like %:thisMonth%")
+    Long countByCreatedAtMonthly(@Param("thisMonth") String thisMonth);
 }
 

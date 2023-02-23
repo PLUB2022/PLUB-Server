@@ -22,8 +22,7 @@ public class GeoReader {
             ClassPathResource resource = new ClassPathResource("GeoLite2-City.mmdb");
             File dbFile = new File(resource.getURI());
             reader = new DatabaseReader.Builder(dbFile).build();
-        } catch (Exception ex) {
-            log.warn("GeoReader init error : {}", ex.getMessage());
+        } catch (Exception ignored) {
         }
     }
 

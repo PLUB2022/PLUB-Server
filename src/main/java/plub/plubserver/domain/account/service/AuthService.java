@@ -23,7 +23,8 @@ import plub.plubserver.domain.account.repository.AccountRepository;
 import plub.plubserver.domain.category.exception.CategoryException;
 import plub.plubserver.domain.category.model.SubCategory;
 import plub.plubserver.domain.category.repository.SubCategoryRepository;
-import plub.plubserver.domain.policy.model.Policy;
+import plub.plubserver.domain.account.model.AccountPolicy;
+import plub.plubserver.domain.policy.repository.PolicyRepository;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,6 +48,7 @@ public class AuthService {
     private final GoogleService googleService;
     private final KakaoService kakaoService;
     private final SubCategoryRepository subCategoryRepository;
+    private final PolicyRepository policyRepository;
 
     public AuthMessage loginAccess(SocialLoginRequest socialLoginRequest) {
         OAuthIdAndRefreshTokenResponse response = fetchSocialEmail(socialLoginRequest);
@@ -108,17 +110,18 @@ public class AuthService {
         Account account = signUpRequest.toAccount(email, socialType, passwordEncoder);
 
         // 정책 리스트
-        List<Policy> policyList = new ArrayList<>();
-        policyCheckList.forEach((title, isChecked) -> {
-            Policy policy = Policy.builder()
-                    .title(title)
-                    .isChecked(isChecked)
-                    .account(account)
-                    .build();
-
-            policyList.add(policy);
+        List<AccountPolicy> accountPolicyList = new ArrayList<>();
+        policyCheckList.forEach((name, isChecked) -> {
+            policyRepository.findByName(name).ifPresent(policy -> {
+                AccountPolicy accountPolicy = AccountPolicy.builder()
+                        .account(account)
+                        .isChecked(isChecked)
+                        .policy(policy)
+                        .build();
+                accountPolicyList.add(accountPolicy);
+            });
         });
-        account.updateAccountPolicy(policyList);
+        account.updateAccountPolicy(accountPolicyList);
 
 
         // 카테고리 리스트

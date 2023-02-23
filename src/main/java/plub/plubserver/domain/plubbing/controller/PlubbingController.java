@@ -100,7 +100,7 @@ public class PlubbingController {
     }
 
     @ApiOperation(value = "카테고리별 모임 조회")
-    @GetMapping("/categories/{categoryId}")
+    @PostMapping("/categories/{categoryId}")
     public ApiResponse<PageResponse<PlubbingCardResponse>> getPlubbingByCategory(
             @PathVariable Long categoryId,
             @PageableDefault Pageable pageable,
@@ -115,5 +115,13 @@ public class PlubbingController {
     public ApiResponse<Boolean> leavePlubbing(@PathVariable Long plubbingId) {
         plubbingService.leavePlubbing(plubbingId);
         return success(true);
+    }
+
+    @ApiOperation(value = "마이페이지 - 모임 조회")
+    @GetMapping("/all/my")
+    public ApiResponse<MyPlubbingListResponse> getPlubbingByAccount(
+            @RequestParam("status") String status
+    ) {
+        return success(plubbingService.getMyPlubbingByStatus(status));
     }
 }

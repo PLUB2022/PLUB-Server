@@ -32,7 +32,7 @@ public class AdminController {
 
     @ApiOperation(value = "대시보드 - 일자별 요약 조회")
     @GetMapping("/weekly-summary")
-    public ApiResponse<List<WeeklySummaryResponse>> getWeeklySummary() {
+    public ApiResponse<WeeklySummaryResponse> getWeeklySummary() {
         return success(adminService.getWeeklySummary());
     }
 
