@@ -28,4 +28,28 @@ public class ReportDto {
                     .build();
         }
     }
+
+    public record ReportResponse(
+            Long reportId,
+            Long targetId,
+            String reportType,
+            String reportTarget,
+            String content,
+            String message
+    ) {
+        @Builder
+        public ReportResponse {
+        }
+
+        public static ReportResponse of(Report report, String message) {
+            return ReportResponse.builder()
+                    .reportId(report.getId())
+                    .targetId(report.getTargetId())
+                    .reportType(report.getReportType().toString())
+                    .reportTarget(report.getReportTarget().toString())
+                    .content(report.getContent())
+                    .message(message)
+                    .build();
+        }
+    }
 }

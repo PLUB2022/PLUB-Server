@@ -21,6 +21,12 @@ import plub.plubserver.domain.archive.model.ArchiveImage;
 import plub.plubserver.domain.archive.repository.ArchiveRepository;
 import plub.plubserver.domain.plubbing.model.Plubbing;
 import plub.plubserver.domain.plubbing.service.PlubbingService;
+import plub.plubserver.domain.report.dto.ReportDto.CreateReportRequest;
+import plub.plubserver.domain.report.dto.ReportDto.ReportResponse;
+import plub.plubserver.domain.report.dto.ReportMessage;
+import plub.plubserver.domain.report.model.Report;
+import plub.plubserver.domain.report.model.ReportTarget;
+import plub.plubserver.domain.report.service.ReportService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,12 +39,17 @@ public class ArchiveService {
     private final AccountService accountService;
     private final ArchiveRepository archiveRepository;
     private final PlubbingService plubbingService;
+    private final ReportService reportService;
 
+    /**
+     * 아카이브 조회
+     */
     private Archive getArchive(Long archiveId) {
         return archiveRepository.findById(archiveId)
                 .orElseThrow(() -> new ArchiveException(StatusCode.NOT_FOUND_ARCHIVE));
     }
 
+    // 아카이브 전체 조회
     public PageResponse<ArchiveCardResponse> getArchiveList(Long plubbingId, Pageable pageable) {
         Plubbing plubbing = plubbingService.getPlubbing(plubbingId); // plubbingId 존재여부 검사
         Page<Archive> temp = archiveRepository.findAllByPlubbingIdOrderBySequenceDesc(plubbingId, pageable);
@@ -77,6 +88,9 @@ public class ArchiveService {
                 .toList();
     }
 
+    /**
+     * 아카이브 생성
+     */
     @Transactional
     public ArchiveIdResponse createArchive(Account loginAccount, Long plubbingId, ArchiveRequest archiveRequest) {
         Account account = accountService.getAccount(loginAccount.getId());
@@ -119,6 +133,9 @@ public class ArchiveService {
             throw new ArchiveException(StatusCode.NOT_ARCHIVE_AUTHOR);
     }
 
+    /**
+     * 아카이브 수정
+     */
     // only for 작성자, 호스트
     @Transactional
     public ArchiveIdResponse updateArchive(
@@ -139,6 +156,9 @@ public class ArchiveService {
         return ArchiveIdResponse.of(archive);
     }
 
+    /**
+     * 아카이브 삭제 (소프트, 하드)
+     */
     // only for 작성자, 호스트
     @Transactional
     public ArchiveIdResponse softDeleteArchive(Account loginAccount, Long plubbingId, Long archiveId) {
@@ -153,5 +173,26 @@ public class ArchiveService {
     @Transactional
     public void hardDeleteArchive(Long archiveId) {
         archiveRepository.deleteById(archiveId);
+    }
+
+
+    /**
+     * 아카이브 신고
+     */
+    @Transactional
+    public ReportResponse reportArchive(CreateReportRequest createReportRequest, Long archiveId, Account reporter) {
+        Archive archive = getArchive(archiveId); // 아카이브 존재 여부 확인
+        Report report = reportService.createReport(createReportRequest, reporter);
+        Long reportCount = reportService.getReportCount(
+                createReportRequest.reportTargetId(), ReportTarget.ARCHIVE
+        );
+        if (reportCount >= 6) {
+            // 모임 일시 정지
+            Plubbing plubbing = plubbingService.getPlubbing(archive.getId());
+            plubbing.pause();
+            return ReportResponse.of(report, ReportMessage.REPORT_PLUBBING_PAUSED);
+        }
+        // TODO : 경고 알림은 안 가는지?
+        return ReportResponse.of(report, ReportMessage.REPORT_SUCCESS);
     }
 }

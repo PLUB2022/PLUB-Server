@@ -15,6 +15,8 @@ import plub.plubserver.domain.archive.dto.ArchiveDto.ArchiveIdResponse;
 import plub.plubserver.domain.archive.dto.ArchiveDto.ArchiveRequest;
 import plub.plubserver.domain.archive.dto.ArchiveDto.ArchiveResponse;
 import plub.plubserver.domain.archive.service.ArchiveService;
+import plub.plubserver.domain.report.dto.ReportDto;
+import plub.plubserver.domain.report.dto.ReportDto.ReportResponse;
 
 import javax.validation.Valid;
 
@@ -82,5 +84,16 @@ public class ArchiveController {
         return success(
                 archiveService.softDeleteArchive(loginAccount, plubbingId, archiveId)
         );
+    }
+
+    @ApiOperation(value = "아카이브 신고")
+    @PostMapping("/{archiveId}/reports")
+    public ApiResponse<ReportResponse> reportArchive(
+            @PathVariable Long plubbingId,
+            @PathVariable Long archiveId,
+            @Valid @RequestBody ReportDto.CreateReportRequest createReportRequest
+    ) {
+        Account loginAccount = accountService.getCurrentAccount();
+        return success(archiveService.reportArchive(createReportRequest, archiveId, loginAccount));
     }
 }

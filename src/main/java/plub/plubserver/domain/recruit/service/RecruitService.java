@@ -28,6 +28,12 @@ import plub.plubserver.domain.recruit.exception.RecruitException;
 import plub.plubserver.domain.recruit.model.*;
 import plub.plubserver.domain.recruit.repository.AppliedAccountRepository;
 import plub.plubserver.domain.recruit.repository.RecruitRepository;
+import plub.plubserver.domain.report.dto.ReportDto.CreateReportRequest;
+import plub.plubserver.domain.report.dto.ReportDto.ReportResponse;
+import plub.plubserver.domain.report.dto.ReportMessage;
+import plub.plubserver.domain.report.model.Report;
+import plub.plubserver.domain.report.model.ReportTarget;
+import plub.plubserver.domain.report.service.ReportService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,6 +51,7 @@ public class RecruitService {
     private final PlubbingService plubbingService;
     private final RecruitRepository recruitRepository;
     private final NotificationService notificationService;
+    private final ReportService reportService;
 
     private Recruit getRecruitByPlubbingId(Long plubbingId) {
         return plubbingService.getPlubbing(plubbingId).getRecruit();
@@ -290,5 +297,26 @@ public class RecruitService {
         plubbing.updateCurAccountNum();
 
         return JoinedAccountsInfoResponse.of(plubbing);
+    }
+
+    /**
+     * 모집 신고
+     */
+    @Transactional
+    public ReportResponse reportRecruit(CreateReportRequest createReportRequest, Account reporter) {
+        // createReportRequest로 받은 id는 모임 id이다. (모집 id를 따로 프론트로 전달X)
+        getRecruitByPlubbingId(createReportRequest.reportTargetId()); // 해당 모임id에 해당하는 모집글 존재여부 확인
+        Report report = reportService.createReport(createReportRequest, reporter);
+        Long reportCount = reportService.getReportCount(
+                createReportRequest.reportTargetId(), ReportTarget.RECRUIT
+        );
+        if (reportCount >= 6) {
+            // 모임 일시 정지
+            Plubbing plubbing = plubbingService.getPlubbing(createReportRequest.reportTargetId()); // 존재여부도 확인
+            plubbing.pause();
+            return ReportResponse.of(report, ReportMessage.REPORT_PLUBBING_PAUSED);
+        }
+        // TODO : 경고 알림은 안 가는지?
+        return ReportResponse.of(report, ReportMessage.REPORT_SUCCESS);
     }
 }

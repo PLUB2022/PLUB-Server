@@ -42,7 +42,7 @@ public class Plubbing extends BaseEntity {
     private boolean visibility;
 
     @Enumerated(EnumType.STRING)
-    private PlubbingStatus status; // ACTIVE, END
+    private PlubbingStatus status; // ACTIVE, END, DELETED, PAUSE
 
     @OneToMany(mappedBy = "plubbing", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PlubbingMeetingDay> days;
@@ -200,5 +200,10 @@ public class Plubbing extends BaseEntity {
                 .findFirst()
                 .orElseThrow(() -> new AccountException(StatusCode.NOT_FOUND_ACCOUNT))
                 .getAccount();
+    }
+
+    public void pause() {
+        status = PlubbingStatus.PAUSE;
+        visibility = false;
     }
 }

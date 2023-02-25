@@ -206,4 +206,9 @@ public class Account extends BaseEntity {
             throw new AccountException(StatusCode.ROLE_ACCESS_ERROR);
         }
     }
+
+    public void addReport(Report report) {
+        if (reportList == null) reportList = new ArrayList<>();
+        reportList.add(report);
+    }
 }
