@@ -2,6 +2,7 @@ package plub.plubserver.domain.notice.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -22,9 +23,6 @@ import plub.plubserver.domain.notice.repository.NoticeRepository;
 import plub.plubserver.domain.notification.service.NotificationService;
 import plub.plubserver.domain.plubbing.model.Plubbing;
 import plub.plubserver.domain.plubbing.service.PlubbingService;
-
-import java.util.List;
-
 
 @Service
 @Transactional(readOnly = true)
@@ -76,13 +74,9 @@ public class NoticeService {
         Account currentAccount = accountService.getAccount(account.getId());
         Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
         plubbingService.checkMember(currentAccount, plubbing);
-        List<NoticeCardResponse> noticeCardResponses = noticeRepository
-                .findAllByPlubbingAndVisibility(plubbing, true, Sort.by(Sort.Direction.DESC, "createdAt"))
-                .stream()
-                .map(NoticeCardResponse::of)
-                .toList();
-        return PageResponse.of(pageable, noticeCardResponses);
-//        return null;
+        Pageable sortedPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(Sort.Direction.DESC, "createdAt"));
+        Page<NoticeCardResponse> noticeCardResponses = noticeRepository.findAllByPlubbingAndVisibility(plubbing, true, sortedPageable).map(NoticeCardResponse::of);
+        return PageResponse.of(noticeCardResponses);
     }
 
     public NoticeResponse getNotice(Account account, Long plubbingId, Long noticeId) {

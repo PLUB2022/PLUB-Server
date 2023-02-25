@@ -2,6 +2,7 @@ package plub.plubserver.domain.feed.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -58,9 +59,10 @@ public class FeedService {
         Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
         plubbingService.checkMember(account, plubbing);
         Boolean isHost = plubbingService.isHost(account, plubbing);
-        List<FeedCardResponse> feedCardList = feedRepository.findAllByPlubbingAndPinAndVisibility(plubbing, false, true, Sort.by(Sort.Direction.DESC, "createdAt"))
-                .stream().map((Feed feed) -> FeedCardResponse.of(feed, isFeedAuthor(account, feed), isHost)).toList();
-        return PageResponse.of(pageable, feedCardList);
+        Pageable sortedPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(Sort.Direction.DESC, "createdAt"));
+        Page<FeedCardResponse> feedCardList = feedRepository.findAllByPlubbingAndPinAndVisibility(plubbing, false, true, sortedPageable)
+                .map(it -> FeedCardResponse.of(it, isFeedAuthor(account, it), isHost));
+        return PageResponse.of(feedCardList);
     }
 
     public FeedListResponse getPinedFeedList(Account account, Long plubbingId) {
@@ -232,9 +234,10 @@ public class FeedService {
 
     public PageResponse<FeedCardResponse> getMyFeedList(Account account, Long plubbingId, Pageable pageable) {
         Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
-        List<FeedCardResponse> myFeedCardList = feedRepository.findAllByPlubbingAndAccountAndVisibility(plubbing, account,true, Sort.by(Sort.Direction.DESC,"createdAt"))
-                .stream().map((Feed feed) -> FeedCardResponse.of(feed, true, true)).toList();
-        return PageResponse.of(pageable, myFeedCardList);
+        Pageable sortedPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(Sort.Direction.DESC, "createdAt"));
+        Page<FeedCardResponse> myFeedCardList = feedRepository.findAllByPlubbingAndAccountAndVisibility(plubbing, account,true, sortedPageable)
+                .map((Feed feed) -> FeedCardResponse.of(feed, true, true));
+        return PageResponse.of(myFeedCardList);
     }
 
     //TODO
