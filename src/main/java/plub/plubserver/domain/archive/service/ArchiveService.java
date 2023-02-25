@@ -23,13 +23,12 @@ import plub.plubserver.domain.plubbing.model.Plubbing;
 import plub.plubserver.domain.plubbing.service.PlubbingService;
 import plub.plubserver.domain.report.dto.ReportDto.CreateReportRequest;
 import plub.plubserver.domain.report.dto.ReportDto.ReportResponse;
-import plub.plubserver.domain.report.dto.ReportMessage;
 import plub.plubserver.domain.report.model.Report;
-import plub.plubserver.domain.report.model.ReportTarget;
 import plub.plubserver.domain.report.service.ReportService;
 
 import java.util.ArrayList;
 import java.util.List;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -183,16 +182,6 @@ public class ArchiveService {
     public ReportResponse reportArchive(CreateReportRequest createReportRequest, Long archiveId, Account reporter) {
         Archive archive = getArchive(archiveId); // 아카이브 존재 여부 확인
         Report report = reportService.createReport(createReportRequest, reporter);
-        Long reportCount = reportService.getReportCount(
-                createReportRequest.reportTargetId(), ReportTarget.ARCHIVE
-        );
-        if (reportCount >= 6) {
-            // 모임 일시 정지
-            Plubbing plubbing = plubbingService.getPlubbing(archive.getId());
-            plubbing.pause();
-            return ReportResponse.of(report, ReportMessage.REPORT_PLUBBING_PAUSED);
-        }
-        // TODO : 경고 알림은 안 가는지?
-        return ReportResponse.of(report, ReportMessage.REPORT_SUCCESS);
+        return reportService.notifyHost(report, archive.getPlubbing());
     }
 }
