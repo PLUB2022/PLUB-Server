@@ -25,7 +25,7 @@ public class CalendarDummy {
     @PostConstruct
     public void init() {
         if (calendarRepository.count() > 0) {
-            log.info("[6] 캘린더가 존재여 더미를 생성하지 않았습니다.");
+            log.info("[6] 캘린더가 존재하여 더미를 생성하지 않았습니다.");
             return;
         }
 

@@ -38,6 +38,8 @@ public class PlubbingMockUtils {
         
         // 장소 매핑
         plubbing.addPlubbingPlace(new PlubbingPlace());
+
+        plubbing.addPlubbingSubCategories(new ArrayList<>());
         
         // AccountPlubbing 생성
         plubbing.addAccountPlubbing(AccountPlubbing.builder()

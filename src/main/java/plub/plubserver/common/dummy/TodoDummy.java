@@ -25,7 +25,7 @@ public class TodoDummy {
     @PostConstruct
     public void init() {
         if (todoRepository.count() > 0) {
-            log.info("[5] 투두가 존재여 더미를 생성하지 않았습니다.");
+            log.info("[5] 투두가 존재하여 더미를 생성하지 않았습니다.");
             return;
         }
 
