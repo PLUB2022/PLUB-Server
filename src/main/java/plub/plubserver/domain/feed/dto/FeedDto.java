@@ -139,7 +139,8 @@ public class FeedDto {
             Boolean isAuthor,
             Boolean isHost,
             int likeCount,
-            int commentCount) {
+            int commentCount
+    ) {
         @Builder
         public FeedResponse {
         }

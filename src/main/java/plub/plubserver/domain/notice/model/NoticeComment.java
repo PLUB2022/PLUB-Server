@@ -25,9 +25,6 @@ public class NoticeComment extends BaseEntity {
 
     private Long groupId;
 
-    @Builder.Default
-    private Long depth = 0L;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_id")
     private NoticeComment parent;
@@ -51,10 +48,6 @@ public class NoticeComment extends BaseEntity {
     public void addChildComment(NoticeComment child) {
         this.children.add(child);
         child.parent = this;
-    }
-
-    public void setDepth(NoticeComment parent) {
-        this.depth = parent.getDepth() + 1;
     }
 
     public void setGroupId(Long groupId) {

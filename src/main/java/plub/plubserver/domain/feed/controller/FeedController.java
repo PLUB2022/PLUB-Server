@@ -67,7 +67,7 @@ public class FeedController {
 
     @ApiOperation(value = "게시글 수정")
     @PutMapping("/{plubbingId}/feeds/{feedId}")
-    public ApiResponse<FeedIdResponse> updateFeed(
+    public ApiResponse<FeedResponse> updateFeed(
             @PathVariable Long plubbingId,
             @PathVariable Long feedId,
             @Valid @RequestBody UpdateFeedRequest updateFeedRequest
@@ -119,7 +119,7 @@ public class FeedController {
 
     @ApiOperation(value = "게시글 댓글 생성")
     @PostMapping("/{plubbingId}/feeds/{feedId}/comments")
-    public ApiResponse<CommentIdResponse> createFeedComment(
+    public ApiResponse<FeedCommentResponse> createFeedComment(
             @PathVariable Long plubbingId,
             @PathVariable Long feedId,
             @Valid @RequestBody CreateCommentRequest createCommentRequest) {
@@ -129,7 +129,7 @@ public class FeedController {
 
     @ApiOperation(value = "게시글 댓글 수정")
     @PutMapping("/{plubbingId}/feeds/{feedId}/comments/{commentId}")
-    public ApiResponse<CommentIdResponse> updateFeedComment(
+    public ApiResponse<FeedCommentResponse> updateFeedComment(
             @PathVariable Long plubbingId,
             @PathVariable Long feedId,
             @PathVariable Long commentId,

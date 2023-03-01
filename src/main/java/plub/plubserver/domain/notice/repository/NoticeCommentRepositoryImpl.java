@@ -25,7 +25,7 @@ public class NoticeCommentRepositoryImpl implements NoticeCommentRepositoryCusto
 
         return PageableExecutionUtils.getPage(
                 query.orderBy(noticeComment.groupId.desc(),
-                                noticeComment.depth.asc())
+                                noticeComment.createdAt.asc())
                         .offset(pageable.getOffset())
                         .limit(pageable.getPageSize())
                         .fetch(),

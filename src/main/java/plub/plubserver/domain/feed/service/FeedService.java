@@ -75,7 +75,7 @@ public class FeedService {
     }
 
     @Transactional
-    public FeedIdResponse updateFeed(Account account, Long plubbingId, Long feedId, UpdateFeedRequest updateFeedRequest) {
+    public FeedResponse updateFeed(Account account, Long plubbingId, Long feedId, UpdateFeedRequest updateFeedRequest) {
         plubbingService.getPlubbing(plubbingId);
         Feed feed = getFeed(feedId);
         checkFeedStatus(feed);
@@ -83,7 +83,8 @@ public class FeedService {
             throw new FeedException(StatusCode.CANNOT_DELETED_FEED);
         checkFeedAuthor(account, feed);
         feed.updateFeed(updateFeedRequest);
-        return new FeedIdResponse(feedId);
+        Boolean isHost = plubbingService.isHost(account, feed.getPlubbing());
+        return FeedResponse.of(feed, true, isHost);
     }
 
     @Transactional
@@ -147,7 +148,7 @@ public class FeedService {
     }
 
     @Transactional
-    public CommentIdResponse createFeedComment(
+    public FeedCommentResponse createFeedComment(
             Account account,
             Long plubbingId,
             Long feedId,
@@ -167,7 +168,6 @@ public class FeedService {
         FeedComment comment = feedCommentRepository.save(createCommentRequest.toFeedComment(feed, account));
         if (parentComment != null) {
             parentComment.addChildComment(comment);
-            comment.setDepth(parentComment);
             comment.setGroupId(parentComment.getGroupId());
             feedCommentRepository.save(parentComment);
             feedCommentRepository.save(comment);
@@ -188,19 +188,18 @@ public class FeedService {
 
         // TODO : 대댓글 알림
 
-
-        return new CommentIdResponse(comment.getId());
+        return FeedCommentResponse.of(comment, true, isFeedAuthor(account, feed));
     }
 
     @Transactional
-    public CommentIdResponse updateFeedComment(Account account, Long plubbingId, Long feedId, Long commentId, UpdateCommentRequest updateCommentRequest) {
+    public FeedCommentResponse updateFeedComment(Account account, Long plubbingId, Long feedId, Long commentId, UpdateCommentRequest updateCommentRequest) {
         plubbingService.getPlubbing(plubbingId);
         getFeed(feedId);
         FeedComment feedComment = getFeedComment(commentId);
         checkCommentStatus(feedComment);
         checkCommentAuthor(account, feedComment);
         feedComment.updateFeedComment(updateCommentRequest);
-        return new CommentIdResponse(commentId);
+        return FeedCommentResponse.of(feedComment, true, isFeedAuthor(account, feedComment.getFeed()));
     }
 
     @Transactional

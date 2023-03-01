@@ -25,9 +25,6 @@ public class FeedComment extends BaseEntity {
 
     private Long groupId;
 
-    @Builder.Default
-    private Long depth = 0L;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_id")
     private FeedComment parent;
@@ -51,10 +48,6 @@ public class FeedComment extends BaseEntity {
     public void addChildComment(FeedComment child) {
         this.children.add(child);
         child.parent = this;
-    }
-
-    public void setDepth(FeedComment parent) {
-        this.depth = parent.getDepth() + 1;
     }
 
     public void setGroupId(Long groupId) {
