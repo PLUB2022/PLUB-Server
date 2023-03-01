@@ -18,6 +18,7 @@ import plub.plubserver.domain.plubbing.model.AccountPlubbing;
 import plub.plubserver.domain.plubbing.model.Plubbing;
 import plub.plubserver.domain.recruit.model.AppliedAccount;
 import plub.plubserver.domain.recruit.model.Bookmark;
+import plub.plubserver.domain.report.model.Report;
 import plub.plubserver.domain.todo.model.Todo;
 import plub.plubserver.domain.todo.model.TodoTimeline;
 
@@ -122,6 +123,9 @@ public class Account extends BaseEntity {
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TodoTimeline> timeLineList = new ArrayList<>();
 
+    // 회원(1) - 신고(다)
+    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Report> reportList = new ArrayList<>();
 
 
     public void setIdForTest(Long id) {
@@ -201,5 +205,10 @@ public class Account extends BaseEntity {
         if (!this.getRole().equals(Role.ROLE_ADMIN)) {
             throw new AccountException(StatusCode.ROLE_ACCESS_ERROR);
         }
+    }
+
+    public void addReport(Report report) {
+        if (reportList == null) reportList = new ArrayList<>();
+        reportList.add(report);
     }
 }

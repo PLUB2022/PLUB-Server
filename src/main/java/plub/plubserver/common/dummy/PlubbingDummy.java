@@ -34,7 +34,7 @@ public class PlubbingDummy {
     @PostConstruct
     public void init() {
         if (recruitRepository.count() > 0) {
-            log.info("[1] 모집,모임이 존재하여 더미를 생성하지 않았습니다.");
+            log.info("[2] 모집,모임이 존재하여 더미를 생성하지 않았습니다.");
             return;
         }
         Account admin1 = accountService.getAccountByEmail("admin1");

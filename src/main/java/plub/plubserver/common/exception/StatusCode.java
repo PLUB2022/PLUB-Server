@@ -134,6 +134,12 @@ public enum StatusCode {
     ALREADY_CHECKED_TODO(400, 7030, "already checked todo."),
     ALREADY_PROOF_TODO(400, 7040, "already proof todo."),
 
+    /**
+     * Report
+     */
+    NOT_FOUND_REPORT(404, 9010, "not found report error."),
+
+
     ;
 
     private final int HttpCode;

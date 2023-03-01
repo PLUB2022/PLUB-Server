@@ -18,6 +18,10 @@ import plub.plubserver.domain.recruit.dto.QuestionDto.QuestionListResponse;
 import plub.plubserver.domain.recruit.dto.RecruitDto.*;
 import plub.plubserver.domain.recruit.model.RecruitSearchType;
 import plub.plubserver.domain.recruit.service.RecruitService;
+import plub.plubserver.domain.report.dto.ReportDto;
+import plub.plubserver.domain.report.dto.ReportDto.ReportResponse;
+
+import javax.validation.Valid;
 
 import static plub.plubserver.common.dto.ApiResponse.success;
 
@@ -113,12 +117,22 @@ public class RecruitController {
         Account loginAccount = accountService.getCurrentAccount();
         return success(recruitService.rejectApplicant(loginAccount, plubbingId, applicantId));
     }
-
+    @ApiOperation(value = "내 모임 지원자 전체 조회")
     @GetMapping("/{plubbingId}/recruit/applicants/my")
     public ApiResponse<AppliedAccountResponse> getMyApplicants(
             @PathVariable Long plubbingId
     ) {
         Account loginAccount = accountService.getCurrentAccount();
         return success(recruitService.getMyAppliedAccount(loginAccount, plubbingId));
+    }
+
+    @ApiOperation(value = " 모집 신고")
+    @PostMapping("/{plubbingId}/recruit/reports")
+    public ApiResponse<ReportResponse> reportRecruit(
+            @PathVariable Long plubbingId,
+            @Valid @RequestBody ReportDto.CreateReportRequest createReportRequest
+    ) {
+        Account loginAccount = accountService.getCurrentAccount();
+        return success(recruitService.reportRecruit(createReportRequest, loginAccount));
     }
 }

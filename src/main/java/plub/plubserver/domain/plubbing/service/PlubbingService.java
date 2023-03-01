@@ -1,6 +1,7 @@
 package plub.plubserver.domain.plubbing.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -27,12 +28,17 @@ import plub.plubserver.domain.recruit.model.Recruit;
 import plub.plubserver.domain.recruit.model.RecruitQuestion;
 import plub.plubserver.domain.recruit.model.RecruitStatus;
 import plub.plubserver.domain.recruit.repository.BookmarkRepository;
+import plub.plubserver.domain.report.dto.ReportDto.CreateReportRequest;
+import plub.plubserver.domain.report.dto.ReportDto.ReportResponse;
+import plub.plubserver.domain.report.model.Report;
+import plub.plubserver.domain.report.service.ReportService;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
@@ -44,6 +50,7 @@ public class PlubbingService {
     private final AccountCategoryRepository accountCategoryRepository;
     private final AccountPlubbingRepository accountPlubbingRepository;
     private final BookmarkRepository bookmarkRepository;
+    private final ReportService reportService;
 
     public Plubbing getPlubbing(Long plubbingId) {
         return plubbingRepository.findById(plubbingId)
@@ -369,6 +376,16 @@ public class PlubbingService {
 
     public Boolean isBookmarked(Account account, Plubbing plubbing) {
         return bookmarkRepository.existsByAccountAndRecruit(account, plubbing.getRecruit());
+    }
+
+    /**
+     * 모임 신고
+     */
+    @Transactional
+    public ReportResponse reportPlubbing(CreateReportRequest createReportRequest, Account reporter) {
+        Report report = reportService.createReport(createReportRequest, reporter);
+        Plubbing plubbing = getPlubbing(createReportRequest.reportTargetId()); // 존재여부도 확인
+        return reportService.notifyHost(report, plubbing);
     }
 }
 
