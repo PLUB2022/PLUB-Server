@@ -140,14 +140,16 @@ public class FeedService {
         }
     }
 
-    public PageResponse<FeedCommentResponse> getFeedCommentList(Account account, Long plubbingId, Long feedId, Pageable pageable) {
+    public PageResponse<FeedCommentResponse> getFeedCommentList(Account account, Long plubbingId, Long feedId, Pageable pageable, Long cursorId) {
         plubbingService.getPlubbing(plubbingId);
         Feed feed = getFeed(feedId);
         checkFeedStatus(feed);
         plubbingService.checkMember(account, feed.getPlubbing());
-        Page<FeedCommentResponse> feedCommentList = feedCommentRepository.findAllByFeed(feed, pageable)
+        Page<FeedCommentResponse> feedCommentList = feedCommentRepository.findAllByFeed(feed, pageable, cursorId)
                 .map(it -> FeedCommentResponse.of(it, isCommentAuthor(account, it), isFeedAuthor(account, feed)));
-        return PageResponse.of(feedCommentList);
+        Long totalElements = CursorUtils.getTotalElements(feedCommentList.getTotalElements(), cursorId);
+        Long nextCursorId = CursorUtils.getNextCursorId(cursorId, 10, totalElements);
+        return PageResponse.ofCursor(feedCommentList, nextCursorId, totalElements);
     }
 
     @Transactional
@@ -234,12 +236,14 @@ public class FeedService {
         });
     }
 
-    public PageResponse<FeedCardResponse> getMyFeedList(Account account, Long plubbingId, Pageable pageable) {
+    public PageResponse<FeedCardResponse> getMyFeedList(Account account, Long plubbingId, Pageable pageable, Long cursorId) {
         Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
         Pageable sortedPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(Sort.Direction.DESC, "createdAt"));
-        Page<FeedCardResponse> myFeedCardList = feedRepository.findAllByPlubbingAndAccountAndVisibility(plubbing, account,true, sortedPageable)
+        Page<FeedCardResponse> myFeedCardList = feedRepository.findAllByPlubbingAndAccountAndVisibility(plubbing, account, true, sortedPageable, cursorId)
                 .map((Feed feed) -> FeedCardResponse.of(feed, true, true));
-        return PageResponse.of(myFeedCardList);
+        Long totalElements = CursorUtils.getTotalElements(myFeedCardList.getTotalElements(), cursorId);
+        Long nextCursorId = CursorUtils.getNextCursorId(cursorId, 10, totalElements);
+        return PageResponse.ofCursor(myFeedCardList, nextCursorId, totalElements);
     }
 
     //TODO

@@ -1,14 +1,6 @@
 package plub.plubserver.util;
 
-import com.querydsl.core.types.dsl.BooleanExpression;
-
-import static plub.plubserver.domain.feed.model.QFeed.feed;
-
 public class CursorUtils {
-
-    public BooleanExpression getCursorId(Long cursorId) {
-        return cursorId == null ? null : feed.id.gt(cursorId);
-    }
 
     public static Long getNextCursorId(Long currentCursorId, int amount, Long totalElements) {
         if (currentCursorId == null) {

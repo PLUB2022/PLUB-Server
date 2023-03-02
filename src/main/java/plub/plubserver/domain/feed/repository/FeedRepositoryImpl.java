@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
+import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.feed.model.Feed;
 import plub.plubserver.domain.plubbing.model.Plubbing;
 
@@ -36,6 +37,29 @@ public class FeedRepositoryImpl implements FeedRepositoryCustom {
                 .fetch().size();
 
         log.info("size: {}", size);
+
+        return PageableExecutionUtils.getPage(
+                query.orderBy(feed.createdAt.asc())
+                        .limit(pageable.getPageSize())
+                        .fetch(),
+                pageable,
+                () -> queryFactory
+                        .selectFrom(feed)
+                        .fetch().size());
+    }
+
+    @Override
+    public Page<Feed> findAllByPlubbingAndAccountAndVisibility(
+            Plubbing plubbing,
+            Account account,
+            Boolean visibility,
+            Pageable pageable,
+            Long cursorId
+    ) {
+        JPQLQuery<Feed> query = queryFactory
+                .selectFrom(feed)
+                .where(getCursorId(cursorId))
+                .distinct();
 
         return PageableExecutionUtils.getPage(
                 query.orderBy(feed.createdAt.asc())
