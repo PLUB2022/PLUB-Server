@@ -55,15 +55,20 @@ public class ArchiveService {
         // 로그인한 사용자를 기반으로 액세스 타입 체크
         Account loginAccount = accountService.getCurrentAccount();
         List<ArchiveCardResponse> result = new ArrayList<>();
-        String accessType = "normal";
         for (Archive archive : temp) {
-            Account host = plubbingService.getHost(archive.getPlubbing().getId());
-            if (loginAccount.getId().equals(host.getId())) accessType = "host";
-            if (loginAccount.getId().equals(archive.getAccount().getId())) accessType = "author";
+            String accessType = getAccessType(loginAccount, archive);
             result.add(ArchiveCardResponse.of(archive, accessType));
         }
         Page<ArchiveCardResponse> pages = new PageImpl<>(result, pageable, temp.getTotalElements());
         return PageResponse.of(pages);
+    }
+
+    private String getAccessType(Account loginAccount, Archive archive) {
+        String accessType = "normal";
+        Account host = plubbingService.getHost(archive.getPlubbing().getId());
+        if (loginAccount.getId().equals(host.getId())) accessType = "host";
+        if (loginAccount.getId().equals(archive.getAccount().getId())) accessType = "author";
+        return accessType;
     }
 
     public ArchiveResponse getArchive(Long plubbingId, Long archiveId) {
@@ -123,11 +128,13 @@ public class ArchiveService {
 
     // 호스트, 작성자인지 권한 체크
     private void checkAuthorities(Account loginAccount, Long plubbingId, Long archiveId) {
+        Account account = accountService.getAccount(loginAccount.getId());
+
         // 호스트 체크
         plubbingService.checkHost(plubbingId);
 
         // 작성자 체크
-        if (loginAccount.getPlubbing(plubbingId).getArchives().stream()
+        if (account.getPlubbing(plubbingId).getArchives().stream()
                 .noneMatch(it -> it.getId().equals(archiveId)))
             throw new ArchiveException(StatusCode.NOT_ARCHIVE_AUTHOR);
     }
@@ -137,7 +144,7 @@ public class ArchiveService {
      */
     // only for 작성자, 호스트
     @Transactional
-    public ArchiveIdResponse updateArchive(
+    public ArchiveCardResponse updateArchive(
             Account loginAccount,
             Long plubbingId,
             Long archiveId,
@@ -151,8 +158,8 @@ public class ArchiveService {
                 archiveRequest.title(),
                 makeArchiveImageList(archiveRequest, archive)
         );
-
-        return ArchiveIdResponse.of(archive);
+        String accessType = getAccessType(loginAccount, archive);
+        return ArchiveCardResponse.of(archive, accessType);
     }
 
     /**
@@ -160,13 +167,17 @@ public class ArchiveService {
      */
     // only for 작성자, 호스트
     @Transactional
-    public ArchiveIdResponse softDeleteArchive(Account loginAccount, Long plubbingId, Long archiveId) {
+    public ArchiveCardResponse softDeleteArchive(
+            Account loginAccount,
+            Long plubbingId,
+            Long archiveId
+    ) {
         checkAuthorities(loginAccount, plubbingId, archiveId);
 
         Archive archive = getArchive(archiveId);
         archive.softDelete();
-
-        return ArchiveIdResponse.of(archive);
+        String accessType = getAccessType(loginAccount, archive);
+        return ArchiveCardResponse.of(archive, accessType);
     }
 
     @Transactional

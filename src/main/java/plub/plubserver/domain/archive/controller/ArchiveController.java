@@ -63,7 +63,7 @@ public class ArchiveController {
 
     @ApiOperation(value = "아카이브 수정")
     @PutMapping("/{archiveId}")
-    public ApiResponse<ArchiveIdResponse> updateArchive(
+    public ApiResponse<ArchiveCardResponse> updateArchive(
             @PathVariable("plubbingId") Long plubbingId,
             @PathVariable("archiveId") Long archiveId,
             @Valid @RequestBody ArchiveRequest archiveRequest
@@ -76,7 +76,7 @@ public class ArchiveController {
 
     @ApiOperation(value = "아카이브 삭제")
     @DeleteMapping("/{archiveId}")
-    public ApiResponse<ArchiveIdResponse> deleteArchive(
+    public ApiResponse<ArchiveCardResponse> deleteArchive(
             @PathVariable("plubbingId") Long plubbingId,
             @PathVariable("archiveId") Long archiveId
     ) {
