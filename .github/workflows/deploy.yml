@@ -27,6 +27,7 @@ jobs:
         env:
           YAML_SECRET: ${{ secrets.YML_SECRET }}
           APPLE_SECRET: ${{ secrets.APPLE_SECRET }}
+          FCM_JSON_SECRET: ${{ secrets.FCM_JSON_SECRET }}
           YAML_DIR: src/main/resources
           FCM_FILE_NAME: plub-firebase-private-key.json
           YAML_FILE_NAME: application-secret-prod.yml
