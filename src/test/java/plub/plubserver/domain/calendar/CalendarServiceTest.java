@@ -9,10 +9,12 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import plub.plubserver.domain.account.AccountTemplate;
 import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.calendar.model.Calendar;
+import plub.plubserver.domain.calendar.model.CalendarAlarmType;
 import plub.plubserver.domain.calendar.model.CalendarAttend;
 import plub.plubserver.domain.calendar.repository.CalendarAttendRepository;
 import plub.plubserver.domain.calendar.repository.CalendarRepository;
 import plub.plubserver.domain.calendar.service.CalendarService;
+import plub.plubserver.domain.notification.service.NotificationService;
 import plub.plubserver.domain.plubbing.PlubbingMockUtils;
 import plub.plubserver.domain.plubbing.model.Plubbing;
 import plub.plubserver.domain.plubbing.service.PlubbingService;
@@ -39,6 +41,9 @@ class CalendarServiceTest {
     @Mock
     PlubbingService plubbingService;
 
+    @Mock
+    NotificationService notificationService;
+
     @Test
     @DisplayName("캘린더 생성 성공")
     void createCalendar_success() {
@@ -49,7 +54,8 @@ class CalendarServiceTest {
                 .willReturn(plubbing);
 
         CreateCalendarRequest calendarRequest = CalendarMockUtils.createCalendarRequest();
-        calendarRequest.toEntity(1L);
+        CalendarAlarmType calendarAlarmType = CalendarAlarmType.valueOf(calendarRequest.alarmType());
+        calendarRequest.toEntity(1L, calendarAlarmType);
 
         // when
         calendarService.createCalendar(account, plubbing.getId(), calendarRequest);
@@ -57,7 +63,7 @@ class CalendarServiceTest {
         // then
         assertThat(calendarRequest.title()).isEqualTo(calendarRequest.title());
         assertThat(calendarRequest.memo()).isEqualTo(calendarRequest.memo());
-        assertThat(calendarRequest.staredAt()).isEqualTo(calendarRequest.staredAt());
+        assertThat(calendarRequest.startedAt()).isEqualTo(calendarRequest.startedAt());
         assertThat(calendarRequest.endedAt()).isEqualTo(calendarRequest.endedAt());
         assertThat(calendarRequest.startTime()).isEqualTo(calendarRequest.startTime());
         assertThat(calendarRequest.endTime()).isEqualTo(calendarRequest.endTime());
@@ -88,7 +94,7 @@ class CalendarServiceTest {
         // then
         assertThat(calendarRequest.title()).isEqualTo(calendarRequest.title());
         assertThat(calendarRequest.memo()).isEqualTo(calendarRequest.memo());
-        assertThat(calendarRequest.staredAt()).isEqualTo(calendarRequest.staredAt());
+        assertThat(calendarRequest.startedAt()).isEqualTo(calendarRequest.startedAt());
         assertThat(calendarRequest.endedAt()).isEqualTo(calendarRequest.endedAt());
         assertThat(calendarRequest.startTime()).isEqualTo(calendarRequest.startTime());
         assertThat(calendarRequest.endTime()).isEqualTo(calendarRequest.endTime());

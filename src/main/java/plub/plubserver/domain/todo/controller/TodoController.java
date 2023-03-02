@@ -78,12 +78,12 @@ public class TodoController {
     }
 
     @ApiOperation(value = "투두 리스트 삭제")
-    @DeleteMapping("/{plubbingId}/todolist/{todolistId}")
+    @DeleteMapping("/{plubbingId}/todolist/{todoId}")
     public ApiResponse<TodoMessage> deleteTodoList(
             @PathVariable Long plubbingId,
-            @PathVariable Long todolistId
+            @PathVariable Long todoId
     ) {
-        return success(todoService.deleteTodoList(plubbingId, todolistId));
+        return success(todoService.deleteTodoList(plubbingId, todoId));
     }
 
     @ApiOperation(value = "투두 리스트 수정")

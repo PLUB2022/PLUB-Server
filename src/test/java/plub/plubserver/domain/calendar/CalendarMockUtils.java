@@ -1,6 +1,7 @@
 package plub.plubserver.domain.calendar;
 
 import plub.plubserver.domain.calendar.model.Calendar;
+import plub.plubserver.domain.calendar.model.CalendarAlarmType;
 
 import static plub.plubserver.domain.calendar.dto.CalendarAttendDto.CheckAttendRequest;
 import static plub.plubserver.domain.calendar.dto.CalendarDto.CreateCalendarRequest;
@@ -11,7 +12,7 @@ public class CalendarMockUtils {
         return CreateCalendarRequest.builder()
                 .title("title")
                 .memo("memo")
-                .staredAt("2021-08-01")
+                .startedAt("2021-08-01")
                 .endedAt("2021-08-01")
                 .startTime("10:00")
                 .endTime("11:00")
@@ -19,6 +20,7 @@ public class CalendarMockUtils {
                 .address("address")
                 .roadAddress("roadAddress")
                 .placeName("placeName")
+                .alarmType("FIVE_MINUTES")
                 .build();
     }
 
@@ -26,7 +28,7 @@ public class CalendarMockUtils {
         return UpdateCalendarRequest.builder()
                 .title("title")
                 .memo("memo")
-                .staredAt("2021-08-01")
+                .startedAt("2021-08-01")
                 .endedAt("2021-08-01")
                 .startTime("10:00")
                 .endTime("11:00")
@@ -34,6 +36,7 @@ public class CalendarMockUtils {
                 .address("address")
                 .roadAddress("roadAddress")
                 .placeName("placeName")
+                .alarmType("FIVE_MINUTES")
                 .build();
     }
 
@@ -44,6 +47,6 @@ public class CalendarMockUtils {
     }
 
     public static Calendar getMockCalendar() {
-        return createCalendarRequest().toEntity(1L);
+        return createCalendarRequest().toEntity(1L, CalendarAlarmType.FIVE_MINUTES);
     }
 }
