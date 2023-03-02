@@ -112,10 +112,11 @@ public class FeedController {
     public ApiResponse<PageResponse<FeedCommentResponse>> getFeedCommentList(
             @PathVariable Long plubbingId,
             @PathVariable Long feedId,
+            @RequestParam(required = false) Long cursorId,
             @PageableDefault(size = 20) Pageable pageable
     ) {
         Account loginAccount = accountService.getCurrentAccount();
-        return success(feedService.getFeedCommentList(loginAccount, plubbingId, feedId, pageable));
+        return success(feedService.getFeedCommentList(loginAccount, plubbingId, feedId, pageable, cursorId));
     }
 
     @ApiOperation(value = "게시글 댓글 생성")
@@ -166,8 +167,10 @@ public class FeedController {
     @GetMapping("/{plubbingId}/feeds/my")
     public ApiResponse<PageResponse<FeedCardResponse>> getMyFeedList(
             @PathVariable Long plubbingId,
-            @PageableDefault(size = 20) Pageable pageable) {
+            @PageableDefault(size = 20) Pageable pageable,
+            @RequestParam(required = false) Long cursorId
+    ) {
         Account loginAccount = accountService.getCurrentAccount();
-        return success(feedService.getMyFeedList(loginAccount, plubbingId, pageable));
+        return success(feedService.getMyFeedList(loginAccount, plubbingId, pageable, cursorId));
     }
 }

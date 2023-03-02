@@ -1,5 +1,6 @@
 package plub.plubserver.domain.feed.repository;
 
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -16,11 +17,12 @@ public class FeedCommentRepositoryImpl implements FeedCommentRepositoryCustom {
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public Page<FeedComment> findAllByFeed(Feed feed, Pageable pageable) {
+    public Page<FeedComment> findAllByFeed(Feed feed, Pageable pageable, Long cursorId) {
         JPQLQuery<FeedComment> query = queryFactory
                 .selectFrom(feedComment)
                 .where(feedComment.feed.eq(feed),
-                        feedComment.visibility.eq(true))
+                        feedComment.visibility.eq(true),
+                        getCursorId(cursorId))
                 .distinct();
 
         return PageableExecutionUtils.getPage(
@@ -30,6 +32,11 @@ public class FeedCommentRepositoryImpl implements FeedCommentRepositoryCustom {
                         .limit(pageable.getPageSize())
                         .fetch(),
                 pageable,
-                query::fetchCount);
+                () -> queryFactory.selectFrom(feedComment)
+                        .fetch().size());
+    }
+
+    private BooleanExpression getCursorId(Long cursorId) {
+        return cursorId == null ? null : feedComment.id.gt(cursorId);
     }
 }

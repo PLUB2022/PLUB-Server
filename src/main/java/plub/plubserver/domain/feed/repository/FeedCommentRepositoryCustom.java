@@ -7,5 +7,5 @@ import plub.plubserver.domain.feed.model.FeedComment;
 
 
 public interface FeedCommentRepositoryCustom {
-    Page<FeedComment> findAllByFeed(Feed feed, Pageable pageable);
+    Page<FeedComment> findAllByFeed(Feed feed, Pageable pageable, Long cursorId);
 }
