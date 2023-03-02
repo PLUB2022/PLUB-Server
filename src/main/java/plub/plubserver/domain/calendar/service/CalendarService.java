@@ -155,7 +155,7 @@ public class CalendarService {
                 .map(calendar -> {
                     List<CalendarAttend> calendarAttendList = calendar.getCalendarAttendList().stream()
                             .filter(calendarAttend -> calendarAttend.getAttendStatus().equals(AttendStatus.YES))
-                            .collect(Collectors.toList());
+                            .toList();
                     CalendarAttendList list = CalendarAttendList.of(calendarAttendList);
                     return CalendarCardResponse.of(calendar, list);
                 });
@@ -166,7 +166,9 @@ public class CalendarService {
         plubbingService.getPlubbing(plubbingId);
         Calendar calendar = calendarRepository.findById(calendarId)
                 .orElseThrow(() -> new CalendarException(StatusCode.NOT_FOUNT_CALENDAR));
-        List<CalendarAttend> attendList = calendarAttendRepository.findByCalendarIdOrderByAttendStatus(calendar.getId());
+        List<CalendarAttend> attendList = calendarAttendRepository.findByCalendarIdOrderByAttendStatus(calendar.getId())
+                .stream().filter(calendarAttend -> calendarAttend.getAttendStatus().equals(AttendStatus.YES))
+                .toList();
         return CalendarAttendList.of(attendList);
 
     }
