@@ -19,6 +19,10 @@ public class PolicyDummy {
 
     @PostConstruct
     public void init() {
+            if (policyRepository.count() > 0) {
+                log.info("[0] 정책이 이미 존재합니다");
+                return;
+            }
         Policy personal = Policy.builder()
                 .name("personal")
                 .title("개인정보처리방침")
@@ -56,6 +60,7 @@ public class PolicyDummy {
         policyRepository.save(marketing);
         policyRepository.save(age);
 
+        log.info("[0] 정책 더미 생성 완료");
     }
 
     private static String termsContent = "";
