@@ -28,10 +28,13 @@ jobs:
           YAML_SECRET: ${{ secrets.YML_SECRET }}
           APPLE_SECRET: ${{ secrets.APPLE_SECRET }}
           YAML_DIR: src/main/resources
+          FCM_DIR: src/main/resources/firebase
+          FCM_FILE_NAME: plub-firebase-private-key.json
           YAML_FILE_NAME: application-secret-prod.yml
           APPLE_FILE_NAME: apple_sign_key.p8
         run: echo $YAML_SECRET | base64 --decode > $YAML_DIR/$YAML_FILE_NAME &&
-             echo $APPLE_SECRET > $YAML_DIR/$APPLE_FILE_NAME
+             echo $APPLE_SECRET > $YAML_DIR/$APPLE_FILE_NAME &&
+             echo $FCM_JSON_SECRET > $FCM_DIR/$FCM_FILE_NAME
 
       - name: Build with Gradle
         run: ./gradlew bootJar
