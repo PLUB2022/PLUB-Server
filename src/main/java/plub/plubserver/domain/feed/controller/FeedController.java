@@ -42,10 +42,11 @@ public class FeedController {
     @GetMapping("/{plubbingId}/feeds")
     public ApiResponse<PageResponse<FeedCardResponse>> getFeedList(
             @PathVariable Long plubbingId,
+            @RequestParam(required = false) Long cursorId,
             @PageableDefault(size = 20) Pageable pageable
     ) {
         Account loginAccount = accountService.getCurrentAccount();
-        return success(feedService.getFeedList(loginAccount, plubbingId, pageable));
+        return success(feedService.getFeedList(loginAccount, plubbingId, pageable, cursorId));
     }
 
     @ApiOperation(value = "클립 보드 조회")

@@ -23,6 +23,7 @@ import plub.plubserver.domain.feed.repository.FeedRepository;
 import plub.plubserver.domain.notification.service.NotificationService;
 import plub.plubserver.domain.plubbing.model.Plubbing;
 import plub.plubserver.domain.plubbing.service.PlubbingService;
+import plub.plubserver.util.CursorUtils;
 
 import java.util.List;
 
@@ -55,14 +56,16 @@ public class FeedService {
         return new FeedIdResponse(feed.getId());
     }
 
-    public PageResponse<FeedCardResponse> getFeedList(Account account, Long plubbingId, Pageable pageable) {
+    public PageResponse<FeedCardResponse> getFeedList(Account account, Long plubbingId, Pageable pageable, Long cursorId) {
         Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
         plubbingService.checkMember(account, plubbing);
         Boolean isHost = plubbingService.isHost(account, plubbing);
         Pageable sortedPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(Sort.Direction.DESC, "createdAt"));
-        Page<FeedCardResponse> feedCardList = feedRepository.findAllByPlubbingAndPinAndVisibility(plubbing, false, true, sortedPageable)
+        Page<FeedCardResponse> feedCardList = feedRepository.findAllByPlubbingAndPinAndVisibilityCursor(plubbing, false, true, sortedPageable, cursorId)
                 .map(it -> FeedCardResponse.of(it, isFeedAuthor(account, it), isHost));
-        return PageResponse.of(feedCardList);
+        Long totalElements = CursorUtils.getTotalElements(feedCardList.getTotalElements(), cursorId);
+        Long nextCursorId = CursorUtils.getNextCursorId(cursorId, 10, totalElements);
+        return PageResponse.ofCursor(feedCardList, nextCursorId, totalElements);
     }
 
     public FeedListResponse getPinedFeedList(Account account, Long plubbingId) {

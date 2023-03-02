@@ -10,7 +10,7 @@ import plub.plubserver.domain.plubbing.model.Plubbing;
 
 import java.util.List;
 
-public interface FeedRepository extends JpaRepository<Feed, Long> {
+public interface FeedRepository extends JpaRepository<Feed, Long>, FeedRepositoryCustom {
 
     Page<Feed> findAllByPlubbingAndAccountAndVisibility(Plubbing plubbing, Account account, Boolean visibility,Pageable pageable);
 

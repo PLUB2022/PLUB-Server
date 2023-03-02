@@ -15,7 +15,7 @@ import java.util.List;
 public class PageResponse<T> {
     int totalPages;
     Long totalElements;
-
+    Long nextCursorId;
     boolean last;
     List<T> content;
 
@@ -25,6 +25,18 @@ public class PageResponse<T> {
                 .totalElements(page.getTotalElements())
                 .last(page.isLast())
                 .content(page.getContent())
+                .nextCursorId(0L)
+                .build();
+    }
+
+
+    public static <T> PageResponse<T> ofCursor(Page<T> page, Long nextCursorId, Long totalElements) {
+        return PageResponse.<T>builder()
+                .totalPages(page.getTotalPages())
+                .totalElements(totalElements)
+                .last(page.isLast())
+                .content(page.getContent())
+                .nextCursorId(nextCursorId)
                 .build();
     }
 
