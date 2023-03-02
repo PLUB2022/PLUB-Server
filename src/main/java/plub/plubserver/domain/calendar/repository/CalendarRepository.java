@@ -7,6 +7,6 @@ import org.springframework.data.jpa.repository.Query;
 import plub.plubserver.domain.calendar.model.Calendar;
 
 public interface CalendarRepository extends JpaRepository<Calendar, Long> {
-    @Query("select c from Calendar c order by c.staredAt desc")
+    @Query("select c from Calendar c order by c.startedAt desc")
     Page<Calendar> findAllByPlubbingId(Long plubbingId, Pageable pageable);
 }

@@ -4,20 +4,24 @@ import lombok.Builder;
 import org.springframework.data.domain.Page;
 import plub.plubserver.common.dto.PageResponse;
 import plub.plubserver.domain.calendar.model.Calendar;
+import plub.plubserver.domain.calendar.model.CalendarAlarmType;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 import static plub.plubserver.domain.calendar.dto.CalendarAttendDto.CalendarAttendList;
 
 public class CalendarDto {
 
     public record CreateCalendarRequest(
-            @NotBlank
+            @NotBlank @Size(max = 20)
             String title,
-            @NotBlank
+            @NotBlank @Size(max = 30)
             String memo,
-            String staredAt,
+            @NotBlank
+            String startedAt,
+            @NotBlank
             String endedAt,
             String startTime,
             String endTime,
@@ -25,17 +29,18 @@ public class CalendarDto {
             boolean isAllDay,
             String address,
             String roadAddress,
-            String placeName
+            String placeName,
+            String alarmType
     ) {
         @Builder
         public CreateCalendarRequest {
         }
 
-        public Calendar toEntity(Long hostId) {
+        public Calendar toEntity(Long hostId, CalendarAlarmType calendarAlarmType) {
             return Calendar.builder()
                     .title(title)
                     .memo(memo)
-                    .staredAt(staredAt)
+                    .startedAt(startedAt)
                     .endedAt(endedAt)
                     .startTime(startTime)
                     .endTime(endTime)
@@ -44,22 +49,29 @@ public class CalendarDto {
                     .roadAddress(roadAddress)
                     .placeName(placeName)
                     .hostId(hostId)
+                    .alarmType(calendarAlarmType)
                     .build();
         }
 
     }
 
     public record UpdateCalendarRequest(
+            @NotBlank @Size(max = 20)
             String title,
+            @NotBlank @Size(max = 30)
             String memo,
-            String staredAt,
+            @NotBlank
+            String startedAt,
+            @NotBlank
             String endedAt,
             String startTime,
             String endTime,
+            @NotNull
             boolean isAllDay,
             String address,
             String roadAddress,
-            String placeName
+            String placeName,
+            String alarmType
     ) {
         @Builder
         public UpdateCalendarRequest {
@@ -70,7 +82,7 @@ public class CalendarDto {
             Long calendarId,
             String title,
             String memo,
-            String staredAt,
+            String startedAt,
             String endedAt,
             String startTime,
             String endTime,
@@ -78,6 +90,7 @@ public class CalendarDto {
             String address,
             String roadAddress,
             String placeName,
+            String alarmType,
             CalendarAttendList calendarAttendList
     ) {
         @Builder
@@ -89,7 +102,7 @@ public class CalendarDto {
                     .calendarId(calendar.getId())
                     .title(calendar.getTitle())
                     .memo(calendar.getMemo())
-                    .staredAt(calendar.getStaredAt())
+                    .startedAt(calendar.getStartedAt())
                     .endedAt(calendar.getEndedAt())
                     .startTime(calendar.getStartTime())
                     .endTime(calendar.getEndTime())
@@ -97,6 +110,7 @@ public class CalendarDto {
                     .address(calendar.getAddress())
                     .roadAddress(calendar.getRoadAddress())
                     .placeName(calendar.getPlaceName())
+                    .alarmType(calendar.getAlarmType().toString())
                     .calendarAttendList(calendarAttendList)
                     .build();
         }

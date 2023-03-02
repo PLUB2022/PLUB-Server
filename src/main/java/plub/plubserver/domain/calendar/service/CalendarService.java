@@ -10,6 +10,7 @@ import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.calendar.exception.CalendarException;
 import plub.plubserver.domain.calendar.model.AttendStatus;
 import plub.plubserver.domain.calendar.model.Calendar;
+import plub.plubserver.domain.calendar.model.CalendarAlarmType;
 import plub.plubserver.domain.calendar.model.CalendarAttend;
 import plub.plubserver.domain.calendar.repository.CalendarAttendRepository;
 import plub.plubserver.domain.calendar.repository.CalendarRepository;
@@ -62,7 +63,7 @@ public class CalendarService {
         return CreateCalendarRequest.builder()
                 .title(request.title())
                 .memo(request.memo())
-                .staredAt(request.staredAt())
+                .startedAt(request.startedAt())
                 .endedAt(request.endedAt())
                 .startTime(startTime)
                 .endTime(endTime)
@@ -78,7 +79,8 @@ public class CalendarService {
         Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
         plubbingService.checkHost(account, plubbing);
         CreateCalendarRequest createCalendarRequest = checkCalender(request);
-        Calendar calendar = createCalendarRequest.toEntity(account.getId());
+        CalendarAlarmType calendarAlarmType = CalendarAlarmType.valueOf(request.alarmType());
+        Calendar calendar = createCalendarRequest.toEntity(account.getId(), calendarAlarmType);
         calendarRepository.save(calendar);
         List<AccountPlubbing> accountPlubbingList = plubbing.getAccountPlubbingList();
         for (AccountPlubbing accountPlubbing : accountPlubbingList) {
@@ -95,9 +97,11 @@ public class CalendarService {
             notificationService.pushMessage(
                     member,
                     plubbing.getName(),
-                    "새로운 일정이 등록되었어요! 모이는 시간과 장소를 확인하고 참여해 보세요!\n : " + calendar.getTitle() + "," + calendar.getStaredAt() + " ~ " + calendar.getEndedAt() + "," + calendar.getPlaceName()
+                    "새로운 일정이 등록되었어요! 모이는 시간과 장소를 확인하고 참여해 보세요!\n : " + calendar.getTitle() + "," + calendar.getStartedAt() + " ~ " + calendar.getEndedAt() + "," + calendar.getPlaceName()
             );
         });
+
+        //TODO: 푸시 알림 스케줄러에 등록
 
         return CalendarIdResponse.of(calendar.getId());
     }
@@ -115,9 +119,11 @@ public class CalendarService {
             notificationService.pushMessage(
                     member,
                     plubbing.getName(),
-                    "모임 일정이 수정되었어요. 어떻게 변경되었는지 확인해 볼까요?\n : " + calendar.getTitle() + "," + calendar.getStaredAt() + " ~ " + calendar.getEndedAt() + "," + calendar.getPlaceName()
+                    "모임 일정이 수정되었어요. 어떻게 변경되었는지 확인해 볼까요?\n : " + calendar.getTitle() + "," + calendar.getStartedAt() + " ~ " + calendar.getEndedAt() + "," + calendar.getPlaceName()
             );
         });
+
+        //TODO: 푸시 알림 스케줄러에 변경
 
         return CalendarIdResponse.of(calendar.getId());
     }
@@ -149,7 +155,7 @@ public class CalendarService {
                 .map(calendar -> {
                     List<CalendarAttend> calendarAttendList = calendar.getCalendarAttendList().stream()
                             .filter(calendarAttend -> calendarAttend.getAttendStatus().equals(AttendStatus.YES))
-                            .collect(Collectors.toList());
+                            .toList();
                     CalendarAttendList list = CalendarAttendList.of(calendarAttendList);
                     return CalendarCardResponse.of(calendar, list);
                 });
@@ -160,7 +166,9 @@ public class CalendarService {
         plubbingService.getPlubbing(plubbingId);
         Calendar calendar = calendarRepository.findById(calendarId)
                 .orElseThrow(() -> new CalendarException(StatusCode.NOT_FOUNT_CALENDAR));
-        List<CalendarAttend> attendList = calendarAttendRepository.findByCalendarIdOrderByAttendStatus(calendar.getId());
+        List<CalendarAttend> attendList = calendarAttendRepository.findByCalendarIdOrderByAttendStatus(calendar.getId())
+                .stream().filter(calendarAttend -> calendarAttend.getAttendStatus().equals(AttendStatus.YES))
+                .toList();
         return CalendarAttendList.of(attendList);
 
     }

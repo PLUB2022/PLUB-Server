@@ -23,7 +23,7 @@ public class Calendar extends BaseEntity {
     private String title;
     private String memo;
 
-    private String staredAt;
+    private String startedAt;
     private String endedAt;
 
     private String startTime;
@@ -35,6 +35,9 @@ public class Calendar extends BaseEntity {
     private String placeName;
 
     private Long hostId;
+
+    @Enumerated(EnumType.STRING)
+    private CalendarAlarmType alarmType;
 
     // 플러빙 일자(다) - 모임(1)
     @ManyToOne(fetch = FetchType.LAZY)
@@ -48,7 +51,7 @@ public class Calendar extends BaseEntity {
     public void updateCalendar(CalendarDto.UpdateCalendarRequest request) {
         this.title = request.title();
         this.memo = request.memo();
-        this.staredAt = request.staredAt();
+        this.startedAt = request.startedAt();
         this.endedAt = request.endedAt();
         this.startTime = request.startTime();
         this.endTime = request.endTime();
@@ -56,5 +59,6 @@ public class Calendar extends BaseEntity {
         this.address = request.address();
         this.roadAddress = request.roadAddress();
         this.placeName = request.placeName();
+        this.alarmType = CalendarAlarmType.valueOf(request.alarmType());
     }
 }

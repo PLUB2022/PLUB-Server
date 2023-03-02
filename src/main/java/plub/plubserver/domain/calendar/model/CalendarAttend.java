@@ -18,6 +18,7 @@ public class CalendarAttend extends BaseEntity {
     @Column(name = "calendar_attend")
     private Long id;
 
+    @Enumerated(EnumType.STRING)
     private AttendStatus attendStatus;
 
     // 참여자(다) - 플러빙일정(1)

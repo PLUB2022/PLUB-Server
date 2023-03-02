@@ -121,7 +121,7 @@ public class PlubbingDummy {
         ApplyRecruitRequest applyRecruitRequest = ApplyRecruitRequest.builder()
                 .answers(answerRequests)
                 .build();
-        for (int i = 0; i < 15; i++) {
+        for (int i = 0; i < 20; i++) {
             Account account = accountService.getAccountByEmail("dummy" + i);
             recruitService.applyRecruit(account, 1L, applyRecruitRequest);
         }
