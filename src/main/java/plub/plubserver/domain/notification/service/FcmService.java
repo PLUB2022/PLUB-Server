@@ -14,15 +14,13 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import plub.plubserver.common.exception.StatusCode;
-import plub.plubserver.domain.notification.dto.FcmDto.Notification;
 import plub.plubserver.domain.notification.exception.NotificationException;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-import static plub.plubserver.domain.notification.dto.FcmDto.FcmMessage;
-import static plub.plubserver.domain.notification.dto.FcmDto.Message;
+import static plub.plubserver.domain.notification.dto.FcmDto.*;
 
 @Slf4j
 @Service
@@ -33,7 +31,7 @@ public class FcmService {
 
     private String getAccessToken() {
         try {
-            String firebaseConfigPath = "firebase/plub-firebase-private-key.json";
+            String firebaseConfigPath = "plub-firebase-private-key.json";
             GoogleCredentials credentials = GoogleCredentials
                     .fromStream(new ClassPathResource(firebaseConfigPath).getInputStream())
                     .createScoped(List.of("https://www.googleapis.com/auth/cloud-platform"));
@@ -47,9 +45,9 @@ public class FcmService {
 
     private String makeMessage(String targetToken, String title, String body) {
         try {
-            Notification notification = new Notification(title, body);
-            Message message = new Message(targetToken, notification);
-            FcmMessage fcmMessage = new FcmMessage(false, message);
+            FcmMessage fcmMessage = new FcmMessage(false,
+                    new Message(targetToken, new Notification(title, body))
+            );
             return objectMapper.writeValueAsString(fcmMessage);
         } catch (JsonProcessingException e) {
             log.warn("FCM [makeMessage] Error : {}", e.getMessage());

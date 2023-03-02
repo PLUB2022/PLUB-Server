@@ -2,14 +2,14 @@ package plub.plubserver.domain.notification.dto;
 
 public class FcmDto {
     public record FcmMessage(
-            Boolean validateOnly,
+            Boolean validate_only,
             Message message
 
     ) {}
 
     public record Message(
             String token,
-            Notification notification
+            Notification data
     ) {}
 
     public record Notification(
@@ -18,7 +18,7 @@ public class FcmDto {
     ) {}
 
     public record PushMessage(
-            String targetToken,
+            Long receiverId,
             String title,
             String body
     ) {}

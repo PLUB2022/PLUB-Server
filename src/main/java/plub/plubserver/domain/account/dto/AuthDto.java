@@ -23,7 +23,9 @@ public class AuthDto {
             @ApiModelProperty(value = "소셜 액세스 토큰", example = "ya29.a0Aa4xrXNXkiDBMm7MtSneVejzvupPun8S8EHorgvrt-nlCNy83PA9TI")
             String accessToken,
             @ApiModelProperty(value = "소셜 인증 토큰", example = "eyJraWQiOiJmaDZCczhDIiwiYWxnIjoiUlMyNTYif")
-            String authorizationCode
+            String authorizationCode,
+            @ApiModelProperty(value = "FCM 토큰", example = "f7mGlaDUTNSx5NOJ8k39bW:APA91bEogtcJPEcYrk5JGxU9GTOB1vq38oI3Jkntu0RgIjSe5pjfr1tAS_oD75ihUBg8Fr2bJ-sy9b_eIzWlbb26MdcpM_dqGVEYzXoVjgXi3P1FlsgpzxbjKPq40iX4Vnxil3GH-7-b")
+            String fcmToken
     ) {
     }
 
@@ -69,7 +71,9 @@ public class AuthDto {
             @ApiModelProperty(value = "회원 프로필", example = "회원 프로필 이미지")
             String profileImage,
             @ApiModelProperty(value = "관심사 선택", example = "[음악, 맛집, 뷰티, 계절스포츠]")
-            List<Long> categoryList
+            List<Long> categoryList,
+            @ApiModelProperty(value = "FCM 토큰", example = "f7mGlaDUTNSx5NOJ8k39bW:APA91bEogtcJPEcYrk5JGxU9GTOB1vq38oI3Jkntu0RgIjSe5pjfr1tAS_oD75ihUBg8Fr2bJ-sy9b_eIzWlbb26MdcpM_dqGVEYzXoVjgXi3P1FlsgpzxbjKPq40iX4Vnxil3GH-7-b")
+            String fcmToken
 
     ) {
         @Builder

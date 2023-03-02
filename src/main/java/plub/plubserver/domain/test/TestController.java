@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 import plub.plubserver.common.dto.ApiResponse;
 import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.account.service.AccountService;
-import plub.plubserver.domain.notification.dto.FcmDto;
+import plub.plubserver.domain.notification.dto.FcmDto.PushMessage;
 import plub.plubserver.domain.notification.service.FcmService;
 import plub.plubserver.domain.report.service.ReportService;
 
@@ -35,8 +35,9 @@ public class TestController {
     }
 
     @PostMapping("/push/single")
-    public ApiResponse<?> testPushSingle(@RequestBody FcmDto.PushMessage form) {
-        return success(fcmService.sendPushMessage(form.targetToken(), form.title(), form.body()));
+    public ApiResponse<?> testPushSingle(@RequestBody PushMessage form) {
+        Account targetAccount = accountService.getAccount(form.receiverId());
+        return success(fcmService.sendPushMessage(targetAccount.getFcmToken(), form.title(), form.body()));
     }
 
     @PostMapping("/report")

@@ -50,6 +50,7 @@ public class AuthService {
     private final SubCategoryRepository subCategoryRepository;
     private final PolicyRepository policyRepository;
 
+    @Transactional
     public AuthMessage loginAccess(SocialLoginRequest socialLoginRequest) {
         OAuthIdAndRefreshTokenResponse response = fetchSocialEmail(socialLoginRequest);
         String email = response.id();
@@ -57,8 +58,10 @@ public class AuthService {
         Optional<Account> account = accountRepository.findByEmail(email);
         AuthMessage loginMessage;
         if (account.isPresent()) {
-            JwtDto jwtDto = login(LoginRequest.toLoginRequest(account.get()));
-            account.get().updateRefreshToken(refreshToken);
+            Account existAccount = account.get();
+            JwtDto jwtDto = login(LoginRequest.toLoginRequest(existAccount));
+            existAccount.updateRefreshToken(refreshToken);
+            existAccount.updateFcmToken(socialLoginRequest.fcmToken());
             loginMessage = new AuthMessage(
                     jwtDto,
                     StatusCode.LOGIN.getMessage()
@@ -141,6 +144,7 @@ public class AuthService {
 
         account.updateAccountCategory(accountCategoryList);
         account.updateProfileImage(profileImage);
+        account.updateFcmToken(signUpRequest.fcmToken());
 
         JwtDto jwtDto = login(LoginRequest.toLoginRequest(account));
         account.updateRefreshToken(refreshToken);

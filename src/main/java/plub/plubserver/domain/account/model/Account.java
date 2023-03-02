@@ -211,4 +211,8 @@ public class Account extends BaseEntity {
         if (reportList == null) reportList = new ArrayList<>();
         reportList.add(report);
     }
+
+    public void updateFcmToken(String newFcmToken) {
+        this.fcmToken = newFcmToken;
+    }
 }
