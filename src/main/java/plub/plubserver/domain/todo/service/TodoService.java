@@ -22,7 +22,6 @@ import java.util.List;
 
 import static plub.plubserver.domain.account.dto.AccountDto.AccountInfo;
 import static plub.plubserver.domain.todo.dto.TodoDto.*;
-
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
