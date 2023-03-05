@@ -60,17 +60,21 @@ public class CalendarController {
 
     @ApiOperation(value = "일정 상세 조회")
     @GetMapping("/{plubbingId}/calendar/{calendarId}")
-    public ApiResponse<CalendarCardResponse> getCalendarCard(@PathVariable Long calendarId) {
-        return success(calendarService.getCalendarCard(calendarId));
+    public ApiResponse<CalendarCardResponse> getCalendarCard(
+            @PathVariable Long plubbingId,
+            @PathVariable Long calendarId
+    ) {
+        return success(calendarService.getCalendarCard(plubbingId, calendarId));
     }
 
     @ApiOperation(value = "일정 리스트 조회")
     @GetMapping("/{plubbingId}/calendar")
     public ApiResponse<CalendarListResponse> getCalendarList(
             @PathVariable Long plubbingId,
-            @PageableDefault Pageable pageable
+            @PageableDefault Pageable pageable,
+            @RequestParam(required = false) Long cursorId
     ) {
-        return success(calendarService.getCalendarList(plubbingId, pageable));
+        return success(calendarService.getCalendarList(plubbingId, pageable, cursorId));
     }
 
     @ApiOperation(value = "참석 여부 선택")

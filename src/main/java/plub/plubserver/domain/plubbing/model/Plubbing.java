@@ -90,6 +90,10 @@ public class Plubbing extends BaseEntity {
     @OneToMany(mappedBy = "plubbing", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Archive> archives;
 
+    // 모임(1) - 일정(다)
+    @OneToMany(mappedBy = "plubbing", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Calendar> calendars;
+
     /**
      * methods
      */

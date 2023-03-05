@@ -47,7 +47,6 @@ public class Todo {
     }
 
     public void updateTodoIsChecked(boolean isChecked) {
-        System.out.println("isChecked = " + isChecked);
         this.isChecked = isChecked;
     }
 

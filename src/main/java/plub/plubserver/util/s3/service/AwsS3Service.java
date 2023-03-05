@@ -123,7 +123,6 @@ public class AwsS3Service {
 
     public void delete(String type, String url) {
         String filename = getFilename(url);
-        System.out.println("filename = " + filename);
 
         S3SaveDir savePath = getS3SaveDir(type);
         String bucketPath = bucket + savePath.path;

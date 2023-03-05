@@ -5,6 +5,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import plub.plubserver.common.dto.PageResponse;
 import plub.plubserver.common.exception.StatusCode;
 import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.calendar.exception.CalendarException;
@@ -24,6 +25,8 @@ import java.util.stream.Collectors;
 
 import static plub.plubserver.domain.calendar.dto.CalendarAttendDto.*;
 import static plub.plubserver.domain.calendar.dto.CalendarDto.*;
+import static plub.plubserver.util.CursorUtils.TEN_AMOUNT;
+import static plub.plubserver.util.CursorUtils.getNextCursorId;
 
 @Service
 @RequiredArgsConstructor
@@ -35,8 +38,8 @@ public class CalendarService {
     public final PlubbingService plubbingService;
     public final NotificationService notificationService;
 
-    public CalendarCardResponse getCalendarCard(Long calendarId) {
-        Calendar calendar = calendarRepository.findById(calendarId)
+    public CalendarCardResponse getCalendarCard(Long plubbingId, Long calendarId) {
+        Calendar calendar = calendarRepository.findByIdAndPlubbingIdAndVisibilityIsTrue(calendarId, plubbingId)
                 .orElseThrow(() -> new CalendarException(StatusCode.NOT_FOUNT_CALENDAR));
         List<CalendarAttend> calendarAttendList = calendar.getCalendarAttendList().stream()
                 .filter(calendarAttend -> calendarAttend.getAttendStatus().equals(AttendStatus.YES))
@@ -80,7 +83,7 @@ public class CalendarService {
         plubbingService.checkHost(account, plubbing);
         CreateCalendarRequest createCalendarRequest = checkCalender(request);
         CalendarAlarmType calendarAlarmType = CalendarAlarmType.valueOf(request.alarmType());
-        Calendar calendar = createCalendarRequest.toEntity(account.getId(), calendarAlarmType);
+        Calendar calendar = createCalendarRequest.toEntity(account.getId(), plubbing, calendarAlarmType);
         calendarRepository.save(calendar);
         List<AccountPlubbing> accountPlubbingList = plubbing.getAccountPlubbingList();
         for (AccountPlubbing accountPlubbing : accountPlubbingList) {
@@ -149,9 +152,9 @@ public class CalendarService {
         return CalendarAttendResponse.of(calendarAttend);
     }
 
-    public CalendarListResponse getCalendarList(Long plubbingId, Pageable pageable) {
+    public CalendarListResponse getCalendarList(Long plubbingId, Pageable pageable, Long cursorId) {
         plubbingService.getPlubbing(plubbingId);
-        Page<CalendarCardResponse> calendarPage = calendarRepository.findAllByPlubbingId(plubbingId, pageable)
+        Page<CalendarCardResponse> calendarPage = calendarRepository.findAllByPlubbingId(plubbingId, pageable, cursorId)
                 .map(calendar -> {
                     List<CalendarAttend> calendarAttendList = calendar.getCalendarAttendList().stream()
                             .filter(calendarAttend -> calendarAttend.getAttendStatus().equals(AttendStatus.YES))
@@ -159,7 +162,10 @@ public class CalendarService {
                     CalendarAttendList list = CalendarAttendList.of(calendarAttendList);
                     return CalendarCardResponse.of(calendar, list);
                 });
-        return CalendarListResponse.of(calendarPage);
+        Long totalElements = calendarRepository.countAllByPlubbing(plubbingId);
+        Long nextCursorId = getNextCursorId(cursorId, TEN_AMOUNT, totalElements);
+        PageResponse<CalendarCardResponse> response = PageResponse.ofCursor(calendarPage, nextCursorId, totalElements);
+        return CalendarListResponse.ofCursor(response);
     }
 
     public CalendarAttendList getAttendList(Long plubbingId, Long calendarId) {

@@ -1,12 +1,15 @@
 package plub.plubserver.domain.calendar.repository;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import plub.plubserver.domain.calendar.model.Calendar;
 
-public interface CalendarRepository extends JpaRepository<Calendar, Long> {
-    @Query("select c from Calendar c order by c.startedAt desc")
-    Page<Calendar> findAllByPlubbingId(Long plubbingId, Pageable pageable);
+import java.util.Optional;
+
+public interface CalendarRepository extends JpaRepository<Calendar, Long>, CalendarRepositoryCustom {
+    @Query("select distinct count(c) from Calendar c where c.plubbing.id = :plubbing and c.visibility = true")
+    Long countAllByPlubbing(@Param("plubbing") Long plubbing);
+
+    Optional<Calendar> findByIdAndPlubbingIdAndVisibilityIsTrue(Long id, Long plubbingId);
 }

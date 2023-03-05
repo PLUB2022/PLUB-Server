@@ -5,6 +5,7 @@ import org.springframework.data.domain.Page;
 import plub.plubserver.common.dto.PageResponse;
 import plub.plubserver.domain.calendar.model.Calendar;
 import plub.plubserver.domain.calendar.model.CalendarAlarmType;
+import plub.plubserver.domain.plubbing.model.Plubbing;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -36,7 +37,7 @@ public class CalendarDto {
         public CreateCalendarRequest {
         }
 
-        public Calendar toEntity(Long hostId, CalendarAlarmType calendarAlarmType) {
+        public Calendar toEntity(Long hostId, Plubbing plubbing, CalendarAlarmType calendarAlarmType) {
             return Calendar.builder()
                     .title(title)
                     .memo(memo)
@@ -48,6 +49,7 @@ public class CalendarDto {
                     .address(address)
                     .roadAddress(roadAddress)
                     .placeName(placeName)
+                    .plubbing(plubbing)
                     .hostId(hostId)
                     .alarmType(calendarAlarmType)
                     .build();
@@ -127,6 +129,12 @@ public class CalendarDto {
         public static CalendarListResponse of(Page<CalendarCardResponse> calendarPage) {
             return CalendarListResponse.builder()
                     .calendarList(PageResponse.of(calendarPage))
+                    .build();
+        }
+
+        public static CalendarListResponse ofCursor(PageResponse<CalendarCardResponse> calendarPage) {
+            return CalendarListResponse.builder()
+                    .calendarList(calendarPage)
                     .build();
         }
     }
