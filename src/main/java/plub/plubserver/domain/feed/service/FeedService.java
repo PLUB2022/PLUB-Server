@@ -289,4 +289,12 @@ public class FeedService {
         Feed feed = getFeed(feedId);
         feed.makeSystem();
     }
+
+    @Transactional
+    public void createSystemFeed(Plubbing plubbing, String nickname) {
+        String title = plubbing.getCurAccountNum() + "번째 멤버와 함께 갑니다.";
+        String content = "<b>"+ nickname +"</b> 님이 <b>"+ plubbing.getName() +"</b> 에 들어왔어요";
+        Feed feed = Feed.createSystemFeed(plubbing, title, content);
+        feedRepository.save(feed);
+    }
 }

@@ -12,6 +12,7 @@ import plub.plubserver.common.model.SortType;
 import plub.plubserver.domain.account.exception.AccountException;
 import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.account.service.AccountService;
+import plub.plubserver.domain.feed.service.FeedService;
 import plub.plubserver.domain.notification.service.NotificationService;
 import plub.plubserver.domain.plubbing.dto.PlubbingDto.JoinedAccountsInfoResponse;
 import plub.plubserver.domain.plubbing.dto.PlubbingDto.PlubbingIdResponse;
@@ -50,6 +51,7 @@ public class RecruitService {
     private final RecruitRepository recruitRepository;
     private final NotificationService notificationService;
     private final ReportService reportService;
+    private final FeedService feedService;
 
     private Recruit getRecruitByPlubbingId(Long plubbingId) {
         return plubbingService.getPlubbing(plubbingId).getRecruit();
@@ -268,6 +270,8 @@ public class RecruitService {
 
         // 명시적 호출을 해야지만 반영 됨
         plubbing.updateCurAccountNum();
+
+        feedService.createSystemFeed(plubbing, appliedAccount.getAccount().getNickname());
 
         // 지원자에게 푸시 알림
         notificationService.pushMessage(
