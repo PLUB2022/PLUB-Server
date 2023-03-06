@@ -23,7 +23,7 @@ public class FeedComment extends BaseEntity {
 
     private String content;
 
-    private Long groupId;
+    private Long commentGroupId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_id")
@@ -50,7 +50,7 @@ public class FeedComment extends BaseEntity {
         child.parent = this;
     }
 
-    public void setGroupId(Long groupId) {
-        this.groupId = groupId;
+    public void setCommentGroupId(Long commentGroupId) {
+        this.commentGroupId = commentGroupId;
     }
 }

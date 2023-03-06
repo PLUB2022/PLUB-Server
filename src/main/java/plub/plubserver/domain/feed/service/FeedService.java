@@ -176,11 +176,11 @@ public class FeedService {
         FeedComment comment = feedCommentRepository.save(createCommentRequest.toFeedComment(feed, account));
         if (parentComment != null) {
             parentComment.addChildComment(comment);
-            comment.setGroupId(parentComment.getGroupId());
+            comment.setCommentGroupId(parentComment.getCommentGroupId());
             feedCommentRepository.save(parentComment);
             feedCommentRepository.save(comment);
         } else {
-            comment.setGroupId(comment.getId());
+            comment.setCommentGroupId(comment.getId());
         }
 
         feed.addComment();

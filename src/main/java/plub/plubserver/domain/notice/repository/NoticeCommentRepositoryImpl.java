@@ -24,7 +24,7 @@ public class NoticeCommentRepositoryImpl implements NoticeCommentRepositoryCusto
                 .distinct();
 
         return PageableExecutionUtils.getPage(
-                query.orderBy(noticeComment.groupId.desc(),
+                query.orderBy(noticeComment.commentGroupId.desc(),
                                 noticeComment.createdAt.asc())
                         .offset(pageable.getOffset())
                         .limit(pageable.getPageSize())

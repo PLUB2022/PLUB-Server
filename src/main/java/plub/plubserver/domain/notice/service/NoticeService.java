@@ -154,11 +154,11 @@ public class NoticeService {
         NoticeComment comment = noticeCommentRepository.save(createCommentRequest.toNoticeComment(notice, currentAccount));
         if (parentComment != null) {
             parentComment.addChildComment(comment);
-            comment.setGroupId(parentComment.getGroupId());
+            comment.setCommentGroupId(parentComment.getCommentGroupId());
             noticeCommentRepository.save(parentComment);
             noticeCommentRepository.save(comment);
         } else {
-            comment.setGroupId(comment.getId());
+            comment.setCommentGroupId(comment.getId());
         }
 
         currentAccount.addNoticeComment(comment);
