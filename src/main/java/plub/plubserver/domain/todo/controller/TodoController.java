@@ -53,9 +53,10 @@ public class TodoController {
     @GetMapping("/{plubbingId}/timeline")
     public ApiResponse<TodoTimelineAllPageResponse> getAllTodoList(
             @PathVariable Long plubbingId,
-            @PageableDefault Pageable pageable
+            @PageableDefault Pageable pageable,
+            @RequestParam(required = false) String cursorDate
     ) {
-        return success(todoService.getAllTodoList(plubbingId, pageable));
+        return success(todoService.getAllTodoList(plubbingId, pageable, cursorDate));
     }
 
     @ApiOperation(value = "투두 타임라인 날짜 조회")
@@ -72,9 +73,10 @@ public class TodoController {
     public ApiResponse<TodoTimelinePageResponse> getTodoListTest(
             @PathVariable Long plubbingId,
             @PathVariable Long accountId,
-            @PageableDefault Pageable pageable
+            @PageableDefault Pageable pageable,
+            @RequestParam(required = false) String cursorDate
     ) {
-        return success(todoService.getAccountTodoTimelinePage(plubbingId, accountId, pageable));
+        return success(todoService.getAccountTodoTimelinePage(plubbingId, accountId, pageable, cursorDate));
     }
 
     @ApiOperation(value = "투두 리스트 삭제")
@@ -143,8 +145,10 @@ public class TodoController {
     @GetMapping("/{plubbingId}/timeline/my")
     public ApiResponse<TodoTimelinePageResponse> getMyTodoList(
             @PathVariable Long plubbingId,
-            @PageableDefault Pageable pageable) {
+            @PageableDefault Pageable pageable,
+            @RequestParam(required = false) String cursorDate
+    ) {
         Account currentAccount = accountService.getCurrentAccount();
-        return success(todoService.getMyTodoTimelinePage(currentAccount, plubbingId, pageable));
+        return success(todoService.getMyTodoTimelinePage(currentAccount, plubbingId, pageable, cursorDate));
     }
 }

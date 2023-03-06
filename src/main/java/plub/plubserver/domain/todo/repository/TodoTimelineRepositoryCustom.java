@@ -9,8 +9,7 @@ import plub.plubserver.domain.todo.model.TodoTimeline;
 import java.util.List;
 
 public interface TodoTimelineRepositoryCustom {
-    Page<TodoTimeline> findByAccount(Account account, Pageable pageable);
-    Page<TodoTimeline> findAllByPlubbing(Plubbing plubbing, Pageable pageable);
-
+    Page<TodoTimeline> findByAccount(Account account, Pageable pageable, String cursorDate);
+    Page<TodoTimeline> findAllByPlubbing(Plubbing plubbing, Pageable pageable, String cursorDate);
     List<TodoTimeline> findByAccountAndPlubbingAndDate(Account account, Long id, int year, int month);
 }
