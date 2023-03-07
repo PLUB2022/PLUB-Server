@@ -58,7 +58,7 @@ public class CommentDto {
             String commentType,
             String parentCommentNickname,
             Long parentCommentId,
-            Long groupId
+            Long commentGroupId
     ) {
         @Builder
         public FeedCommentResponse {
@@ -76,7 +76,7 @@ public class CommentDto {
                     .commentType(feedComment.getParent() == null ? "COMMENT" : "REPLY")
                     .parentCommentNickname(feedComment.getParent() == null ? null : feedComment.getParent().getAccount().getNickname())
                     .parentCommentId(feedComment.getParent() == null ? null : feedComment.getParent().getId())
-                    .groupId(feedComment.getGroupId())
+                    .commentGroupId(feedComment.getCommentGroupId())
                     .build();
         }
     }
@@ -92,7 +92,7 @@ public class CommentDto {
             String commentType,
             String parentCommentNickname,
             Long parentCommentId,
-            Long groupId
+            Long commentGroupId
     ) {
         @Builder
         public NoticeCommentResponse {
@@ -110,7 +110,7 @@ public class CommentDto {
                     .commentType(noticeComment.getParent() == null ? "COMMENT" : "REPLY")
                     .parentCommentNickname(noticeComment.getParent() == null ? null : noticeComment.getParent().getAccount().getNickname())
                     .parentCommentId(noticeComment.getParent() == null ? null : noticeComment.getParent().getId())
-                    .groupId(noticeComment.getGroupId())
+                    .commentGroupId(noticeComment.getCommentGroupId())
                     .build();
         }
     }

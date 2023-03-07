@@ -26,7 +26,7 @@ public class FeedDummy {
 
     @PostConstruct
     public void init() {
-        if (feedRepository.count() > 0) {
+        if (feedRepository.count() > 21) {
             log.info("[3] 피드가 존재하여 더미를 생성하지 않았습니다.");
             return;
         }
@@ -86,27 +86,27 @@ public class FeedDummy {
             CommentDto.CreateCommentRequest form = CommentDto.CreateCommentRequest.builder()
                     .content("아자자 댓글 " + i)
                     .build();
-            feedService.createFeedComment(admin1, 1L, 1L, form);
+            feedService.createFeedComment(admin1, 1L, 22L, form);
         }
         for (int i = 0; i < 5; i++) {
             CommentDto.CreateCommentRequest form = CommentDto.CreateCommentRequest.builder()
                     .content("플러빙 댓글 " + i)
                     .build();
-            feedService.createFeedComment(admin2, 1L, 1L, form);
+            feedService.createFeedComment(admin2, 1L, 22L, form);
         }
         for (int i = 0; i < 5; i++) {
             CommentDto.CreateCommentRequest form = CommentDto.CreateCommentRequest.builder()
                     .content("대댓글 " + i)
                     .parentCommentId(1L)
                     .build();
-            feedService.createFeedComment(admin1, 1L, 1L, form);
+            feedService.createFeedComment(admin1, 1L, 22L, form);
         }
         for (int i = 0; i < 5; i++) {
             CommentDto.CreateCommentRequest form = CommentDto.CreateCommentRequest.builder()
                     .content("대대댓글 " + i)
                     .parentCommentId(15L + i)
                     .build();
-            feedService.createFeedComment(admin1, 1L, 1L, form);
+            feedService.createFeedComment(admin1, 1L, 22L, form);
         }
 
         log.info("[3] 피드 더미 생성 완료.");

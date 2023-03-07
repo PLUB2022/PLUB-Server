@@ -30,7 +30,7 @@ public class FeedCommentRepositoryImpl implements FeedCommentRepositoryCustom {
                 .distinct();
 
         return PageableExecutionUtils.getPage(
-                query.orderBy(feedComment.groupId.asc(),
+                query.orderBy(feedComment.commentGroupId.asc(),
                                 feedComment.createdAt.asc())
                         .offset(pageable.getOffset())
                         .limit(pageable.getPageSize())

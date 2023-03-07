@@ -176,11 +176,11 @@ public class FeedService {
         FeedComment comment = feedCommentRepository.save(createCommentRequest.toFeedComment(feed, account));
         if (parentComment != null) {
             parentComment.addChildComment(comment);
-            comment.setGroupId(parentComment.getGroupId());
+            comment.setCommentGroupId(parentComment.getCommentGroupId());
             feedCommentRepository.save(parentComment);
             feedCommentRepository.save(comment);
         } else {
-            comment.setGroupId(comment.getId());
+            comment.setCommentGroupId(comment.getId());
         }
 
         feed.addComment();
@@ -288,5 +288,13 @@ public class FeedService {
     public void makeSystem(long feedId) {
         Feed feed = getFeed(feedId);
         feed.makeSystem();
+    }
+
+    @Transactional
+    public void createSystemFeed(Plubbing plubbing, String nickname) {
+        String title = plubbing.getCurAccountNum() + "번째 멤버와 함께 갑니다.";
+        String content = "<b>"+ nickname +"</b> 님이 <b>"+ plubbing.getName() +"</b> 에 들어왔어요";
+        Feed feed = Feed.createSystemFeed(plubbing, title, content);
+        feedRepository.save(feed);
     }
 }

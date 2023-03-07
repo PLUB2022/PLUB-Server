@@ -57,6 +57,21 @@ public class Feed extends BaseEntity {
     @OneToMany(mappedBy = "feed", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<FeedComment> feedCommentList = new ArrayList<>();
 
+    public static Feed createSystemFeed(Plubbing plubbing, String title, String content) {
+        return Feed.builder()
+                .title(title)
+                .content(content)
+                .feedImage("")
+                .feedType(FeedType.LINE)
+                .viewType(ViewType.SYSTEM)
+                .pin(false)
+                .account(plubbing.getHost())
+                .likeCount(0)
+                .commentCount(0)
+                .plubbing(plubbing)
+                .build();
+    }
+
     public void updateFeed(UpdateFeedRequest request) {
         String contentValue = request.content();
         String feedImageValue = request.feedImage();
