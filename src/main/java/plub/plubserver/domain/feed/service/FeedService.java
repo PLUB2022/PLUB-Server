@@ -27,6 +27,8 @@ import plub.plubserver.util.CursorUtils;
 
 import java.util.List;
 
+import static plub.plubserver.common.exception.StatusCode.NOT_FOUND_COMMENT;
+
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
@@ -44,7 +46,7 @@ public class FeedService {
 
     public FeedComment getFeedComment(Long commentId) {
         return feedCommentRepository.findById(commentId)
-                .orElseThrow(() -> new FeedException(StatusCode.NOT_FOUND_COMMENT));
+                .orElseThrow(() -> new FeedException(NOT_FOUND_COMMENT));
     }
 
     @Transactional
@@ -144,10 +146,13 @@ public class FeedService {
         Feed feed = getFeed(feedId);
         checkFeedStatus(feed);
         plubbingService.checkMember(account, feed.getPlubbing());
-        Long commentGroupId = cursorId == null ? null : getFeedComment(cursorId).getCommentGroupId();
+        Long nextCursorId = cursorId;
+        if (cursorId != null && cursorId == 0)
+            nextCursorId = feedCommentRepository.findFirstByVisibilityAndFeedId(true, feedId).orElseThrow(() -> new FeedException(NOT_FOUND_COMMENT)).getId();
+        Long commentGroupId = cursorId == null ? null : getFeedComment(nextCursorId).getCommentGroupId();
         Page<FeedCommentResponse> feedCommentList = feedCommentRepository.findAllByFeed(feed, pageable, commentGroupId, cursorId)
                 .map(it -> FeedCommentResponse.of(it, isCommentAuthor(account, it), isFeedAuthor(account, feed)));
-        Long totalElements = feedCommentRepository.countAllByFeed(feed);
+        Long totalElements = (long) feed.getCommentCount();
         return PageResponse.ofCursor(feedCommentList, totalElements);
     }
 
