@@ -144,7 +144,8 @@ public class FeedService {
         Feed feed = getFeed(feedId);
         checkFeedStatus(feed);
         plubbingService.checkMember(account, feed.getPlubbing());
-        Page<FeedCommentResponse> feedCommentList = feedCommentRepository.findAllByFeed(feed, pageable, getFeedComment(nextCursorId).getCommentGroupId(), nextCursorId)
+        Long nextCommentGroupId = nextCursorId == null ? null : getFeedComment(nextCursorId).getCommentGroupId();
+        Page<FeedCommentResponse> feedCommentList = feedCommentRepository.findAllByFeed(feed, pageable, nextCommentGroupId, nextCursorId)
                 .map(it -> FeedCommentResponse.of(it, isCommentAuthor(account, it), isFeedAuthor(account, feed)));
         Long totalElements = feedCommentRepository.countAllByFeed(feed);
         return PageResponse.ofCursor(feedCommentList, totalElements);
