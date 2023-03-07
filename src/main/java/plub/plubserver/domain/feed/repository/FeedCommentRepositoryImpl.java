@@ -20,18 +20,19 @@ public class FeedCommentRepositoryImpl implements FeedCommentRepositoryCustom {
     public Page<FeedComment> findAllByFeed(
             Feed feed,
             Pageable pageable,
-            Long cursorId
+            Long lastCommentGroupId,
+            Long lastCommentId
     ) {
         JPQLQuery<FeedComment> query = queryFactory
                 .selectFrom(feedComment)
                 .where(feedComment.feed.eq(feed),
                         feedComment.visibility.eq(true),
-                        getCursorId(cursorId))
+                        getCursor(lastCommentGroupId, lastCommentId))
                 .distinct();
 
         return PageableExecutionUtils.getPage(
                 query.orderBy(feedComment.commentGroupId.asc(),
-                                feedComment.createdAt.asc())
+                                feedComment.id.asc())
                         .offset(pageable.getOffset())
                         .limit(pageable.getPageSize())
                         .fetch(),
@@ -40,7 +41,12 @@ public class FeedCommentRepositoryImpl implements FeedCommentRepositoryCustom {
                         .fetch().size());
     }
 
-    private BooleanExpression getCursorId(Long cursorId) {
-        return cursorId == null ? null : feedComment.id.gt(cursorId);
+    private BooleanExpression getCursor(Long lastCommentGroupId, Long lastCommentId) {
+        if (lastCommentGroupId == null || lastCommentId == null) {
+            return null;
+        }
+        return feedComment.commentGroupId.goe(lastCommentGroupId)
+                .and(feedComment.id.gt(lastCommentId))
+                .or(feedComment.commentGroupId.gt(lastCommentGroupId));
     }
 }

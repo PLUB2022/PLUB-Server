@@ -27,9 +27,6 @@ import plub.plubserver.util.CursorUtils;
 
 import java.util.List;
 
-import static plub.plubserver.util.CursorUtils.TEN_AMOUNT;
-import static plub.plubserver.util.CursorUtils.getNextCursorId;
-
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
@@ -67,8 +64,7 @@ public class FeedService {
         Page<FeedCardResponse> feedCardList = feedRepository.findAllByPlubbingAndPinAndVisibilityCursor(plubbing, false, true, sortedPageable, cursorId)
                 .map(it -> FeedCardResponse.of(it, isFeedAuthor(account, it), isHost));
         Long totalElements = feedRepository.countAll();
-        Long nextCursorId = getNextCursorId(cursorId, TEN_AMOUNT, totalElements);
-        return PageResponse.ofCursor(feedCardList, nextCursorId, totalElements);
+        return PageResponse.ofCursor(feedCardList, totalElements);
     }
 
     public FeedListResponse getPinedFeedList(Account account, Long plubbingId) {
@@ -143,16 +139,15 @@ public class FeedService {
         }
     }
 
-    public PageResponse<FeedCommentResponse> getFeedCommentList(Account account, Long plubbingId, Long feedId, Pageable pageable, Long cursorId) {
+    public PageResponse<FeedCommentResponse> getFeedCommentList(Account account, Long plubbingId, Long feedId, Pageable pageable, Long nextCursorId) {
         plubbingService.getPlubbing(plubbingId);
         Feed feed = getFeed(feedId);
         checkFeedStatus(feed);
         plubbingService.checkMember(account, feed.getPlubbing());
-        Page<FeedCommentResponse> feedCommentList = feedCommentRepository.findAllByFeed(feed, pageable, cursorId)
+        Page<FeedCommentResponse> feedCommentList = feedCommentRepository.findAllByFeed(feed, pageable, getFeedComment(nextCursorId).getCommentGroupId(), nextCursorId)
                 .map(it -> FeedCommentResponse.of(it, isCommentAuthor(account, it), isFeedAuthor(account, feed)));
         Long totalElements = feedCommentRepository.countAllByFeed(feed);
-        Long nextCursorId = getNextCursorId(cursorId, TEN_AMOUNT, totalElements);
-        return PageResponse.ofCursor(feedCommentList, nextCursorId, totalElements);
+        return PageResponse.ofCursor(feedCommentList, totalElements);
     }
 
     @Transactional
@@ -245,8 +240,7 @@ public class FeedService {
         Page<FeedCardResponse> myFeedCardList = feedRepository.findAllByPlubbingAndAccountAndVisibility(plubbing, account, true, sortedPageable, cursorId)
                 .map((Feed feed) -> FeedCardResponse.of(feed, true, true));
         Long totalElements = CursorUtils.getTotalElements(myFeedCardList.getTotalElements(), cursorId);
-        Long nextCursorId = getNextCursorId(cursorId, 10, totalElements);
-        return PageResponse.ofCursor(myFeedCardList, nextCursorId, totalElements);
+        return PageResponse.ofCursor(myFeedCardList, totalElements);
     }
 
     //TODO

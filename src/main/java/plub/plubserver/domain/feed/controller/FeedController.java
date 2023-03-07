@@ -112,11 +112,11 @@ public class FeedController {
     public ApiResponse<PageResponse<FeedCommentResponse>> getFeedCommentList(
             @PathVariable Long plubbingId,
             @PathVariable Long feedId,
-            @RequestParam(required = false) Long cursorId,
+            @RequestParam(required = false) Long nextCursorId,
             @PageableDefault(size = 20) Pageable pageable
     ) {
         Account loginAccount = accountService.getCurrentAccount();
-        return success(feedService.getFeedCommentList(loginAccount, plubbingId, feedId, pageable, cursorId));
+        return success(feedService.getFeedCommentList(loginAccount, plubbingId, feedId, pageable, nextCursorId));
     }
 
     @ApiOperation(value = "게시글 댓글 생성")

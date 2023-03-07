@@ -25,8 +25,6 @@ import java.util.stream.Collectors;
 
 import static plub.plubserver.domain.calendar.dto.CalendarAttendDto.*;
 import static plub.plubserver.domain.calendar.dto.CalendarDto.*;
-import static plub.plubserver.util.CursorUtils.TEN_AMOUNT;
-import static plub.plubserver.util.CursorUtils.getNextCursorId;
 
 @Service
 @RequiredArgsConstructor
@@ -163,8 +161,7 @@ public class CalendarService {
                     return CalendarCardResponse.of(calendar, list);
                 });
         Long totalElements = calendarRepository.countAllByPlubbing(plubbingId);
-        Long nextCursorId = getNextCursorId(cursorId, TEN_AMOUNT, totalElements);
-        PageResponse<CalendarCardResponse> response = PageResponse.ofCursor(calendarPage, nextCursorId, totalElements);
+        PageResponse<CalendarCardResponse> response = PageResponse.ofCursor(calendarPage, totalElements);
         return CalendarListResponse.ofCursor(response);
     }
 
