@@ -13,30 +13,24 @@ import java.util.List;
 @Getter
 @Slf4j
 public class PageResponse<T> {
-    int totalPages;
     Long totalElements;
-    Long nextCursorId;
     boolean last;
     List<T> content;
 
     public static <T> PageResponse<T> of(Page<T> page) {
         return PageResponse.<T>builder()
-                .totalPages(page.getTotalPages())
                 .totalElements(page.getTotalElements())
                 .last(page.isLast())
                 .content(page.getContent())
-                .nextCursorId(0L)
                 .build();
     }
 
 
-    public static <T> PageResponse<T> ofCursor(Page<T> page, Long nextCursorId, Long totalElements) {
+    public static <T> PageResponse<T> ofCursor(Page<T> page, Long totalElements) {
         return PageResponse.<T>builder()
-                .totalPages(page.getTotalPages())
                 .totalElements(totalElements)
                 .last(page.isLast())
                 .content(page.getContent())
-                .nextCursorId(nextCursorId)
                 .build();
     }
 
@@ -58,7 +52,6 @@ public class PageResponse<T> {
 
     public static <T, O> PageResponse<T> of(Page<O> origin, List<T> list) {
         return PageResponse.<T>builder()
-                .totalPages(origin.getTotalPages())
                 .totalElements(origin.getTotalElements())
                 .last(origin.isLast())
                 .content(list)
