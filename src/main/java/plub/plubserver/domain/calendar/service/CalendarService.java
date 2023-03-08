@@ -36,6 +36,11 @@ public class CalendarService {
     public final PlubbingService plubbingService;
     public final NotificationService notificationService;
 
+    public Calendar getCalendar(Long CalendarId) {
+        return calendarRepository.findById(CalendarId).orElseThrow(
+                () -> new CalendarException(StatusCode.NOT_FOUNT_CALENDAR));
+    }
+
     public CalendarCardResponse getCalendarCard(Long plubbingId, Long calendarId) {
         Calendar calendar = calendarRepository.findByIdAndPlubbingIdAndVisibilityIsTrue(calendarId, plubbingId)
                 .orElseThrow(() -> new CalendarException(StatusCode.NOT_FOUNT_CALENDAR));
@@ -139,7 +144,12 @@ public class CalendarService {
     }
 
     @Transactional
-    public CalendarAttendResponse checkAttend(Account account, Long plubbingId, Long calendarId, CheckAttendRequest calendarAttendRequest) {
+    public CalendarAttendResponse checkAttend(
+            Account account,
+            Long plubbingId,
+            Long calendarId,
+            CheckAttendRequest calendarAttendRequest
+    ) {
         plubbingService.getPlubbing(plubbingId);
         Calendar calendar = calendarRepository.findById(calendarId)
                 .orElseThrow(() -> new CalendarException(StatusCode.NOT_FOUNT_CALENDAR));
@@ -152,7 +162,15 @@ public class CalendarService {
 
     public CalendarListResponse getCalendarList(Long plubbingId, Pageable pageable, Long cursorId) {
         plubbingService.getPlubbing(plubbingId);
-        Page<CalendarCardResponse> calendarPage = calendarRepository.findAllByPlubbingId(plubbingId, pageable, cursorId)
+
+        Long nextCursorId = cursorId;
+        if (cursorId != null && cursorId == 0) {
+            nextCursorId = calendarRepository.findFirstByPlubbingIdAndVisibilityIsTrueOrderByStartedAtDesc(plubbingId)
+                    .orElseThrow(() -> new CalendarException(StatusCode.NOT_FOUNT_CALENDAR))
+                    .getId();
+        }
+        String startedAt = cursorId == null ? null : getCalendar(nextCursorId).getStartedAt();
+        Page<CalendarCardResponse> calendarPage = calendarRepository.findAllByPlubbingId(plubbingId, pageable, cursorId, startedAt)
                 .map(calendar -> {
                     List<CalendarAttend> calendarAttendList = calendar.getCalendarAttendList().stream()
                             .filter(calendarAttend -> calendarAttend.getAttendStatus().equals(AttendStatus.YES))

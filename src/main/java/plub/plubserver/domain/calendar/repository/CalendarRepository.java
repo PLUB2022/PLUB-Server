@@ -12,4 +12,6 @@ public interface CalendarRepository extends JpaRepository<Calendar, Long>, Calen
     Long countAllByPlubbing(@Param("plubbing") Long plubbing);
 
     Optional<Calendar> findByIdAndPlubbingIdAndVisibilityIsTrue(Long id, Long plubbingId);
+
+    Optional<Calendar> findFirstByPlubbingIdAndVisibilityIsTrueOrderByStartedAtDesc(Long plubbingId);
 }
