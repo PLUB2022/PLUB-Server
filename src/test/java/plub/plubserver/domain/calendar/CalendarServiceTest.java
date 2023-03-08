@@ -55,7 +55,7 @@ class CalendarServiceTest {
 
         CreateCalendarRequest calendarRequest = CalendarMockUtils.createCalendarRequest();
         CalendarAlarmType calendarAlarmType = CalendarAlarmType.valueOf(calendarRequest.alarmType());
-        calendarRequest.toEntity(1L, calendarAlarmType);
+        calendarRequest.toEntity(1L, plubbing, calendarAlarmType);
 
         // when
         calendarService.createCalendar(account, plubbing.getId(), calendarRequest);
@@ -82,7 +82,7 @@ class CalendarServiceTest {
         given(plubbingService.getPlubbing(any()))
                 .willReturn(plubbing);
 
-        Calendar mockCalendar = CalendarMockUtils.getMockCalendar();
+        Calendar mockCalendar = CalendarMockUtils.getMockCalendar(plubbing);
         given(calendarRepository.findById(any()))
                 .willReturn(java.util.Optional.of(mockCalendar));
 
@@ -113,7 +113,7 @@ class CalendarServiceTest {
         given(plubbingService.getPlubbing(any()))
                 .willReturn(plubbing);
 
-        Calendar mockCalendar = CalendarMockUtils.getMockCalendar();
+        Calendar mockCalendar = CalendarMockUtils.getMockCalendar(plubbing);
         given(calendarRepository.findById(any()))
                 .willReturn(java.util.Optional.of(mockCalendar));
 

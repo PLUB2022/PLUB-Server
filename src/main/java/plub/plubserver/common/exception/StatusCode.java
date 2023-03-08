@@ -133,6 +133,7 @@ public enum StatusCode {
     NOT_COMPLETE_TODO(400, 7020, "not complete todo."),
     ALREADY_CHECKED_TODO(400, 7030, "already checked todo."),
     ALREADY_PROOF_TODO(400, 7040, "already proof todo."),
+    NOT_FOUNT_TODO_TIMELINE(404, 7050, "not fount todo timeline."),
 
     /**
      * Report
