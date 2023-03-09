@@ -11,7 +11,7 @@ import plub.plubserver.domain.plubbing.model.Plubbing;
 import java.util.List;
 import java.util.Optional;
 
-public interface AccountPlubbingRepository extends JpaRepository<AccountPlubbing, Long> {
+public interface AccountPlubbingRepository extends JpaRepository<AccountPlubbing, Long>, AccountPlubbingRepositoryCustom {
     List<AccountPlubbing> findAllByAccountAndIsHostAndAccountPlubbingStatus(Account currentAccount, Boolean isHost, AccountPlubbingStatus status);
 
     List<AccountPlubbing> findAllByPlubbingId(Long plubbingId);
@@ -24,8 +24,10 @@ public interface AccountPlubbingRepository extends JpaRepository<AccountPlubbing
     Optional<AccountPlubbing> findByPlubbingIdAndIsHost(@Param("plubbingId") Long plubbingId);
     void deleteByPlubbingAndAccount(Plubbing plubbing, Account account);
 
-    List<AccountPlubbing> findAllByAccountAndAccountPlubbingStatus(Account currentAccount, AccountPlubbingStatus accountPlubbingStatus);
+    Optional<AccountPlubbing> findFirstByAccount(Account account);
 
+    @Query("select distinct count(a) from AccountPlubbing a where a.account = :account")
+    Long countAllByAccount(@Param("account") Account account);
 }
 
 

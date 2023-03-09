@@ -218,12 +218,27 @@ public class PlubbingService {
         return MainPlubbingResponse.of(plubbing, accounts);
     }
 
-    public MyPlubbingListResponse getMyPlubbingByStatus(String accountPlubbingStatus) {
+    public PageResponse<MyPlubbingResponse> getMyPlubbingByStatus(String status, Pageable pageable, Long cursorId) {
         Account currentAccount = accountService.getCurrentAccount();
-        AccountPlubbingStatus plubbingStatus = AccountPlubbingStatus.valueOf(accountPlubbingStatus.toUpperCase());
-        List<MyPlubbingResponse> myPlubbingResponses = accountPlubbingRepository.findAllByAccountAndAccountPlubbingStatus(currentAccount, plubbingStatus)
-                .stream().map(MyPlubbingResponse::of).collect(Collectors.toList());
-        return MyPlubbingListResponse.of(myPlubbingResponses);
+        PlubbingStatus plubbingStatus = PlubbingStatus.valueOf(status);
+
+        Long nextCursorId = cursorId;
+        if (cursorId != null && cursorId == 0) {
+            nextCursorId = accountPlubbingRepository.findFirstByAccount(currentAccount)
+                    .orElseThrow(() -> new PlubbingException(StatusCode.NOT_FOUND_PLUBBING))
+                    .getId();
+        }
+        String modifiedDate = cursorId == null ? null : getPlubbing(nextCursorId).getModifiedAt();
+
+        Page<MyPlubbingResponse> myPlubbingResponses = accountPlubbingRepository
+                .findAllByAccount(
+                        currentAccount,
+                        plubbingStatus,
+                        pageable,
+                        cursorId
+                ).map(MyPlubbingResponse::of);
+        Long totalElements = accountPlubbingRepository.countAllByAccount(currentAccount);
+        return PageResponse.ofCursor(myPlubbingResponses, totalElements);
     }
 
 

@@ -121,10 +121,12 @@ public class PlubbingController {
 
     @ApiOperation(value = "마이페이지 - 모임 조회")
     @GetMapping("/all/my")
-    public ApiResponse<MyPlubbingListResponse> getPlubbingByAccount(
-            @RequestParam("status") String status
+    public ApiResponse<PageResponse<MyPlubbingResponse>> getPlubbingByAccount(
+            @RequestParam("status") String status,
+            @PageableDefault Pageable pageable,
+            @RequestParam(required = false) Long cursorId
     ) {
-        return success(plubbingService.getMyPlubbingByStatus(status));
+        return success(plubbingService.getMyPlubbingByStatus(status, pageable, cursorId));
     }
 
     @ApiOperation(value = "모임 신고")
