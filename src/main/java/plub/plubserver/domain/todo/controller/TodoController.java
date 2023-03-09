@@ -50,6 +50,15 @@ public class TodoController {
         return success(todoService.getTodo(plubbingId, todoId));
     }
 
+    @ApiOperation(value = "투두 리스트 상세 조회")
+    @GetMapping("/{plubbingId}/timeline/{timelineId}/todolist")
+    public ApiResponse<TodoListResponse> getTodoTimeline(
+            @PathVariable Long plubbingId,
+            @PathVariable Long timelineId
+    ) {
+        return success(todoService.getTodoTimelineList(plubbingId, timelineId));
+    }
+
     @ApiOperation(value = "투두 타임라인 전체 조회")
     @GetMapping("/{plubbingId}/timeline")
     public ApiResponse<PageResponse<TodoTimelineAllResponse>> getAllTodoList(

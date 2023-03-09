@@ -76,6 +76,15 @@ public class TodoService {
         return TodoResponse.of(todo);
     }
 
+    // 투두 리스트 상세 조회
+    public TodoListResponse getTodoTimelineList(Long plubbingId, Long todoTimelineId) {
+        plubbingService.getPlubbing(plubbingId);
+        List<Todo> todoList = todoTimelineRepository.findById(todoTimelineId)
+                .orElseThrow(() -> new TodoException(StatusCode.NOT_FOUNT_TODO_TIMELINE))
+                .getTodoList();
+        return TodoListResponse.of(todoList);
+    }
+
 
 
     // 투두 타임라인 조회 (날짜)
@@ -83,7 +92,6 @@ public class TodoService {
         plubbingService.getPlubbing(plubbingId);
         List<TodoTimeline> todoTimeline = todoTimelineRepository.findByDate(date);
         return TodoTimelineListResponse.of(todoTimeline);
-
     }
 
     // 투두 삭제

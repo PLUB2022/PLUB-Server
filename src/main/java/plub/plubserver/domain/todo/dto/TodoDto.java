@@ -5,7 +5,6 @@ import lombok.Builder;
 import org.springframework.data.domain.Page;
 import org.springframework.format.annotation.DateTimeFormat;
 import plub.plubserver.common.dto.PageResponse;
-import plub.plubserver.domain.account.dto.AccountDto;
 import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.todo.model.Todo;
 import plub.plubserver.domain.todo.model.TodoTimeline;
@@ -17,6 +16,8 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+
+import static plub.plubserver.domain.account.dto.AccountDto.AccountInfo;
 
 public class TodoDto {
 
@@ -107,6 +108,35 @@ public class TodoDto {
         }
     }
 
+
+    public record TodoListResponse(
+            AccountInfo accountInfo,
+            int totalLikes,
+            List<TodoResponse> todoList
+    ) {
+        @Builder
+        public TodoListResponse {
+        }
+
+        public static TodoListResponse of(List<Todo> todoList) {
+            int totalLikes = 0;
+            List<TodoResponse> todoResponseList = new ArrayList<>();
+
+            for (Todo todo : todoList) {
+                todoResponseList.add(TodoResponse.of(todo));
+                totalLikes += todo.getLikes();
+            }
+
+            return TodoListResponse.builder()
+                    .accountInfo(AccountInfo.of(todoList.get(0).getAccount()))
+                    .totalLikes(totalLikes)
+                    .todoList(todoResponseList)
+                    .build();
+        }
+
+    }
+
+
     public record TodoTimelineListResponse(
             List<TodoTimelineResponse> todoTimelineList
     ) {
@@ -132,7 +162,7 @@ public class TodoDto {
             Long todoTimelineId,
             LocalDate date,
             int totalLikes,
-            AccountDto.AccountInfo accountInfo,
+            AccountInfo accountInfo,
             List<TodoResponse> todoList
     ) {
         @Builder
@@ -154,7 +184,7 @@ public class TodoDto {
             }
 
             return TodoTimelineAllResponse.builder()
-                    .accountInfo(AccountDto.AccountInfo.of(todoTimeline.getAccount()))
+                    .accountInfo(AccountInfo.of(todoTimeline.getAccount()))
                     .todoTimelineId(todoTimeline.getId())
                     .totalLikes(totalLikes)
                     .date(todoTimeline.getDate())
@@ -186,14 +216,14 @@ public class TodoDto {
 
 
     public record TodoTimelinePageResponse(
-            AccountDto.AccountInfo accountInfo,
+            AccountInfo accountInfo,
             PageResponse<TodoTimelineResponse> response
     ) {
         @Builder
         public TodoTimelinePageResponse {
         }
 
-        public static TodoTimelinePageResponse of(Page<TodoTimelineResponse> todoTimelinePage, AccountDto.AccountInfo accountInfo) {
+        public static TodoTimelinePageResponse of(Page<TodoTimelineResponse> todoTimelinePage, AccountInfo accountInfo) {
             return TodoTimelinePageResponse.builder()
                     .response(PageResponse.of(todoTimelinePage))
                     .accountInfo(accountInfo)
