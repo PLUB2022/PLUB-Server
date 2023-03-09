@@ -24,10 +24,6 @@ public interface AccountPlubbingRepository extends JpaRepository<AccountPlubbing
     Optional<AccountPlubbing> findByPlubbingIdAndIsHost(@Param("plubbingId") Long plubbingId);
     void deleteByPlubbingAndAccount(Plubbing plubbing, Account account);
 
-    Optional<AccountPlubbing> findFirstByAccount(Account account);
-
-    @Query("select distinct count(a) from AccountPlubbing a where a.account = :account")
-    Long countAllByAccount(@Param("account") Account account);
 }
 
 
