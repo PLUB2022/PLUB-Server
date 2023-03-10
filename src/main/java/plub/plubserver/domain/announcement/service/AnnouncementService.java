@@ -48,12 +48,12 @@ public class AnnouncementService {
 
     // 공지 수정
     @Transactional
-    public AnnouncementIdResponse updateAnnouncement(Long announcementId, Account account, AnnouncementRequest request) {
+    public AnnouncementResponse updateAnnouncement(Long announcementId, Account account, AnnouncementRequest request) {
         account.isAdmin();
         Announcement announcement = announcementRepository.findById(announcementId)
                 .orElseThrow(() -> new AnnouncementException(StatusCode.NOT_FOUND_ANNOUNCEMENT));
         announcement.updateAnnouncement(request.title(), request.content());
-        return new AnnouncementIdResponse(announcement.getId());
+        return AnnouncementResponse.of(announcement);
     }
 
     // 공지 삭제

@@ -39,6 +39,8 @@ public class AnnouncementDto {
                     .announcementId(announcement.getId())
                     .title(announcement.getTitle())
                     .content(announcement.getContent())
+                    .createdAt(announcement.getCreatedAt())
+                    .updatedAt(announcement.getModifiedAt())
                     .build();
         }
     }

@@ -62,7 +62,7 @@ public class AnnouncementController {
 
     @ApiOperation(value = "앱 공지사항 수정")
     @PutMapping("/{announcementId}")
-    public AnnouncementIdResponse updateAnnouncement(
+    public AnnouncementResponse updateAnnouncement(
             @PathVariable Long announcementId,
             @Valid @RequestBody AnnouncementRequest updateAnnouncementRequest
     ) {
