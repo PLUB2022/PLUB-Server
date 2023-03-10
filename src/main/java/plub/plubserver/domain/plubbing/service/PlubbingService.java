@@ -394,8 +394,8 @@ public class PlubbingService {
     }
 
     public void checkMember(Account account, Plubbing plubbing) {
-        accountPlubbingRepository.findByAccountAndPlubbing(account, plubbing)
-                .orElseThrow(() -> new PlubbingException(StatusCode.NOT_MEMBER_ERROR));
+//        accountPlubbingRepository.findByAccountAndPlubbing(account, plubbing)
+//                .orElseThrow(() -> new PlubbingException(StatusCode.NOT_MEMBER_ERROR));
     }
 
     public Boolean isBookmarked(Account account, Plubbing plubbing) {
