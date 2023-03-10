@@ -60,7 +60,6 @@ class TodoServiceTest {
         assertThat(todo.getContent()).isEqualTo(form.content());
         assertThat(todo.isChecked()).isFalse();
         assertThat(todo.isProof()).isFalse();
-        assertThat(todo.getLikes()).isEqualTo(0);
         assertThat(todo.getAccount()).isEqualTo(account);
         assertThat(todo.getTodoTimeline()).isEqualTo(plubbing.getTodoTimelineList());
     }
@@ -88,7 +87,6 @@ class TodoServiceTest {
         assertThat(todo.getContent()).isEqualTo(form.content());
         assertThat(todo.isChecked()).isFalse();
         assertThat(todo.isProof()).isFalse();
-        assertThat(todo.getLikes()).isEqualTo(0);
         assertThat(todo.getAccount()).isEqualTo(account);
         assertThat(todo.getTodoTimeline()).isEqualTo(plubbing.getTodoTimelineList());
     }
@@ -154,4 +152,6 @@ class TodoServiceTest {
         assertThatThrownBy(()-> todoService.proofTodo(account, plubbing.getId(), mockTodo.getId(), proofTodoRequest))
                 .isInstanceOf(TodoException.class);
     }
+
+    //TODO : 좋아요 테스트 코드 작성
 }

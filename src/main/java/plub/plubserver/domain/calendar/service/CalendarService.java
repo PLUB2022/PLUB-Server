@@ -155,7 +155,14 @@ public class CalendarService {
                 .orElseThrow(() -> new CalendarException(StatusCode.NOT_FOUNT_CALENDAR));
         AttendStatus attendStatus = AttendStatus.valueOf(calendarAttendRequest.attendStatus());
         CalendarAttend calendarAttend = calendarAttendRepository.findByCalendarIdAndAccountId(calendar.getId(), account.getId())
-                .orElseThrow(() -> new CalendarException(StatusCode.NOT_FOUNT_CALENDAR_ATTEND));
+                .orElseGet(() -> {
+                    CalendarAttend attend = CalendarAttend.builder()
+                            .calendar(calendar)
+                            .account(account)
+                            .attendStatus(AttendStatus.WAITING)
+                            .build();
+                    return calendarAttendRepository.save(attend);
+                });
         calendarAttend.updateAttendStatus(attendStatus);
         return CalendarAttendResponse.of(calendarAttend);
     }
