@@ -29,35 +29,21 @@ public class TodoTimelineRepositoryImpl implements TodoTimelineRepositoryCustom 
             Plubbing plubbing,
             Pageable pageable,
             Long cursorId,
-            String cursorDate
+            String date
     ) {
         LocalDate now = LocalDate.now();
         List<TodoTimeline> fetch1 = queryFactory
                 .selectFrom(todoTimeline)
+                .leftJoin(todoTimeline.plubbing, QPlubbing.plubbing)
+                .fetchJoin()
                 .where(
-                        todoTimeline.todoList.any().account.eq(account),
                         todoTimeline.plubbing.eq(plubbing),
                         todoTimeline.date.loe(now),
-                        getCursorId(cursorId, cursorDate)
+                        getCursorId(cursorId, date)
                 )
-                .orderBy(todoTimeline.date.asc())
+                .orderBy(todoTimeline.date.desc(), todoTimeline.id.desc())
                 .distinct()
                 .fetch();
-
-        LocalDate nextMonth = now.plusMonths(3);
-        List<TodoTimeline> fetch2 = queryFactory
-                .selectFrom(todoTimeline)
-                .where(
-                        todoTimeline.todoList.any().account.eq(account),
-                        todoTimeline.date.gt(now), todoTimeline.date.loe(nextMonth)
-                )
-                .orderBy(todoTimeline.date.asc())
-                .distinct()
-                .limit(3)
-                .fetch();
-
-        fetch1.addAll(fetch2);
-        fetch1.sort((o1, o2) -> o2.getDate().compareTo(o1.getDate()));
 
         return PageableExecutionUtils.getPage(
                 fetch1,
