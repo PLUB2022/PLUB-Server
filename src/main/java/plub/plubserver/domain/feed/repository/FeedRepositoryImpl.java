@@ -33,7 +33,7 @@ public class FeedRepositoryImpl implements FeedRepositoryCustom {
                 .distinct();
 
         return PageableExecutionUtils.getPage(
-                query.orderBy(feed.createdAt.asc())
+                query.orderBy(feed.id.desc())
                         .limit(pageable.getPageSize())
                         .fetch(),
                 pageable,
@@ -56,7 +56,7 @@ public class FeedRepositoryImpl implements FeedRepositoryCustom {
                 .distinct();
 
         return PageableExecutionUtils.getPage(
-                query.orderBy(feed.createdAt.asc())
+                query.orderBy(feed.id.desc())
                         .limit(pageable.getPageSize())
                         .fetch(),
                 pageable,
@@ -67,6 +67,6 @@ public class FeedRepositoryImpl implements FeedRepositoryCustom {
 
     private BooleanExpression getCursorId(Long cursorId) {
         if (cursorId == null || cursorId == 0) return null;
-        else return feed.id.gt(cursorId);
+        else return feed.id.lt(cursorId);
     }
 }

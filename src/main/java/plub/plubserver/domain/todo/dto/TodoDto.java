@@ -176,6 +176,12 @@ public class TodoDto {
                     .response(PageResponse.of(todoTimelinePage))
                     .build();
         }
+
+        public static TodoTimelineAllPageResponse ofCursor(PageResponse<TodoTimelineAllResponse> todoTimelinePage) {
+            return TodoTimelineAllPageResponse.builder()
+                    .response(todoTimelinePage)
+                    .build();
+        }
     }
 
 
@@ -191,6 +197,12 @@ public class TodoDto {
             return TodoTimelinePageResponse.builder()
                     .response(PageResponse.of(todoTimelinePage))
                     .accountInfo(accountInfo)
+                    .build();
+        }
+
+        public static TodoTimelinePageResponse ofCursor(PageResponse<TodoTimelineResponse> todoTimelinePage) {
+            return TodoTimelinePageResponse.builder()
+                    .response(todoTimelinePage)
                     .build();
         }
     }

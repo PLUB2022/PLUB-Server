@@ -1,7 +1,9 @@
 package plub.plubserver.domain.todo.repository;
 
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
@@ -16,25 +18,32 @@ import java.util.List;
 import static plub.plubserver.domain.todo.model.QTodoTimeline.todoTimeline;
 
 @RequiredArgsConstructor
+@Slf4j
 public class TodoTimelineRepositoryImpl implements TodoTimelineRepositoryCustom {
 
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public Page<TodoTimeline> findByAccount(Account account, Pageable pageable) {
+    public Page<TodoTimeline> findByAccount(Account account, Pageable pageable, Long cursorId, String cursorDate) {
         LocalDate now = LocalDate.now();
         List<TodoTimeline> fetch1 = queryFactory
                 .selectFrom(todoTimeline)
-                .where(todoTimeline.todoList.any().account.eq(account), todoTimeline.date.loe(now))
-                .orderBy(todoTimeline.date.desc())
+                .where(
+                        todoTimeline.todoList.any().account.eq(account),
+                        todoTimeline.date.loe(now),
+                        getCursorDate(cursorDate)
+                )
+                .orderBy(todoTimeline.date.asc())
                 .distinct()
                 .fetch();
 
         LocalDate nextMonth = now.plusMonths(3);
         List<TodoTimeline> fetch2 = queryFactory
                 .selectFrom(todoTimeline)
-                .where(todoTimeline.todoList.any().account.eq(account),
-                        todoTimeline.date.gt(now), todoTimeline.date.loe(nextMonth))
+                .where(
+                        todoTimeline.todoList.any().account.eq(account),
+                        todoTimeline.date.gt(now), todoTimeline.date.loe(nextMonth)
+                )
                 .orderBy(todoTimeline.date.asc())
                 .distinct()
                 .limit(3)
@@ -51,14 +60,18 @@ public class TodoTimelineRepositoryImpl implements TodoTimelineRepositoryCustom 
     }
 
     @Override
-    public Page<TodoTimeline> findAllByPlubbing(Plubbing plubbing, Pageable pageable) {
+    public Page<TodoTimeline> findAllByPlubbing(Plubbing plubbing, Pageable pageable, Long cursorId, String date) {
         LocalDate now = LocalDate.now();
         List<TodoTimeline> fetch1 = queryFactory
                 .selectFrom(todoTimeline)
                 .leftJoin(todoTimeline.plubbing, QPlubbing.plubbing)
                 .fetchJoin()
-                .where(todoTimeline.plubbing.eq(plubbing), todoTimeline.date.loe(now))
-                .orderBy(todoTimeline.date.desc())
+                .where(
+                        todoTimeline.plubbing.eq(plubbing),
+                        todoTimeline.date.loe(now),
+                        getCursorId(cursorId, date)
+                )
+                .orderBy(todoTimeline.date.desc(), todoTimeline.id.desc())
                 .distinct()
                 .fetch();
 
@@ -67,8 +80,11 @@ public class TodoTimelineRepositoryImpl implements TodoTimelineRepositoryCustom 
                 .selectFrom(todoTimeline)
                 .leftJoin(todoTimeline.plubbing, QPlubbing.plubbing)
                 .fetchJoin()
-                .where(todoTimeline.plubbing.eq(plubbing),
-                        todoTimeline.date.gt(now), todoTimeline.date.loe(nextMonth))
+                .where(
+                        todoTimeline.plubbing.eq(plubbing),
+                        todoTimeline.date.gt(now),
+                        todoTimeline.date.loe(nextMonth)
+                )
                 .orderBy(todoTimeline.date.asc())
                 .distinct()
                 .limit(3)
@@ -76,7 +92,6 @@ public class TodoTimelineRepositoryImpl implements TodoTimelineRepositoryCustom 
 
         fetch1.addAll(fetch2);
         fetch1.sort((o1, o2) -> o2.getDate().compareTo(o1.getDate()));
-
 
         return PageableExecutionUtils.getPage(
                 fetch1,
@@ -95,5 +110,15 @@ public class TodoTimelineRepositoryImpl implements TodoTimelineRepositoryCustom 
                 .orderBy(todoTimeline.date.desc())
                 .distinct()
                 .fetch();
+    }
+
+    private BooleanExpression getCursorId(Long cursorId, String date) {
+        return cursorId == null ? null : todoTimeline.date.lt(LocalDate.parse(date))
+                .and(todoTimeline.id.gt(cursorId))
+                .or(todoTimeline.date.lt(LocalDate.parse(date)));
+    }
+
+    private BooleanExpression getCursorDate(String cursorDate) {
+        return cursorDate == null ? null : todoTimeline.date.loe(LocalDate.parse(cursorDate));
     }
 }

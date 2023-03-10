@@ -20,18 +20,20 @@ public class CalendarRepositoryImpl implements CalendarRepositoryCustom {
     public Page<Calendar> findAllByPlubbingId(
             Long plubbingId,
             Pageable pageable,
-            Long cursorId
+            Long cursorId,
+            String startedAt
     ) {
         JPQLQuery<Calendar> query = queryFactory
                 .selectFrom(calendar)
                 .where(calendar.plubbing.id.eq(plubbingId),
                         calendar.visibility.eq(true),
-                        getCursorId(cursorId))
+                        getCursorId(startedAt, cursorId))
+                .orderBy(calendar.startedAt.desc(), calendar.id.desc())
                 .distinct();
 
 
         return PageableExecutionUtils.getPage(
-                query.orderBy(calendar.createdAt.asc())
+                query.orderBy(calendar.startedAt.desc(), calendar.id.desc())
                         .offset(pageable.getOffset())
                         .limit(pageable.getPageSize())
                         .fetch(),
@@ -40,7 +42,9 @@ public class CalendarRepositoryImpl implements CalendarRepositoryCustom {
                         .fetch().size());
     }
 
-    private BooleanExpression getCursorId(Long cursorId) {
-        return cursorId == null ? null : calendar.id.gt(cursorId);
+    private BooleanExpression getCursorId(String startedAt, Long cursorId) {
+        return cursorId == null ? null : calendar.startedAt.lt(startedAt)
+                .and(calendar.id.gt(cursorId))
+                .or(calendar.startedAt.lt(startedAt));
     }
 }

@@ -3,8 +3,10 @@ package plub.plubserver.domain.plubbing.dto;
 import lombok.Builder;
 import org.hibernate.validator.constraints.Range;
 import org.springframework.lang.Nullable;
+import plub.plubserver.common.exception.StatusCode;
 import plub.plubserver.domain.account.dto.AccountDto.PlubbingAccountInfoResponse;
 import plub.plubserver.domain.account.model.Account;
+import plub.plubserver.domain.category.exception.CategoryException;
 import plub.plubserver.domain.plubbing.model.*;
 import plub.plubserver.domain.recruit.dto.RecruitDto.RecruitResponse;
 
@@ -202,6 +204,46 @@ public class PlubbingDto {
                     .createdAt(plubbing.getCreatedAt())
                     .modifiedAt(plubbing.getModifiedAt())
                     .recruit(RecruitResponse.of(plubbing.getRecruit(), true, false))
+                    .build();
+        }
+    }
+    public record MyProfilePlubbingResponse(
+            Long plubbingId,
+            String title,
+            String goal,
+            String iconImage,
+            MyPlubbingStatus myPlubbingStatus
+    ){
+        @Builder
+        public MyProfilePlubbingResponse{
+        }
+
+        public static MyProfilePlubbingResponse of(Plubbing plubbing, MyPlubbingStatus myPlubbingStatus) {
+            return MyProfilePlubbingResponse.builder()
+                    .plubbingId(plubbing.getId())
+                    .title(plubbing.getName())
+                    .goal(plubbing.getGoal())
+                    .iconImage(plubbing.getPlubbingSubCategories().stream().findFirst().
+                            orElseThrow(() -> new CategoryException(StatusCode.NOT_FOUND_CATEGORY))
+                            .getSubCategory().getCategory().getIcon())
+                    .myPlubbingStatus(myPlubbingStatus)
+                    .build();
+        }
+    }
+
+    public record MyProfilePlubbingListResponse(
+            PlubbingStatus plubbingStatus,
+            List<MyProfilePlubbingResponse> plubbings
+
+    ) {
+        @Builder
+        public MyProfilePlubbingListResponse {
+        }
+
+        public static MyProfilePlubbingListResponse of(List<MyProfilePlubbingResponse> plubbings, PlubbingStatus plubbingStatus) {
+            return MyProfilePlubbingListResponse.builder()
+                    .plubbings(plubbings)
+                    .plubbingStatus(plubbingStatus)
                     .build();
         }
     }

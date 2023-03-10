@@ -121,7 +121,7 @@ public class PlubbingController {
 
     @ApiOperation(value = "마이페이지 - 모임 조회")
     @GetMapping("/all/my")
-    public ApiResponse<MyPlubbingListResponse> getPlubbingByAccount(
+    public ApiResponse<MyProfilePlubbingListResponse> getPlubbingByAccount(
             @RequestParam("status") String status
     ) {
         return success(plubbingService.getMyPlubbingByStatus(status));

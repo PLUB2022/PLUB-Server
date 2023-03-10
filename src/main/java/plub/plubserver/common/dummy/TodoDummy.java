@@ -40,6 +40,8 @@ public class TodoDummy {
                     .build();
 
             todoService.createTodo(admin1, 1L, form);
+            todoService.createTodo(admin1, 1L, form);
+            todoService.createTodo(admin1, 1L, form);
         }
 
         for (int i = 11; i < 21; i++) {
@@ -48,6 +50,7 @@ public class TodoDummy {
                     .content("todo content " + i)
                     .build();
 
+            todoService.createTodo(admin1, 1L, form);
             todoService.createTodo(admin1, 1L, form);
         }
 

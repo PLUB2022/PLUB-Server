@@ -8,6 +8,7 @@ public interface CalendarRepositoryCustom {
     Page<Calendar> findAllByPlubbingId(
             Long plubbingId,
             Pageable pageable,
-            Long cursorId
+            Long cursorId,
+            String startedAt
     );
 }

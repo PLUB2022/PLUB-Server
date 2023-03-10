@@ -9,6 +9,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 import plub.plubserver.common.dto.ApiResponse;
+import plub.plubserver.common.dto.PageResponse;
 import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.account.service.AccountService;
 import plub.plubserver.domain.todo.service.TodoService;
@@ -51,11 +52,12 @@ public class TodoController {
 
     @ApiOperation(value = "투두 타임라인 전체 조회")
     @GetMapping("/{plubbingId}/timeline")
-    public ApiResponse<TodoTimelineAllPageResponse> getAllTodoList(
+    public ApiResponse<PageResponse<TodoTimelineAllResponse>> getAllTodoList(
             @PathVariable Long plubbingId,
-            @PageableDefault Pageable pageable
+            @PageableDefault Pageable pageable,
+            @RequestParam(required = false) Long cursorId
     ) {
-        return success(todoService.getAllTodoList(plubbingId, pageable));
+        return success(todoService.getAllTodoList(plubbingId, pageable, cursorId));
     }
 
     @ApiOperation(value = "투두 타임라인 날짜 조회")
@@ -69,12 +71,13 @@ public class TodoController {
 
     @ApiOperation(value = "특정 회원 투두 타임라인 조회")
     @GetMapping("/{plubbingId}/timeline/accounts/{accountId}")
-    public ApiResponse<TodoTimelinePageResponse> getTodoListTest(
+    public ApiResponse<PageResponse<TodoTimelineResponse>> getTodoListTest(
             @PathVariable Long plubbingId,
             @PathVariable Long accountId,
-            @PageableDefault Pageable pageable
+            @PageableDefault Pageable pageable,
+            @RequestParam(required = false) Long cursorId
     ) {
-        return success(todoService.getAccountTodoTimelinePage(plubbingId, accountId, pageable));
+        return success(todoService.getAccountTodoTimelinePage(plubbingId, accountId, pageable, cursorId));
     }
 
     @ApiOperation(value = "투두 리스트 삭제")
@@ -141,10 +144,12 @@ public class TodoController {
 
     @ApiOperation(value = "마이페이지 - 내 투두 조회")
     @GetMapping("/{plubbingId}/timeline/my")
-    public ApiResponse<TodoTimelinePageResponse> getMyTodoList(
+    public ApiResponse<PageResponse<TodoTimelineResponse>> getMyTodoList(
             @PathVariable Long plubbingId,
-            @PageableDefault Pageable pageable) {
+            @PageableDefault Pageable pageable,
+            @RequestParam(required = false) Long cursorId
+    ) {
         Account currentAccount = accountService.getCurrentAccount();
-        return success(todoService.getMyTodoTimelinePage(currentAccount, plubbingId, pageable));
+        return success(todoService.getMyTodoTimelinePage(currentAccount, plubbingId, pageable, cursorId));
     }
 }

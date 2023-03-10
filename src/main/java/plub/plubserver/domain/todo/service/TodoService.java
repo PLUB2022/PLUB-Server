@@ -5,6 +5,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import plub.plubserver.common.dto.PageResponse;
 import plub.plubserver.common.exception.StatusCode;
 import plub.plubserver.domain.account.exception.AccountException;
 import plub.plubserver.domain.account.model.Account;
@@ -20,8 +21,8 @@ import plub.plubserver.domain.todo.repository.TodoTimelineRepository;
 import java.time.LocalDate;
 import java.util.List;
 
-import static plub.plubserver.domain.account.dto.AccountDto.AccountInfo;
 import static plub.plubserver.domain.todo.dto.TodoDto.*;
+
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -31,6 +32,11 @@ public class TodoService {
     private final TodoTimelineRepository todoTimelineRepository;
     private final PlubbingService plubbingService;
     private final AccountRepository accountRepository;
+
+    public TodoTimeline getTodoTimeline(Long todoTimelineId) {
+        return todoTimelineRepository.findById(todoTimelineId).orElseThrow(
+                () -> new TodoException(StatusCode.NOT_FOUNT_TODO_TIMELINE));
+    }
 
     @Transactional
     public TodoIdResponse createTodo(Account currentAccount, Long plubbingId, CreateTodoRequest request) {
@@ -69,6 +75,8 @@ public class TodoService {
                 .orElseThrow(() -> new TodoException(StatusCode.NOT_FOUNT_TODO));
         return TodoResponse.of(todo);
     }
+
+
 
     // 투두 타임라인 조회 (날짜)
     public TodoTimelineListResponse getTodoTimeline(Long plubbingId, LocalDate date) {
@@ -140,30 +148,69 @@ public class TodoService {
     }
 
     // 내 타임라인 조회
-    public TodoTimelinePageResponse getMyTodoTimelinePage(Account account, Long plubbingId, Pageable pageable) {
-        return getTodoTimelinePageResponse(plubbingId, pageable, account);
+    public PageResponse<TodoTimelineResponse> getMyTodoTimelinePage(
+            Account account,
+            Long plubbingId,
+            Pageable pageable,
+            Long cursorId
+    ) {
+        return getTodoTimelinePageResponse(plubbingId, pageable, account, cursorId);
     }
 
     // 회원 타임라인 조회
-    public TodoTimelinePageResponse getAccountTodoTimelinePage(Long plubbingId, Long accountId, Pageable pageable) {
+    public PageResponse<TodoTimelineResponse> getAccountTodoTimelinePage(
+            Long plubbingId,
+            Long accountId,
+            Pageable pageable,
+            Long cursorId
+    ) {
         Account account = accountRepository.findById(accountId)
                 .orElseThrow(() -> new AccountException(StatusCode.NOT_FOUND_ACCOUNT));
-        return getTodoTimelinePageResponse(plubbingId, pageable, account);
+        return getTodoTimelinePageResponse(plubbingId, pageable, account, cursorId);
     }
 
-    private TodoTimelinePageResponse getTodoTimelinePageResponse(Long plubbingId, Pageable pageable, Account account) {
-        plubbingService.getPlubbing(plubbingId);
-        Page<TodoTimelineResponse> todoTimelinePage = todoTimelineRepository.findByAccount(account, pageable)
+    private PageResponse<TodoTimelineResponse> getTodoTimelinePageResponse(
+            Long plubbingId,
+            Pageable pageable,
+            Account account,
+            Long cursorId
+    ) {
+        Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
+
+        Long nextCursorId = cursorId;
+        if (cursorId != null && cursorId == 0) {
+            nextCursorId = todoTimelineRepository.findFirstByPlubbingOrderByDateDesc(plubbing)
+                    .orElseThrow(() -> new TodoException(StatusCode.NOT_FOUNT_TODO))
+                    .getId();
+        }
+        String date = cursorId == null ? null : getTodoTimeline(nextCursorId).getDate().toString();
+
+        Page<TodoTimelineResponse> todoTimelinePage =
+                todoTimelineRepository.findByAccount(account, pageable, cursorId, date)
                 .map(TodoTimelineResponse::of);
-        return TodoTimelinePageResponse.of(todoTimelinePage, AccountInfo.of(account));
+
+        Long totalElements = todoTimelineRepository.countAllByPlubbing(plubbing);
+        return PageResponse.ofCursor(todoTimelinePage, totalElements);
     }
 
     // 타임라인 전체 조회
-    public TodoTimelineAllPageResponse getAllTodoList(Long plubbingId, Pageable pageable) {
+    public  PageResponse<TodoTimelineAllResponse> getAllTodoList(Long plubbingId, Pageable pageable, Long cursorId) {
         Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
-        Page<TodoTimelineAllResponse> timelineResponsePage = todoTimelineRepository.findAllByPlubbing(plubbing, pageable)
+
+        Long nextCursorId = cursorId;
+        if (cursorId != null && cursorId == 0) {
+            nextCursorId = todoTimelineRepository.findFirstByPlubbingOrderByDateDesc(plubbing)
+                    .orElseThrow(() -> new TodoException(StatusCode.NOT_FOUNT_TODO))
+                    .getId();
+        }
+        String date = cursorId == null ? null : getTodoTimeline(nextCursorId).getDate().toString();
+
+        Page<TodoTimelineAllResponse> timelineResponsePage =
+                todoTimelineRepository.findAllByPlubbing(plubbing, pageable, cursorId, date)
                 .map(TodoTimelineAllResponse::of);
-        return TodoTimelineAllPageResponse.of(timelineResponsePage);
+
+        Long totalElements = todoTimelineRepository.countAllByPlubbing(plubbing);
+        return PageResponse.ofCursor(timelineResponsePage, totalElements);
     }
 
     // 회원 타임라인 날짜 조회
