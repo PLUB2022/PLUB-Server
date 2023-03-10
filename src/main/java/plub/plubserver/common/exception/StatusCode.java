@@ -105,6 +105,7 @@ public enum StatusCode {
     ALREADY_CHECKED_TODO(400, 7020, "already checked todo."),
     ALREADY_PROOF_TODO(400, 7030, "already proof todo."),
     NOT_FOUNT_TODO_TIMELINE(404, 7040, "not found todo timeline error."),
+    TOO_MANY_TODO(400, 7050, "too many todo error."),
 
     /**
      * Calender

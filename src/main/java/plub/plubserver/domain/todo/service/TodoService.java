@@ -53,11 +53,11 @@ public class TodoService {
 
         // 투두 생성
         Todo todo = request.toEntity(currentAccount);
-        todoRepository.save(todo);
 
         todoTimelineRepository.findByDateAndAccount(request.date(), currentAccount)
                 .ifPresentOrElse(todoTimeline -> {
                     // 투두 타임라인 업데이트
+                    todoCountCheck(todoTimeline);
                     todoTimeline.updateTodo(todo);
                     todoTimelineRepository.save(todoTimeline);
                     todoRepository.save(todo);
@@ -78,9 +78,16 @@ public class TodoService {
         return new TodoIdResponse(todo.getId());
     }
 
+    private void todoCountCheck(TodoTimeline timeline) {
+        if (timeline.getTodoList().size() >= 5) {
+            throw new TodoException(StatusCode.TOO_MANY_TODO);
+        }
+    }
+
     // 투두 상세 조회
     public TodoResponse getTodo(Account currentAccount, Long plubbingId, Long todoId) {
-        plubbingService.getPlubbing(plubbingId);
+        Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
+        plubbingService.checkMember(currentAccount, plubbing);
         Todo todo = todoRepository.findById(todoId)
                 .orElseThrow(() -> new TodoException(StatusCode.NOT_FOUNT_TODO));
         boolean isAuthor = IsAuthor(currentAccount, todo);
@@ -94,7 +101,8 @@ public class TodoService {
 
     // 투두 리스트 상세 조회
     public TodoListResponse getTodoTimelineList(Account currentAccount, Long plubbingId, Long todoTimelineId) {
-        plubbingService.getPlubbing(plubbingId);
+        Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
+        plubbingService.checkMember(currentAccount, plubbing);
         List<Todo> todoList = todoTimelineRepository.findById(todoTimelineId)
                 .orElseThrow(() -> new TodoException(StatusCode.NOT_FOUNT_TODO_TIMELINE))
                 .getTodoList();
@@ -108,6 +116,7 @@ public class TodoService {
     // 투두 타임라인 조회 (날짜)
     public TodoTimelineResponse getTodoTimeline(Account currentAccount, Long plubbingId, LocalDate date) {
         Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
+        plubbingService.checkMember(currentAccount, plubbing);
         TodoTimeline todoTimeline = todoTimelineRepository.findByDateAndAccountAndPlubbing(date, currentAccount, plubbing)
                 .orElseThrow(() -> new TodoException(StatusCode.NOT_FOUNT_TODO_TIMELINE));
 
@@ -115,7 +124,9 @@ public class TodoService {
     }
 
     // 투두 삭제
-    public TodoMessage deleteTodoList(Long plubbingId, Long todoId) {
+    public TodoMessage deleteTodoList(Account currentAccount, Long plubbingId, Long todoId) {
+        Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
+        plubbingService.checkMember(currentAccount, plubbing);
         plubbingService.getPlubbing(plubbingId);
         Todo todo = todoRepository.findById(todoId)
                 .orElseThrow(() -> new TodoException(StatusCode.NOT_FOUNT_TODO));
@@ -126,7 +137,8 @@ public class TodoService {
     // 투두 업데이트
     @Transactional
     public TodoResponse updateTodo(Account currentAccount, Long plubbingId, Long todoId, UpdateTodoRequest request) {
-        plubbingService.getPlubbing(plubbingId);
+        Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
+        plubbingService.checkMember(currentAccount, plubbing);
         Todo todo = todoRepository.findByIdAndAccount(todoId, currentAccount)
                 .orElseThrow(() -> new TodoException(StatusCode.NOT_FOUNT_TODO));
         if (todo.isChecked())
@@ -140,7 +152,8 @@ public class TodoService {
     // 투두 완료
     @Transactional
     public TodoIdResponse completeTodo(Account currentAccount, Long plubbingId, Long todoId) {
-        plubbingService.getPlubbing(plubbingId);
+        Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
+        plubbingService.checkMember(currentAccount, plubbing);
         Todo todo = todoRepository.findByIdAndAccount(todoId, currentAccount)
                 .orElseThrow(() -> new TodoException(StatusCode.NOT_FOUNT_TODO));
         todo.updateTodoIsChecked(true);
@@ -150,7 +163,8 @@ public class TodoService {
     // 투두 완료 취소
     @Transactional
     public TodoIdResponse cancelTodo(Account currentAccount, Long plubbingId, Long todoId) {
-        plubbingService.getPlubbing(plubbingId);
+        Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
+        plubbingService.checkMember(currentAccount, plubbing);
         Todo todo = todoRepository.findByIdAndAccount(todoId, currentAccount)
                 .orElseThrow(() -> new TodoException(StatusCode.NOT_FOUNT_TODO));
         if (todo.isProof())
@@ -162,7 +176,8 @@ public class TodoService {
     // 투두 인증
     @Transactional
     public TodoResponse proofTodo(Account currentAccount, Long plubbingId, Long todoId, ProofTodoRequest proofImage) {
-        plubbingService.getPlubbing(plubbingId);
+        Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
+        plubbingService.checkMember(currentAccount, plubbing);
         Todo todo = todoRepository.findByIdAndAccount(todoId, currentAccount)
                 .orElseThrow(() -> new TodoException(StatusCode.NOT_FOUNT_TODO));
         if (todo.isChecked()) {
@@ -189,11 +204,14 @@ public class TodoService {
 
     // 회원 타임라인 조회
     public PageResponse<TodoTimelineResponse> getAccountTodoTimelinePage(
+            Account currentAccount,
             Long plubbingId,
             Long accountId,
             Pageable pageable,
             Long cursorId
     ) {
+        Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
+        plubbingService.checkMember(currentAccount, plubbing);
         Account account = accountRepository.findById(accountId)
                 .orElseThrow(() -> new AccountException(StatusCode.NOT_FOUND_ACCOUNT));
         return getTodoTimelinePageResponse(plubbingId, pageable, account, cursorId);
@@ -206,6 +224,7 @@ public class TodoService {
             Long cursorId
     ) {
         Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
+        plubbingService.checkMember(account, plubbing);
 
         Long nextCursorId = cursorId;
         if (cursorId != null && cursorId == 0) {
@@ -225,6 +244,7 @@ public class TodoService {
     // 타임라인 전체 조회
     public PageResponse<TodoTimelineAllResponse> getAllTodoList(Account currentAccount, Long plubbingId, Pageable pageable, Long cursorId) {
         Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
+        plubbingService.checkMember(currentAccount, plubbing);
 
         Long nextCursorId = cursorId;
         if (cursorId != null && cursorId == 0) {
@@ -244,6 +264,7 @@ public class TodoService {
     // 회원 타임라인 날짜 조회
     public TodoTimelineDateResponse getTodoCalendarDateList(Account currentAccount, Long plubbingId, int year, int month) {
         Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
+        plubbingService.checkMember(currentAccount, plubbing);
         List<TodoTimeline> byAccountAndPlubbingAndDate = todoTimelineRepository.findByAccountAndPlubbingAndDate(currentAccount, plubbing.getId(), year, month);
         return TodoTimelineDateResponse.of(byAccountAndPlubbingAndDate);
     }
@@ -251,7 +272,8 @@ public class TodoService {
     // 투두 좋아요
     @Transactional
     public TodoTimelineResponse likeTodo(Account currentAccount, Long plubbingId, Long timelineId) {
-        plubbingService.getPlubbing(plubbingId);
+        Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
+        plubbingService.checkMember(currentAccount, plubbing);
         TodoTimeline todoTimeline = todoTimelineRepository.findByIdAndAccount(timelineId, currentAccount)
                 .orElseThrow(() -> new TodoException(StatusCode.NOT_FOUNT_TODO));
         if (!todoLikeRepository.existsByAccountAndTodoTimeline(currentAccount, todoTimeline)) {

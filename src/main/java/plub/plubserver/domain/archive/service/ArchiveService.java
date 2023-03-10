@@ -49,8 +49,9 @@ public class ArchiveService {
     }
 
     // 아카이브 전체 조회
-    public PageResponse<ArchiveCardResponse> getArchiveList(Long plubbingId, Pageable pageable) {
-        Plubbing plubbing = plubbingService.getPlubbing(plubbingId); // plubbingId 존재여부 검사
+    public PageResponse<ArchiveCardResponse> getArchiveList(Account account, Long plubbingId, Pageable pageable) {
+        Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
+        plubbingService.checkMember(account, plubbing);
         Page<Archive> temp = archiveRepository.findAllByPlubbingIdOrderBySequenceDesc(plubbingId, pageable);
         // 로그인한 사용자를 기반으로 액세스 타입 체크
         Account loginAccount = accountService.getCurrentAccount();
@@ -71,8 +72,9 @@ public class ArchiveService {
         return accessType;
     }
 
-    public ArchiveResponse getArchive(Long plubbingId, Long archiveId) {
+    public ArchiveResponse getArchive(Account loginAccount, Long plubbingId, Long archiveId) {
         Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
+        plubbingService.checkMember(loginAccount, plubbing);
 
         Archive archive = plubbing.getArchives().stream()
                 .filter(it -> it.getId().equals(archiveId))
@@ -97,8 +99,8 @@ public class ArchiveService {
      */
     @Transactional
     public ArchiveIdResponse createArchive(Account loginAccount, Long plubbingId, ArchiveRequest archiveRequest) {
-        Account account = accountService.getAccount(loginAccount.getId());
         Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
+        plubbingService.checkMember(loginAccount, plubbing);
 
         int sequence = archiveRepository.findFirstByPlubbingIdOrderBySequenceDesc(plubbingId)
                 .map(Archive::getSequence)
@@ -121,7 +123,7 @@ public class ArchiveService {
 
         // Archive 저장
         plubbing.addArchive(archive);
-        account.addArchive(archive);
+        loginAccount.addArchive(archive);
 
         return ArchiveIdResponse.of(archive);
     }
@@ -150,6 +152,8 @@ public class ArchiveService {
             Long archiveId,
             ArchiveRequest archiveRequest
     ) {
+        Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
+        plubbingService.checkMember(loginAccount, plubbing);
         checkAuthorities(loginAccount, plubbingId, archiveId);
 
         Archive archive = getArchive(archiveId);
@@ -172,6 +176,8 @@ public class ArchiveService {
             Long plubbingId,
             Long archiveId
     ) {
+        Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
+        plubbingService.checkMember(loginAccount, plubbing);
         checkAuthorities(loginAccount, plubbingId, archiveId);
 
         Archive archive = getArchive(archiveId);
@@ -190,7 +196,9 @@ public class ArchiveService {
      * 아카이브 신고
      */
     @Transactional
-    public ReportResponse reportArchive(CreateReportRequest createReportRequest, Long archiveId, Account reporter) {
+    public ReportResponse reportArchive( Account reporter, Long plubbingId, CreateReportRequest createReportRequest, Long archiveId) {
+        Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
+        plubbingService.checkMember(reporter, plubbing);
         Archive archive = getArchive(archiveId); // 아카이브 존재 여부 확인
         Report report = reportService.createReport(createReportRequest, reporter);
         return reportService.notifyHost(report, archive.getPlubbing());

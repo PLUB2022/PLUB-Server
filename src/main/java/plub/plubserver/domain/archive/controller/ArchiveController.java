@@ -37,7 +37,8 @@ public class ArchiveController {
             @PathVariable Long plubbingId,
             @PageableDefault Pageable pageable
     ) {
-        return success(archiveService.getArchiveList(plubbingId, pageable));
+        Account loginAccount = accountService.getCurrentAccount();
+        return success(archiveService.getArchiveList(loginAccount, plubbingId, pageable));
     }
 
     @ApiOperation(value = "아카이브 상세 조회")
@@ -46,7 +47,8 @@ public class ArchiveController {
             @PathVariable Long plubbingId,
             @PathVariable Long archiveId
     ) {
-        return success(archiveService.getArchive(plubbingId, archiveId));
+        Account loginAccount = accountService.getCurrentAccount();
+        return success(archiveService.getArchive(loginAccount, plubbingId, archiveId));
     }
 
     @ApiOperation(value = "아카이브 생성")
@@ -94,6 +96,6 @@ public class ArchiveController {
             @Valid @RequestBody ReportDto.CreateReportRequest createReportRequest
     ) {
         Account loginAccount = accountService.getCurrentAccount();
-        return success(archiveService.reportArchive(createReportRequest, archiveId, loginAccount));
+        return success(archiveService.reportArchive(loginAccount, plubbingId, createReportRequest, archiveId));
     }
 }

@@ -55,7 +55,8 @@ public class CalendarController {
             @PathVariable Long plubbingId,
             @PathVariable Long calendarId
     ) {
-        return success(calendarService.softDeleteCalendar(plubbingId, calendarId));
+        Account currentAccount = accountService.getCurrentAccount();
+        return success(calendarService.softDeleteCalendar(currentAccount, plubbingId, calendarId));
     }
 
     @ApiOperation(value = "일정 상세 조회")
@@ -64,7 +65,8 @@ public class CalendarController {
             @PathVariable Long plubbingId,
             @PathVariable Long calendarId
     ) {
-        return success(calendarService.getCalendarCard(plubbingId, calendarId));
+        Account currentAccount = accountService.getCurrentAccount();
+        return success(calendarService.getCalendarCard(currentAccount, plubbingId, calendarId));
     }
 
     @ApiOperation(value = "일정 리스트 조회")
@@ -74,7 +76,8 @@ public class CalendarController {
             @PageableDefault Pageable pageable,
             @RequestParam(required = false) Long cursorId
     ) {
-        return success(calendarService.getCalendarList(plubbingId, pageable, cursorId));
+        Account currentAccount = accountService.getCurrentAccount();
+        return success(calendarService.getCalendarList(currentAccount, plubbingId, pageable, cursorId));
     }
 
     @ApiOperation(value = "참석 여부 선택")
@@ -94,6 +97,7 @@ public class CalendarController {
             @PathVariable Long plubbingId,
             @PathVariable Long calendarId
     ) {
-        return success(calendarService.getAttendList(plubbingId, calendarId));
+        Account currentAccount = accountService.getCurrentAccount();
+        return success(calendarService.getAttendList(currentAccount, plubbingId, calendarId));
     }
 }

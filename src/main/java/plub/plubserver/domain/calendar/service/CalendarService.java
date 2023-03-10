@@ -41,7 +41,9 @@ public class CalendarService {
                 () -> new CalendarException(StatusCode.NOT_FOUNT_CALENDAR));
     }
 
-    public CalendarCardResponse getCalendarCard(Long plubbingId, Long calendarId) {
+    public CalendarCardResponse getCalendarCard(Account currentAccount, Long plubbingId, Long calendarId) {
+        Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
+        plubbingService.checkMember(currentAccount, plubbing);
         Calendar calendar = calendarRepository.findByIdAndPlubbingIdAndVisibilityIsTrue(calendarId, plubbingId)
                 .orElseThrow(() -> new CalendarException(StatusCode.NOT_FOUNT_CALENDAR));
         List<CalendarAttend> calendarAttendList = calendar.getCalendarAttendList().stream()
@@ -135,8 +137,9 @@ public class CalendarService {
     }
 
     @Transactional
-    public CalendarMessage softDeleteCalendar(Long plubbingId, Long calendarId) {
-        plubbingService.getPlubbing(plubbingId);
+    public CalendarMessage softDeleteCalendar(Account currentAccount, Long plubbingId, Long calendarId) {
+        Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
+        plubbingService.checkMember(currentAccount, plubbing);
         Calendar calendar = calendarRepository.findById(calendarId)
                 .orElseThrow(() -> new CalendarException(StatusCode.NOT_FOUNT_CALENDAR));
         calendar.softDelete();
@@ -150,7 +153,8 @@ public class CalendarService {
             Long calendarId,
             CheckAttendRequest calendarAttendRequest
     ) {
-        plubbingService.getPlubbing(plubbingId);
+        Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
+        plubbingService.checkMember(account, plubbing);
         Calendar calendar = calendarRepository.findById(calendarId)
                 .orElseThrow(() -> new CalendarException(StatusCode.NOT_FOUNT_CALENDAR));
         AttendStatus attendStatus = AttendStatus.valueOf(calendarAttendRequest.attendStatus());
@@ -167,9 +171,9 @@ public class CalendarService {
         return CalendarAttendResponse.of(calendarAttend);
     }
 
-    public CalendarListResponse getCalendarList(Long plubbingId, Pageable pageable, Long cursorId) {
-        plubbingService.getPlubbing(plubbingId);
-
+    public CalendarListResponse getCalendarList(Account currentAccount, Long plubbingId, Pageable pageable, Long cursorId) {
+        Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
+        plubbingService.checkMember(currentAccount, plubbing);
         Long nextCursorId = cursorId;
         if (cursorId != null && cursorId == 0) {
             nextCursorId = calendarRepository.findFirstByPlubbingIdAndVisibilityIsTrueOrderByStartedAtDesc(plubbingId)
@@ -190,8 +194,9 @@ public class CalendarService {
         return CalendarListResponse.ofCursor(response);
     }
 
-    public CalendarAttendList getAttendList(Long plubbingId, Long calendarId) {
-        plubbingService.getPlubbing(plubbingId);
+    public CalendarAttendList getAttendList(Account currentAccount, Long plubbingId, Long calendarId) {
+        Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
+        plubbingService.checkMember(currentAccount, plubbing);
         Calendar calendar = calendarRepository.findById(calendarId)
                 .orElseThrow(() -> new CalendarException(StatusCode.NOT_FOUNT_CALENDAR));
         List<CalendarAttend> attendList = calendarAttendRepository.findByCalendarIdOrderByAttendStatus(calendar.getId())

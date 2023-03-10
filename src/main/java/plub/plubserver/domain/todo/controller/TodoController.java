@@ -90,7 +90,8 @@ public class TodoController {
             @PageableDefault Pageable pageable,
             @RequestParam(required = false) Long cursorId
     ) {
-        return success(todoService.getAccountTodoTimelinePage(plubbingId, accountId, pageable, cursorId));
+        Account currentAccount = accountService.getCurrentAccount();
+        return success(todoService.getAccountTodoTimelinePage(currentAccount, plubbingId, accountId, pageable, cursorId));
     }
 
     @ApiOperation(value = "투두 리스트 삭제 (캘린더 용)")
@@ -99,7 +100,8 @@ public class TodoController {
             @PathVariable Long plubbingId,
             @PathVariable Long todoId
     ) {
-        return success(todoService.deleteTodoList(plubbingId, todoId));
+        Account currentAccount = accountService.getCurrentAccount();
+        return success(todoService.deleteTodoList(currentAccount, plubbingId, todoId));
     }
 
     @ApiOperation(value = "투두 리스트 수정 (캘린더 용)")
