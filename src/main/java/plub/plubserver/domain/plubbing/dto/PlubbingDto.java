@@ -232,7 +232,7 @@ public class PlubbingDto {
     }
 
     public record MyProfilePlubbingListResponse(
-            PlubbingStatus plubbingStatus,
+            String plubbingStatus,
             List<MyProfilePlubbingResponse> plubbings
 
     ) {
@@ -240,10 +240,10 @@ public class PlubbingDto {
         public MyProfilePlubbingListResponse {
         }
 
-        public static MyProfilePlubbingListResponse of(List<MyProfilePlubbingResponse> plubbings, PlubbingStatus plubbingStatus) {
+        public static MyProfilePlubbingListResponse of(List<MyProfilePlubbingResponse> plubbings, String status) {
             return MyProfilePlubbingListResponse.builder()
                     .plubbings(plubbings)
-                    .plubbingStatus(plubbingStatus)
+                    .plubbingStatus(status)
                     .build();
         }
     }

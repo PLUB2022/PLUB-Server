@@ -17,4 +17,6 @@ public interface RecruitRepositoryCustom {
     );
 
     List<Long> findAllBookmarkedRecruitIdByAccountId(Long accountId);
+
+    List<Recruit> findAllPlubbingRecruitByAccountId(Long accountId);
 }

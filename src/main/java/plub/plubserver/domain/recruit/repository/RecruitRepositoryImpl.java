@@ -72,4 +72,13 @@ public class RecruitRepositoryImpl implements RecruitRepositoryCustom {
                 .map(it -> it.getRecruit().getId())
                 .toList();
     }
+
+    @Override
+    public List<Recruit> findAllPlubbingRecruitByAccountId(Long accountId) {
+        return queryFactory.selectFrom(recruit)
+                .leftJoin(recruit.plubbing, plubbing)
+                .fetchJoin()
+                .where(recruit.plubbing.accountPlubbingList.any().account.id.eq(accountId))
+                .fetch();
+    }
 }

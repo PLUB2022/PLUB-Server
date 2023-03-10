@@ -5,7 +5,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.plubbing.model.AccountPlubbing;
-import plub.plubserver.domain.plubbing.model.PlubbingStatus;
+import plub.plubserver.domain.plubbing.model.AccountPlubbingStatus;
 
 import java.util.List;
 
@@ -19,13 +19,13 @@ public class AccountPlubbingRepositoryImpl implements AccountPlubbingRepositoryC
     @Override
     public List<AccountPlubbing> findAllByAccount(
             Account currentAccount,
-            PlubbingStatus plubbingStatus
+            AccountPlubbingStatus plubbingStatus
     ) {
         JPAQuery<AccountPlubbing> query = queryFactory
                 .selectFrom(accountPlubbing)
                 .where(
                         accountPlubbing.account.eq(currentAccount),
-                        accountPlubbing.plubbing.status.eq(plubbingStatus)
+                        accountPlubbing.accountPlubbingStatus.eq(plubbingStatus)
                 )
                 .orderBy(accountPlubbing.id.desc());
 

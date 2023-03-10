@@ -28,6 +28,7 @@ import plub.plubserver.domain.recruit.model.Recruit;
 import plub.plubserver.domain.recruit.model.RecruitQuestion;
 import plub.plubserver.domain.recruit.model.RecruitStatus;
 import plub.plubserver.domain.recruit.repository.BookmarkRepository;
+import plub.plubserver.domain.recruit.repository.RecruitRepository;
 import plub.plubserver.domain.report.dto.ReportDto.CreateReportRequest;
 import plub.plubserver.domain.report.dto.ReportDto.ReportResponse;
 import plub.plubserver.domain.report.model.Report;
@@ -35,7 +36,10 @@ import plub.plubserver.domain.report.service.ReportService;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
+
+import static plub.plubserver.domain.plubbing.model.MyPlubbingStatus.HOST;
 
 @Slf4j
 @Service
@@ -50,6 +54,7 @@ public class PlubbingService {
     private final AccountPlubbingRepository accountPlubbingRepository;
     private final BookmarkRepository bookmarkRepository;
     private final ReportService reportService;
+    private final RecruitRepository recruitRepository;
 
     public Plubbing getPlubbing(Long plubbingId) {
         return plubbingRepository.findById(plubbingId)
@@ -218,23 +223,30 @@ public class PlubbingService {
     }
 
     // 마이페이지
+    // status : WAIT, ACTIVE, END, RECRUITING
     public MyProfilePlubbingListResponse getMyPlubbingByStatus(String status) {
         Account currentAccount = accountService.getCurrentAccount();
-        PlubbingStatus plubbingStatus = PlubbingStatus.valueOf(status);
-
-        List<MyProfilePlubbingResponse> myPlubbingResponses = accountPlubbingRepository
-                .findAllByAccount(currentAccount, plubbingStatus).stream()
-                .map((AccountPlubbing accountPlubbing) -> {
-                    MyPlubbingStatus myPlubbingStatus =
-                            getMyPlubbingStatus(accountPlubbing.isHost(), plubbingStatus);
-                    return MyProfilePlubbingResponse.of(accountPlubbing.getPlubbing(), myPlubbingStatus);
-                }).toList();
-        return MyProfilePlubbingListResponse.of(myPlubbingResponses, plubbingStatus);
+        if (Objects.equals(status, RecruitStatus.RECRUITING.name())) {
+            List<MyProfilePlubbingResponse> myPlubbingResponses = recruitRepository.findAllPlubbingRecruitByAccountId(currentAccount.getId())
+                    .stream()
+                    .map((Recruit recruit) -> MyProfilePlubbingResponse.of(recruit.getPlubbing(), HOST)).toList();
+            return MyProfilePlubbingListResponse.of(myPlubbingResponses, status);
+        } else {
+            AccountPlubbingStatus plubbingStatus = AccountPlubbingStatus.valueOf(status);
+            List<MyProfilePlubbingResponse> myPlubbingResponses = accountPlubbingRepository
+                    .findAllByAccount(currentAccount, plubbingStatus).stream()
+                    .map((AccountPlubbing accountPlubbing) -> {
+                        MyPlubbingStatus myPlubbingStatus =
+                                getMyPlubbingStatus(accountPlubbing.isHost(), plubbingStatus.name());
+                        return MyProfilePlubbingResponse.of(accountPlubbing.getPlubbing(), myPlubbingStatus);
+                    }).toList();
+            return MyProfilePlubbingListResponse.of(myPlubbingResponses, status);
+        }
     }
 
-    public MyPlubbingStatus getMyPlubbingStatus(boolean isHost, PlubbingStatus plubbingStatus) {
-        if(plubbingStatus.equals(PlubbingStatus.END)) return MyPlubbingStatus.END;
-        else if (isHost) return MyPlubbingStatus.HOST;
+    public MyPlubbingStatus getMyPlubbingStatus(boolean isHost, String status) {
+        if (status.equals(PlubbingStatus.END.name())) return MyPlubbingStatus.END;
+        else if (isHost) return HOST;
         else return MyPlubbingStatus.GUEST;
     }
 
