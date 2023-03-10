@@ -14,7 +14,9 @@ import plub.plubserver.domain.plubbing.model.Plubbing;
 import plub.plubserver.domain.plubbing.service.PlubbingService;
 import plub.plubserver.domain.todo.exception.TodoException;
 import plub.plubserver.domain.todo.model.Todo;
+import plub.plubserver.domain.todo.model.TodoLike;
 import plub.plubserver.domain.todo.model.TodoTimeline;
+import plub.plubserver.domain.todo.repository.TodoLikeRepository;
 import plub.plubserver.domain.todo.repository.TodoRepository;
 import plub.plubserver.domain.todo.repository.TodoTimelineRepository;
 
@@ -32,10 +34,16 @@ public class TodoService {
     private final TodoTimelineRepository todoTimelineRepository;
     private final PlubbingService plubbingService;
     private final AccountRepository accountRepository;
+    private final TodoLikeRepository todoLikeRepository;
 
     public TodoTimeline getTodoTimeline(Long todoTimelineId) {
         return todoTimelineRepository.findById(todoTimelineId).orElseThrow(
                 () -> new TodoException(StatusCode.NOT_FOUNT_TODO_TIMELINE));
+    }
+
+    public Todo getTodo(Long todoId) {
+        return todoRepository.findById(todoId).orElseThrow(
+                () -> new TodoException(StatusCode.NOT_FOUNT_TODO));
     }
 
     @Transactional
@@ -59,6 +67,7 @@ public class TodoService {
                             .account(currentAccount)
                             .plubbing(plubbing)
                             .todoList(List.of(todo))
+                            .likes(0)
                             .build();
                     todo.updateTodoTimeline(todoTimeline);
                     todoTimelineRepository.save(todoTimeline);
@@ -69,29 +78,37 @@ public class TodoService {
     }
 
     // 투두 상세 조회
-    public TodoResponse getTodo(Long plubbingId, Long todoId) {
+    public TodoResponse getTodo(Account currentAccount, Long plubbingId, Long todoId) {
         plubbingService.getPlubbing(plubbingId);
         Todo todo = todoRepository.findById(todoId)
                 .orElseThrow(() -> new TodoException(StatusCode.NOT_FOUNT_TODO));
-        return TodoResponse.of(todo);
+        boolean isAuthor = IsAuthor(currentAccount, todo);
+        return TodoResponse.of(todo, isAuthor);
+    }
+
+    // 작성자인지 검증
+    private boolean IsAuthor(Account currentAccount, Todo todo) {
+        return currentAccount.getId().equals(todo.getAccount().getId());
     }
 
     // 투두 리스트 상세 조회
-    public TodoListResponse getTodoTimelineList(Long plubbingId, Long todoTimelineId) {
+    public TodoListResponse getTodoTimelineList(Account currentAccount, Long plubbingId, Long todoTimelineId) {
         plubbingService.getPlubbing(plubbingId);
         List<Todo> todoList = todoTimelineRepository.findById(todoTimelineId)
                 .orElseThrow(() -> new TodoException(StatusCode.NOT_FOUNT_TODO_TIMELINE))
                 .getTodoList();
-        return TodoListResponse.of(todoList);
+        int likes = todoTimelineRepository.findById(todoTimelineId)
+                .orElseThrow(() -> new TodoException(StatusCode.NOT_FOUNT_TODO_TIMELINE))
+                .getLikes();
+        return TodoListResponse.of(todoList, currentAccount, likes);
     }
 
 
-
     // 투두 타임라인 조회 (날짜)
-    public TodoTimelineListResponse getTodoTimeline(Long plubbingId, LocalDate date) {
+    public TodoTimelineListResponse getTodoTimeline(Account currentAccount, Long plubbingId, LocalDate date) {
         plubbingService.getPlubbing(plubbingId);
         List<TodoTimeline> todoTimeline = todoTimelineRepository.findByDate(date);
-        return TodoTimelineListResponse.of(todoTimeline);
+        return TodoTimelineListResponse.of(todoTimeline, currentAccount);
     }
 
     // 투두 삭제
@@ -113,7 +130,8 @@ public class TodoService {
             throw new TodoException(StatusCode.ALREADY_CHECKED_TODO);
 
         todo.updateTodoDateAndContent(request.date(), request.content());
-        return TodoResponse.of(todo);
+        boolean isAuthor = IsAuthor(currentAccount, todo);
+        return TodoResponse.of(todo, isAuthor);
     }
 
     // 투두 완료
@@ -147,7 +165,8 @@ public class TodoService {
         if (todo.isChecked()) {
             todo.updateTodoProofImage(proofImage.proofImage());
             todo.updateTodoIsProof(true);
-            return TodoResponse.of(todo);
+            boolean isAuthor = IsAuthor(currentAccount, todo);
+            return TodoResponse.of(todo, isAuthor);
         } else if (todo.isProof()) {
             throw new TodoException(StatusCode.ALREADY_PROOF_TODO);
         } else {
@@ -195,14 +214,14 @@ public class TodoService {
 
         Page<TodoTimelineResponse> todoTimelinePage =
                 todoTimelineRepository.findByAccount(account, pageable, cursorId, date)
-                .map(TodoTimelineResponse::of);
+                        .map(todoTimeline -> TodoTimelineResponse.of(todoTimeline, account));
 
         Long totalElements = todoTimelineRepository.countAllByPlubbing(plubbing);
         return PageResponse.ofCursor(todoTimelinePage, totalElements);
     }
 
     // 타임라인 전체 조회
-    public  PageResponse<TodoTimelineAllResponse> getAllTodoList(Long plubbingId, Pageable pageable, Long cursorId) {
+    public PageResponse<TodoTimelineAllResponse> getAllTodoList(Account currentAccount, Long plubbingId, Pageable pageable, Long cursorId) {
         Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
 
         Long nextCursorId = cursorId;
@@ -215,7 +234,7 @@ public class TodoService {
 
         Page<TodoTimelineAllResponse> timelineResponsePage =
                 todoTimelineRepository.findAllByPlubbing(plubbing, pageable, cursorId, date)
-                .map(TodoTimelineAllResponse::of);
+                        .map(todoTimeline -> TodoTimelineAllResponse.of(todoTimeline, currentAccount));
 
         Long totalElements = todoTimelineRepository.countAllByPlubbing(plubbing);
         return PageResponse.ofCursor(timelineResponsePage, totalElements);
@@ -226,6 +245,22 @@ public class TodoService {
         Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
         List<TodoTimeline> byAccountAndPlubbingAndDate = todoTimelineRepository.findByAccountAndPlubbingAndDate(currentAccount, plubbing.getId(), year, month);
         return TodoTimelineDateResponse.of(byAccountAndPlubbingAndDate);
+    }
+
+    // 투두 좋아요
+    @Transactional
+    public TodoTimelineResponse likeTodo(Account currentAccount, Long plubbingId, Long timelineId) {
+        plubbingService.getPlubbing(plubbingId);
+        TodoTimeline todoTimeline = todoTimelineRepository.findByIdAndAccount(timelineId, currentAccount)
+                .orElseThrow(() -> new TodoException(StatusCode.NOT_FOUNT_TODO));
+        if (!todoLikeRepository.existsByAccountAndTodoTimeline(currentAccount, todoTimeline)) {
+            todoLikeRepository.save(TodoLike.builder().todoTimeline(todoTimeline).account(currentAccount).build());
+            todoTimeline.addLike();
+        } else {
+            todoLikeRepository.deleteByAccountAndTodoTimeline(currentAccount, todoTimeline);
+            todoTimeline.subLike();
+        }
+        return TodoTimelineResponse.of(todoTimeline, currentAccount);
     }
 
 }
