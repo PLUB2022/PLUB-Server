@@ -86,6 +86,7 @@ public enum StatusCode {
     NOT_MEMBER_ERROR(403, 6040, "this account is not a member of this plubbing."),
     NOT_FOUND_SUB_CATEGORY(404, 6050, "not found sub category error."),
 
+
     /**
      * Recruit
      */
@@ -128,6 +129,7 @@ public enum StatusCode {
     NOT_FOUND_NOTICE(404, 8500, "not found notice error."),
     NOT_NOTICE_AUTHOR_ERROR(403, 8510, "not notice author error."),
     DELETED_STATUS_NOTICE(400, 8520, "deleted status notice error."),
+
     ;
 
     private final int HttpCode;

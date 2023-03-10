@@ -47,7 +47,18 @@ public class TodoController {
             @PathVariable Long plubbingId,
             @PathVariable Long todoId
     ) {
-        return success(todoService.getTodo(plubbingId, todoId));
+        Account currentAccount = accountService.getCurrentAccount();
+        return success(todoService.getTodo(currentAccount, plubbingId, todoId));
+    }
+
+    @ApiOperation(value = "투두 리스트 상세 조회")
+    @GetMapping("/{plubbingId}/timeline/{timelineId}/todolist")
+    public ApiResponse<TodoListResponse> getTodoTimeline(
+            @PathVariable Long plubbingId,
+            @PathVariable Long timelineId
+    ) {
+        Account currentAccount = accountService.getCurrentAccount();
+        return success(todoService.getTodoTimelineList(currentAccount, plubbingId, timelineId));
     }
 
     @ApiOperation(value = "투두 타임라인 전체 조회")
@@ -57,7 +68,8 @@ public class TodoController {
             @PageableDefault Pageable pageable,
             @RequestParam(required = false) Long cursorId
     ) {
-        return success(todoService.getAllTodoList(plubbingId, pageable, cursorId));
+        Account currentAccount = accountService.getCurrentAccount();
+        return success(todoService.getAllTodoList(currentAccount, plubbingId, pageable, cursorId));
     }
 
     @ApiOperation(value = "투두 타임라인 날짜 조회")
@@ -66,7 +78,8 @@ public class TodoController {
             @PathVariable Long plubbingId,
             @PathVariable @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date
     ) {
-        return success(todoService.getTodoTimeline(plubbingId, date));
+        Account currentAccount = accountService.getCurrentAccount();
+        return success(todoService.getTodoTimeline(currentAccount, plubbingId, date));
     }
 
     @ApiOperation(value = "특정 회원 투두 타임라인 조회")
@@ -151,5 +164,15 @@ public class TodoController {
     ) {
         Account currentAccount = accountService.getCurrentAccount();
         return success(todoService.getMyTodoTimelinePage(currentAccount, plubbingId, pageable, cursorId));
+    }
+
+    @ApiOperation(value = "투두 좋아요")
+    @PutMapping("/{plubbingId}/timeline/{timelineId}/like")
+    public ApiResponse<TodoTimelineResponse> likeTodoTimeline(
+            @PathVariable Long plubbingId,
+            @PathVariable Long timelineId
+    ) {
+        Account currentAccount = accountService.getCurrentAccount();
+        return success(todoService.likeTodo(currentAccount, plubbingId, timelineId));
     }
 }

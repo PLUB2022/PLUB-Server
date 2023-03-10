@@ -5,7 +5,6 @@ import lombok.Builder;
 import org.springframework.data.domain.Page;
 import org.springframework.format.annotation.DateTimeFormat;
 import plub.plubserver.common.dto.PageResponse;
-import plub.plubserver.domain.account.dto.AccountDto;
 import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.todo.model.Todo;
 import plub.plubserver.domain.todo.model.TodoTimeline;
@@ -18,7 +17,13 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
+import static plub.plubserver.domain.account.dto.AccountDto.AccountInfo;
+
 public class TodoDto {
+
+    private static boolean IsAuthor(Account currentAccount, Todo todo) {
+        return currentAccount.getId().equals(todo.getAccount().getId());
+    }
 
     public record CreateTodoRequest(
             @NotBlank @Size(max = 15)
@@ -40,7 +45,6 @@ public class TodoDto {
                     .isChecked(false)
                     .isProof(false)
                     .proofImage("")
-                    .likes(0)
                     .build();
         }
     }
@@ -54,13 +58,13 @@ public class TodoDto {
             boolean isChecked,
             boolean isProof,
             String proofImage,
-            int likes
+            boolean isAuthor
     ) {
         @Builder
         public TodoResponse {
         }
 
-        public static TodoResponse of(Todo todo) {
+        public static TodoResponse of(Todo todo, boolean isAuthor) {
             return TodoResponse.builder()
                     .todoId(todo.getId())
                     .content(todo.getContent())
@@ -68,7 +72,7 @@ public class TodoDto {
                     .isChecked(todo.isChecked())
                     .isProof(todo.isProof())
                     .proofImage(todo.getProofImage())
-                    .likes(todo.getLikes())
+                    .isAuthor(isAuthor)
                     .build();
         }
     }
@@ -78,34 +82,63 @@ public class TodoDto {
             Long todoTimelineId,
             LocalDate date,
             int totalLikes,
+            boolean isAuthor,
             List<TodoResponse> todoList
     ) {
         @Builder
         public TodoTimelineResponse {
         }
 
-        public static TodoTimelineResponse of(TodoTimeline todoTimeline) {
+        public static TodoTimelineResponse of(TodoTimeline todoTimeline, Account currentAccount) {
             List<Todo> todoList = new ArrayList<>();
             List<TodoResponse> todoResponseList = new ArrayList<>();
-            int totalLikes = 0;
 
             for (Todo todo : todoTimeline.getTodoList()) {
                 todoList.add(todo);
-                totalLikes += todo.getLikes();
             }
 
             for (Todo todo : todoList) {
-                todoResponseList.add(TodoResponse.of(todo));
+                todoResponseList.add(TodoResponse.of(todo, IsAuthor(currentAccount, todo)));
             }
 
             return TodoTimelineResponse.builder()
                     .todoTimelineId(todoTimeline.getId())
-                    .totalLikes(totalLikes)
+                    .totalLikes(todoTimeline.getLikes())
                     .date(todoTimeline.getDate())
+                    .isAuthor(IsAuthor(currentAccount, todoTimeline.getTodoList().get(0)))
                     .todoList(todoResponseList)
                     .build();
         }
     }
+
+
+    public record TodoListResponse(
+            AccountInfo accountInfo,
+            int totalLikes,
+            boolean isAuthor,
+            List<TodoResponse> todoList
+    ) {
+        @Builder
+        public TodoListResponse {
+        }
+
+        public static TodoListResponse of(List<Todo> todoList, Account currentAccount, int likes) {
+            List<TodoResponse> todoResponseList = new ArrayList<>();
+
+            for (Todo todo : todoList) {
+                todoResponseList.add(TodoResponse.of(todo, IsAuthor(currentAccount, todo)));
+            }
+
+            return TodoListResponse.builder()
+                    .accountInfo(AccountInfo.of(todoList.get(0).getAccount()))
+                    .totalLikes(likes)
+                    .isAuthor(IsAuthor(currentAccount, todoList.get(0)))
+                    .todoList(todoResponseList)
+                    .build();
+        }
+
+    }
+
 
     public record TodoTimelineListResponse(
             List<TodoTimelineResponse> todoTimelineList
@@ -114,11 +147,11 @@ public class TodoDto {
         public TodoTimelineListResponse {
         }
 
-        public static TodoTimelineListResponse of(List<TodoTimeline> todoTimelineList) {
+        public static TodoTimelineListResponse of(List<TodoTimeline> todoTimelineList, Account currentAccount) {
             List<TodoTimelineResponse> todoTimelineResponseList = new ArrayList<>();
 
             for (TodoTimeline todoTimeline : todoTimelineList) {
-                todoTimelineResponseList.add(TodoTimelineResponse.of(todoTimeline));
+                todoTimelineResponseList.add(TodoTimelineResponse.of(todoTimeline, currentAccount));
             }
 
             return TodoTimelineListResponse.builder()
@@ -132,31 +165,31 @@ public class TodoDto {
             Long todoTimelineId,
             LocalDate date,
             int totalLikes,
-            AccountDto.AccountInfo accountInfo,
+            boolean isAuthor,
+            AccountInfo accountInfo,
             List<TodoResponse> todoList
     ) {
         @Builder
         public TodoTimelineAllResponse {
         }
 
-        public static TodoTimelineAllResponse of(TodoTimeline todoTimeline) {
+        public static TodoTimelineAllResponse of(TodoTimeline todoTimeline, Account account) {
             List<Todo> todoList = new ArrayList<>();
             List<TodoResponse> todoResponseList = new ArrayList<>();
-            int totalLikes = 0;
 
             for (Todo todo : todoTimeline.getTodoList()) {
                 todoList.add(todo);
-                totalLikes += todo.getLikes();
             }
 
             for (Todo todo : todoList) {
-                todoResponseList.add(TodoResponse.of(todo));
+                todoResponseList.add(TodoResponse.of(todo, IsAuthor(account, todo)));
             }
 
             return TodoTimelineAllResponse.builder()
-                    .accountInfo(AccountDto.AccountInfo.of(todoTimeline.getAccount()))
+                    .accountInfo(AccountInfo.of(todoTimeline.getAccount()))
                     .todoTimelineId(todoTimeline.getId())
-                    .totalLikes(totalLikes)
+                    .totalLikes(todoTimeline.getLikes())
+                    .isAuthor(IsAuthor(account, todoTimeline.getTodoList().get(0)))
                     .date(todoTimeline.getDate())
                     .todoList(todoResponseList)
                     .build();
@@ -186,14 +219,14 @@ public class TodoDto {
 
 
     public record TodoTimelinePageResponse(
-            AccountDto.AccountInfo accountInfo,
+            AccountInfo accountInfo,
             PageResponse<TodoTimelineResponse> response
     ) {
         @Builder
         public TodoTimelinePageResponse {
         }
 
-        public static TodoTimelinePageResponse of(Page<TodoTimelineResponse> todoTimelinePage, AccountDto.AccountInfo accountInfo) {
+        public static TodoTimelinePageResponse of(Page<TodoTimelineResponse> todoTimelinePage, AccountInfo accountInfo) {
             return TodoTimelinePageResponse.builder()
                     .response(PageResponse.of(todoTimelinePage))
                     .accountInfo(accountInfo)
@@ -229,7 +262,6 @@ public class TodoDto {
                     .isChecked(todo.isChecked())
                     .isProof(todo.isProof())
                     .proofImage(todo.getProofImage())
-                    .likes(todo.getLikes())
                     .build();
         }
     }

@@ -41,11 +41,25 @@ public class TodoTimeline {
     @JoinColumn(name = "account_id")
     private Account account;
 
+    // 투두(1) - 좋아요(다)
+    @OneToMany(mappedBy = "todoTimeline", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<TodoLike> todoLikes = new ArrayList<>();
+
+    private int likes;
+
     public void updateTodo(Todo todo) {
         if (todoList == null) todoList = new ArrayList<>();
         todoList.add(todo);
         account = todo.getAccount();
         date = todo.getDate();
         todo.updateTodoTimeline(this);
+    }
+
+    public void addLike() {
+        this.likes++;
+    }
+
+    public void subLike() {
+        this.likes--;
     }
 }
