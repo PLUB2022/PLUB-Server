@@ -22,6 +22,7 @@ import plub.plubserver.domain.todo.repository.TodoTimelineRepository;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 import static plub.plubserver.domain.todo.dto.TodoDto.*;
 
@@ -206,14 +207,13 @@ public class TodoService {
 
         Long nextCursorId = cursorId;
         if (cursorId != null && cursorId == 0) {
-            nextCursorId = todoTimelineRepository.findFirstByPlubbingOrderByDateDesc(plubbing)
-                    .orElseThrow(() -> new TodoException(StatusCode.NOT_FOUNT_TODO))
-                    .getId();
+            Optional<TodoTimeline> first = todoTimelineRepository.findFirstByPlubbingOrderByDateDesc(plubbing);
+            nextCursorId = first.map(TodoTimeline::getId).orElse(null);
         }
-        String date = cursorId == null ? null : getTodoTimeline(nextCursorId).getDate().toString();
+        String date = nextCursorId == null ? null : getTodoTimeline(nextCursorId).getDate().toString();
 
         Page<TodoTimelineResponse> todoTimelinePage =
-                todoTimelineRepository.findByAccount(account, pageable, cursorId, date)
+                todoTimelineRepository.findByAccountAndPlubbing(account, plubbing, pageable, cursorId, date)
                         .map(todoTimeline -> TodoTimelineResponse.of(todoTimeline, account));
 
         Long totalElements = todoTimelineRepository.countAllByPlubbing(plubbing);
@@ -226,11 +226,10 @@ public class TodoService {
 
         Long nextCursorId = cursorId;
         if (cursorId != null && cursorId == 0) {
-            nextCursorId = todoTimelineRepository.findFirstByPlubbingOrderByDateDesc(plubbing)
-                    .orElseThrow(() -> new TodoException(StatusCode.NOT_FOUNT_TODO))
-                    .getId();
+            Optional<TodoTimeline> first = todoTimelineRepository.findFirstByPlubbingOrderByDateDesc(plubbing);
+            nextCursorId = first.map(TodoTimeline::getId).orElse(null);
         }
-        String date = cursorId == null ? null : getTodoTimeline(nextCursorId).getDate().toString();
+        String date = nextCursorId == null ? null : getTodoTimeline(nextCursorId).getDate().toString();
 
         Page<TodoTimelineAllResponse> timelineResponsePage =
                 todoTimelineRepository.findAllByPlubbing(plubbing, pageable, cursorId, date)
