@@ -1,6 +1,7 @@
 package plub.plubserver.domain.todo.repository;
 
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,7 +33,7 @@ public class TodoTimelineRepositoryImpl implements TodoTimelineRepositoryCustom 
             String date
     ) {
         LocalDate now = LocalDate.now();
-        List<TodoTimeline> fetch1 = queryFactory
+        JPAQuery<TodoTimeline> query = queryFactory
                 .selectFrom(todoTimeline)
                 .leftJoin(todoTimeline.plubbing, QPlubbing.plubbing)
                 .fetchJoin()
@@ -42,14 +43,17 @@ public class TodoTimelineRepositoryImpl implements TodoTimelineRepositoryCustom 
                         getCursorId(cursorId, date)
                 )
                 .orderBy(todoTimeline.date.desc(), todoTimeline.id.desc())
-                .distinct()
-                .fetch();
+                .distinct();
+
 
         return PageableExecutionUtils.getPage(
-                fetch1,
+                query.orderBy(todoTimeline.id.desc())
+                        .limit(pageable.getPageSize())
+                        .fetch(),
                 pageable,
-                fetch1::size
-        );
+                () -> queryFactory
+                        .selectFrom(todoTimeline)
+                        .fetch().size());
     }
 
     @Override
@@ -71,6 +75,7 @@ public class TodoTimelineRepositoryImpl implements TodoTimelineRepositoryCustom 
                 )
                 .orderBy(todoTimeline.date.desc(), todoTimeline.id.desc())
                 .distinct()
+                .limit(pageable.getPageSize())
                 .fetch();
 
         LocalDate nextMonth = now.plusMonths(3);
@@ -94,7 +99,9 @@ public class TodoTimelineRepositoryImpl implements TodoTimelineRepositoryCustom 
         return PageableExecutionUtils.getPage(
                 fetch1,
                 pageable,
-                fetch1::size
+                () -> queryFactory
+                        .selectFrom(todoTimeline)
+                        .fetch().size()
         );
     }
 
