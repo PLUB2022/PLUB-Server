@@ -15,4 +15,5 @@ public interface TodoTimelineRepository extends JpaRepository<TodoTimeline, Long
     Long countAllByPlubbing(Plubbing plubbing);
     Optional<TodoTimeline> findFirstByPlubbingOrderByDateDesc(Plubbing plubbing);
     Optional<TodoTimeline> findByIdAndAccount(Long timelineId, Account account);
+    Optional<TodoTimeline> findByDateAndAccountAndPlubbing(LocalDate date, Account account, Plubbing plubbing);
 }

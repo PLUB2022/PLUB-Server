@@ -106,10 +106,12 @@ public class TodoService {
 
 
     // 투두 타임라인 조회 (날짜)
-    public TodoTimelineListResponse getTodoTimeline(Account currentAccount, Long plubbingId, LocalDate date) {
-        plubbingService.getPlubbing(plubbingId);
-        List<TodoTimeline> todoTimeline = todoTimelineRepository.findByDate(date);
-        return TodoTimelineListResponse.of(todoTimeline, currentAccount);
+    public TodoTimelineResponse getTodoTimeline(Account currentAccount, Long plubbingId, LocalDate date) {
+        Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
+        TodoTimeline todoTimeline = todoTimelineRepository.findByDateAndAccountAndPlubbing(date, currentAccount, plubbing)
+                .orElseThrow(() -> new TodoException(StatusCode.NOT_FOUNT_TODO_TIMELINE));
+
+        return TodoTimelineResponse.of(todoTimeline, currentAccount);
     }
 
     // 투두 삭제

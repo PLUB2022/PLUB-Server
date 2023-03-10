@@ -72,9 +72,9 @@ public class TodoController {
         return success(todoService.getAllTodoList(currentAccount, plubbingId, pageable, cursorId));
     }
 
-    @ApiOperation(value = "투두 타임라인 날짜 조회")
+    @ApiOperation(value = "투두 타임라인 날짜 조회 (캘린더 용)")
     @GetMapping("/{plubbingId}/timeline/{date}")
-    public ApiResponse<TodoTimelineListResponse> getTodoTimeline(
+    public ApiResponse<TodoTimelineResponse> getTodoTimeline(
             @PathVariable Long plubbingId,
             @PathVariable @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date
     ) {
@@ -93,7 +93,7 @@ public class TodoController {
         return success(todoService.getAccountTodoTimelinePage(plubbingId, accountId, pageable, cursorId));
     }
 
-    @ApiOperation(value = "투두 리스트 삭제")
+    @ApiOperation(value = "투두 리스트 삭제 (캘린더 용)")
     @DeleteMapping("/{plubbingId}/todolist/{todoId}")
     public ApiResponse<TodoMessage> deleteTodoList(
             @PathVariable Long plubbingId,
@@ -102,7 +102,7 @@ public class TodoController {
         return success(todoService.deleteTodoList(plubbingId, todoId));
     }
 
-    @ApiOperation(value = "투두 리스트 수정")
+    @ApiOperation(value = "투두 리스트 수정 (캘린더 용)")
     @PutMapping("/{plubbingId}/todolist/{todoId}")
     public ApiResponse<TodoResponse> updateTodoList(
             @PathVariable Long plubbingId,
@@ -113,7 +113,7 @@ public class TodoController {
         return success(todoService.updateTodo(currentAccount, plubbingId, todoId, request));
     }
 
-    @ApiOperation(value = "투두 리스트 완료")
+    @ApiOperation(value = "투두 리스트 완료 (캘린더 용)")
     @PutMapping("/{plubbingId}/todolist/{todoId}/complete")
     public ApiResponse<TodoIdResponse> completeTodoList(
             @PathVariable Long plubbingId,
@@ -123,7 +123,7 @@ public class TodoController {
         return success(todoService.completeTodo(currentAccount, plubbingId, todoId));
     }
 
-    @ApiOperation(value = "투두 리스트 완료 취소")
+    @ApiOperation(value = "투두 리스트 완료 취소 (캘린더 용)")
     @PutMapping("/{plubbingId}/todolist/{todoId}/cancel")
     public ApiResponse<TodoIdResponse> cancelTodoList(
             @PathVariable Long plubbingId,
@@ -133,7 +133,7 @@ public class TodoController {
         return success(todoService.cancelTodo(currentAccount, plubbingId, todoId));
     }
 
-    @ApiOperation(value = "투두 리스트 인증")
+    @ApiOperation(value = "투두 리스트 인증 (캘린더 용)")
     @PostMapping("/{plubbingId}/todolist/{todoId}/proof")
     public ApiResponse<TodoResponse> proofTodoList(
             @PathVariable Long plubbingId,
@@ -144,7 +144,7 @@ public class TodoController {
         return success(todoService.proofTodo(currentAccount, plubbingId, todoId, request));
     }
 
-    @ApiOperation(value = "투두 월 달력 조회")
+    @ApiOperation(value = "투두 월 달력 조회 (캘린더 용)")
     @GetMapping("/{plubbingId}/timeline/year/{year}/month/{month}")
     public ApiResponse<TodoTimelineDateResponse> getTodoCalendarDateList(
             @PathVariable Long plubbingId,
