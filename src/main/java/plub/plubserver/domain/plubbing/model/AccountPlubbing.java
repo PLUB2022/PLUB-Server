@@ -41,4 +41,8 @@ public class AccountPlubbing {
     public void changeHost() {
         this.isHost = !this.isHost;
     }
+
+    public void exitPlubbing() {
+        this.accountPlubbingStatus = AccountPlubbingStatus.EXIT;
+    }
 }

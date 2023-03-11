@@ -113,10 +113,9 @@ public class PlubbingController {
     }
 
     @ApiOperation(value = "모임 나가기")
-    @GetMapping("/{plubbingId}/leave")
-    public ApiResponse<Boolean> leavePlubbing(@PathVariable Long plubbingId) {
-        plubbingService.leavePlubbing(plubbingId);
-        return success(true);
+    @PutMapping("/{plubbingId}/leave")
+    public ApiResponse<PlubbingResponse> leavePlubbing(@PathVariable Long plubbingId) {
+        return success(plubbingService.leavePlubbing(plubbingId));
     }
 
     @ApiOperation(value = "마이페이지 - 모임 조회")

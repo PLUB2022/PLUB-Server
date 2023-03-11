@@ -380,10 +380,12 @@ public class PlubbingService {
 
     // 모임 나가기
     @Transactional
-    public void leavePlubbing(Long plubbingId) {
+    public PlubbingResponse leavePlubbing(Long plubbingId) {
         Plubbing plubbing = getPlubbing(plubbingId);
         Account account = accountService.getCurrentAccount();
-        accountPlubbingRepository.deleteByPlubbingAndAccount(plubbing, account);
+        accountPlubbingRepository.findByAccountAndPlubbing(account, plubbing)
+                .orElseThrow(() -> new PlubbingException(StatusCode.NOT_MEMBER_ERROR))
+                .exitPlubbing();
 
         // 호스트에게 푸시 알림
         notificationService.pushMessage(
@@ -391,6 +393,8 @@ public class PlubbingService {
                 plubbing.getName(),
                 account.getNickname() + "님이 모임을 나갔어요."
         );
+
+        return PlubbingResponse.of(plubbing);
     }
 
     public void checkMember(Account account, Plubbing plubbing) {

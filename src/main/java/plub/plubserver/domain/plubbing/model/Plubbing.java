@@ -1,6 +1,8 @@
 package plub.plubserver.domain.plubbing.model;
 
 import lombok.*;
+import org.hibernate.annotations.Where;
+import plub.plubserver.common.constant.Visibility;
 import plub.plubserver.common.exception.StatusCode;
 import plub.plubserver.common.model.BaseEntity;
 import plub.plubserver.domain.account.exception.AccountException;
@@ -25,6 +27,7 @@ import static plub.plubserver.domain.plubbing.model.PlubbingStatus.DELETED;
 @Entity
 @Getter
 @Builder
+@Where(clause = Visibility.TRUE)
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Plubbing extends BaseEntity {
