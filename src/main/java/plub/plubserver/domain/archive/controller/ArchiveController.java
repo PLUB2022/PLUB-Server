@@ -35,10 +35,11 @@ public class ArchiveController {
     @GetMapping
     public ApiResponse<PageResponse<ArchiveCardResponse>> getArchiveList(
             @PathVariable Long plubbingId,
+            @RequestParam(required = false) Long cursorId,
             @PageableDefault Pageable pageable
     ) {
         Account loginAccount = accountService.getCurrentAccount();
-        return success(archiveService.getArchiveList(loginAccount, plubbingId, pageable));
+        return success(archiveService.getArchiveList(loginAccount, plubbingId, pageable, cursorId));
     }
 
     @ApiOperation(value = "아카이브 상세 조회")

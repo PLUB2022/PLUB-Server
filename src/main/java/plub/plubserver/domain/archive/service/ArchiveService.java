@@ -3,7 +3,6 @@ package plub.plubserver.domain.archive.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,7 +25,6 @@ import plub.plubserver.domain.report.dto.ReportDto.ReportResponse;
 import plub.plubserver.domain.report.model.Report;
 import plub.plubserver.domain.report.service.ReportService;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -49,19 +47,21 @@ public class ArchiveService {
     }
 
     // 아카이브 전체 조회
-    public PageResponse<ArchiveCardResponse> getArchiveList(Account account, Long plubbingId, Pageable pageable) {
+    public PageResponse<ArchiveCardResponse> getArchiveList(
+            Account account,
+            Long plubbingId,
+            Pageable pageable,
+            Long cursorId
+    ) {
         Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
         plubbingService.checkMember(account, plubbing);
-        Page<Archive> temp = archiveRepository.findAllByPlubbingIdOrderBySequenceDesc(plubbingId, pageable);
         // 로그인한 사용자를 기반으로 액세스 타입 체크
         Account loginAccount = accountService.getCurrentAccount();
-        List<ArchiveCardResponse> result = new ArrayList<>();
-        for (Archive archive : temp) {
-            String accessType = getAccessType(loginAccount, archive);
-            result.add(ArchiveCardResponse.of(archive, accessType));
-        }
-        Page<ArchiveCardResponse> pages = new PageImpl<>(result, pageable, temp.getTotalElements());
-        return PageResponse.of(pages);
+        Page<ArchiveCardResponse> result = archiveRepository
+                .findAllByPlubbingId(plubbingId, pageable, cursorId)
+                .map(it -> ArchiveCardResponse.of(it, getAccessType(loginAccount, it)));
+        Long totalElements = archiveRepository.countAllByPlubbingId(plubbingId);
+        return PageResponse.ofCursor(result, totalElements);
     }
 
     private String getAccessType(Account loginAccount, Archive archive) {
@@ -196,7 +196,7 @@ public class ArchiveService {
      * 아카이브 신고
      */
     @Transactional
-    public ReportResponse reportArchive( Account reporter, Long plubbingId, CreateReportRequest createReportRequest, Long archiveId) {
+    public ReportResponse reportArchive(Account reporter, Long plubbingId, CreateReportRequest createReportRequest, Long archiveId) {
         Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
         plubbingService.checkMember(reporter, plubbing);
         Archive archive = getArchive(archiveId); // 아카이브 존재 여부 확인

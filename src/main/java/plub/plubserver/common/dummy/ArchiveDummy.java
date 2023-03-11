@@ -36,7 +36,7 @@ public class ArchiveDummy implements ApplicationRunner {
             return;
         }
         Account admin1 = accountService.getAccountByEmail("admin1");
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 30; i++) {
             ArchiveDto.ArchiveRequest archiveRequest = new ArchiveDto.ArchiveRequest(
                     "테스트 아카이브" + i,
                     List.of(PLUB_MAIN_LOGO, PLUB_MAIN_LOGO, PLUB_PROFILE_TEST)
