@@ -21,4 +21,6 @@ public interface AppliedAccountRepository extends JpaRepository<AppliedAccount, 
     @Query("select aa from AppliedAccount aa where aa.recruit.plubbing.id = :plubbingId and aa.status = 'WAITING'")
     List<AppliedAccount> findAllWaitings(@Param("plubbingId") Long plubbingId);
 
+    void deleteAllByRecruitId(Long recruitId);
+
 }
