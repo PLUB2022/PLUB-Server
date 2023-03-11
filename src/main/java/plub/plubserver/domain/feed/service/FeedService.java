@@ -26,6 +26,7 @@ import plub.plubserver.domain.plubbing.service.PlubbingService;
 import plub.plubserver.util.CursorUtils;
 
 import java.util.List;
+import java.util.Optional;
 
 import static plub.plubserver.common.exception.StatusCode.NOT_FOUND_COMMENT;
 
@@ -147,9 +148,11 @@ public class FeedService {
         checkFeedStatus(feed);
         plubbingService.checkMember(account, feed.getPlubbing());
         Long nextCursorId = cursorId;
-        if (cursorId != null && cursorId == 0)
-            nextCursorId = feedCommentRepository.findFirstByVisibilityAndFeedId(true, feedId).orElseThrow(() -> new FeedException(NOT_FOUND_COMMENT)).getId();
-        Long commentGroupId = cursorId == null ? null : getFeedComment(nextCursorId).getCommentGroupId();
+        if (cursorId != null && cursorId == 0) {
+            Optional<FeedComment> first = feedCommentRepository.findFirstByVisibilityAndFeedId(true, feedId);
+            nextCursorId = first.map(FeedComment::getId).orElse(null);
+        }
+        Long commentGroupId = nextCursorId == null ? null : getFeedComment(nextCursorId).getCommentGroupId();
         Page<FeedCommentResponse> feedCommentList = feedCommentRepository.findAllByFeed(feed, pageable, commentGroupId, cursorId)
                 .map(it -> FeedCommentResponse.of(it, isCommentAuthor(account, it), isFeedAuthor(account, feed)));
         Long totalElements = (long) feed.getCommentCount();
