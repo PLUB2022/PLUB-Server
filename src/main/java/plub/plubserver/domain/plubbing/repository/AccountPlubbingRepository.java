@@ -23,7 +23,6 @@ public interface AccountPlubbingRepository extends JpaRepository<AccountPlubbing
     @Query("select ap from AccountPlubbing ap where ap.plubbing.id = :plubbingId and ap.isHost = true")
     Optional<AccountPlubbing> findByPlubbingIdAndIsHost(@Param("plubbingId") Long plubbingId);
     void deleteByPlubbingAndAccount(Plubbing plubbing, Account account);
-
 }
 
 

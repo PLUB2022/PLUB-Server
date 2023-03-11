@@ -79,7 +79,7 @@ public class RecruitService {
 
     public AppliedAccountListResponse getAppliedAccounts(Long plubbingId) {
         return new AppliedAccountListResponse(
-                getRecruitByPlubbingId(plubbingId).getAppliedAccountList().stream()
+                appliedAccountRepository.findAllWaitings(plubbingId).stream()
                         .map(AppliedAccountResponse::of)
                         .toList()
         );
