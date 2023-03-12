@@ -170,6 +170,12 @@ public class RecruitService {
         Recruit recruit = getRecruitByPlubbingId(plubbingId);
         plubbingService.checkHost(recruit.getPlubbing());
         recruit.done();
+
+        // 지원했던 지원자들 정보 초기화
+//        appliedAccountRepository.deleteAllByRecruitId(recruit.getId());
+
+        // TODO : 북마크도 다 제거해야하는가...?
+
         return RecruitStatusResponse.of(recruit);
     }
 
