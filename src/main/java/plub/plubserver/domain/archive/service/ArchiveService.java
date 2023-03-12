@@ -148,11 +148,12 @@ public class ArchiveService {
     // only for 작성자, 호스트
     @Transactional
     public ArchiveCardResponse updateArchive(
-            Account loginAccount,
+            Account account,
             Long plubbingId,
             Long archiveId,
             ArchiveRequest archiveRequest
     ) {
+        Account loginAccount = accountService.getAccount(account.getId());
         Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
         plubbingService.checkMember(loginAccount, plubbing);
         checkAuthorities(loginAccount, plubbingId, archiveId);
@@ -173,10 +174,11 @@ public class ArchiveService {
     // only for 작성자, 호스트
     @Transactional
     public ArchiveCardResponse softDeleteArchive(
-            Account loginAccount,
+            Account account,
             Long plubbingId,
             Long archiveId
     ) {
+        Account loginAccount = accountService.getAccount(account.getId());
         Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
         plubbingService.checkMember(loginAccount, plubbing);
         checkAuthorities(loginAccount, plubbingId, archiveId);
