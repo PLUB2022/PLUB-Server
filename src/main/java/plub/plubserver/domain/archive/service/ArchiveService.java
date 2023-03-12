@@ -98,7 +98,8 @@ public class ArchiveService {
      * 아카이브 생성
      */
     @Transactional
-    public ArchiveIdResponse createArchive(Account loginAccount, Long plubbingId, ArchiveRequest archiveRequest) {
+    public ArchiveIdResponse createArchive(Account account, Long plubbingId, ArchiveRequest archiveRequest) {
+        Account loginAccount = accountService.getAccount(account.getId());
         Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
         plubbingService.checkMember(loginAccount, plubbing);
 
