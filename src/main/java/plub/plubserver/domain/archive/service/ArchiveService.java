@@ -130,16 +130,14 @@ public class ArchiveService {
     }
 
     // 호스트, 작성자인지 권한 체크
-    private void checkAuthorities(Account loginAccount, Long plubbingId, Long archiveId) {
+    private void checkAuthorities(Account loginAccount, Plubbing plubbing, Archive archive) {
         Account account = accountService.getAccount(loginAccount.getId());
-
-        // 호스트 체크
-        plubbingService.checkHost(plubbingId);
-
-        // 작성자 체크
-        if (account.getPlubbing(plubbingId).getArchives().stream()
-                .noneMatch(it -> it.getId().equals(archiveId)))
+        if (!plubbingService.isHost(account, plubbing) && !isArchiveAuthor(account, archive))
             throw new ArchiveException(StatusCode.NOT_ARCHIVE_AUTHOR);
+    }
+
+    public Boolean isArchiveAuthor(Account account, Archive archive) {
+       return archive.getAccount().getId().equals(account.getId());
     }
 
     /**
@@ -156,9 +154,9 @@ public class ArchiveService {
         Account loginAccount = accountService.getAccount(account.getId());
         Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
         plubbingService.checkMember(loginAccount, plubbing);
-        checkAuthorities(loginAccount, plubbingId, archiveId);
 
         Archive archive = getArchive(archiveId);
+        checkAuthorities(loginAccount, plubbing, archive);
 
         archive.update(
                 archiveRequest.title(),
@@ -181,9 +179,10 @@ public class ArchiveService {
         Account loginAccount = accountService.getAccount(account.getId());
         Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
         plubbingService.checkMember(loginAccount, plubbing);
-        checkAuthorities(loginAccount, plubbingId, archiveId);
 
         Archive archive = getArchive(archiveId);
+        checkAuthorities(loginAccount, plubbing, archive);
+
         archive.softDelete();
         String accessType = getAccessType(loginAccount, archive);
         return ArchiveCardResponse.of(archive, accessType);
