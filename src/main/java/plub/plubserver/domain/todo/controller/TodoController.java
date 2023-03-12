@@ -73,13 +73,13 @@ public class TodoController {
     }
 
     @ApiOperation(value = "투두 타임라인 날짜 조회 (캘린더 용)")
-    @GetMapping("/{plubbingId}/timeline/{date}")
+    @GetMapping("/{plubbingId}/timeline/{todoDate}")
     public ApiResponse<TodoTimelineResponse> getTodoTimeline(
             @PathVariable Long plubbingId,
-            @PathVariable @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date
+            @PathVariable @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate todoDate
     ) {
         Account currentAccount = accountService.getCurrentAccount();
-        return success(todoService.getTodoTimeline(currentAccount, plubbingId, date));
+        return success(todoService.getTodoTimeline(currentAccount, plubbingId, todoDate));
     }
 
     @ApiOperation(value = "특정 회원 투두 타임라인 조회")
