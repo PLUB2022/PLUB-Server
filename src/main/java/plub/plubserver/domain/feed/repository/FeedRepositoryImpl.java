@@ -29,7 +29,10 @@ public class FeedRepositoryImpl implements FeedRepositoryCustom {
     ) {
         JPQLQuery<Feed> query = queryFactory
                 .selectFrom(feed)
-                .where(getCursorId(cursorId))
+                .where(feed.plubbing.eq(plubbing),
+                        feed.pin.eq(pin),
+                        feed.visibility.eq(visibility),
+                        getCursorId(cursorId))
                 .distinct();
 
         return PageableExecutionUtils.getPage(
@@ -52,7 +55,10 @@ public class FeedRepositoryImpl implements FeedRepositoryCustom {
     ) {
         JPQLQuery<Feed> query = queryFactory
                 .selectFrom(feed)
-                .where(getCursorId(cursorId))
+                .where(feed.plubbing.eq(plubbing),
+                        feed.account.eq(account),
+                        feed.visibility.eq(visibility),
+                        getCursorId(cursorId))
                 .distinct();
 
         return PageableExecutionUtils.getPage(
