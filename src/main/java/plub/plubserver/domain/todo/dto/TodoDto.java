@@ -7,6 +7,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import plub.plubserver.common.dto.PageResponse;
 import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.todo.model.Todo;
+import plub.plubserver.domain.todo.model.TodoLike;
 import plub.plubserver.domain.todo.model.TodoTimeline;
 
 import javax.validation.constraints.NotBlank;
@@ -25,6 +26,15 @@ public class TodoDto {
         return currentAccount.getId().equals(todo.getAccount().getId());
     }
 
+    private static boolean IsLike(Account currentAccount, TodoTimeline todoTimeLine) {
+        List<TodoLike> todoLikes = todoTimeLine.getTodoLikes();
+        for (TodoLike todoLike : todoLikes) {
+            if (todoLike.getAccount().getId().equals(currentAccount.getId())) {
+                return todoLike.isLike();
+            }
+        }
+        return false;
+    }
     public record CreateTodoRequest(
             @NotBlank @Size(max = 15)
             String content,
@@ -83,6 +93,7 @@ public class TodoDto {
             LocalDate date,
             int totalLikes,
             boolean isAuthor,
+            boolean isLike,
             List<TodoResponse> todoList
     ) {
         @Builder
@@ -106,6 +117,7 @@ public class TodoDto {
                     .totalLikes(todoTimeline.getLikeTodo())
                     .date(todoTimeline.getDate())
                     .isAuthor(IsAuthor(currentAccount, todoTimeline.getTodoList().get(0)))
+                    .isLike(IsLike(currentAccount, todoTimeline))
                     .todoList(todoResponseList)
                     .build();
         }

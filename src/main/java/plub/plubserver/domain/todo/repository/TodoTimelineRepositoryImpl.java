@@ -66,7 +66,7 @@ public class TodoTimelineRepositoryImpl implements TodoTimelineRepositoryCustom 
         LocalDate now = LocalDate.now();
         List<TodoTimeline> fetch1 = queryFactory
                 .selectFrom(todoTimeline)
-                .leftJoin(todoTimeline.plubbing, QPlubbing.plubbing)
+                .leftJoin(todoTimeline.plubbing)
                 .fetchJoin()
                 .where(
                         todoTimeline.plubbing.eq(plubbing),
@@ -81,7 +81,7 @@ public class TodoTimelineRepositoryImpl implements TodoTimelineRepositoryCustom 
         LocalDate nextMonth = now.plusMonths(3);
         List<TodoTimeline> fetch2 = queryFactory
                 .selectFrom(todoTimeline)
-                .leftJoin(todoTimeline.plubbing, QPlubbing.plubbing)
+                .leftJoin(todoTimeline.plubbing)
                 .fetchJoin()
                 .where(
                         todoTimeline.plubbing.eq(plubbing),

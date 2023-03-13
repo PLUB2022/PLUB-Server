@@ -58,9 +58,9 @@ public class TodoService {
                 .ifPresentOrElse(todoTimeline -> {
                     // 투두 타임라인 업데이트
                     todoCountCheck(todoTimeline);
-                    todoTimeline.updateTodo(todo);
+                    Todo save = todoRepository.save(todo);
+                    todoTimeline.updateTodo(save);
                     todoTimelineRepository.save(todoTimeline);
-                    todoRepository.save(todo);
                 }, () -> {
                     // 투두 타임라인 생성
                     TodoTimeline todoTimeline = TodoTimeline.builder()
@@ -248,7 +248,11 @@ public class TodoService {
         Long nextCursorId = cursorId;
         if (cursorId != null && cursorId == 0) {
             Optional<TodoTimeline> first = todoTimelineRepository.findFirstByPlubbingOrderByDateDesc(plubbing);
-            nextCursorId = first.map(TodoTimeline::getId).orElse(null);
+            if (first.isEmpty()) {
+                nextCursorId = null;
+            } else {
+                nextCursorId = first.map(TodoTimeline::getId).orElse(null);
+            }
         }
         String date = nextCursorId == null ? null : getTodoTimeline(nextCursorId).getDate().toString();
 
@@ -273,15 +277,25 @@ public class TodoService {
     public TodoTimelineResponse likeTodo(Account currentAccount, Long plubbingId, Long timelineId) {
         Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
         plubbingService.checkMember(currentAccount, plubbing);
-        TodoTimeline todoTimeline = todoTimelineRepository.findByIdAndAccount(timelineId, currentAccount)
+        TodoTimeline todoTimeline = todoTimelineRepository.findByIdAndPlubbing(timelineId, plubbing)
                 .orElseThrow(() -> new TodoException(StatusCode.NOT_FOUNT_TODO));
-        if (!todoLikeRepository.existsByAccountAndTodoTimeline(currentAccount, todoTimeline)) {
-            todoLikeRepository.save(TodoLike.builder().todoTimeline(todoTimeline).account(currentAccount).build());
-            todoTimeline.addLike();
-        } else {
-            todoLikeRepository.deleteByAccountAndTodoTimeline(currentAccount, todoTimeline);
-            todoTimeline.subLike();
-        }
+        todoLikeRepository.findByAccountAndTodoTimeline(currentAccount, todoTimeline)
+                .ifPresentOrElse(todoLike -> {
+                    if (todoLike.isLike()) {
+                        todoLike.updateIsLike();
+                        todoTimeline.subLike();
+                    } else {
+                        todoLike.updateIsLike();
+                        todoTimeline.addLike();
+                    }
+                }, () -> {
+                    TodoLike todoLike = todoLikeRepository.save(TodoLike.builder()
+                            .account(currentAccount)
+                            .todoTimeline(todoTimeline)
+                            .build());
+                    todoTimeline.addLike();
+                    todoLike.updateIsLike();
+                });
         return TodoTimelineResponse.of(todoTimeline, currentAccount);
     }
 

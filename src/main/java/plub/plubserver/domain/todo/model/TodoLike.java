@@ -25,4 +25,10 @@ public class TodoLike extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "account_id")
     private Account account;
+
+    private boolean isLike;
+
+    public void updateIsLike() {
+        isLike = !isLike;
+    }
 }
