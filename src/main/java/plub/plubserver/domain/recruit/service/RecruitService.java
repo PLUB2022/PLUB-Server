@@ -93,6 +93,15 @@ public class RecruitService {
         );
     }
 
+    // 내 지원서 글 조회
+    public RecruitMyApplicationResponse getMyAppliedRecruits(Account account, Long plubbingId) {
+        Recruit recruit = getRecruitByPlubbingId(plubbingId);
+        AppliedAccount appliedAccount = appliedAccountRepository
+                .findByAccountIdAndRecruitId(account.getId(), recruit.getId())
+                .orElseThrow(() -> new RecruitException(StatusCode.NOT_APPLIED_RECRUIT));
+        return RecruitMyApplicationResponse.of(appliedAccount);
+    }
+
     /**
      * 모집글 검색
      */

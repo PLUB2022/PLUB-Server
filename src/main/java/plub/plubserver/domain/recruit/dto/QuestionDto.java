@@ -52,7 +52,7 @@ public class QuestionDto {
         }
 
         public static QuestionAnswerResponse of(RecruitQuestionAnswer recruitQuestionAnswer) {
-            String question = recruitQuestionAnswer.getId() + ". " + recruitQuestionAnswer
+            String question = recruitQuestionAnswer
                     .getRecruitQuestion().getQuestionTitle();
             return QuestionAnswerResponse.builder()
                     .question(question)

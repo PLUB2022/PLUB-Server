@@ -228,4 +228,45 @@ public class RecruitDto {
         }
     }
 
+    public record RecruitMyApplicationResponse(
+            Long RecruitId,
+            Long plubbingId,
+            String title,
+            List<String> days,
+            String address,
+            String roadAddress,
+            String placeName,
+            String goal,
+            String time,
+            List<QuestionAnswerResponse> answers
+    ) {
+        @Builder
+        public RecruitMyApplicationResponse {
+        }
+
+        public static RecruitMyApplicationResponse of(AppliedAccount appliedAccount) {
+            Recruit recruit = appliedAccount.getRecruit();
+            Plubbing plubbing = recruit.getPlubbing();
+            PlubbingPlace place = plubbing.getPlubbingPlace();
+            return RecruitMyApplicationResponse.builder()
+                    .RecruitId(recruit.getId())
+                    .plubbingId(plubbing.getId())
+                    .title(recruit.getTitle())
+                    .days(plubbing.getDays().stream()
+                            .map(it -> it.getDay().name())
+                            .toList())
+                    .address(place.getAddress())
+                    .roadAddress(place.getRoadAddress())
+                    .placeName(place.getPlaceName())
+                    .goal(plubbing.getGoal())
+                    .time(plubbing.getTime())
+                    .answers(appliedAccount.getAnswerList()
+                            .stream()
+                            .map(QuestionAnswerResponse::of)
+                            .toList())
+                    .build();
+        }
+
+    }
+
 }

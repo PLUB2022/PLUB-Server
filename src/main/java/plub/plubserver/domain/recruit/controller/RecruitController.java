@@ -135,4 +135,13 @@ public class RecruitController {
         Account loginAccount = accountService.getCurrentAccount();
         return success(recruitService.reportRecruit(createReportRequest, loginAccount));
     }
+
+    @ApiOperation(value = "내 지원서 조회")
+    @GetMapping("/{plubbingId}/recruit/applicants/me")
+    public ApiResponse<RecruitMyApplicationResponse> getMyApplication(
+            @PathVariable Long plubbingId
+    ) {
+        Account loginAccount = accountService.getCurrentAccount();
+        return success(recruitService.getMyAppliedRecruits(loginAccount, plubbingId));
+    }
 }
