@@ -117,10 +117,8 @@ public class TodoService {
     public TodoTimelineResponse getTodoTimeline(Account currentAccount, Long plubbingId, LocalDate date) {
         Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
         plubbingService.checkMember(currentAccount, plubbing);
-        TodoTimeline todoTimeline = todoTimelineRepository.findByDateAndAccountAndPlubbing(date, currentAccount, plubbing)
-                .orElseThrow(() -> new TodoException(StatusCode.NOT_FOUNT_TODO_TIMELINE));
-
-        return TodoTimelineResponse.of(todoTimeline, currentAccount);
+        Optional<TodoTimeline> todoTimeline = todoTimelineRepository.findByDateAndAccountAndPlubbing(date, currentAccount, plubbing);
+        return todoTimeline.isPresent() ? TodoTimelineResponse.of(todoTimeline.get(), currentAccount) : TodoTimelineResponse.ofTemp(date);
     }
 
     // 투두 삭제

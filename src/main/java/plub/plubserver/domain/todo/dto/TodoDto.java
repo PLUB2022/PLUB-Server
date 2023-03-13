@@ -109,6 +109,16 @@ public class TodoDto {
                     .todoList(todoResponseList)
                     .build();
         }
+
+        public static TodoTimelineResponse ofTemp(LocalDate date) {
+            return TodoTimelineResponse.builder()
+                    .todoTimelineId(0L)
+                    .totalLikes(0)
+                    .date(date)
+                    .isAuthor(true)
+                    .todoList(new ArrayList<>())
+                    .build();
+        }
     }
 
 
