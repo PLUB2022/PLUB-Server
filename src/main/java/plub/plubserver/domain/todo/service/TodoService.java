@@ -68,7 +68,7 @@ public class TodoService {
                             .account(currentAccount)
                             .plubbing(plubbing)
                             .todoList(List.of(todo))
-                            .likes(0)
+                            .likeTodo(0)
                             .build();
                     todo.updateTodoTimeline(todoTimeline);
                     todoTimelineRepository.save(todoTimeline);
@@ -108,7 +108,7 @@ public class TodoService {
                 .getTodoList();
         int likes = todoTimelineRepository.findById(todoTimelineId)
                 .orElseThrow(() -> new TodoException(StatusCode.NOT_FOUNT_TODO_TIMELINE))
-                .getLikes();
+                .getLikeTodo();
         return TodoListResponse.of(todoList, currentAccount, likes);
     }
 
@@ -122,6 +122,7 @@ public class TodoService {
     }
 
     // 투두 삭제
+    @Transactional
     public TodoMessage deleteTodoList(Account currentAccount, Long plubbingId, Long todoId) {
         Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
         plubbingService.checkMember(currentAccount, plubbing);

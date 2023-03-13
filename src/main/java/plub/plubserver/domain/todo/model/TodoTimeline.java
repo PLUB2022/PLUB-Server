@@ -45,7 +45,7 @@ public class TodoTimeline {
     @OneToMany(mappedBy = "todoTimeline", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TodoLike> todoLikes = new ArrayList<>();
 
-    private int likes;
+    private int likeTodo;
 
     public void updateTodo(Todo todo) {
         if (todoList == null) todoList = new ArrayList<>();
@@ -56,10 +56,10 @@ public class TodoTimeline {
     }
 
     public void addLike() {
-        this.likes++;
+        this.likeTodo++;
     }
 
     public void subLike() {
-        this.likes--;
+        this.likeTodo--;
     }
 }

@@ -103,7 +103,7 @@ public class TodoDto {
 
             return TodoTimelineResponse.builder()
                     .todoTimelineId(todoTimeline.getId())
-                    .totalLikes(todoTimeline.getLikes())
+                    .totalLikes(todoTimeline.getLikeTodo())
                     .date(todoTimeline.getDate())
                     .isAuthor(IsAuthor(currentAccount, todoTimeline.getTodoList().get(0)))
                     .todoList(todoResponseList)
@@ -198,7 +198,7 @@ public class TodoDto {
             return TodoTimelineAllResponse.builder()
                     .accountInfo(AccountInfo.of(todoTimeline.getAccount()))
                     .todoTimelineId(todoTimeline.getId())
-                    .totalLikes(todoTimeline.getLikes())
+                    .totalLikes(todoTimeline.getLikeTodo())
                     .isAuthor(IsAuthor(account, todoTimeline.getTodoList().get(0)))
                     .date(todoTimeline.getDate())
                     .todoList(todoResponseList)
