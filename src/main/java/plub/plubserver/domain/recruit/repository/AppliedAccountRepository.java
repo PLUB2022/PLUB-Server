@@ -4,6 +4,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import plub.plubserver.domain.account.model.Account;
+import plub.plubserver.domain.recruit.model.ApplicantStatus;
 import plub.plubserver.domain.recruit.model.AppliedAccount;
 import plub.plubserver.domain.recruit.model.Recruit;
 
@@ -22,5 +23,5 @@ public interface AppliedAccountRepository extends JpaRepository<AppliedAccount, 
     List<AppliedAccount> findAllWaitings(@Param("plubbingId") Long plubbingId);
 
     void deleteAllByRecruitId(Long recruitId);
-
+    List<AppliedAccount> findAllByAccountAndStatus(Account account, ApplicantStatus applicantStatus);
 }

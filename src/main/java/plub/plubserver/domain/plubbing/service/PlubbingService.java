@@ -24,9 +24,8 @@ import plub.plubserver.domain.plubbing.repository.AccountPlubbingRepository;
 import plub.plubserver.domain.plubbing.repository.PlubbingRepository;
 import plub.plubserver.domain.recruit.dto.RecruitDto.UpdateRecruitQuestionRequest;
 import plub.plubserver.domain.recruit.dto.RecruitDto.UpdateRecruitRequest;
-import plub.plubserver.domain.recruit.model.Recruit;
-import plub.plubserver.domain.recruit.model.RecruitQuestion;
-import plub.plubserver.domain.recruit.model.RecruitStatus;
+import plub.plubserver.domain.recruit.model.*;
+import plub.plubserver.domain.recruit.repository.AppliedAccountRepository;
 import plub.plubserver.domain.recruit.repository.BookmarkRepository;
 import plub.plubserver.domain.recruit.repository.RecruitRepository;
 import plub.plubserver.domain.report.dto.ReportDto.CreateReportRequest;
@@ -39,6 +38,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+import static plub.plubserver.domain.plubbing.model.MyPlubbingStatus.GUEST;
 import static plub.plubserver.domain.plubbing.model.MyPlubbingStatus.HOST;
 
 @Slf4j
@@ -55,6 +55,8 @@ public class PlubbingService {
     private final BookmarkRepository bookmarkRepository;
     private final ReportService reportService;
     private final RecruitRepository recruitRepository;
+
+    private final AppliedAccountRepository appliedAccountRepository;
 
     public Plubbing getPlubbing(Long plubbingId) {
         return plubbingRepository.findById(plubbingId)
@@ -223,15 +225,23 @@ public class PlubbingService {
     }
 
     // 마이페이지
-    // status : WAIT, ACTIVE, END, RECRUITING
+    // status : WAITING, ACTIVE, END, RECRUITING
     public MyProfilePlubbingListResponse getMyPlubbingByStatus(String status) {
         Account currentAccount = accountService.getCurrentAccount();
         if (Objects.equals(status, RecruitStatus.RECRUITING.name())) {
-            List<MyProfilePlubbingResponse> myPlubbingResponses = recruitRepository.findAllPlubbingRecruitByAccountId(currentAccount.getId())
+            List<MyProfilePlubbingResponse> myPlubbingResponses = recruitRepository
+                    .findAllPlubbingRecruitByAccountId(currentAccount.getId())
                     .stream()
                     .map((Recruit recruit) -> MyProfilePlubbingResponse.of(recruit.getPlubbing(), HOST)).toList();
             return MyProfilePlubbingListResponse.of(myPlubbingResponses, status);
-        } else {
+        } else if(Objects.equals(status, ApplicantStatus.WAITING.name())){
+            List<MyProfilePlubbingResponse> myPlubbingResponses = appliedAccountRepository
+                    .findAllByAccountAndStatus(currentAccount, ApplicantStatus.WAITING)
+                    .stream()
+                    .map((AppliedAccount appliedAccount) 
+                            -> MyProfilePlubbingResponse.of(appliedAccount.getRecruit().getPlubbing(), GUEST)).toList();
+            return MyProfilePlubbingListResponse.of(myPlubbingResponses, status);
+        }else {
             AccountPlubbingStatus plubbingStatus = AccountPlubbingStatus.valueOf(status);
             List<MyProfilePlubbingResponse> myPlubbingResponses = accountPlubbingRepository
                     .findAllByAccount(currentAccount, plubbingStatus).stream()
@@ -246,10 +256,10 @@ public class PlubbingService {
 
     public MyPlubbingStatus getMyPlubbingStatus(boolean isHost, String status) {
         if (status.equals(PlubbingStatus.END.name())) return MyPlubbingStatus.END;
+        else if (status.equals(AccountPlubbingStatus.END.name())) return MyPlubbingStatus.EXIT;
         else if (isHost) return HOST;
-        else return MyPlubbingStatus.GUEST;
+        else return GUEST;
     }
-
 
     /**
      * 모임 삭제 (soft delete)
