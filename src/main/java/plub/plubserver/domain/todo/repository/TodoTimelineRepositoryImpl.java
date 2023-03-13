@@ -118,7 +118,7 @@ public class TodoTimelineRepositoryImpl implements TodoTimelineRepositoryCustom 
     }
 
     private BooleanExpression getCursorId(Long cursorId, String date) {
-        return date == null || cursorId == null ? null : todoTimeline.date.lt(LocalDate.parse(date))
+        return date == null || cursorId == null ? null : todoTimeline.date.loe(LocalDate.parse(date))
                 .and(todoTimeline.id.gt(cursorId))
                 .or(todoTimeline.date.lt(LocalDate.parse(date)));
     }

@@ -66,7 +66,7 @@ public class CalendarDummy {
                     .address("calendar address " + i)
                     .placeName("calendar placeName " + i)
                     .roadAddress("calendar roadAddress " + i)
-                    .alarmType("TEN_MINUTES")
+                    .alarmType("FIFTEEN_MINUTES")
                     .build();
             calendarService.createCalendar(admin1, 1L, form);
         }

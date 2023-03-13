@@ -43,7 +43,7 @@ public class CalendarRepositoryImpl implements CalendarRepositoryCustom {
     }
 
     private BooleanExpression getCursorId(String startedAt, Long cursorId) {
-        return cursorId == null ? null : calendar.startedAt.lt(startedAt)
+        return cursorId == null ? null : calendar.startedAt.loe(startedAt)
                 .and(calendar.id.gt(cursorId))
                 .or(calendar.startedAt.lt(startedAt));
     }
