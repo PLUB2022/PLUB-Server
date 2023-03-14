@@ -8,6 +8,7 @@ import plub.plubserver.domain.account.model.Account;
 
 import javax.persistence.*;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -40,6 +41,8 @@ public class Todo extends BaseEntity {
     @JoinColumn(name = "todo_timeline_id")
     private TodoTimeline todoTimeline;
 
+    private LocalDateTime checkAt;
+
     public void updateTodoDateAndContent(LocalDate date, String content) {
         this.date = date;
         this.content = content;
@@ -60,5 +63,10 @@ public class Todo extends BaseEntity {
 
     public void updateTodoTimeline(TodoTimeline todoTimeline) {
         this.todoTimeline = todoTimeline;
+    }
+
+    public void updateTodoCheckAt() {
+        LocalDateTime now = LocalDateTime.now();
+        this.checkAt = now;
     }
 }

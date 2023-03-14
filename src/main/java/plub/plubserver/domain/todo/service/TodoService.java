@@ -59,6 +59,7 @@ public class TodoService {
                     // 투두 타임라인 업데이트
                     todoCountCheck(todoTimeline);
                     Todo save = todoRepository.save(todo);
+                    save.updateTodoCheckAt();
                     todoTimeline.updateTodo(save);
                     todoTimelineRepository.save(todoTimeline);
                 }, () -> {
@@ -71,6 +72,7 @@ public class TodoService {
                             .likeTodo(0)
                             .build();
                     todo.updateTodoTimeline(todoTimeline);
+                    todo.updateTodoCheckAt();
                     todoTimelineRepository.save(todoTimeline);
                     todoRepository.save(todo);
                 });
@@ -159,6 +161,7 @@ public class TodoService {
         Todo todo = todoRepository.findByIdAndAccount(todoId, currentAccount)
                 .orElseThrow(() -> new TodoException(StatusCode.NOT_FOUNT_TODO));
         todo.updateTodoIsChecked(true);
+        todo.updateTodoCheckAt();
         return TodoResponse.of(todo, true);
     }
 
@@ -172,6 +175,7 @@ public class TodoService {
         if (todo.isProof())
             throw new TodoException(StatusCode.ALREADY_PROOF_TODO);
         todo.updateTodoIsChecked(false);
+        todo.updateTodoCheckAt();
         return TodoResponse.of(todo, true);
     }
 
