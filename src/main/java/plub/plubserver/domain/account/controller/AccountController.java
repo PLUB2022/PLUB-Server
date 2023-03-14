@@ -42,7 +42,7 @@ public class AccountController {
     }
 
     @ApiOperation(value = "회원 프로필 수정 (프로필 사진, 인사말, 닉네임)")
-    @PostMapping("/profile")
+    @PostMapping("/me/profile")
     public ApiResponse<AccountInfoResponse> updateProfile(
             @Valid @RequestBody AccountProfileRequest accountProfileRequest
     ) {
