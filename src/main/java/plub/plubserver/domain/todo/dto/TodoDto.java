@@ -2,9 +2,7 @@ package plub.plubserver.domain.todo.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Builder;
-import org.springframework.data.domain.Page;
 import org.springframework.format.annotation.DateTimeFormat;
-import plub.plubserver.common.dto.PageResponse;
 import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.todo.model.Todo;
 import plub.plubserver.domain.todo.model.TodoLike;
@@ -35,6 +33,7 @@ public class TodoDto {
         }
         return false;
     }
+
     public record CreateTodoRequest(
             @NotBlank @Size(max = 15)
             String content,
@@ -100,24 +99,20 @@ public class TodoDto {
         public TodoTimelineResponse {
         }
 
-        public static TodoTimelineResponse of(TodoTimeline todoTimeline, Account currentAccount) {
-            List<Todo> todoList = new ArrayList<>();
-            List<TodoResponse> todoResponseList = new ArrayList<>();
+        public static TodoTimelineResponse of(TodoTimeline todoTimeline, Account account, List<Todo> todoList) {
 
-            for (Todo todo : todoTimeline.getTodoList()) {
-                todoList.add(todo);
-            }
+            List<TodoResponse> todoResponseList = todoList
+                    .stream()
+                    .map(todo -> TodoResponse.of(todo, IsAuthor(account, todo)))
+                    .toList();
 
-            for (Todo todo : todoList) {
-                todoResponseList.add(TodoResponse.of(todo, IsAuthor(currentAccount, todo)));
-            }
 
             return TodoTimelineResponse.builder()
                     .todoTimelineId(todoTimeline.getId())
                     .totalLikes(todoTimeline.getLikeTodo())
                     .date(todoTimeline.getDate())
-                    .isAuthor(IsAuthor(currentAccount, todoTimeline.getTodoList().get(0)))
-                    .isLike(IsLike(currentAccount, todoTimeline))
+                    .isAuthor(IsAuthor(account, todoTimeline.getTodoList().get(0)))
+                    .isLike(IsLike(account, todoTimeline))
                     .todoList(todoResponseList)
                     .build();
         }
@@ -135,9 +130,11 @@ public class TodoDto {
 
 
     public record TodoListResponse(
+            Long todoTimelineId,
             AccountInfo accountInfo,
             int totalLikes,
             boolean isAuthor,
+            boolean isLike,
             List<TodoResponse> todoList
     ) {
         @Builder
@@ -152,34 +149,15 @@ public class TodoDto {
             }
 
             return TodoListResponse.builder()
+                    .todoTimelineId(todoList.get(0).getTodoTimeline().getId())
                     .accountInfo(AccountInfo.of(todoList.get(0).getAccount()))
                     .totalLikes(likes)
                     .isAuthor(IsAuthor(currentAccount, todoList.get(0)))
+                    .isLike(IsLike(currentAccount, todoList.get(0).getTodoTimeline()))
                     .todoList(todoResponseList)
                     .build();
         }
 
-    }
-
-
-    public record TodoTimelineListResponse(
-            List<TodoTimelineResponse> todoTimelineList
-    ) {
-        @Builder
-        public TodoTimelineListResponse {
-        }
-
-        public static TodoTimelineListResponse of(List<TodoTimeline> todoTimelineList, Account currentAccount) {
-            List<TodoTimelineResponse> todoTimelineResponseList = new ArrayList<>();
-
-            for (TodoTimeline todoTimeline : todoTimelineList) {
-                todoTimelineResponseList.add(TodoTimelineResponse.of(todoTimeline, currentAccount));
-            }
-
-            return TodoTimelineListResponse.builder()
-                    .todoTimelineList(todoTimelineResponseList)
-                    .build();
-        }
     }
 
 
@@ -188,6 +166,7 @@ public class TodoDto {
             LocalDate date,
             int totalLikes,
             boolean isAuthor,
+            boolean isLike,
             AccountInfo accountInfo,
             List<TodoResponse> todoList
     ) {
@@ -195,71 +174,24 @@ public class TodoDto {
         public TodoTimelineAllResponse {
         }
 
-        public static TodoTimelineAllResponse of(TodoTimeline todoTimeline, Account account) {
-            List<Todo> todoList = new ArrayList<>();
-            List<TodoResponse> todoResponseList = new ArrayList<>();
+        public static TodoTimelineAllResponse of(TodoTimeline todoTimeline, Account account, List<Todo> todoList) {
 
-            for (Todo todo : todoTimeline.getTodoList()) {
-                todoList.add(todo);
-            }
-
-            for (Todo todo : todoList) {
-                todoResponseList.add(TodoResponse.of(todo, IsAuthor(account, todo)));
-            }
+            List<TodoResponse> todoResponseList = todoList
+                    .stream()
+                    .map(todo -> TodoResponse.of(todo, IsAuthor(account, todo)))
+                    .toList();
 
             return TodoTimelineAllResponse.builder()
                     .accountInfo(AccountInfo.of(todoTimeline.getAccount()))
                     .todoTimelineId(todoTimeline.getId())
                     .totalLikes(todoTimeline.getLikeTodo())
                     .isAuthor(IsAuthor(account, todoTimeline.getTodoList().get(0)))
+                    .isLike(IsLike(account, todoTimeline))
                     .date(todoTimeline.getDate())
                     .todoList(todoResponseList)
                     .build();
         }
 
-    }
-
-    public record TodoTimelineAllPageResponse(
-            PageResponse<TodoTimelineAllResponse> response
-    ) {
-        @Builder
-        public TodoTimelineAllPageResponse {
-        }
-
-        public static TodoTimelineAllPageResponse of(Page<TodoTimelineAllResponse> todoTimelinePage) {
-            return TodoTimelineAllPageResponse.builder()
-                    .response(PageResponse.of(todoTimelinePage))
-                    .build();
-        }
-
-        public static TodoTimelineAllPageResponse ofCursor(PageResponse<TodoTimelineAllResponse> todoTimelinePage) {
-            return TodoTimelineAllPageResponse.builder()
-                    .response(todoTimelinePage)
-                    .build();
-        }
-    }
-
-
-    public record TodoTimelinePageResponse(
-            AccountInfo accountInfo,
-            PageResponse<TodoTimelineResponse> response
-    ) {
-        @Builder
-        public TodoTimelinePageResponse {
-        }
-
-        public static TodoTimelinePageResponse of(Page<TodoTimelineResponse> todoTimelinePage, AccountInfo accountInfo) {
-            return TodoTimelinePageResponse.builder()
-                    .response(PageResponse.of(todoTimelinePage))
-                    .accountInfo(accountInfo)
-                    .build();
-        }
-
-        public static TodoTimelinePageResponse ofCursor(PageResponse<TodoTimelineResponse> todoTimelinePage) {
-            return TodoTimelinePageResponse.builder()
-                    .response(todoTimelinePage)
-                    .build();
-        }
     }
 
 

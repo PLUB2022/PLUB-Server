@@ -103,9 +103,7 @@ public class TodoService {
     public TodoListResponse getTodoTimelineList(Account currentAccount, Long plubbingId, Long todoTimelineId) {
         Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
         plubbingService.checkMember(currentAccount, plubbing);
-        List<Todo> todoList = todoTimelineRepository.findById(todoTimelineId)
-                .orElseThrow(() -> new TodoException(StatusCode.NOT_FOUNT_TODO_TIMELINE))
-                .getTodoList();
+        List<Todo> todoList = todoRepository.findAllByTodoTimelineAndPlubbing(getTodoTimeline(todoTimelineId), plubbing);
         int likes = todoTimelineRepository.findById(todoTimelineId)
                 .orElseThrow(() -> new TodoException(StatusCode.NOT_FOUNT_TODO_TIMELINE))
                 .getLikeTodo();
@@ -118,7 +116,12 @@ public class TodoService {
         Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
         plubbingService.checkMember(currentAccount, plubbing);
         Optional<TodoTimeline> todoTimeline = todoTimelineRepository.findByDateAndAccountAndPlubbing(date, currentAccount, plubbing);
-        return todoTimeline.isPresent() ? TodoTimelineResponse.of(todoTimeline.get(), currentAccount) : TodoTimelineResponse.ofTemp(date);
+
+        return todoTimeline.map(timeline ->
+        {
+            List<Todo> todoList = todoRepository.findAllByTodoTimelineAndPlubbing(timeline, plubbing);
+            return TodoTimelineResponse.of(timeline, currentAccount, todoList);
+        }).orElseGet(() -> TodoTimelineResponse.ofTemp(date));
     }
 
     // 투두 삭제
@@ -150,18 +153,18 @@ public class TodoService {
 
     // 투두 완료
     @Transactional
-    public TodoIdResponse completeTodo(Account currentAccount, Long plubbingId, Long todoId) {
+    public TodoResponse completeTodo(Account currentAccount, Long plubbingId, Long todoId) {
         Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
         plubbingService.checkMember(currentAccount, plubbing);
         Todo todo = todoRepository.findByIdAndAccount(todoId, currentAccount)
                 .orElseThrow(() -> new TodoException(StatusCode.NOT_FOUNT_TODO));
         todo.updateTodoIsChecked(true);
-        return new TodoIdResponse(todo.getId());
+        return TodoResponse.of(todo, true);
     }
 
     // 투두 완료 취소
     @Transactional
-    public TodoIdResponse cancelTodo(Account currentAccount, Long plubbingId, Long todoId) {
+    public TodoResponse cancelTodo(Account currentAccount, Long plubbingId, Long todoId) {
         Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
         plubbingService.checkMember(currentAccount, plubbing);
         Todo todo = todoRepository.findByIdAndAccount(todoId, currentAccount)
@@ -169,7 +172,7 @@ public class TodoService {
         if (todo.isProof())
             throw new TodoException(StatusCode.ALREADY_PROOF_TODO);
         todo.updateTodoIsChecked(false);
-        return new TodoIdResponse(todo.getId());
+        return TodoResponse.of(todo, true);
     }
 
     // 투두 인증
@@ -234,7 +237,10 @@ public class TodoService {
 
         Page<TodoTimelineResponse> todoTimelinePage =
                 todoTimelineRepository.findByAccountAndPlubbing(account, plubbing, pageable, cursorId, date)
-                        .map(todoTimeline -> TodoTimelineResponse.of(todoTimeline, account));
+                        .map(todoTimeline -> {
+                            List<Todo> todoList = todoRepository.findAllByTodoTimelineAndPlubbing(todoTimeline, plubbing);
+                            return TodoTimelineResponse.of(todoTimeline, account, todoList);
+                        });
 
         Long totalElements = todoTimelineRepository.countAllByPlubbing(plubbing);
         return PageResponse.ofCursor(todoTimelinePage, totalElements);
@@ -258,7 +264,11 @@ public class TodoService {
 
         Page<TodoTimelineAllResponse> timelineResponsePage =
                 todoTimelineRepository.findAllByPlubbing(plubbing, pageable, cursorId, date)
-                        .map(todoTimeline -> TodoTimelineAllResponse.of(todoTimeline, currentAccount));
+                        .map(todoTimeline ->
+                        {
+                            List<Todo> todoList = todoRepository.findAllByTodoTimelineAndPlubbing(todoTimeline, plubbing);
+                            return TodoTimelineAllResponse.of(todoTimeline, currentAccount, todoList);
+                        });
 
         Long totalElements = todoTimelineRepository.countAllByPlubbing(plubbing);
         return PageResponse.ofCursor(timelineResponsePage, totalElements);
@@ -296,7 +306,8 @@ public class TodoService {
                     todoTimeline.addLike();
                     todoLike.updateIsLike();
                 });
-        return TodoTimelineResponse.of(todoTimeline, currentAccount);
+        List<Todo> todoList = todoRepository.findAllByTodoTimelineAndPlubbing(todoTimeline, plubbing);
+        return TodoTimelineResponse.of(todoTimeline, currentAccount, todoList);
     }
 
 }

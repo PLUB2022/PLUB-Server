@@ -117,7 +117,7 @@ public class TodoController {
 
     @ApiOperation(value = "투두 리스트 완료 (캘린더 용)")
     @PutMapping("/{plubbingId}/todolist/{todoId}/complete")
-    public ApiResponse<TodoIdResponse> completeTodoList(
+    public ApiResponse<TodoResponse> completeTodoList(
             @PathVariable Long plubbingId,
             @PathVariable Long todoId
     ) {
@@ -127,7 +127,7 @@ public class TodoController {
 
     @ApiOperation(value = "투두 리스트 완료 취소 (캘린더 용)")
     @PutMapping("/{plubbingId}/todolist/{todoId}/cancel")
-    public ApiResponse<TodoIdResponse> cancelTodoList(
+    public ApiResponse<TodoResponse> cancelTodoList(
             @PathVariable Long plubbingId,
             @PathVariable Long todoId
     ) {

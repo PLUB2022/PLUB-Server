@@ -3,6 +3,7 @@ package plub.plubserver.domain.todo.model;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
+import plub.plubserver.common.model.BaseEntity;
 import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.plubbing.model.Plubbing;
 
@@ -16,7 +17,7 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class TodoTimeline {
+public class TodoTimeline extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
