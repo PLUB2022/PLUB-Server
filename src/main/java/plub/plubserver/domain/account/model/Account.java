@@ -5,6 +5,7 @@ import plub.plubserver.common.exception.StatusCode;
 import plub.plubserver.common.model.BaseEntity;
 import plub.plubserver.domain.account.exception.AccountException;
 import plub.plubserver.domain.archive.model.Archive;
+import plub.plubserver.domain.calendar.model.Calendar;
 import plub.plubserver.domain.calendar.model.CalendarAttend;
 import plub.plubserver.domain.feed.model.Feed;
 import plub.plubserver.domain.feed.model.FeedComment;
@@ -132,6 +133,9 @@ public class Account extends BaseEntity {
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TodoLike> todoLikeList = new ArrayList<>();
 
+    // 회원(1) - 일정(다)
+    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Calendar> calendars = new ArrayList<>();
 
     public void setIdForTest(Long id) {
         this.id = id;

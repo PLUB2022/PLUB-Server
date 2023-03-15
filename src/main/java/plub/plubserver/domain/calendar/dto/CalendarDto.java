@@ -3,6 +3,7 @@ package plub.plubserver.domain.calendar.dto;
 import lombok.Builder;
 import org.springframework.data.domain.Page;
 import plub.plubserver.common.dto.PageResponse;
+import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.calendar.model.Calendar;
 import plub.plubserver.domain.calendar.model.CalendarAlarmType;
 import plub.plubserver.domain.plubbing.model.Plubbing;
@@ -37,10 +38,11 @@ public class CalendarDto {
         public CreateCalendarRequest {
         }
 
-        public Calendar toEntity(Long hostId, Plubbing plubbing, CalendarAlarmType calendarAlarmType) {
+        public Calendar toEntity(Account account, Plubbing plubbing, CalendarAlarmType calendarAlarmType) {
             return Calendar.builder()
                     .title(title)
                     .memo(memo)
+                    .account(account)
                     .startedAt(startedAt)
                     .endedAt(endedAt)
                     .startTime(startTime)
@@ -50,7 +52,6 @@ public class CalendarDto {
                     .roadAddress(roadAddress)
                     .placeName(placeName)
                     .plubbing(plubbing)
-                    .hostId(hostId)
                     .alarmType(calendarAlarmType)
                     .build();
         }
@@ -92,14 +93,16 @@ public class CalendarDto {
             String address,
             String roadAddress,
             String placeName,
+            boolean isAuthor,
             String alarmType,
+
             CalendarAttendList calendarAttendList
     ) {
         @Builder
         public CalendarCardResponse {
         }
 
-        public static CalendarCardResponse of(Calendar calendar, CalendarAttendList calendarAttendList) {
+        public static CalendarCardResponse of(Calendar calendar, boolean isAuthor, CalendarAttendList calendarAttendList) {
             return CalendarCardResponse.builder()
                     .calendarId(calendar.getId())
                     .title(calendar.getTitle())
@@ -112,6 +115,7 @@ public class CalendarDto {
                     .address(calendar.getAddress())
                     .roadAddress(calendar.getRoadAddress())
                     .placeName(calendar.getPlaceName())
+                    .isAuthor(isAuthor)
                     .alarmType(calendar.getAlarmType().toString())
                     .calendarAttendList(calendarAttendList)
                     .build();

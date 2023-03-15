@@ -2,6 +2,7 @@ package plub.plubserver.domain.calendar.model;
 
 import lombok.*;
 import plub.plubserver.common.model.BaseEntity;
+import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.calendar.dto.CalendarDto;
 import plub.plubserver.domain.plubbing.model.Plubbing;
 
@@ -34,7 +35,6 @@ public class Calendar extends BaseEntity {
     private String roadAddress;
     private String placeName;
 
-    private Long hostId;
 
     @Enumerated(EnumType.STRING)
     private CalendarAlarmType alarmType;
@@ -43,6 +43,11 @@ public class Calendar extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "plubbing_id")
     private Plubbing plubbing;
+
+    // 플러빙 일자(다) - 작성자(1)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "account_id")
+    private Account account;
 
     // 플러빙 일자(1) - 참여자(다)
     @OneToMany(mappedBy = "calendar", cascade = CascadeType.ALL, orphanRemoval = true)

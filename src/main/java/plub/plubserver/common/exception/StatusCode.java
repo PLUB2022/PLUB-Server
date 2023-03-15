@@ -112,6 +112,7 @@ public enum StatusCode {
      */
     NOT_FOUNT_CALENDAR(404, 7500, "not found calendar error."),
     NOT_FOUNT_CALENDAR_ATTEND(404, 7510, "not fount calendar attend."),
+    NOT_AUTHORITY_CALENDAR(403, 7520, "not authority calendar error."),
 
     /**
      * Feed
