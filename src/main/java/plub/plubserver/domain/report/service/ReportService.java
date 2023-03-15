@@ -7,12 +7,15 @@ import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.account.service.AccountService;
 import plub.plubserver.domain.notification.service.NotificationService;
 import plub.plubserver.domain.plubbing.model.Plubbing;
-import plub.plubserver.domain.plubbing.service.PlubbingService;
 import plub.plubserver.domain.report.config.ReportMessage;
+import plub.plubserver.domain.report.dto.ReportDto.*;
 import plub.plubserver.domain.report.dto.ReportDto.ReportResponse;
 import plub.plubserver.domain.report.model.Report;
 import plub.plubserver.domain.report.model.ReportTarget;
+import plub.plubserver.domain.report.model.ReportType;
 import plub.plubserver.domain.report.repositoy.ReportRepository;
+
+import java.util.List;
 
 import static plub.plubserver.domain.report.config.ReportConstant.REPORT_PLUBBING_PAUSE_COUNT;
 import static plub.plubserver.domain.report.config.ReportConstant.REPORT_WARNING_PUSH_COUNT;
@@ -60,5 +63,13 @@ public class ReportService {
             return ReportResponse.of(report, ReportMessage.REPORT_HOST_NOTIFY);
         }
         return ReportResponse.of(report, ReportMessage.REPORT_SUCCESS);
+    }
+
+    public List<ReportTypeResponse> getReportType() {
+        return List.of(
+                new ReportTypeResponse(ReportType.BAD_WORDS.toString(), ReportType.BAD_WORDS.getDetailContent()),
+                new ReportTypeResponse(ReportType.FALSE_FACT.toString(), ReportType.FALSE_FACT.getDetailContent()),
+                new ReportTypeResponse(ReportType.ADVERTISEMENT.toString(), ReportType.ADVERTISEMENT.getDetailContent()),
+                new ReportTypeResponse(ReportType.ETC.toString(), ReportType.ETC.getDetailContent()));
     }
 }

@@ -52,4 +52,13 @@ public class ReportDto {
                     .build();
         }
     }
+
+    public record ReportTypeResponse(
+            String reportType,
+            String detailContent
+    ) {
+        @Builder
+        public ReportTypeResponse {
+        }
+    }
 }
