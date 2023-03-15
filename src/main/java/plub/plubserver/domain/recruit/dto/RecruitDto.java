@@ -23,7 +23,9 @@ public class RecruitDto {
     public record ApplyRecruitRequest(
             List<AnswerRequest> answers
     ) {
-        @Builder public ApplyRecruitRequest {}
+        @Builder
+        public ApplyRecruitRequest {
+        }
     }
 
     public record JoinedAccountDto(
@@ -181,7 +183,9 @@ public class RecruitDto {
             Long plubbingId,
             boolean isBookmarked
     ) {
-        @Builder public BookmarkResponse {}
+        @Builder
+        public BookmarkResponse {
+        }
     }
 
     public record RecruitCardResponse(
@@ -203,7 +207,10 @@ public class RecruitDto {
             int views
 
     ) {
-        @Builder public RecruitCardResponse {}
+        @Builder
+        public RecruitCardResponse {
+        }
+
         public static RecruitCardResponse of(Recruit recruit, boolean isBookmarked) {
             Plubbing plubbing = recruit.getPlubbing();
             PlubbingPlace place = plubbing.getPlubbingPlace();
@@ -231,7 +238,7 @@ public class RecruitDto {
     }
 
     public record RecruitMyApplicationResponse(
-            Long RecruitId,
+            String recruitDate,
             PlubbingInfoResponse plubbingInfo,
             List<QuestionAnswerResponse> answers
     ) {
@@ -242,9 +249,8 @@ public class RecruitDto {
         public static RecruitMyApplicationResponse of(AppliedAccount appliedAccount) {
             Recruit recruit = appliedAccount.getRecruit();
             Plubbing plubbing = recruit.getPlubbing();
-            PlubbingPlace place = plubbing.getPlubbingPlace();
             return RecruitMyApplicationResponse.builder()
-                    .RecruitId(recruit.getId())
+                    .recruitDate(appliedAccount.getCreatedAt())
                     .plubbingInfo(PlubbingInfoResponse.of(plubbing))
                     .answers(appliedAccount.getAnswerList()
                             .stream()
@@ -252,7 +258,5 @@ public class RecruitDto {
                             .toList())
                     .build();
         }
-
     }
-
 }
