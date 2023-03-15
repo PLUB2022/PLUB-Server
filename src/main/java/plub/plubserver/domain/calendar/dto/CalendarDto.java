@@ -94,6 +94,7 @@ public class CalendarDto {
             String roadAddress,
             String placeName,
             boolean isAuthor,
+            boolean isEditable,
             String alarmType,
 
             CalendarAttendList calendarAttendList
@@ -102,7 +103,12 @@ public class CalendarDto {
         public CalendarCardResponse {
         }
 
-        public static CalendarCardResponse of(Calendar calendar, boolean isAuthor, CalendarAttendList calendarAttendList) {
+        public static CalendarCardResponse of(
+                Calendar calendar,
+                boolean isAuthor,
+                boolean isEditable,
+                CalendarAttendList calendarAttendList
+        ) {
             return CalendarCardResponse.builder()
                     .calendarId(calendar.getId())
                     .title(calendar.getTitle())
@@ -116,6 +122,7 @@ public class CalendarDto {
                     .roadAddress(calendar.getRoadAddress())
                     .placeName(calendar.getPlaceName())
                     .isAuthor(isAuthor)
+                    .isEditable(isEditable)
                     .alarmType(calendar.getAlarmType().toString())
                     .calendarAttendList(calendarAttendList)
                     .build();

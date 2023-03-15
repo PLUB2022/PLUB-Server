@@ -51,7 +51,8 @@ public class CalendarService {
                 .collect(Collectors.toList());
         CalendarAttendList list = CalendarAttendList.of(calendarAttendList);
         boolean isAuthor = isAuthorCalendar(currentAccount, calendar);
-        return CalendarCardResponse.of(calendar, isAuthor, list);
+        boolean isEditable = isEditable(currentAccount, calendar);
+        return CalendarCardResponse.of(calendar, isAuthor, isEditable, list);
     }
 
     public void checkCalendarRole(Account account, Calendar calendar) {
@@ -61,7 +62,15 @@ public class CalendarService {
     }
 
     public boolean isAuthorCalendar(Account account, Calendar calendar) {
+        if (calendar.getAccount() == null) {
+            throw new CalendarException(StatusCode.NOT_AUTHORITY_CALENDAR);
+        }
         return calendar.getAccount().getId().equals(account.getId());
+    }
+
+    public boolean isEditable(Account account, Calendar calendar) {
+        return account.getId().equals(calendar.getAccount().getId())
+                || account.getId().equals(calendar.getPlubbing().getHost().getId());
     }
 
     public CreateCalendarRequest checkCalender(CreateCalendarRequest request) {
@@ -200,7 +209,8 @@ public class CalendarService {
                             .toList();
                     CalendarAttendList list = CalendarAttendList.of(calendarAttendList);
                     boolean isAuthor = isAuthorCalendar(currentAccount, calendar);
-                    return CalendarCardResponse.of(calendar, isAuthor, list);
+                    boolean isEditable = isEditable(currentAccount, calendar);
+                    return CalendarCardResponse.of(calendar, isAuthor, isEditable, list);
                 });
         Long totalElements = calendarRepository.countAllByPlubbing(plubbingId);
         PageResponse<CalendarCardResponse> response = PageResponse.ofCursor(calendarPage, totalElements);
