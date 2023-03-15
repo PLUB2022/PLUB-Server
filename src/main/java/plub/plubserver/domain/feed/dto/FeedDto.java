@@ -50,8 +50,6 @@ public class FeedDto {
                     .viewType(ViewType.NORMAL)
                     .pin(false)
                     .pinedAt(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
-                    .likeCount(0)
-                    .commentCount(0)
                     .plubbing(plubbing)
                     .account(account)
                     .build();
@@ -81,8 +79,8 @@ public class FeedDto {
             String feedImage,
             String createdAt,
             Boolean pin,
-            int likeCount,
-            int commentCount,
+            Long likeCount,
+            Long commentCount,
             String profileImage,
             String nickname,
             Long plubbingId,
@@ -93,7 +91,7 @@ public class FeedDto {
         public FeedCardResponse {
         }
 
-        public static FeedCardResponse of(Feed feed, Boolean isAuthor, Boolean isHost) {
+        public static FeedCardResponse of(Feed feed, Boolean isAuthor, Boolean isHost, Long likeCount, Long commentCount) {
             return FeedCardResponse.builder()
                     .feedId(feed.getId())
                     .feedType(feed.getFeedType().toString())
@@ -103,8 +101,8 @@ public class FeedDto {
                     .feedImage(feed.getFeedImage())
                     .createdAt(feed.getCreatedAt())
                     .pin(feed.isPin())
-                    .likeCount(feed.getLikeCount())
-                    .commentCount(feed.getCommentCount())
+                    .likeCount(likeCount)
+                    .commentCount(commentCount)
                     .profileImage(feed.getAccount().getProfileImage())
                     .nickname(feed.getAccount().getNickname())
                     .plubbingId(feed.getPlubbing().getId())
@@ -141,14 +139,14 @@ public class FeedDto {
             String nickname,
             Boolean isAuthor,
             Boolean isHost,
-            int likeCount,
-            int commentCount
+            Long likeCount,
+            Long commentCount
     ) {
         @Builder
         public FeedResponse {
         }
 
-        public static FeedResponse of(Feed feed, Boolean isAuthor, Boolean isHost) {
+        public static FeedResponse of(Feed feed, Boolean isAuthor, Boolean isHost, Long likeCount, Long commentCount) {
             return FeedResponse.builder()
                     .feedId(feed.getId())
                     .feedType(feed.getFeedType().toString())
@@ -161,10 +159,10 @@ public class FeedDto {
                     .pin(feed.isPin())
                     .profileImage(feed.getAccount().getProfileImage())
                     .nickname(feed.getAccount().getNickname())
-                    .likeCount(feed.getLikeCount())
+                    .likeCount(likeCount)
+                    .commentCount(commentCount)
                     .isAuthor(isAuthor)
                     .isHost(isHost)
-                    .commentCount(feed.getCommentCount())
                     .build();
         }
     }

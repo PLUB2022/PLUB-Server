@@ -65,7 +65,7 @@ public class FeedService {
         Boolean isHost = plubbingService.isHost(account, plubbing);
         Pageable sortedPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(Sort.Direction.DESC, "createdAt"));
         Page<FeedCardResponse> feedCardList = feedRepository.findAllByPlubbingAndPinAndVisibilityCursor(plubbing, false, true, sortedPageable, cursorId)
-                .map(it -> FeedCardResponse.of(it, isFeedAuthor(account, it), isHost));
+                .map(it -> FeedCardResponse.of(it, isFeedAuthor(account, it), isHost, getLikeCount(it), getCommentCount(it)));
         Long totalElements = feedRepository.countAll();
         return PageResponse.ofCursor(feedCardList, totalElements);
     }
@@ -75,7 +75,7 @@ public class FeedService {
         plubbingService.checkMember(account, plubbing);
         Boolean isHost = plubbingService.isHost(account, plubbing);
         List<FeedCardResponse> pinedFeedCardList = feedRepository.findAllByPlubbingAndPinAndVisibility(plubbing, true, true, Sort.by(Sort.Direction.DESC, "pinedAt"))
-                .stream().map((Feed feed) -> FeedCardResponse.of(feed, isFeedAuthor(account, feed), isHost)).toList();
+                .stream().map((Feed feed) -> FeedCardResponse.of(feed, isFeedAuthor(account, feed), isHost, getLikeCount(feed), getCommentCount(feed))).toList();
         return FeedListResponse.of(pinedFeedCardList);
     }
 
@@ -89,7 +89,7 @@ public class FeedService {
         checkFeedAuthor(account, feed);
         feed.updateFeed(updateFeedRequest);
         Boolean isHost = plubbingService.isHost(account, feed.getPlubbing());
-        return FeedResponse.of(feed, true, isHost);
+        return FeedResponse.of(feed, true, isHost, getLikeCount(feed), getCommentCount(feed));
     }
 
     @Transactional
@@ -110,7 +110,7 @@ public class FeedService {
         checkFeedStatus(feed);
         plubbingService.checkMember(account, feed.getPlubbing());
         Boolean isHost = plubbingService.isHost(account, feed.getPlubbing());
-        return FeedResponse.of(feed, isFeedAuthor(account, feed), isHost);
+        return FeedResponse.of(feed, isFeedAuthor(account, feed), isHost, getLikeCount(feed), getCommentCount(feed));
     }
 
     @Transactional
@@ -133,11 +133,9 @@ public class FeedService {
         plubbingService.checkMember(account, feed.getPlubbing());
         if (!feedLikeRepository.existsByAccountAndFeed(account, feed)) {
             feedLikeRepository.save(FeedLike.builder().feed(feed).account(account).build());
-            feed.addLike();
             return new FeedMessage(feedId + ", Like Success.");
         } else {
             feedLikeRepository.deleteByAccountAndFeed(account, feed);
-            feed.subLike();
             return new FeedMessage(feedId + ", Like Cancel.");
         }
     }
@@ -155,7 +153,7 @@ public class FeedService {
         Long commentGroupId = nextCursorId == null ? null : getFeedComment(nextCursorId).getCommentGroupId();
         Page<FeedCommentResponse> feedCommentList = feedCommentRepository.findAllByFeed(feed, pageable, commentGroupId, cursorId)
                 .map(it -> FeedCommentResponse.of(it, isCommentAuthor(account, it), isFeedAuthor(account, feed)));
-        Long totalElements = (long) feed.getCommentCount();
+        Long totalElements = getCommentCount(feed);
         return PageResponse.ofCursor(feedCommentList, totalElements);
     }
 
@@ -186,8 +184,6 @@ public class FeedService {
         } else {
             comment.setCommentGroupId(comment.getId());
         }
-
-        feed.addComment();
 
         // 작성자에게 푸시 알림
         Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
@@ -227,7 +223,6 @@ public class FeedService {
         if (feedComment.getChildren().size() != 0)
             deleteChildComment(feedComment);
 
-        feedComment.getFeed().subComment();
         feedComment.softDelete();
         return new CommentMessage("soft delete comment");
     }
@@ -237,7 +232,6 @@ public class FeedService {
             return;
         feedComment.getChildren().forEach(it -> {
             it.softDelete();
-            it.getFeed().subComment();
             deleteChildComment(it);
             feedCommentRepository.save(it);
         });
@@ -247,7 +241,7 @@ public class FeedService {
         Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
         Pageable sortedPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(Sort.Direction.DESC, "createdAt"));
         Page<FeedCardResponse> myFeedCardList = feedRepository.findAllByPlubbingAndAccountAndVisibility(plubbing, account, true, sortedPageable, cursorId)
-                .map((Feed feed) -> FeedCardResponse.of(feed, true, true));
+                .map((Feed feed) -> FeedCardResponse.of(feed, true, true, getLikeCount(feed), getCommentCount(feed)));
         Long totalElements = CursorUtils.getTotalElements(myFeedCardList.getTotalElements(), cursorId);
         PageResponse<FeedCardResponse> response = PageResponse.ofCursor(myFeedCardList, totalElements);
         return MyFeedListResponse.of(plubbing, response);
@@ -285,6 +279,14 @@ public class FeedService {
 
     public Boolean isCommentAuthor(Account account, FeedComment feedComment) {
         return feedComment.getAccount().getId().equals(account.getId());
+    }
+
+    public Long getCommentCount(Feed feed) {
+        return feedCommentRepository.countAllByVisibilityAndFeed(true, feed);
+    }
+
+    public Long getLikeCount(Feed feed) {
+        return feedLikeRepository.countAllByVisibilityAndFeed(true, feed);
     }
 
     // 더미용

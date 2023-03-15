@@ -9,4 +9,6 @@ public interface FeedLikeRepository extends JpaRepository<FeedLike, Long> {
     boolean existsByAccountAndFeed(Account account, Feed feed);
 
     void deleteByAccountAndFeed(Account account, Feed feed);
+
+    Long countAllByVisibilityAndFeed(boolean visibility, Feed feed);
 }

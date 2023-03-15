@@ -33,9 +33,6 @@ public class Feed extends BaseEntity {
     private boolean pin;
     protected String pinedAt;
 
-    private int likeCount;
-    private int commentCount;
-
     @Enumerated(EnumType.STRING)
     private FeedType feedType;
     @Enumerated(EnumType.STRING)
@@ -66,8 +63,6 @@ public class Feed extends BaseEntity {
                 .viewType(ViewType.SYSTEM)
                 .pin(false)
                 .account(plubbing.getHost())
-                .likeCount(0)
-                .commentCount(0)
                 .plubbing(plubbing)
                 .build();
     }
@@ -84,22 +79,6 @@ public class Feed extends BaseEntity {
         this.content = contentValue;
         this.feedImage = feedImageValue;
         this.feedType = FeedType.valueOf(request.feedType());
-    }
-
-    public void addLike() {
-        this.likeCount++;
-    }
-
-    public void subLike() {
-        this.likeCount--;
-    }
-
-    public void addComment() {
-        this.commentCount++;
-    }
-
-    public void subComment() {
-        this.commentCount--;
     }
 
     public void pin() {
