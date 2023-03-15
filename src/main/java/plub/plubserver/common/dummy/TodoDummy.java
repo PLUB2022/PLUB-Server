@@ -36,7 +36,7 @@ public class TodoDummy {
         for (int i = 1; i < 11; i++) {
             TodoDto.CreateTodoRequest form = TodoDto.CreateTodoRequest.builder()
                     .date(LocalDate.parse("2023-01-" + (i + 10)))
-                    .content("todo content " + i)
+                    .content("2023-01-" + (i + 10) + " todo content " + i)
                     .build();
 
             todoService.createTodo(admin1, 1L, form);
@@ -47,7 +47,7 @@ public class TodoDummy {
         for (int i = 11; i < 21; i++) {
             TodoDto.CreateTodoRequest form = TodoDto.CreateTodoRequest.builder()
                     .date(LocalDate.parse("2023-01-" + (i + 10)))
-                    .content("todo content " + i)
+                    .content("테스트입니다" + (i + 10) + " todo content " + i)
                     .build();
 
             todoService.createTodo(admin1, 1L, form);
@@ -57,7 +57,7 @@ public class TodoDummy {
         for (int i = 1; i < 11; i++) {
             TodoDto.CreateTodoRequest form = TodoDto.CreateTodoRequest.builder()
                     .date(LocalDate.parse("2023-01-" + (i + 12)))
-                    .content("todo content " + i)
+                    .content("Admin2-" + (i + 12) + " todo content " + i)
                     .build();
 
             todoService.createTodo(admin2, 1L, form);
