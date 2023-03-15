@@ -36,6 +36,9 @@ public class ArchiveRepositoryImpl implements ArchiveRepositoryCustom {
     }
 
     private BooleanExpression getCursorId(Long cursorId) {
-        return cursorId != null ? archive.id.loe(cursorId) : null;
+        return cursorId == null || cursorId == 0 ? null : archive.sequence.lt(cursorId)
+                .and(archive.id.gt(cursorId))
+                .or(archive.sequence.lt(cursorId));
+
     }
 }
