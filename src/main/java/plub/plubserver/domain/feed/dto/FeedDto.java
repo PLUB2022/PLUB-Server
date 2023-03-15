@@ -1,9 +1,10 @@
 package plub.plubserver.domain.feed.dto;
 
 import lombok.Builder;
+import plub.plubserver.common.dto.PageResponse;
 import plub.plubserver.domain.account.model.Account;
-import plub.plubserver.domain.feed.model.FeedType;
 import plub.plubserver.domain.feed.model.Feed;
+import plub.plubserver.domain.feed.model.FeedType;
 import plub.plubserver.domain.feed.model.ViewType;
 import plub.plubserver.domain.plubbing.model.Plubbing;
 
@@ -12,6 +13,8 @@ import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+
+import static plub.plubserver.domain.plubbing.dto.PlubbingDto.PlubbingInfoResponse;
 
 public class FeedDto {
 
@@ -170,5 +173,21 @@ public class FeedDto {
     }
 
     public record FeedMessage(Object result) {
+    }
+
+    public record MyFeedListResponse(
+            PlubbingInfoResponse plubbingInfo,
+            PageResponse<FeedCardResponse> myFeedList
+    ) {
+        @Builder
+        public MyFeedListResponse {
+        }
+
+        public static MyFeedListResponse of(Plubbing plubbing, PageResponse<FeedCardResponse> myFeedList) {
+            return MyFeedListResponse.builder()
+                    .plubbingInfo(PlubbingInfoResponse.of(plubbing))
+                    .myFeedList(myFeedList)
+                    .build();
+        }
     }
 }

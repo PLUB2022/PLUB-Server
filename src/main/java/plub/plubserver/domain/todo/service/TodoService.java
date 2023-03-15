@@ -199,13 +199,15 @@ public class TodoService {
     }
 
     // 내 타임라인 조회
-    public PageResponse<TodoTimelineResponse> getMyTodoTimelinePage(
+    public MyTodoListResponse getMyTodoTimelinePage(
             Account account,
             Long plubbingId,
             Pageable pageable,
             Long cursorId
     ) {
-        return getTodoTimelinePageResponse(plubbingId, pageable, account, cursorId);
+        Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
+        PageResponse<TodoTimelineResponse> response = getTodoTimelinePageResponse(plubbingId, pageable, account, cursorId);
+        return MyTodoListResponse.of(plubbing, response);
     }
 
     // 회원 타임라인 조회

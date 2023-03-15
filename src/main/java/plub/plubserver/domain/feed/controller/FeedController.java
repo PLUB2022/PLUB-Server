@@ -165,7 +165,7 @@ public class FeedController {
 
     @ApiOperation(value = "마이페이지 - 내 게시글 조회")
     @GetMapping("/{plubbingId}/feeds/my")
-    public ApiResponse<PageResponse<FeedCardResponse>> getMyFeedList(
+    public ApiResponse<MyFeedListResponse> getMyFeedList(
             @PathVariable Long plubbingId,
             @PageableDefault(size = 20) Pageable pageable,
             @RequestParam(required = false) Long cursorId

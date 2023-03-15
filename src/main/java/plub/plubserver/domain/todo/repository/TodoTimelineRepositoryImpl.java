@@ -40,6 +40,7 @@ public class TodoTimelineRepositoryImpl implements TodoTimelineRepositoryCustom 
                 .where(
                         todoTimeline.plubbing.eq(plubbing),
                         todoTimeline.date.loe(now),
+                        todoTimeline.account.eq(account),
                         getCursorId(cursorId, date)
                 )
                 .orderBy(todoTimeline.date.desc(), todoTimeline.id.desc())

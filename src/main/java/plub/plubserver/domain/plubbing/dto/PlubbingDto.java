@@ -379,4 +379,35 @@ public class PlubbingDto {
 
     public record PlubbingMessage(Object result) {
     }
+
+    public record PlubbingInfoResponse(
+            Long plubbingId,
+            String name,
+            List<String> days,
+            String address,
+            String roadAddress,
+            String placeName,
+            String goal,
+            String time
+    ){
+        @Builder
+        public PlubbingInfoResponse {
+        }
+
+        public static PlubbingInfoResponse of(Plubbing plubbing) {
+            return PlubbingInfoResponse.builder()
+                    .plubbingId(plubbing.getId())
+                    .name(plubbing.getName())
+                    .days(plubbing.getDays().stream()
+                            .map(PlubbingMeetingDay::getDay)
+                            .map(MeetingDay::name)
+                            .toList())
+                    .address(plubbing.getPlubbingPlace().getAddress())
+                    .roadAddress(plubbing.getPlubbingPlace().getRoadAddress())
+                    .placeName(plubbing.getPlubbingPlace().getPlaceName())
+                    .goal(plubbing.getGoal())
+                    .time(plubbing.getTime())
+                    .build();
+        }
+    }
 }

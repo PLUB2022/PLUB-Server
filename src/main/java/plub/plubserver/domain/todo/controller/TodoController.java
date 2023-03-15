@@ -159,7 +159,7 @@ public class TodoController {
 
     @ApiOperation(value = "마이페이지 - 내 투두 조회")
     @GetMapping("/{plubbingId}/timeline/my")
-    public ApiResponse<PageResponse<TodoTimelineResponse>> getMyTodoList(
+    public ApiResponse<MyTodoListResponse> getMyTodoList(
             @PathVariable Long plubbingId,
             @PageableDefault Pageable pageable,
             @RequestParam(required = false) Long cursorId

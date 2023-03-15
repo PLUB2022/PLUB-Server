@@ -3,7 +3,9 @@ package plub.plubserver.domain.todo.dto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Builder;
 import org.springframework.format.annotation.DateTimeFormat;
+import plub.plubserver.common.dto.PageResponse;
 import plub.plubserver.domain.account.model.Account;
+import plub.plubserver.domain.plubbing.model.Plubbing;
 import plub.plubserver.domain.todo.model.Todo;
 import plub.plubserver.domain.todo.model.TodoLike;
 import plub.plubserver.domain.todo.model.TodoTimeline;
@@ -17,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static plub.plubserver.domain.account.dto.AccountDto.AccountInfo;
+import static plub.plubserver.domain.plubbing.dto.PlubbingDto.PlubbingInfoResponse;
 
 public class TodoDto {
 
@@ -254,5 +257,21 @@ public class TodoDto {
                     .build();
         }
 
+    }
+
+    public record MyTodoListResponse(
+            PlubbingInfoResponse plubbingInfo,
+            PageResponse<TodoTimelineResponse> todoTimelineResponse
+    ) {
+        @Builder
+        public MyTodoListResponse {
+        }
+
+        public static MyTodoListResponse of(Plubbing plubbing, PageResponse<TodoTimelineResponse> todoTimelineResponse) {
+            return MyTodoListResponse.builder()
+                    .plubbingInfo(PlubbingInfoResponse.of(plubbing))
+                    .todoTimelineResponse(todoTimelineResponse)
+                    .build();
+        }
     }
 }

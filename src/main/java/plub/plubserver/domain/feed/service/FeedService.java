@@ -243,13 +243,14 @@ public class FeedService {
         });
     }
 
-    public PageResponse<FeedCardResponse> getMyFeedList(Account account, Long plubbingId, Pageable pageable, Long cursorId) {
+    public MyFeedListResponse getMyFeedList(Account account, Long plubbingId, Pageable pageable, Long cursorId) {
         Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
         Pageable sortedPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(Sort.Direction.DESC, "createdAt"));
         Page<FeedCardResponse> myFeedCardList = feedRepository.findAllByPlubbingAndAccountAndVisibility(plubbing, account, true, sortedPageable, cursorId)
                 .map((Feed feed) -> FeedCardResponse.of(feed, true, true));
         Long totalElements = CursorUtils.getTotalElements(myFeedCardList.getTotalElements(), cursorId);
-        return PageResponse.ofCursor(myFeedCardList, totalElements);
+        PageResponse<FeedCardResponse> response = PageResponse.ofCursor(myFeedCardList, totalElements);
+        return MyFeedListResponse.of(plubbing, response);
     }
 
     //TODO

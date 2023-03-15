@@ -14,6 +14,8 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 import java.util.List;
 
+import static plub.plubserver.domain.plubbing.dto.PlubbingDto.PlubbingInfoResponse;
+
 public class RecruitDto {
     /**
      * Request
@@ -230,14 +232,7 @@ public class RecruitDto {
 
     public record RecruitMyApplicationResponse(
             Long RecruitId,
-            Long plubbingId,
-            String title,
-            List<String> days,
-            String address,
-            String roadAddress,
-            String placeName,
-            String goal,
-            String time,
+            PlubbingInfoResponse plubbingInfo,
             List<QuestionAnswerResponse> answers
     ) {
         @Builder
@@ -250,16 +245,7 @@ public class RecruitDto {
             PlubbingPlace place = plubbing.getPlubbingPlace();
             return RecruitMyApplicationResponse.builder()
                     .RecruitId(recruit.getId())
-                    .plubbingId(plubbing.getId())
-                    .title(recruit.getTitle())
-                    .days(plubbing.getDays().stream()
-                            .map(it -> it.getDay().name())
-                            .toList())
-                    .address(place.getAddress())
-                    .roadAddress(place.getRoadAddress())
-                    .placeName(place.getPlaceName())
-                    .goal(plubbing.getGoal())
-                    .time(plubbing.getTime())
+                    .plubbingInfo(PlubbingInfoResponse.of(plubbing))
                     .answers(appliedAccount.getAnswerList()
                             .stream()
                             .map(QuestionAnswerResponse::of)
