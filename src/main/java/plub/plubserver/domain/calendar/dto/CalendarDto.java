@@ -93,14 +93,16 @@ public class CalendarDto {
             String address,
             String roadAddress,
             String placeName,
+            boolean isAuthor,
             String alarmType,
+
             CalendarAttendList calendarAttendList
     ) {
         @Builder
         public CalendarCardResponse {
         }
 
-        public static CalendarCardResponse of(Calendar calendar, CalendarAttendList calendarAttendList) {
+        public static CalendarCardResponse of(Calendar calendar, boolean isAuthor, CalendarAttendList calendarAttendList) {
             return CalendarCardResponse.builder()
                     .calendarId(calendar.getId())
                     .title(calendar.getTitle())
@@ -113,6 +115,7 @@ public class CalendarDto {
                     .address(calendar.getAddress())
                     .roadAddress(calendar.getRoadAddress())
                     .placeName(calendar.getPlaceName())
+                    .isAuthor(isAuthor)
                     .alarmType(calendar.getAlarmType().toString())
                     .calendarAttendList(calendarAttendList)
                     .build();
