@@ -85,7 +85,7 @@ public class NoticeService {
         Notice notice = getNotice(noticeId);
         checkNoticeStatus(notice);
         plubbingService.checkMember(currentAccount, notice.getPlubbing());
-        return NoticeResponse.of(notice, isNoticeAuthor(currentAccount, notice));
+        return NoticeResponse.of(notice, isNoticeAuthor(currentAccount, notice), getLikeCount(notice), getCommentCount(notice));
     }
 
     @Transactional
@@ -117,11 +117,9 @@ public class NoticeService {
         plubbingService.checkMember(currentAccount, notice.getPlubbing());
         if (!noticeLikeRepository.existsByAccountAndNotice(currentAccount, notice)) {
             noticeLikeRepository.save(NoticeLike.builder().notice(notice).account(currentAccount).build());
-            notice.addLike();
             return new NoticeMessage(noticeId + ", Like Success.");
         } else {
             noticeLikeRepository.deleteByAccountAndNotice(currentAccount, notice);
-            notice.subLike();
             return new NoticeMessage(noticeId + ", Like Cancel.");
         }
     }
@@ -162,7 +160,6 @@ public class NoticeService {
         }
 
         currentAccount.addNoticeComment(comment);
-        notice.addComment();
 
         // 작성자에게 푸시 알림
         notificationService.pushMessage(
@@ -201,7 +198,6 @@ public class NoticeService {
         if (noticeComment.getChildren().size() != 0)
             deleteChildComment(noticeComment);
 
-        noticeComment.getNotice().subComment();
         noticeComment.softDelete();
         return new CommentMessage("soft delete comment");
     }
@@ -211,7 +207,6 @@ public class NoticeService {
             return;
         noticeComment.getChildren().forEach(it -> {
             it.softDelete();
-            it.getNotice().subComment();
             deleteChildComment(it);
             noticeCommentRepository.save(it);
         });
@@ -245,5 +240,12 @@ public class NoticeService {
 
     public Boolean isCommentAuthor(Account account, NoticeComment noticeComment) {
         return noticeComment.getAccount().getId().equals(account.getId());
+    }
+
+    public Long getCommentCount(Notice notice) {return noticeCommentRepository.countAllByVisibilityAndNotice(true, notice);
+    }
+
+    public Long getLikeCount(Notice notice) {
+        return noticeLikeRepository.countAllByVisibilityAndNotice(true, notice);
     }
 }

@@ -64,8 +64,8 @@ public class NoticeDto {
             String title,
             String content,
             String createdAt,
-            long likeCount,
-            long commentCount,
+            Long likeCount,
+            Long commentCount,
             Boolean isAuthor
 
     ) {
@@ -73,14 +73,14 @@ public class NoticeDto {
         public NoticeResponse {
         }
 
-        public static NoticeResponse of(Notice notice, Boolean isAuthor) {
+        public static NoticeResponse of(Notice notice, Boolean isAuthor, Long likeCount, Long commentCount) {
             return NoticeResponse.builder()
                     .noticeId(notice.getId())
                     .title(notice.getTitle())
                     .content(notice.getContent())
                     .createdAt(notice.getCreatedAt())
-                    .likeCount(notice.getLikeCount())
-                    .commentCount(notice.getCommentCount())
+                    .likeCount(likeCount)
+                    .commentCount(commentCount)
                     .isAuthor(isAuthor)
                     .build();
         }
