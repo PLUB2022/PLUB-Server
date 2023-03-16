@@ -12,6 +12,7 @@ import plub.plubserver.domain.account.service.AccountService;
 import plub.plubserver.domain.notification.dto.FcmDto.PushMessage;
 import plub.plubserver.domain.notification.service.FcmService;
 import plub.plubserver.domain.report.service.ReportService;
+import plub.plubserver.domain.test.TestDto.JsonTestRequest;
 
 import static plub.plubserver.common.dto.ApiResponse.success;
 import static plub.plubserver.domain.report.dto.ReportDto.CreateReportRequest;
@@ -47,5 +48,11 @@ public class TestController {
         log.info("test");
         Account currentAccount = accountService.getCurrentAccount();
         return success(reportService.createReport(request, currentAccount));
+    }
+
+    @PostMapping("/json")
+    public ApiResponse<String> jsonStringTest(@RequestBody JsonTestRequest request) {
+        System.out.println(request);
+        return success(request.testMessage());
     }
 }

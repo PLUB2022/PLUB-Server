@@ -10,6 +10,7 @@ import java.util.List;
 
 public interface RecruitRepositoryCustom {
     Page<Recruit> search(
+            Long cursorId,
             Pageable pageable,
             SortType sortType,
             RecruitSearchType type,
@@ -19,4 +20,6 @@ public interface RecruitRepositoryCustom {
     List<Long> findAllBookmarkedRecruitIdByAccountId(Long accountId);
 
     List<Recruit> findAllPlubbingRecruitByAccountId(Long accountId);
+
+    Long countAllBySearch(RecruitSearchType type, String keyword);
 }

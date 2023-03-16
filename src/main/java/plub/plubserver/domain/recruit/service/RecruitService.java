@@ -106,6 +106,7 @@ public class RecruitService {
      * 모집글 검색
      */
     public PageResponse<RecruitCardResponse> search(
+            Long cursorId,
             Pageable pageable,
             String sort,
             RecruitSearchType type,
@@ -116,7 +117,8 @@ public class RecruitService {
         // 북마크 여부 체크해서 DTO로 반환
         List<Long> bookmarkedRecruitIds = recruitRepository.findAllBookmarkedRecruitIdByAccountId(account.getId());
 
-        Page<RecruitCardResponse> search = recruitRepository.search(
+        Page<RecruitCardResponse> searchResult = recruitRepository.search(
+                cursorId,
                 pageable,
                 SortType.of(sort),
                 type,
@@ -126,7 +128,9 @@ public class RecruitService {
             return RecruitCardResponse.of(it, isBookmarked);
         });
 
-        return PageResponse.of(search);
+        Long totalElements = recruitRepository.countAllBySearch(type, keyword);
+
+        return PageResponse.ofCursor(searchResult, totalElements);
     }
 
     /**

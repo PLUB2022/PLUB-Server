@@ -38,11 +38,12 @@ public class RecruitController {
     @GetMapping("/recruit")
     public ApiResponse<PageResponse<RecruitCardResponse>> searchRecruit(
             @PageableDefault(sort = "id", direction = Sort.Direction.DESC) Pageable pageable,
-            @RequestParam("keyword") String keyword,
-            @RequestParam("type") String type,
-            @RequestParam("sort") String sort
+            @RequestParam(required = false) Long cursorId,
+            @RequestParam String keyword,
+            @RequestParam String type,
+            @RequestParam String sort
     ) {
-        return success(recruitService.search(pageable, sort, RecruitSearchType.toType(type), keyword));
+        return success(recruitService.search(cursorId, pageable, sort, RecruitSearchType.toType(type), keyword));
     }
 
     @ApiOperation(value = "모집 상세 조회")
