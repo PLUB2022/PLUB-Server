@@ -63,9 +63,10 @@ public class RecruitController {
     @ApiOperation(value = "내 북마크 전체 조회")
     @GetMapping("/recruit/bookmarks/me")
     public ApiResponse<PageResponse<RecruitCardResponse>> getMyBookmarks(
+            @RequestParam(required = false) Long cursorId,
             @PageableDefault(sort = "id", direction = Sort.Direction.DESC) Pageable pageable
     ) {
-        return success(recruitService.getMyBookmarks(pageable));
+        return success(recruitService.getMyBookmarks(pageable, cursorId));
     }
 
     @ApiOperation(value = "북마크 생성")

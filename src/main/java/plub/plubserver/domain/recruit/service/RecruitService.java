@@ -28,6 +28,7 @@ import plub.plubserver.domain.recruit.dto.RecruitDto.*;
 import plub.plubserver.domain.recruit.exception.RecruitException;
 import plub.plubserver.domain.recruit.model.*;
 import plub.plubserver.domain.recruit.repository.AppliedAccountRepository;
+import plub.plubserver.domain.recruit.repository.BookmarkRepository;
 import plub.plubserver.domain.recruit.repository.RecruitRepository;
 import plub.plubserver.domain.report.dto.ReportDto.CreateReportRequest;
 import plub.plubserver.domain.report.dto.ReportDto.ReportResponse;
@@ -52,6 +53,8 @@ public class RecruitService {
     private final NotificationService notificationService;
     private final ReportService reportService;
     private final FeedService feedService;
+
+    private final BookmarkRepository bookmarkRepository;
 
     private Recruit getRecruitByPlubbingId(Long plubbingId) {
         return plubbingService.getPlubbing(plubbingId).getRecruit();
@@ -164,14 +167,13 @@ public class RecruitService {
     }
 
     // 내 북마크 전체 조회
-    public PageResponse<RecruitCardResponse> getMyBookmarks(Pageable pageable) {
+    public PageResponse<RecruitCardResponse> getMyBookmarks(Pageable pageable, Long cursorId) {
         Account account = accountService.getCurrentAccount();
-        List<Bookmark> bookmarkList = account.getBookmarkList();
-        List<RecruitCardResponse> cardList = bookmarkList.stream()
-                .map(it -> RecruitCardResponse.of(it.getRecruit(), true))
-                .toList();
-
-        return PageResponse.of(pageable, cardList);
+        Page<RecruitCardResponse> page = bookmarkRepository
+                .findAllByAccountId(account.getId(), cursorId, pageable)
+                .map(it -> RecruitCardResponse.of(it.getRecruit(), true));
+        Long totalElements = bookmarkRepository.countAllByAccountId(account.getId());
+        return PageResponse.ofCursor(page, totalElements);
     }
 
 
