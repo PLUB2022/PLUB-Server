@@ -70,14 +70,15 @@ public class NoticeService {
         });
     }
 
-    public PageResponse<NoticeCardResponse> getNoticeList(Account account, Long plubbingId, Pageable pageable) {
+    public PageResponse<NoticeCardResponse> getNoticeList(Account account, Long plubbingId, Long cursorId, Pageable pageable) {
         Account currentAccount = accountService.getAccount(account.getId());
         Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
         plubbingService.checkMember(currentAccount, plubbing);
         Pageable sortedPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(Sort.Direction.DESC, "createdAt"));
-        Page<NoticeCardResponse> noticeCardResponses = noticeRepository.findAllByPlubbingAndVisibility(plubbing, true, sortedPageable)
+        Page<NoticeCardResponse> noticeCardResponses = noticeRepository.findAllByPlubbingAndVisibilityCursor(plubbing, true, sortedPageable, cursorId)
                 .map(it -> NoticeCardResponse.of(it, isNoticeAuthor(currentAccount, it)));
-        return PageResponse.of(noticeCardResponses);
+        Long totalElements = noticeRepository.countAllByPlubbingAndVisibility(plubbing, true);
+        return PageResponse.ofCursor(noticeCardResponses, totalElements);
     }
 
     public NoticeResponse getNotice(Account account, Long plubbingId, Long noticeId) {
