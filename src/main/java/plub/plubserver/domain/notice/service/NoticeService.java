@@ -24,6 +24,8 @@ import plub.plubserver.domain.notification.service.NotificationService;
 import plub.plubserver.domain.plubbing.model.Plubbing;
 import plub.plubserver.domain.plubbing.service.PlubbingService;
 
+import java.util.Optional;
+
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
@@ -126,12 +128,18 @@ public class NoticeService {
         }
     }
 
-    public PageResponse<NoticeCommentResponse> getNoticeCommentList(Account account, Long plubbingId, Long noticeId, Pageable pageable) {
+    public PageResponse<NoticeCommentResponse> getNoticeCommentList(Account account, Long plubbingId, Long noticeId, Pageable pageable, Long cursorId) {
         plubbingService.getPlubbing(plubbingId);
         Account currentAccount = accountService.getAccount(account.getId());
         Notice notice = getNotice(noticeId);
         plubbingService.checkMember(account, notice.getPlubbing());
-        Page<NoticeCommentResponse> noticeCommentList = noticeCommentRepository.findAllByNotice(notice, pageable)
+        Long nextCursorId = cursorId;
+        if (cursorId != null && cursorId == 0) {
+            Optional<NoticeComment> first = noticeCommentRepository.findFirstByVisibilityAndNoticeId(true, noticeId);
+            nextCursorId = first.map(NoticeComment::getId).orElse(null);
+        }
+        Long commentGroupId = nextCursorId == null ? null : getNoticeComment(nextCursorId).getCommentGroupId();
+        Page<NoticeCommentResponse> noticeCommentList = noticeCommentRepository.findAllByNotice(notice, pageable, commentGroupId, cursorId)
                 .map(it -> NoticeCommentResponse.of(it, isCommentAuthor(currentAccount, it), isNoticeAuthor(currentAccount, notice)));
         return PageResponse.of(noticeCommentList);
     }
