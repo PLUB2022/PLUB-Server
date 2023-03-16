@@ -48,7 +48,7 @@ public class TodoService {
     }
 
     @Transactional
-    public TodoTimelineResponse createTodo(Account currentAccount, Long plubbingId, CreateTodoRequest request) {
+    public TodoResponse createTodo(Account currentAccount, Long plubbingId, CreateTodoRequest request) {
         Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
         Todo todo = request.toEntity(currentAccount);
 
@@ -60,10 +60,10 @@ public class TodoService {
             todoTimeline = todoTimelineOptional.get();
             updateTodoTimeline(todoTimeline, todo);
         } else {
-            todoTimeline = createTodoTimeline(request, currentAccount, plubbing, todo);
+            createTodoTimeline(request, currentAccount, plubbing, todo);
         }
 
-        return TodoTimelineResponse.of(todoTimeline, currentAccount, todoTimeline.getTodoList());
+        return TodoResponse.of(todo, true);
     }
 
     private void updateTodoTimeline(TodoTimeline todoTimeline, Todo todo) {
