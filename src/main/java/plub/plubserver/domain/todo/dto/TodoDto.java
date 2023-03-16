@@ -28,6 +28,9 @@ public class TodoDto {
     }
 
     private static boolean IsLike(Account currentAccount, TodoTimeline todoTimeLine) {
+        if(todoTimeLine.getTodoLikes() == null) {
+            return false;
+        }
         List<TodoLike> todoLikes = todoTimeLine.getTodoLikes();
         for (TodoLike todoLike : todoLikes) {
             if (todoLike.getAccount().getId().equals(currentAccount.getId())) {

@@ -33,7 +33,7 @@ public class TodoController {
 
     @ApiOperation(value = "투두 리스트 생성")
     @PostMapping("/{plubbingId}/todolist")
-    public ApiResponse<TodoIdResponse> createTodoCard(
+    public ApiResponse<TodoTimelineResponse> createTodoCard(
             @PathVariable Long plubbingId,
             @Valid @RequestBody CreateTodoRequest request
     ) {
