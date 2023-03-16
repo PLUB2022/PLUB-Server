@@ -75,7 +75,8 @@ public class NoticeService {
         Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
         plubbingService.checkMember(currentAccount, plubbing);
         Pageable sortedPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(Sort.Direction.DESC, "createdAt"));
-        Page<NoticeCardResponse> noticeCardResponses = noticeRepository.findAllByPlubbingAndVisibility(plubbing, true, sortedPageable).map(NoticeCardResponse::of);
+        Page<NoticeCardResponse> noticeCardResponses = noticeRepository.findAllByPlubbingAndVisibility(plubbing, true, sortedPageable)
+                .map(it -> NoticeCardResponse.of(it, isNoticeAuthor(currentAccount, it)));
         return PageResponse.of(noticeCardResponses);
     }
 
