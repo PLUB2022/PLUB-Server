@@ -53,7 +53,8 @@ jobs:
       - name: Docker build
         run: |
           docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
-          docker build -f Dockerfile -t ${{ secrets.DOCKER_USERNAME }}/plub-server:${GITHUB_SHA::7} 
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/plub-server .
+          docker tag ${{ secrets.DOCKER_USERNAME }}/plub-server ${{ secrets.DOCKER_USERNAME }}/plub-server:${GITHUB_SHA::7}
           docker push ${{ secrets.DOCKER_USERNAME }}/plub-server:${GITHUB_SHA::7}
       
         ## 4) Docker Hub에 Push한 이미지를 리눅스 서버에 받아와서 run
