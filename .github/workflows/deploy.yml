@@ -42,17 +42,16 @@ jobs:
           FCM_FILE_NAME: plub-firebase-private-key.json
           YAML_FILE_NAME: application-secret-prod.yml
           APPLE_FILE_NAME: apple_sign_key.p8
-        run: echo $YAML_SECRET  > $YAML_DIR/$YAML_FILE_NAME &&
+        run: echo $YAML_SECRET | base64 --decode > $YAML_DIR/$YAML_FILE_NAME &&
              echo $APPLE_SECRET > $YAML_DIR/$APPLE_FILE_NAME &&
              echo $FCM_JSON_SECRET > $YAML_DIR/$FCM_FILE_NAME
 
-      # 6) Set for yml
       - name: Make application-password.yml
-        run: |
-          cd ./src/main/resources
-          touch ./application-password.yml
-          echo "${{ secrets.PROPERTIES_TEST }}" > ./application-password.yml
-        shell: bash
+        env:
+          PROPERTIES_TEST: ${{ secrets.PROPERTIES_TEST }}
+          YAML_DIR: src/main/resources
+          PASSWORD_FILE_NAME: application-password.yml
+        run: echo $PROPERTIES_TEST | base64 --decode > $YAML_DIR/$PASSWORD_FILE_NAME
 
       - name: Build with Gradle
         run: ./gradlew bootJar
@@ -77,4 +76,4 @@ jobs:
             docker pull ${{ secrets.DOCKER_USERNAME }}/plub-server:${GITHUB_SHA::7}
             docker tag ${{ secrets.DOCKER_USERNAME }}/plub-server:${GITHUB_SHA::7} plub-server
             docker rm -f $(docker ps -qa)
-            docker run -d --name server -e JAVA_OPTS=-Djasypt.encryptor.password=${{ secrets.YML_PASSWORD }} -e TZ=Asia/Seoul -e ENVIRONMENT_VALUE=-Dspring.profiles.active=secret-prod -p 80:8085 plub-server
+            docker run -d --name server -e JAVA_OPTS=-Djasypt.encryptor.password=${{ secrets.YML_PASSWORD }} -e TZ=Asia/Seoul -e ENVIRONMENT_VALUE=-Dspring.profiles.active=secret-prod -p 8080:8085 plub-server
