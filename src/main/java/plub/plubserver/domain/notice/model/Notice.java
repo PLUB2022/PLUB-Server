@@ -25,9 +25,6 @@ public class Notice extends BaseEntity {
     private String title;
     private String content;
 
-    private int likeCount;
-    private int commentCount;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "plubbing_id")
     private Plubbing plubbing;
@@ -43,22 +40,6 @@ public class Notice extends BaseEntity {
     // 공지(1) - 공지 댓글(다)
     @OneToMany(mappedBy = "notice", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<NoticeComment> noticeCommentList = new ArrayList<>();
-
-    public void addLike() {
-        this.likeCount++;
-    }
-
-    public void subLike() {
-        this.likeCount--;
-    }
-
-    public void addComment() {
-        this.commentCount++;
-    }
-
-    public void subComment() {
-        this.commentCount--;
-    }
 
     public void updateFeed(UpdateNoticeRequest request) {
         this.title = request.title();

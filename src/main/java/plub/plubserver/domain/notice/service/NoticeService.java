@@ -24,6 +24,8 @@ import plub.plubserver.domain.notification.service.NotificationService;
 import plub.plubserver.domain.plubbing.model.Plubbing;
 import plub.plubserver.domain.plubbing.service.PlubbingService;
 
+import java.util.Optional;
+
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
@@ -49,7 +51,7 @@ public class NoticeService {
     public NoticeIdResponse createNotice(Long plubbingId, Account account, CreateNoticeRequest createNoticeRequest) {
         Account currentAccount = accountService.getAccount(account.getId());
         Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
-        plubbingService.checkHost(plubbing);
+        plubbingService.checkHost(currentAccount, plubbing);
         Notice notice = noticeRepository.save(createNoticeRequest.toEntity(plubbing, currentAccount));
         currentAccount.addNotice(notice);
 
@@ -70,13 +72,15 @@ public class NoticeService {
         });
     }
 
-    public PageResponse<NoticeCardResponse> getNoticeList(Account account, Long plubbingId, Pageable pageable) {
+    public PageResponse<NoticeCardResponse> getNoticeList(Account account, Long plubbingId, Long cursorId, Pageable pageable) {
         Account currentAccount = accountService.getAccount(account.getId());
         Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
         plubbingService.checkMember(currentAccount, plubbing);
         Pageable sortedPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(Sort.Direction.DESC, "createdAt"));
-        Page<NoticeCardResponse> noticeCardResponses = noticeRepository.findAllByPlubbingAndVisibility(plubbing, true, sortedPageable).map(NoticeCardResponse::of);
-        return PageResponse.of(noticeCardResponses);
+        Page<NoticeCardResponse> noticeCardResponses = noticeRepository.findAllByPlubbingAndVisibilityCursor(plubbing, true, sortedPageable, cursorId)
+                .map(it -> NoticeCardResponse.of(it, isNoticeAuthor(currentAccount, it)));
+        Long totalElements = noticeRepository.countAllByPlubbingAndVisibility(plubbing, true);
+        return PageResponse.ofCursor(noticeCardResponses, totalElements);
     }
 
     public NoticeResponse getNotice(Account account, Long plubbingId, Long noticeId) {
@@ -85,7 +89,7 @@ public class NoticeService {
         Notice notice = getNotice(noticeId);
         checkNoticeStatus(notice);
         plubbingService.checkMember(currentAccount, notice.getPlubbing());
-        return NoticeResponse.of(notice, isNoticeAuthor(currentAccount, notice));
+        return NoticeResponse.of(notice, isNoticeAuthor(currentAccount, notice), getLikeCount(notice), getCommentCount(notice));
     }
 
     @Transactional
@@ -117,21 +121,25 @@ public class NoticeService {
         plubbingService.checkMember(currentAccount, notice.getPlubbing());
         if (!noticeLikeRepository.existsByAccountAndNotice(currentAccount, notice)) {
             noticeLikeRepository.save(NoticeLike.builder().notice(notice).account(currentAccount).build());
-            notice.addLike();
             return new NoticeMessage(noticeId + ", Like Success.");
         } else {
             noticeLikeRepository.deleteByAccountAndNotice(currentAccount, notice);
-            notice.subLike();
             return new NoticeMessage(noticeId + ", Like Cancel.");
         }
     }
 
-    public PageResponse<NoticeCommentResponse> getNoticeCommentList(Account account, Long plubbingId, Long noticeId, Pageable pageable) {
+    public PageResponse<NoticeCommentResponse> getNoticeCommentList(Account account, Long plubbingId, Long noticeId, Pageable pageable, Long cursorId) {
         plubbingService.getPlubbing(plubbingId);
         Account currentAccount = accountService.getAccount(account.getId());
         Notice notice = getNotice(noticeId);
         plubbingService.checkMember(account, notice.getPlubbing());
-        Page<NoticeCommentResponse> noticeCommentList = noticeCommentRepository.findAllByNotice(notice, pageable)
+        Long nextCursorId = cursorId;
+        if (cursorId != null && cursorId == 0) {
+            Optional<NoticeComment> first = noticeCommentRepository.findFirstByVisibilityAndNoticeId(true, noticeId);
+            nextCursorId = first.map(NoticeComment::getId).orElse(null);
+        }
+        Long commentGroupId = nextCursorId == null ? null : getNoticeComment(nextCursorId).getCommentGroupId();
+        Page<NoticeCommentResponse> noticeCommentList = noticeCommentRepository.findAllByNotice(notice, pageable, commentGroupId, cursorId)
                 .map(it -> NoticeCommentResponse.of(it, isCommentAuthor(currentAccount, it), isNoticeAuthor(currentAccount, notice)));
         return PageResponse.of(noticeCommentList);
     }
@@ -162,7 +170,6 @@ public class NoticeService {
         }
 
         currentAccount.addNoticeComment(comment);
-        notice.addComment();
 
         // 작성자에게 푸시 알림
         notificationService.pushMessage(
@@ -201,7 +208,6 @@ public class NoticeService {
         if (noticeComment.getChildren().size() != 0)
             deleteChildComment(noticeComment);
 
-        noticeComment.getNotice().subComment();
         noticeComment.softDelete();
         return new CommentMessage("soft delete comment");
     }
@@ -211,7 +217,6 @@ public class NoticeService {
             return;
         noticeComment.getChildren().forEach(it -> {
             it.softDelete();
-            it.getNotice().subComment();
             deleteChildComment(it);
             noticeCommentRepository.save(it);
         });
@@ -245,5 +250,12 @@ public class NoticeService {
 
     public Boolean isCommentAuthor(Account account, NoticeComment noticeComment) {
         return noticeComment.getAccount().getId().equals(account.getId());
+    }
+
+    public Long getCommentCount(Notice notice) {return noticeCommentRepository.countAllByVisibilityAndNotice(true, notice);
+    }
+
+    public Long getLikeCount(Notice notice) {
+        return noticeLikeRepository.countAllByVisibilityAndNotice(true, notice);
     }
 }

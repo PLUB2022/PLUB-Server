@@ -27,7 +27,7 @@ public class FeedCommentRepositoryImpl implements FeedCommentRepositoryCustom {
                 .selectFrom(feedComment)
                 .where(feedComment.feed.eq(feed),
                         feedComment.visibility.eq(true),
-                        getCursor(lastCommentGroupId, lastCommentId))
+                        getCursorId(lastCommentGroupId, lastCommentId))
                 .distinct();
 
         return PageableExecutionUtils.getPage(
@@ -41,7 +41,7 @@ public class FeedCommentRepositoryImpl implements FeedCommentRepositoryCustom {
                         .fetch().size());
     }
 
-    private BooleanExpression getCursor(Long lastCommentGroupId, Long lastCommentId) {
+    private BooleanExpression getCursorId(Long lastCommentGroupId, Long lastCommentId) {
         if (lastCommentGroupId == null || lastCommentId == null) {
             return null;
         }

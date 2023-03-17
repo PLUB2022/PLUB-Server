@@ -1,8 +1,8 @@
-name: CI/CD Pipeline using Docker Hub
+name: CD Pipeline using Docker Hub
 
 on:
   push:
-    branches: [ "develop" ] 
+    branches: [ "develop" ]
 
 permissions:
   contents: read
@@ -19,7 +19,17 @@ jobs:
         with:
           java-version: 17
           distribution: 'temurin'
-
+          
+      - name: Gradle Cashing
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+            
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
@@ -43,8 +53,7 @@ jobs:
       - name: Docker build
         run: |
           docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/plub-server .
-          docker tag ${{ secrets.DOCKER_USERNAME }}/plub-server ${{ secrets.DOCKER_USERNAME }}/plub-server:${GITHUB_SHA::7}
+          docker build -f Dockerfile -t ${{ secrets.DOCKER_USERNAME }}/plub-server:${GITHUB_SHA::7} 
           docker push ${{ secrets.DOCKER_USERNAME }}/plub-server:${GITHUB_SHA::7}
       
         ## 4) Docker Hub에 Push한 이미지를 리눅스 서버에 받아와서 run
