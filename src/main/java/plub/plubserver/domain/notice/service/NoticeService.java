@@ -51,7 +51,7 @@ public class NoticeService {
     public NoticeIdResponse createNotice(Long plubbingId, Account account, CreateNoticeRequest createNoticeRequest) {
         Account currentAccount = accountService.getAccount(account.getId());
         Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
-        plubbingService.checkHost(plubbing);
+        plubbingService.checkHost(currentAccount, plubbing);
         Notice notice = noticeRepository.save(createNoticeRequest.toEntity(plubbing, currentAccount));
         currentAccount.addNotice(notice);
 
