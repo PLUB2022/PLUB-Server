@@ -69,4 +69,4 @@ jobs:
             docker pull ${{ secrets.DOCKER_USERNAME }}/plub-server:${GITHUB_SHA::7}
             docker tag ${{ secrets.DOCKER_USERNAME }}/plub-server:${GITHUB_SHA::7} plub-server
             docker rm -f $(docker ps -qa)
-            docker run -d --name server -e JAVA_OPTS=-Djasypt.encryptor.password=${{ secrets.YML_PASSWORD }} -e TZ=Asia/Seoul -e ENVIRONMENT_VALUE=-Dspring.profiles.active=secret-prod --p 80:8085 plub-server
+            docker run -d --name server -e JAVA_OPTS=-Djasypt.encryptor.password=${{ secrets.YML_PASSWORD }} -e TZ=Asia/Seoul -e ENVIRONMENT_VALUE=-Dspring.profiles.active=secret-prod -p 80:8085 plub-server
