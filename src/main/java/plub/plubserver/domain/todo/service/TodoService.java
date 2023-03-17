@@ -48,37 +48,47 @@ public class TodoService {
     }
 
     @Transactional
-    public TodoIdResponse createTodo(Account currentAccount, Long plubbingId, CreateTodoRequest request) {
+    public TodoResponse createTodo(Account currentAccount, Long plubbingId, CreateTodoRequest request) {
         Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
-
-        // 투두 생성
         Todo todo = request.toEntity(currentAccount);
 
-        todoTimelineRepository.findByDateAndAccount(request.date(), currentAccount)
-                .ifPresentOrElse(todoTimeline -> {
-                    // 투두 타임라인 업데이트
-                    todoCountCheck(todoTimeline);
-                    Todo save = todoRepository.save(todo);
-                    save.updateTodoCheckAt();
-                    todoTimeline.updateTodo(save);
-                    todoTimelineRepository.save(todoTimeline);
-                }, () -> {
-                    // 투두 타임라인 생성
-                    TodoTimeline todoTimeline = TodoTimeline.builder()
-                            .date(request.date())
-                            .account(currentAccount)
-                            .plubbing(plubbing)
-                            .todoList(List.of(todo))
-                            .likeTodo(0)
-                            .build();
-                    todo.updateTodoTimeline(todoTimeline);
-                    todo.updateTodoCheckAt();
-                    todoTimelineRepository.save(todoTimeline);
-                    todoRepository.save(todo);
-                });
+        Optional<TodoTimeline> todoTimelineOptional = todoTimelineRepository
+                .findByDateAndAccount(request.date(), currentAccount);
 
-        return new TodoIdResponse(todo.getId());
+        TodoTimeline todoTimeline;
+        if (todoTimelineOptional.isPresent()) {
+            todoTimeline = todoTimelineOptional.get();
+            updateTodoTimeline(todoTimeline, todo);
+        } else {
+            createTodoTimeline(request, currentAccount, plubbing, todo);
+        }
+
+        return TodoResponse.of(todo, true);
     }
+
+    private void updateTodoTimeline(TodoTimeline todoTimeline, Todo todo) {
+        todoCountCheck(todoTimeline);
+        todo = todoRepository.save(todo);
+        todo.updateTodoCheckAt();
+        todoTimeline.updateTodo(todo);
+        todoTimelineRepository.save(todoTimeline);
+    }
+
+    private TodoTimeline createTodoTimeline(CreateTodoRequest request, Account currentAccount, Plubbing plubbing, Todo todo) {
+        TodoTimeline todoTimeline = TodoTimeline.builder()
+                .date(request.date())
+                .account(currentAccount)
+                .plubbing(plubbing)
+                .todoList(List.of(todo))
+                .likeTodo(0)
+                .build();
+        todo.updateTodoTimeline(todoTimeline);
+        todo.updateTodoCheckAt();
+        todoTimeline = todoTimelineRepository.save(todoTimeline);
+        todoRepository.save(todo);
+        return todoTimeline;
+    }
+
 
     private void todoCountCheck(TodoTimeline timeline) {
         if (timeline.getTodoList().size() >= 5) {
