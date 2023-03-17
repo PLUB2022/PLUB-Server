@@ -46,6 +46,14 @@ jobs:
              echo $APPLE_SECRET > $YAML_DIR/$APPLE_FILE_NAME &&
              echo $FCM_JSON_SECRET > $YAML_DIR/$FCM_FILE_NAME
 
+      # 6) Set for yml
+      - name: Make application-secret.yml
+        run: |
+          cd ./src/main/resources
+          touch ./application-secret-password.yml
+          echo "${{ secrets.PROPERTIES_TEST }}" > ./application-secret-password.yml
+        shell: bash
+
       - name: Build with Gradle
         run: ./gradlew bootJar
 
