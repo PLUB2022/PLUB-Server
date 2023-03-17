@@ -47,11 +47,11 @@ jobs:
              echo $FCM_JSON_SECRET > $YAML_DIR/$FCM_FILE_NAME
 
       # 6) Set for yml
-      - name: Make application-secret.yml
+      - name: Make application-password.yml
         run: |
           cd ./src/main/resources
-          touch ./application-secret-password.yml
-          echo "${{ secrets.PROPERTIES_TEST }}" > ./application-secret-password.yml
+          touch ./application-password.yml
+          echo "${{ secrets.PROPERTIES_TEST }}" > ./application-password.yml
         shell: bash
 
       - name: Build with Gradle
