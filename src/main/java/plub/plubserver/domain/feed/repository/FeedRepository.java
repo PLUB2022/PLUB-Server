@@ -17,4 +17,5 @@ public interface FeedRepository extends JpaRepository<Feed, Long>, FeedRepositor
     @Query("select distinct count(f) from Feed f where f.visibility = true")
     Long countAll();
 
+    Long countAllByPlubbingAndVisibility(Plubbing plubbing, boolean visibility);
 }

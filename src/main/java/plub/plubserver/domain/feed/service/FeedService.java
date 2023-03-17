@@ -66,7 +66,7 @@ public class FeedService {
         Pageable sortedPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(Sort.Direction.DESC, "createdAt"));
         Page<FeedCardResponse> feedCardList = feedRepository.findAllByPlubbingAndPinAndVisibilityCursor(plubbing, false, true, sortedPageable, cursorId)
                 .map(it -> FeedCardResponse.of(it, isFeedAuthor(account, it), isHost, getLikeCount(it), getCommentCount(it)));
-        Long totalElements = feedRepository.countAll();
+        Long totalElements = feedRepository.countAllByPlubbingAndVisibility(plubbing, true);
         return PageResponse.ofCursor(feedCardList, totalElements);
     }
 

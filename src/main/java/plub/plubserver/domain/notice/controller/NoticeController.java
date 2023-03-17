@@ -42,10 +42,11 @@ public class NoticeController {
     @GetMapping("/{plubbingId}/notices")
     public ApiResponse<PageResponse<NoticeCardResponse>> getNoticeList(
             @PathVariable Long plubbingId,
+            @RequestParam(required = false) Long cursorId,
             @PageableDefault(size = 20) Pageable pageable
     ) {
         Account loginAccount = accountService.getCurrentAccount();
-        return success(noticeService.getNoticeList(loginAccount, plubbingId, pageable));
+        return success(noticeService.getNoticeList(loginAccount, plubbingId, cursorId, pageable));
     }
 
     @ApiOperation(value = "공지 상세 조회")
@@ -92,10 +93,11 @@ public class NoticeController {
     public ApiResponse<PageResponse<NoticeCommentResponse>> getNoticeCommentList(
             @PathVariable Long plubbingId,
             @PathVariable Long noticeId,
+            @RequestParam(required = false) Long cursorId,
             @PageableDefault(size = 20) Pageable pageable
     ) {
         Account loginAccount = accountService.getCurrentAccount();
-        return success(noticeService.getNoticeCommentList(loginAccount, plubbingId, noticeId, pageable));
+        return success(noticeService.getNoticeCommentList(loginAccount, plubbingId, noticeId, pageable, cursorId));
     }
 
     @ApiOperation(value = "공지 댓글 생성")

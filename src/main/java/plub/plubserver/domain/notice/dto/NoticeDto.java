@@ -43,18 +43,20 @@ public class NoticeDto {
             Long noticeId,
             String title,
             String content,
-            String createdAt
+            String createdAt,
+            Boolean isHost
     ) {
         @Builder
         public NoticeCardResponse {
         }
 
-        public static NoticeCardResponse of(Notice notice) {
+        public static NoticeCardResponse of(Notice notice, Boolean isHost) {
             return NoticeCardResponse.builder()
                     .noticeId(notice.getId())
                     .title(notice.getTitle())
                     .content(notice.getContent())
                     .createdAt(notice.getCreatedAt())
+                    .isHost(isHost)
                     .build();
         }
     }
@@ -64,24 +66,24 @@ public class NoticeDto {
             String title,
             String content,
             String createdAt,
-            long likeCount,
-            long commentCount,
-            Boolean isAuthor
+            Long likeCount,
+            Long commentCount,
+            Boolean isHost
 
     ) {
         @Builder
         public NoticeResponse {
         }
 
-        public static NoticeResponse of(Notice notice, Boolean isAuthor) {
+        public static NoticeResponse of(Notice notice, Boolean isHost, Long likeCount, Long commentCount) {
             return NoticeResponse.builder()
                     .noticeId(notice.getId())
                     .title(notice.getTitle())
                     .content(notice.getContent())
                     .createdAt(notice.getCreatedAt())
-                    .likeCount(notice.getLikeCount())
-                    .commentCount(notice.getCommentCount())
-                    .isAuthor(isAuthor)
+                    .likeCount(likeCount)
+                    .commentCount(commentCount)
+                    .isHost(isHost)
                     .build();
         }
     }

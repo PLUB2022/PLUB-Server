@@ -1,5 +1,6 @@
 package plub.plubserver.domain.notice.repository;
 
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -16,20 +17,36 @@ public class NoticeCommentRepositoryImpl implements NoticeCommentRepositoryCusto
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public Page<NoticeComment> findAllByNotice(Notice notice, Pageable pageable) {
+    public Page<NoticeComment> findAllByNotice(
+            Notice notice,
+            Pageable pageable,
+            Long lastCommentGroupId,
+            Long lastCommentId
+    ) {
         JPQLQuery<NoticeComment> query = queryFactory
                 .selectFrom(noticeComment)
                 .where(noticeComment.notice.eq(notice),
-                        noticeComment.visibility.eq(true))
+                        noticeComment.visibility.eq(true),
+                        getCursorId(lastCommentGroupId, lastCommentId))
                 .distinct();
 
         return PageableExecutionUtils.getPage(
-                query.orderBy(noticeComment.commentGroupId.desc(),
+                query.orderBy(noticeComment.commentGroupId.asc(),
                                 noticeComment.createdAt.asc())
                         .offset(pageable.getOffset())
                         .limit(pageable.getPageSize())
                         .fetch(),
                 pageable,
-                query::fetchCount);
+                () -> queryFactory.selectFrom(noticeComment)
+                        .fetch().size());
+    }
+
+    private BooleanExpression getCursorId(Long lastCommentGroupId, Long lastCommentId) {
+        if (lastCommentGroupId == null || lastCommentId == null) {
+            return null;
+        }
+        return noticeComment.commentGroupId.goe(lastCommentGroupId)
+                .and(noticeComment.id.gt(lastCommentId))
+                .or(noticeComment.commentGroupId.gt(lastCommentGroupId));
     }
 }

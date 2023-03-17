@@ -7,5 +7,5 @@ import plub.plubserver.domain.notice.model.NoticeComment;
 
 
 public interface NoticeCommentRepositoryCustom {
-    Page<NoticeComment> findAllByNotice(Notice notice, Pageable pageable);
+    Page<NoticeComment> findAllByNotice(Notice notice, Pageable pageable, Long lastCommentGroupId, Long lastCommentId);
 }

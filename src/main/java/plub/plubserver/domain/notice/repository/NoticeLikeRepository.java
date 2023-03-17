@@ -10,5 +10,7 @@ public interface NoticeLikeRepository extends JpaRepository<NoticeLike, Long> {
     boolean existsByAccountAndNotice(Account account, Notice notice);
 
     void deleteByAccountAndNotice(Account account, Notice notice);
+
+    Long countAllByVisibilityAndNotice(boolean visibility, Notice notice);
 }
 
