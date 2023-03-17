@@ -39,4 +39,5 @@ out/
 src/main/resources/application-secret-local.yml
 src/main/resources/application-secret-prod.yml
 src/main/resources/plub-firebase-private-key.json
+src/main/resources/application-password.yml
 
