@@ -42,7 +42,7 @@ jobs:
           FCM_FILE_NAME: plub-firebase-private-key.json
           YAML_FILE_NAME: application-secret-prod.yml
           APPLE_FILE_NAME: apple_sign_key.p8
-        run: echo $YAML_SECRET | base64 --decode > $YAML_DIR/$YAML_FILE_NAME &&
+        run: echo $YAML_SECRET  > $YAML_DIR/$YAML_FILE_NAME &&
              echo $APPLE_SECRET > $YAML_DIR/$APPLE_FILE_NAME &&
              echo $FCM_JSON_SECRET > $YAML_DIR/$FCM_FILE_NAME
 
