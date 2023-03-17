@@ -5,6 +5,6 @@ import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.recruit.model.Bookmark;
 import plub.plubserver.domain.recruit.model.Recruit;
 
-public interface BookmarkRepository extends JpaRepository<Bookmark, Long> {
+public interface BookmarkRepository extends JpaRepository<Bookmark, Long>, BookmarkRepositoryCustom {
     Boolean existsByAccountAndRecruit(Account account, Recruit recruit);
 }

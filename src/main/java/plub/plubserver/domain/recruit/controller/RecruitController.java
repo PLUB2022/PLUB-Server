@@ -38,11 +38,12 @@ public class RecruitController {
     @GetMapping("/recruit")
     public ApiResponse<PageResponse<RecruitCardResponse>> searchRecruit(
             @PageableDefault(sort = "id", direction = Sort.Direction.DESC) Pageable pageable,
-            @RequestParam("keyword") String keyword,
-            @RequestParam("type") String type,
-            @RequestParam("sort") String sort
+            @RequestParam(required = false) Long cursorId,
+            @RequestParam String keyword,
+            @RequestParam String type,
+            @RequestParam String sort
     ) {
-        return success(recruitService.search(pageable, sort, RecruitSearchType.toType(type), keyword));
+        return success(recruitService.search(cursorId, pageable, sort, RecruitSearchType.toType(type), keyword));
     }
 
     @ApiOperation(value = "모집 상세 조회")
@@ -62,9 +63,10 @@ public class RecruitController {
     @ApiOperation(value = "내 북마크 전체 조회")
     @GetMapping("/recruit/bookmarks/me")
     public ApiResponse<PageResponse<RecruitCardResponse>> getMyBookmarks(
+            @RequestParam(required = false) Long cursorId,
             @PageableDefault(sort = "id", direction = Sort.Direction.DESC) Pageable pageable
     ) {
-        return success(recruitService.getMyBookmarks(pageable));
+        return success(recruitService.getMyBookmarks(pageable, cursorId));
     }
 
     @ApiOperation(value = "북마크 생성")
