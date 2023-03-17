@@ -56,3 +56,9 @@ logging:
         web:
           client:
             RestTemplate: DEBUG
+
+jasypt:
+  encryptor:
+    bean: jasyptEncryptor
+    encodingType: base64
+    algorithm: PBEWithMD5AndDES
