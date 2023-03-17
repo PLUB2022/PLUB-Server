@@ -1,6 +1,6 @@
 spring:
   profiles:
-    default: secret-local
+    default: secret-prod
 
   jpa:
     properties:
