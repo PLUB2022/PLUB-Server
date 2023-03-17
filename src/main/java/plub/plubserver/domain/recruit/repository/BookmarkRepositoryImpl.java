@@ -28,7 +28,7 @@ public class BookmarkRepositoryImpl implements BookmarkRepositoryCustom {
                 .distinct();
 
         return PageableExecutionUtils.getPage(
-                query.orderBy(bookmark.id.asc())
+                query.orderBy(bookmark.id.desc())
                         .limit(CursorUtils.TEN_AMOUNT)
                         .fetch(),
                 pageable,
