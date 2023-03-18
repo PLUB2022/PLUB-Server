@@ -274,7 +274,10 @@ public class PlubbingService {
         plubbing.deletePlubbing();
 
         accountPlubbingRepository.findAllByPlubbingId(plubbingId)
-                .forEach(a -> a.changeStatus(AccountPlubbingStatus.END));
+                .forEach(ap -> ap.changeStatus(AccountPlubbingStatus.END));
+
+        // 해당 모집글 북마크도 전체 삭제
+        plubbing.getRecruit().getBookmarkList().clear();
 
         return new PlubbingMessage(true);
     }
