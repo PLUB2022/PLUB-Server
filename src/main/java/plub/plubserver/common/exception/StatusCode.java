@@ -70,6 +70,7 @@ public enum StatusCode {
     GET_FCM_ACCESS_TOKEN_ERROR(400, 4500, "fcm access token get failed."),
     SEND_FCM_PUSH_ERROR(400, 4510, "send fcm push message failed."),
     FCM_MESSAGE_JSON_PARSING_ERROR(400, 4520, "fcm message json parsing failed."),
+    NOT_FOUND_NOTIFICATION(404, 4530, "not found notification error."),
 
     /**
      * Report

@@ -10,9 +10,12 @@ import plub.plubserver.common.dto.ApiResponse;
 import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.account.service.AccountService;
 import plub.plubserver.domain.notification.dto.FcmDto.PushMessage;
+import plub.plubserver.domain.notification.dto.NotificationDto.NotificationListResponse;
+import plub.plubserver.domain.notification.dto.NotificationDto.NotifyParams;
+import plub.plubserver.domain.notification.model.NotificationType;
 import plub.plubserver.domain.notification.service.FcmService;
+import plub.plubserver.domain.notification.service.NotificationService;
 import plub.plubserver.domain.report.service.ReportService;
-import plub.plubserver.domain.test.TestDto.JsonTestRequest;
 
 import static plub.plubserver.common.dto.ApiResponse.success;
 import static plub.plubserver.domain.report.dto.ReportDto.CreateReportRequest;
@@ -25,6 +28,7 @@ public class TestController {
     private final FcmService fcmService;
     private final ReportService reportService;
     private final AccountService accountService;
+    private final NotificationService notificationService;
 
     @PostMapping
     public ApiResponse<?> testAuthCode(@RequestBody TestDto.AuthCodeRequest authCodeDto) {
@@ -50,9 +54,18 @@ public class TestController {
         return success(reportService.createReport(request, currentAccount));
     }
 
-    @PostMapping("/json")
-    public ApiResponse<String> jsonStringTest(@RequestBody JsonTestRequest request) {
-        System.out.println(request);
-        return success(request.testMessage());
+    // for test
+    @PostMapping("/push/self")
+    public ApiResponse<NotificationListResponse> testCreateNotification() {
+        Account currentAccount = accountService.getCurrentAccount();
+        NotifyParams params = NotifyParams.builder()
+                .receiver(currentAccount)
+                .type(NotificationType.TEST_ACCOUNT_ITSELF)
+                .redirectTargetId(currentAccount.getId())
+                .title("test")
+                .content("자기 자신의 아이디를 리턴")
+                .build();
+        notificationService.pushMessageForceSave(params);
+        return success(notificationService.getMyNotifications());
     }
 }

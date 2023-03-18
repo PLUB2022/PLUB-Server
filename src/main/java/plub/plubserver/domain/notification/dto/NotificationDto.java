@@ -20,38 +20,13 @@ public class NotificationDto {
     }
 
     /**
-     * Request
-     */
-    public record DirectPushRequest(
-            Long accountId,
-            String title,
-            String content
-    ) { }
-
-    public record PlubbingPushRequest(
-            Long plubbingId,
-            String title,
-            String content
-    ) { }
-
-
-    /**
      * Response
      */
-    public record ReceivedAccountIdResponse(
-            Long accountId
-    ) {
-    }
-
-    public record ReceivedAccountsResponse(
-            List<Long> accountIds,
-            int count
-    ) {
-        @Builder public ReceivedAccountsResponse {
-        }
-    }
-    
     public record NotificationResponse(
+            Long notificationId,
+            NotificationType notificationType,
+            String targetEntity,
+            Long redirectTargetId,
             String title,
             String body,
             String createdAt,
@@ -61,11 +36,17 @@ public class NotificationDto {
         }
         
         public static NotificationResponse of(Notification notification) {
+            NotificationType notificationType = notification.getType();
+            String targetClassName = notificationType.redirectTargetClass().getSimpleName();
             return NotificationResponse.builder()
+                    .notificationId(notification.getId())
+                    .notificationType(notificationType)
+                    .targetEntity(targetClassName)
+                    .redirectTargetId(notification.getRedirectTargetId())
                     .title(notification.getTitle())
                     .body(notification.getContent())
                     .createdAt(notification.getCreatedAt())
-                    .isRead(true)
+                    .isRead(notification.isRead())
                     .build();
             
         }
