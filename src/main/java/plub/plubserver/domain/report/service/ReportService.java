@@ -5,11 +5,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.account.service.AccountService;
+import plub.plubserver.domain.notification.dto.NotificationDto.NotifyParams;
+import plub.plubserver.domain.notification.model.NotificationType;
 import plub.plubserver.domain.notification.service.NotificationService;
 import plub.plubserver.domain.plubbing.model.Plubbing;
 import plub.plubserver.domain.report.config.ReportMessage;
-import plub.plubserver.domain.report.dto.ReportDto.*;
 import plub.plubserver.domain.report.dto.ReportDto.ReportResponse;
+import plub.plubserver.domain.report.dto.ReportDto.ReportTypeResponse;
 import plub.plubserver.domain.report.model.Report;
 import plub.plubserver.domain.report.model.ReportTarget;
 import plub.plubserver.domain.report.model.ReportType;
@@ -44,22 +46,24 @@ public class ReportService {
 
     public ReportResponse notifyHost(Report report, Plubbing plubbing) {
         Long reportCount = getReportCount(report.getTargetId(), report.getReportTarget());
+        NotifyParams.NotifyParamsBuilder paramsBuilder = NotifyParams.builder()
+                .receiver(plubbing.getHost())
+                .redirectTargetId(plubbing.getId())
+                .title("신고");
         if (reportCount >= REPORT_PLUBBING_PAUSE_COUNT) {
             // 모임 정지
-            notificationService.pushMessage(
-                    plubbing.getHost(),
-                    "신고",
-                    plubbing.getName() + "모임장 경고 3회 누적으로 모임이 영구정지 되었습니다."
-            );
+            NotifyParams params = paramsBuilder.type(NotificationType.PLUBBING_PERMANENTLY_PAUSED)
+                    .content(plubbing.getName() + "모임장 경고 3회 누적으로 모임이 영구정지 되었습니다.")
+                    .build();
+            notificationService.pushMessage(params);
             return ReportResponse.of(report, ReportMessage.REPORT_PLUBBING_PAUSED);
         }
         if (reportCount >= REPORT_WARNING_PUSH_COUNT) {
             // 모임장에게 경고 알림
-            notificationService.pushMessage(
-                    plubbing.getHost(),
-                    "신고",
-                    plubbing.getName() + "에 6회 이상 다른 사용자의 신고가 누적되어 되었습니다."
-            );
+            NotifyParams params = paramsBuilder.type(NotificationType.PLUBBING_RECEIVED_MANY_REPORTS)
+                    .content(plubbing.getName() + "에 6회 이상 다른 사용자의 신고가 누적되어 되었습니다.")
+                    .build();
+            notificationService.pushMessage(params);
             return ReportResponse.of(report, ReportMessage.REPORT_HOST_NOTIFY);
         }
         return ReportResponse.of(report, ReportMessage.REPORT_SUCCESS);

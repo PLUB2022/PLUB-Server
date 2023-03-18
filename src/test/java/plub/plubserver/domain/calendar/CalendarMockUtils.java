@@ -1,9 +1,5 @@
 package plub.plubserver.domain.calendar;
 
-import plub.plubserver.domain.calendar.model.Calendar;
-import plub.plubserver.domain.calendar.model.CalendarAlarmType;
-import plub.plubserver.domain.plubbing.model.Plubbing;
-
 import static plub.plubserver.domain.calendar.dto.CalendarAttendDto.CheckAttendRequest;
 import static plub.plubserver.domain.calendar.dto.CalendarDto.CreateCalendarRequest;
 import static plub.plubserver.domain.calendar.dto.CalendarDto.UpdateCalendarRequest;
@@ -47,7 +43,7 @@ public class CalendarMockUtils {
                 .build();
     }
 
-    public static Calendar getMockCalendar(Plubbing plubbing) {
-        return createCalendarRequest().toEntity(1L, plubbing, CalendarAlarmType.FIVE_MINUTES);
-    }
+//    public static Calendar getMockCalendar(Plubbing plubbing) {
+//        return createCalendarRequest().toEntity(1L, plubbing, CalendarAlarmType.FIVE_MINUTES);
+//    }
 }

@@ -1,11 +1,24 @@
 package plub.plubserver.domain.notification.dto;
 
 import lombok.Builder;
+import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.notification.model.Notification;
+import plub.plubserver.domain.notification.model.NotificationType;
 
 import java.util.List;
 
 public class NotificationDto {
+    public record NotifyParams(
+            Account receiver,
+            NotificationType type,
+            Long redirectTargetId,
+            String title,
+            String content
+    ) {
+        @Builder public NotifyParams {
+        }
+    }
+
     /**
      * Request
      */

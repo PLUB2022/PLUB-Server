@@ -22,19 +22,22 @@ public class NotificationService {
     private final AccountService accountService;
 
     @Transactional
-    public void pushMessage(Account receiver, String title, String content) {
+    public void pushMessage(NotifyParams params) {
+        Account receiver = params.receiver();
         CompletableFuture<Boolean> future = fcmService.sendPushMessage(
                 receiver.getFcmToken(),
-                title,
-                content
+                params.title(),
+                params.content()
         );
         future.thenAccept(success -> {
             if (success) {
                 Notification notification = Notification.builder()
                         .account(receiver)
-                        .title(title)
-                        .content(content)
+                        .title(params.title())
+                        .content(params.content())
                         .isRead(false)
+                        .type(params.type())
+                        .redirectTargetId(params.redirectTargetId())
                         .build();
                 receiver.addNotification(notification);
             } else {

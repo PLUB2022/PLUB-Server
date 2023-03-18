@@ -15,6 +15,7 @@ import plub.plubserver.domain.calendar.model.CalendarAlarmType;
 import plub.plubserver.domain.calendar.model.CalendarAttend;
 import plub.plubserver.domain.calendar.repository.CalendarAttendRepository;
 import plub.plubserver.domain.calendar.repository.CalendarRepository;
+import plub.plubserver.domain.notification.model.NotificationType;
 import plub.plubserver.domain.notification.service.NotificationService;
 import plub.plubserver.domain.plubbing.model.AccountPlubbing;
 import plub.plubserver.domain.plubbing.model.Plubbing;
@@ -25,6 +26,7 @@ import java.util.stream.Collectors;
 
 import static plub.plubserver.domain.calendar.dto.CalendarAttendDto.*;
 import static plub.plubserver.domain.calendar.dto.CalendarDto.*;
+import static plub.plubserver.domain.notification.dto.NotificationDto.NotifyParams;
 
 @Service
 @RequiredArgsConstructor
@@ -107,8 +109,9 @@ public class CalendarService {
         Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
         CreateCalendarRequest createCalendarRequest = checkCalender(request);
         CalendarAlarmType calendarAlarmType = CalendarAlarmType.valueOf(request.alarmType());
-        Calendar calendar = createCalendarRequest.toEntity(account, plubbing, calendarAlarmType);
-        calendarRepository.save(calendar);
+        Calendar calendar = calendarRepository.save(
+                createCalendarRequest.toEntity(account, plubbing, calendarAlarmType)
+        );
         List<AccountPlubbing> accountPlubbingList = plubbing.getAccountPlubbingList();
         for (AccountPlubbing accountPlubbing : accountPlubbingList) {
             CalendarAttend calendarAttend = CalendarAttend.builder()
@@ -121,11 +124,14 @@ public class CalendarService {
 
         // 멤버들에게 푸시 알림
         plubbing.getMembers().forEach(member -> {
-            notificationService.pushMessage(
-                    member,
-                    plubbing.getName(),
-                    "새로운 일정이 등록되었어요! 모이는 시간과 장소를 확인하고 참여해 보세요!\n : " + calendar.getTitle() + "," + calendar.getStartedAt() + " ~ " + calendar.getEndedAt() + "," + calendar.getPlaceName()
-            );
+            NotifyParams params = NotifyParams.builder()
+                    .receiver(member)
+                    .type(NotificationType.CREATE_CALENDAR)
+                    .redirectTargetId(calendar.getId())
+                    .title(plubbing.getName())
+                    .content("새로운 일정이 등록되었어요! 모이는 시간과 장소를 확인하고 참여해 보세요!\n : " + calendar.getTitle() + "," + calendar.getStartedAt() + " ~ " + calendar.getEndedAt() + "," + calendar.getPlaceName())
+                    .build();
+            notificationService.pushMessage(params);
         });
 
         //TODO: 푸시 알림 스케줄러에 등록
@@ -144,11 +150,14 @@ public class CalendarService {
 
         // 멤버들에게 푸시 알림
         plubbing.getMembers().forEach(member -> {
-            notificationService.pushMessage(
-                    member,
-                    plubbing.getName(),
-                    "모임 일정이 수정되었어요. 어떻게 변경되었는지 확인해 볼까요?\n : " + calendar.getTitle() + "," + calendar.getStartedAt() + " ~ " + calendar.getEndedAt() + "," + calendar.getPlaceName()
-            );
+            NotifyParams params = NotifyParams.builder()
+                    .receiver(member)
+                    .type(NotificationType.UPDATE_CALENDAR)
+                    .redirectTargetId(calendar.getId())
+                    .title(plubbing.getName())
+                    .content("모임 일정이 수정되었어요. 어떻게 변경되었는지 확인해 볼까요?\n : " + calendar.getTitle() + "," + calendar.getStartedAt() + " ~ " + calendar.getEndedAt() + "," + calendar.getPlaceName())
+                    .build();
+            notificationService.pushMessage(params);
         });
 
         //TODO: 푸시 알림 스케줄러에 변경
