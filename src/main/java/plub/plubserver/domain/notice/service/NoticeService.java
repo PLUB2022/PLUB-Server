@@ -20,6 +20,8 @@ import plub.plubserver.domain.notice.model.NoticeLike;
 import plub.plubserver.domain.notice.repository.NoticeCommentRepository;
 import plub.plubserver.domain.notice.repository.NoticeLikeRepository;
 import plub.plubserver.domain.notice.repository.NoticeRepository;
+import plub.plubserver.domain.notification.dto.NotificationDto.NotifyParams;
+import plub.plubserver.domain.notification.model.NotificationType;
 import plub.plubserver.domain.notification.service.NotificationService;
 import plub.plubserver.domain.plubbing.model.Plubbing;
 import plub.plubserver.domain.plubbing.service.PlubbingService;
@@ -64,11 +66,14 @@ public class NoticeService {
     // 모임 멤버들에게 새 공지 알림 전체 발송
     private void notifyToMembers(Plubbing plubbing, Notice notice) {
         plubbing.getMembers().forEach(member -> {
-            notificationService.pushMessage(
-                    member,
-                    "공지",
-                    plubbing.getName() + "에 새로운 공지가 등록되었어요. : " + notice.getTitle()
-            );
+            NotifyParams params = NotifyParams.builder()
+                    .receiver(member)
+                    .type(NotificationType.CREATE_NOTICE)
+                    .redirectTargetId(notice.getId())
+                    .title("공지")
+                    .content(plubbing.getName() + "에 새로운 공지가 등록되었어요. : " + notice.getTitle())
+                    .build();
+            notificationService.pushMessage(params);
         });
     }
 
@@ -172,11 +177,14 @@ public class NoticeService {
         currentAccount.addNoticeComment(comment);
 
         // 작성자에게 푸시 알림
-        notificationService.pushMessage(
-                comment.getAccount(),
-                notice.getTitle() + "에 새로운 댓글이 달렸습니다.",
-                currentAccount.getNickname() + ":" + comment.getContent()
-        );
+        NotifyParams params = NotifyParams.builder()
+                .receiver(comment.getAccount())
+                .type(NotificationType.CREATE_NOTICE_COMMENT)
+                .redirectTargetId(notice.getId())
+                .title(notice.getTitle() + "에 새로운 댓글이 달렸습니다.")
+                .content(currentAccount.getNickname() + ":" + comment.getContent())
+                .build();
+        notificationService.pushMessage(params);
 
         // TODO : 대댓글 알림
 

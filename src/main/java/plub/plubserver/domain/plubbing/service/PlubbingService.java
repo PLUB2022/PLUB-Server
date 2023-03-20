@@ -16,6 +16,8 @@ import plub.plubserver.domain.account.service.AccountService;
 import plub.plubserver.domain.category.model.PlubbingSubCategory;
 import plub.plubserver.domain.category.model.SubCategory;
 import plub.plubserver.domain.category.service.CategoryService;
+import plub.plubserver.domain.notification.dto.NotificationDto.NotifyParams;
+import plub.plubserver.domain.notification.model.NotificationType;
 import plub.plubserver.domain.notification.service.NotificationService;
 import plub.plubserver.domain.plubbing.dto.PlubbingDto.*;
 import plub.plubserver.domain.plubbing.exception.PlubbingException;
@@ -401,11 +403,14 @@ public class PlubbingService {
                 .exitPlubbing();
 
         // 호스트에게 푸시 알림
-        notificationService.pushMessage(
-                plubbing.getHost(),
-                plubbing.getName(),
-                account.getNickname() + "님이 모임을 나갔어요."
-        );
+        NotifyParams params = NotifyParams.builder()
+                .receiver(plubbing.getHost())
+                .type(NotificationType.LEAVE_PLUBBING)
+                .redirectTargetId(plubbingId)
+                .title(plubbing.getName())
+                .content(account.getNickname() + "님이 모임을 나갔어요.")
+                .build();
+        notificationService.pushMessage(params);
 
         return PlubbingResponse.of(plubbing);
     }

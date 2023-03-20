@@ -43,7 +43,7 @@ public class NotifyAspect {
 
         }
 
-        notificationService.pushMessage(host, title, content);
+        //notificationService.pushMessage(host, title, content);
         log.info("푸시 알림 전송(notifyHost) - host={}, title={}, content={}",
                 host.getId(), title, content);
         log.info("{}", plubbingId);
@@ -78,7 +78,7 @@ public class NotifyAspect {
         final String finalContent = content;
 
         plubbing.getMembers().forEach(member -> {
-            notificationService.pushMessage(member, finalTitle, finalContent);
+            //notificationService.pushMessage(member, finalTitle, finalContent);
             log.info("푸시 알림 전송(notifyPlubbingMembers) - member={}, title={}, content={}",
                     member.getId(), finalTitle, finalContent);
         });

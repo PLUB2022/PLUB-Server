@@ -1,44 +1,32 @@
 package plub.plubserver.domain.notification.dto;
 
 import lombok.Builder;
+import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.notification.model.Notification;
+import plub.plubserver.domain.notification.model.NotificationType;
 
 import java.util.List;
 
 public class NotificationDto {
-    /**
-     * Request
-     */
-    public record DirectPushRequest(
-            Long accountId,
+    public record NotifyParams(
+            Account receiver,
+            NotificationType type,
+            Long redirectTargetId,
             String title,
             String content
-    ) { }
-
-    public record PlubbingPushRequest(
-            Long plubbingId,
-            String title,
-            String content
-    ) { }
-
+    ) {
+        @Builder public NotifyParams {
+        }
+    }
 
     /**
      * Response
      */
-    public record ReceivedAccountIdResponse(
-            Long accountId
-    ) {
-    }
-
-    public record ReceivedAccountsResponse(
-            List<Long> accountIds,
-            int count
-    ) {
-        @Builder public ReceivedAccountsResponse {
-        }
-    }
-    
     public record NotificationResponse(
+            Long notificationId,
+            NotificationType notificationType,
+            String targetEntity,
+            Long redirectTargetId,
             String title,
             String body,
             String createdAt,
@@ -48,11 +36,17 @@ public class NotificationDto {
         }
         
         public static NotificationResponse of(Notification notification) {
+            NotificationType notificationType = notification.getType();
+            String targetClassName = notificationType.redirectTargetClass().getSimpleName();
             return NotificationResponse.builder()
+                    .notificationId(notification.getId())
+                    .notificationType(notificationType)
+                    .targetEntity(targetClassName)
+                    .redirectTargetId(notification.getRedirectTargetId())
                     .title(notification.getTitle())
                     .body(notification.getContent())
                     .createdAt(notification.getCreatedAt())
-                    .isRead(true)
+                    .isRead(notification.isRead())
                     .build();
             
         }

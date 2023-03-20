@@ -34,7 +34,6 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.doNothing;
 
 @ExtendWith(MockitoExtension.class)
 public class RecruitServiceTest {
@@ -64,7 +63,7 @@ public class RecruitServiceTest {
         Account applicant = AccountTemplate.makeAccount2();
         Plubbing plubbing = PlubbingMockUtils.getMockPlubbing(host);
         given(plubbingService.getPlubbing(any())).willReturn(plubbing);
-        doNothing().when(notificationService).pushMessage(any(), any(), any());
+        //doNothing().when(notificationService).pushMessage(any(), any(), any());
         ApplyRecruitRequest applyRecruitRequest = ApplyRecruitRequest.builder()
                 .answers(List.of(
                         new AnswerRequest(1L, "answer1"),

@@ -20,6 +20,7 @@ import plub.plubserver.domain.feed.model.ViewType;
 import plub.plubserver.domain.feed.repository.FeedCommentRepository;
 import plub.plubserver.domain.feed.repository.FeedLikeRepository;
 import plub.plubserver.domain.feed.repository.FeedRepository;
+import plub.plubserver.domain.notification.model.NotificationType;
 import plub.plubserver.domain.notification.service.NotificationService;
 import plub.plubserver.domain.plubbing.model.Plubbing;
 import plub.plubserver.domain.plubbing.service.PlubbingService;
@@ -29,6 +30,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static plub.plubserver.common.exception.StatusCode.NOT_FOUND_COMMENT;
+import static plub.plubserver.domain.notification.dto.NotificationDto.NotifyParams;
 
 @Service
 @Transactional(readOnly = true)
@@ -159,14 +161,14 @@ public class FeedService {
 
     @Transactional
     public FeedCommentResponse createFeedComment(
-            Account account,
+            Account commentAuthor,
             Long plubbingId,
             Long feedId,
             CreateCommentRequest createCommentRequest
     ) {
         Feed feed = getFeed(feedId);
         checkFeedStatus(feed);
-        plubbingService.checkMember(account, feed.getPlubbing());
+        plubbingService.checkMember(commentAuthor, feed.getPlubbing());
 
         FeedComment parentComment = null;
         if (createCommentRequest.parentCommentId() != null) {
@@ -175,7 +177,7 @@ public class FeedService {
                 throw new FeedException(StatusCode.NOT_FOUND_FEED);
         }
 
-        FeedComment comment = feedCommentRepository.save(createCommentRequest.toFeedComment(feed, account));
+        FeedComment comment = feedCommentRepository.save(createCommentRequest.toFeedComment(feed, commentAuthor));
         if (parentComment != null) {
             parentComment.addChildComment(comment);
             comment.setCommentGroupId(parentComment.getCommentGroupId());
@@ -188,15 +190,18 @@ public class FeedService {
         // 작성자에게 푸시 알림
         Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
         Account author = feed.getAccount();
-        notificationService.pushMessage(
-                author,
-                plubbing.getName(),
-                account.getNickname() + " 님이 " + author.getNickname() + " 님의 게시글에 댓글을 남겼어요\n : " + comment.getContent()
-        );
+        NotifyParams params = NotifyParams.builder()
+                .receiver(author)
+                .type(NotificationType.CREATE_FEED_COMMENT)
+                .redirectTargetId(feed.getId())
+                .title(plubbing.getName())
+                .content(commentAuthor.getNickname() + " 님이 " + author.getNickname() + " 님의 게시글에 댓글을 남겼어요\n : " + comment.getContent())
+                .build();
+        notificationService.pushMessage(params);
 
         // TODO : 대댓글 알림
 
-        return FeedCommentResponse.of(comment, true, isFeedAuthor(account, feed));
+        return FeedCommentResponse.of(comment, true, isFeedAuthor(commentAuthor, feed));
     }
 
     @Transactional

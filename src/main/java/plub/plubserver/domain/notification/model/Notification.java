@@ -23,9 +23,18 @@ public class Notification extends BaseEntity {
 
     private boolean isRead;
 
+    @Enumerated(EnumType.STRING)
+    private NotificationType type;
+
+    private Long redirectTargetId;
+
     // 알람(다) - 회원(1)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "account_id")
     private Account account;
+
+    public void read() {
+        this.isRead = true;
+    }
 }
 

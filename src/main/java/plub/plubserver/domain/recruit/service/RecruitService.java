@@ -13,6 +13,8 @@ import plub.plubserver.domain.account.exception.AccountException;
 import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.account.service.AccountService;
 import plub.plubserver.domain.feed.service.FeedService;
+import plub.plubserver.domain.notification.dto.NotificationDto.NotifyParams;
+import plub.plubserver.domain.notification.model.NotificationType;
 import plub.plubserver.domain.notification.service.NotificationService;
 import plub.plubserver.domain.plubbing.dto.PlubbingDto.JoinedAccountsInfoResponse;
 import plub.plubserver.domain.plubbing.dto.PlubbingDto.PlubbingIdResponse;
@@ -241,13 +243,14 @@ public class RecruitService {
 
         // 호스트에게 푸시 알림
         Plubbing plubbing = recruit.getPlubbing();
-        notificationService.pushMessage(
-                plubbing.getHost(),
-                plubbing.getName(),
-                plubbing.getName() + "에 새로운 지원자가 있어요! \n지원서를 확인하러 가볼까요? \uD83E\uDD29" // 별눈 이모지
-        );
-
-
+        NotifyParams params = NotifyParams.builder()
+                .receiver(plubbing.getHost())
+                .type(NotificationType.APPLY_RECRUIT)
+                .redirectTargetId(plubbingId)
+                .title(plubbing.getName())
+                .content(plubbing.getName() + "에 새로운 지원자가 있어요! \n지원서를 확인하러 가볼까요? \uD83E\uDD29") // 별눈 이모지
+                .build();
+        notificationService.pushMessage(params);
         return new PlubbingIdResponse(plubbingId);
     }
 
@@ -293,12 +296,14 @@ public class RecruitService {
         feedService.createSystemFeed(plubbing, appliedAccount.getAccount().getNickname());
 
         // 지원자에게 푸시 알림
-        notificationService.pushMessage(
-                accountService.getAccount(accountId),
-                plubbing.getName(),
-                plubbing.getName() + "과 함께하게 되었어요! \n멤버들과 함께 즐겁고 유익한 시간 보내시길 바라요 \uD83D\uDE42" // 웃음 이모지
-        );
-
+        NotifyParams params = NotifyParams.builder()
+                .receiver(accountService.getAccount(accountId))
+                .type(NotificationType.APPROVE_RECRUIT)
+                .redirectTargetId(plubbingId)
+                .title(plubbing.getName())
+                .content(plubbing.getName() + "과 함께하게 되었어요! \n멤버들과 함께 즐겁고 유익한 시간 보내시길 바라요 \uD83D\uDE42") // 웃음 이모지
+                .build();
+        notificationService.pushMessage(params);
         return JoinedAccountsInfoResponse.of(plubbing);
     }
 
