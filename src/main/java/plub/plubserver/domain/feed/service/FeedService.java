@@ -154,7 +154,7 @@ public class FeedService {
         }
         Long commentGroupId = nextCursorId == null ? null : getFeedComment(nextCursorId).getCommentGroupId();
         Page<FeedCommentResponse> feedCommentList = feedCommentRepository.findAllByFeed(feed, pageable, commentGroupId, cursorId)
-                .map(it -> FeedCommentResponse.of(it, isCommentAuthor(account, it), isFeedAuthor(account, feed)));
+                .map(it -> FeedCommentResponse.of(it, isCommentAuthor(account, it), isFeedAuthor(account, feed), isAuthorComment(it)));
         Long totalElements = getCommentCount(feed);
         return PageResponse.ofCursor(feedCommentList, totalElements);
     }
@@ -177,14 +177,14 @@ public class FeedService {
                 throw new FeedException(StatusCode.NOT_FOUND_FEED);
         }
 
-        FeedComment comment = feedCommentRepository.save(createCommentRequest.toFeedComment(feed, commentAuthor));
+        FeedComment feedComment = feedCommentRepository.save(createCommentRequest.toFeedComment(feed, commentAuthor));
         if (parentComment != null) {
-            parentComment.addChildComment(comment);
-            comment.setCommentGroupId(parentComment.getCommentGroupId());
+            parentComment.addChildComment(feedComment);
+            feedComment.setCommentGroupId(parentComment.getCommentGroupId());
             feedCommentRepository.save(parentComment);
-            feedCommentRepository.save(comment);
+            feedCommentRepository.save(feedComment);
         } else {
-            comment.setCommentGroupId(comment.getId());
+            feedComment.setCommentGroupId(feedComment.getId());
         }
 
         // 작성자에게 푸시 알림
@@ -195,13 +195,13 @@ public class FeedService {
                 .type(NotificationType.CREATE_FEED_COMMENT)
                 .redirectTargetId(feed.getId())
                 .title(plubbing.getName())
-                .content(commentAuthor.getNickname() + " 님이 " + author.getNickname() + " 님의 게시글에 댓글을 남겼어요\n : " + comment.getContent())
+                .content(commentAuthor.getNickname() + " 님이 " + author.getNickname() + " 님의 게시글에 댓글을 남겼어요\n : " + feedComment.getContent())
                 .build();
         notificationService.pushMessage(params);
 
         // TODO : 대댓글 알림
 
-        return FeedCommentResponse.of(comment, true, isFeedAuthor(commentAuthor, feed));
+        return FeedCommentResponse.of(feedComment, true, isFeedAuthor(commentAuthor, feed), isAuthorComment(feedComment));
     }
 
     @Transactional
@@ -212,7 +212,7 @@ public class FeedService {
         checkCommentStatus(feedComment);
         checkCommentAuthor(account, feedComment);
         feedComment.updateFeedComment(updateCommentRequest);
-        return FeedCommentResponse.of(feedComment, true, isFeedAuthor(account, feedComment.getFeed()));
+        return FeedCommentResponse.of(feedComment, true, isFeedAuthor(account, feedComment.getFeed()), isAuthorComment(feedComment));
     }
 
     @Transactional
@@ -284,6 +284,10 @@ public class FeedService {
 
     public Boolean isCommentAuthor(Account account, FeedComment feedComment) {
         return feedComment.getAccount().getId().equals(account.getId());
+    }
+
+    private Boolean isAuthorComment(FeedComment feedComment) {
+        return feedComment.getFeed().getAccount().getId().equals(feedComment.getAccount().getId());
     }
 
     public Long getCommentCount(Feed feed) {

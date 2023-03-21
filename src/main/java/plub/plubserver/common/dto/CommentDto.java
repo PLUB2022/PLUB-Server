@@ -55,6 +55,7 @@ public class CommentDto {
             String createdAt,
             Boolean isCommentAuthor,
             Boolean isFeedAuthor,
+            Boolean isAuthorComment,
             String commentType,
             String parentCommentNickname,
             Long parentCommentId,
@@ -64,7 +65,7 @@ public class CommentDto {
         public FeedCommentResponse {
         }
 
-        public static FeedCommentResponse of(FeedComment feedComment, Boolean isCommentAuthor, Boolean isFeedAuthor) {
+        public static FeedCommentResponse of(FeedComment feedComment, Boolean isCommentAuthor, Boolean isFeedAuthor, Boolean isAuthorComment) {
             return FeedCommentResponse.builder()
                     .commentId(feedComment.getId())
                     .content(feedComment.getContent())
@@ -73,6 +74,7 @@ public class CommentDto {
                     .createdAt(feedComment.getCreatedAt())
                     .isCommentAuthor(isCommentAuthor)
                     .isFeedAuthor(isFeedAuthor)
+                    .isAuthorComment(isAuthorComment)
                     .commentType(feedComment.getParent() == null ? "COMMENT" : "REPLY")
                     .parentCommentNickname(feedComment.getParent() == null ? null : feedComment.getParent().getAccount().getNickname())
                     .parentCommentId(feedComment.getParent() == null ? null : feedComment.getParent().getId())
@@ -89,6 +91,7 @@ public class CommentDto {
             String createdAt,
             Boolean isCommentAuthor,
             Boolean isNoticeAuthor,
+            Boolean isAuthorComment,
             String commentType,
             String parentCommentNickname,
             Long parentCommentId,
@@ -98,7 +101,7 @@ public class CommentDto {
         public NoticeCommentResponse {
         }
 
-        public static NoticeCommentResponse of(NoticeComment noticeComment, Boolean isCommentAuthor, Boolean isNoticeAuthor) {
+        public static NoticeCommentResponse of(NoticeComment noticeComment, Boolean isCommentAuthor, Boolean isNoticeAuthor, Boolean isAuthorComment) {
             return NoticeCommentResponse.builder()
                     .commentId(noticeComment.getId())
                     .content(noticeComment.getContent())
@@ -107,6 +110,7 @@ public class CommentDto {
                     .createdAt(noticeComment.getCreatedAt())
                     .isCommentAuthor(isCommentAuthor)
                     .isNoticeAuthor(isNoticeAuthor)
+                    .isAuthorComment(isAuthorComment)
                     .commentType(noticeComment.getParent() == null ? "COMMENT" : "REPLY")
                     .parentCommentNickname(noticeComment.getParent() == null ? null : noticeComment.getParent().getAccount().getNickname())
                     .parentCommentId(noticeComment.getParent() == null ? null : noticeComment.getParent().getId())

@@ -143,7 +143,7 @@ public class NoticeService {
         }
         Long commentGroupId = nextCursorId == null ? null : getNoticeComment(nextCursorId).getCommentGroupId();
         Page<NoticeCommentResponse> noticeCommentList = noticeCommentRepository.findAllByNotice(notice, pageable, commentGroupId, cursorId)
-                .map(it -> NoticeCommentResponse.of(it, isCommentAuthor(currentAccount, it), isNoticeAuthor(currentAccount, notice)));
+                .map(it -> NoticeCommentResponse.of(it, isCommentAuthor(currentAccount, it), isNoticeAuthor(currentAccount, notice), isAuthorComment(it)));
         return PageResponse.of(noticeCommentList);
     }
 
@@ -162,31 +162,31 @@ public class NoticeService {
                 throw new NoticeException(StatusCode.NOT_FOUND_NOTICE);
         }
 
-        NoticeComment comment = noticeCommentRepository.save(createCommentRequest.toNoticeComment(notice, currentAccount));
+        NoticeComment noticeComment = noticeCommentRepository.save(createCommentRequest.toNoticeComment(notice, currentAccount));
         if (parentComment != null) {
-            parentComment.addChildComment(comment);
-            comment.setCommentGroupId(parentComment.getCommentGroupId());
+            parentComment.addChildComment(noticeComment);
+            noticeComment.setCommentGroupId(parentComment.getCommentGroupId());
             noticeCommentRepository.save(parentComment);
-            noticeCommentRepository.save(comment);
+            noticeCommentRepository.save(noticeComment);
         } else {
-            comment.setCommentGroupId(comment.getId());
+            noticeComment.setCommentGroupId(noticeComment.getId());
         }
 
-        currentAccount.addNoticeComment(comment);
+        currentAccount.addNoticeComment(noticeComment);
 
         // 작성자에게 푸시 알림
         NotifyParams params = NotifyParams.builder()
-                .receiver(comment.getAccount())
+                .receiver(noticeComment.getAccount())
                 .type(NotificationType.CREATE_NOTICE_COMMENT)
                 .redirectTargetId(notice.getId())
                 .title(notice.getTitle() + "에 새로운 댓글이 달렸습니다.")
-                .content(currentAccount.getNickname() + ":" + comment.getContent())
+                .content(currentAccount.getNickname() + ":" + noticeComment.getContent())
                 .build();
         notificationService.pushMessage(params);
 
         // TODO : 대댓글 알림
 
-        return NoticeCommentResponse.of(comment, isCommentAuthor(currentAccount, comment), isNoticeAuthor(currentAccount, notice));
+        return NoticeCommentResponse.of(noticeComment, isCommentAuthor(currentAccount, noticeComment), isNoticeAuthor(currentAccount, notice), isAuthorComment(noticeComment));
     }
 
     @Transactional
@@ -252,6 +252,10 @@ public class NoticeService {
 
     public Boolean isNoticeAuthor(Account account, Notice notice) {
         return notice.getAccount().getId().equals(account.getId());
+    }
+
+    private Boolean isAuthorComment(NoticeComment noticeComment) {
+        return noticeComment.getNotice().getAccount().getId().equals(noticeComment.getAccount().getId());
     }
 
     public Boolean isCommentAuthor(Account account, NoticeComment noticeComment) {
