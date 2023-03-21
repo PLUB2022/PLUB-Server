@@ -61,7 +61,7 @@ public class NoticeController {
 
     @ApiOperation(value = "공지 수정")
     @PutMapping("/{plubbingId}/notices/{noticeId}")
-    public ApiResponse<NoticeIdResponse> updateNotice(
+    public ApiResponse<NoticeResponse> updateNotice(
             @PathVariable Long plubbingId,
             @PathVariable Long noticeId,
             @Valid @RequestBody UpdateNoticeRequest updateNoticeRequest
@@ -102,7 +102,7 @@ public class NoticeController {
 
     @ApiOperation(value = "공지 댓글 생성")
     @PostMapping("/{plubbingId}/notices/{noticeId}/comments")
-    public ApiResponse<CommentIdResponse> createNoticeComment(
+    public ApiResponse<NoticeCommentResponse> createNoticeComment(
             @PathVariable Long plubbingId,
             @PathVariable Long noticeId,
             @Valid @RequestBody CreateCommentRequest createCommentRequest

@@ -98,14 +98,12 @@ public class NoticeService {
     }
 
     @Transactional
-    public NoticeIdResponse updateNotice(Long plubbingId, Long noticeId, UpdateNoticeRequest updateNoticeRequest) {
+    public NoticeResponse updateNotice(Long plubbingId, Long noticeId, UpdateNoticeRequest updateNoticeRequest) {
         Notice notice = getNotice(noticeId);
         plubbingService.checkHost(notice.getPlubbing());
         notice.updateFeed(updateNoticeRequest);
-
         notifyToMembers(plubbingService.getPlubbing(plubbingId), notice);
-
-        return new NoticeIdResponse(notice.getId());
+        return NoticeResponse.of(notice, true, getLikeCount(notice), getCommentCount(notice));
     }
 
     @Transactional
@@ -150,7 +148,7 @@ public class NoticeService {
     }
 
     @Transactional
-    public CommentIdResponse createNoticeComment(Account account, Long plubbingId, Long noticeId, CreateCommentRequest createCommentRequest) {
+    public NoticeCommentResponse createNoticeComment(Account account, Long plubbingId, Long noticeId, CreateCommentRequest createCommentRequest) {
         plubbingService.getPlubbing(plubbingId);
         Account currentAccount = accountService.getAccount(account.getId());
         Notice notice = getNotice(noticeId);
@@ -188,7 +186,7 @@ public class NoticeService {
 
         // TODO : 대댓글 알림
 
-        return new CommentIdResponse(comment.getId());
+        return NoticeCommentResponse.of(comment, isCommentAuthor(currentAccount, comment), isNoticeAuthor(currentAccount, notice));
     }
 
     @Transactional
