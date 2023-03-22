@@ -7,7 +7,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import plub.plubserver.common.exception.StatusCode;
 import plub.plubserver.domain.account.model.Account;
-import plub.plubserver.domain.account.service.AccountService;
 import plub.plubserver.domain.announcement.exception.AnnouncementException;
 import plub.plubserver.domain.announcement.model.Announcement;
 import plub.plubserver.domain.announcement.repository.AnnouncementRepository;
@@ -20,7 +19,11 @@ import static plub.plubserver.domain.announcement.dto.AnnouncementDto.*;
 public class AnnouncementService {
 
     private final AnnouncementRepository announcementRepository;
-    private final AccountService accountService;
+
+    public Announcement getAnnouncement(Long announcementId) {
+        return announcementRepository.findById(announcementId).orElseThrow(
+                () -> new AnnouncementException(StatusCode.NOT_FOUND_ANNOUNCEMENT));
+    }
 
     // 공지 생성
     @Transactional
@@ -33,14 +36,31 @@ public class AnnouncementService {
     }
 
     // 공지 전체 조회
-    public AnnouncementListResponse getAnnouncementList(Pageable pageable) {
-        Page<AnnouncementResponse> announcementPage = announcementRepository.findAll(pageable)
+    public AnnouncementListResponse getAnnouncementList(Pageable pageable, Long cursorId) {
+        Long nextCursorId = cursorId;
+        if (cursorId != null && cursorId == 0) {
+            nextCursorId = announcementRepository.findFirstByVisibilityIsTrueOrderByCreatedAtDesc()
+                    .orElseThrow(() -> new AnnouncementException(StatusCode.NOT_FOUND_ANNOUNCEMENT))
+                    .getId();
+        }
+        String createdAt = cursorId == null ? null : getAnnouncement(nextCursorId).getCreatedAt();
+
+        Page<AnnouncementResponse> announcementPage =
+                announcementRepository.findAllByOrderByCreatedAtDesc(pageable, cursorId, createdAt)
                 .map(AnnouncementResponse::of);
         return AnnouncementListResponse.of(announcementPage);
     }
 
+
+    // 공지 전체 조회 (WEB)
+    public AnnouncementListResponse getAnnouncementListWithWeb(Pageable pageable) {
+        Page<AnnouncementResponse> announcementPage =
+                announcementRepository.findAll(pageable)
+                        .map(AnnouncementResponse::of);
+        return AnnouncementListResponse.of(announcementPage);
+    }
     // 공지 상세 조회
-    public AnnouncementResponse getAnnouncement(Long announcementId) {
+    public AnnouncementResponse getAnnouncementDetails(Long announcementId) {
         Announcement announcement = announcementRepository.findById(announcementId)
                 .orElseThrow(() -> new AnnouncementException(StatusCode.NOT_FOUND_ANNOUNCEMENT));
         return AnnouncementResponse.of(announcement);

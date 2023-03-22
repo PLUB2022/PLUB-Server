@@ -38,17 +38,27 @@ public class AnnouncementController {
     @ApiOperation(value = "앱 공지사항 전체 조회")
     @GetMapping("")
     public AnnouncementListResponse getAnnouncementList(
+            @PageableDefault(direction = Sort.Direction.DESC) Pageable pageable,
+            @RequestParam(required = false) Long cursorId
+    ) {
+        return announcementService.getAnnouncementList(pageable, cursorId);
+    }
+
+    @ApiOperation(value = "앱 공지사항 전체 조회 (WEB)")
+    @GetMapping("/web")
+    public AnnouncementListResponse getAnnouncementListWithWeb(
             @PageableDefault(direction = Sort.Direction.DESC) Pageable pageable
     ) {
-        return announcementService.getAnnouncementList(pageable);
+        return announcementService.getAnnouncementListWithWeb(pageable);
     }
+
 
     @ApiOperation(value = "앱 공지사항 상세 조회")
     @GetMapping("/{announcementId}")
     public AnnouncementResponse getAnnouncement(
             @PathVariable Long announcementId
     ) {
-        return announcementService.getAnnouncement(announcementId);
+        return announcementService.getAnnouncementDetails(announcementId);
     }
 
     @ApiOperation(value = "앱 공지사항 삭제")
