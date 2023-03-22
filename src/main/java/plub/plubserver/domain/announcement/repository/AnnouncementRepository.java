@@ -7,4 +7,5 @@ import java.util.Optional;
 
 public interface AnnouncementRepository extends JpaRepository<Announcement, Long>, AnnouncementRepositoryCustom {
     Optional<Announcement> findFirstByVisibilityIsTrueOrderByCreatedAtDesc();
+    Long countAllByVisibilityIsTrue();
 }

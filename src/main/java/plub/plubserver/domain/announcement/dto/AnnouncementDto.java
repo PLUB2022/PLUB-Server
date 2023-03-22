@@ -1,8 +1,6 @@
 package plub.plubserver.domain.announcement.dto;
 
 import lombok.Builder;
-import org.springframework.data.domain.Page;
-import plub.plubserver.common.dto.PageResponse;
 import plub.plubserver.domain.announcement.model.Announcement;
 
 public class AnnouncementDto {
@@ -41,20 +39,6 @@ public class AnnouncementDto {
                     .content(announcement.getContent())
                     .createdAt(announcement.getCreatedAt())
                     .updatedAt(announcement.getModifiedAt())
-                    .build();
-        }
-    }
-
-    public record AnnouncementListResponse(
-            PageResponse<AnnouncementResponse> pageResponse
-    ) {
-        @Builder
-        public AnnouncementListResponse {
-        }
-
-        public static AnnouncementListResponse of(Page<AnnouncementResponse> page) {
-            return AnnouncementListResponse.builder()
-                    .pageResponse(PageResponse.of(page))
                     .build();
         }
     }

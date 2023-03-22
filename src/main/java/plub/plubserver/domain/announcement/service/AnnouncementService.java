@@ -5,6 +5,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import plub.plubserver.common.dto.PageResponse;
 import plub.plubserver.common.exception.StatusCode;
 import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.announcement.exception.AnnouncementException;
@@ -36,7 +37,7 @@ public class AnnouncementService {
     }
 
     // 공지 전체 조회
-    public AnnouncementListResponse getAnnouncementList(Pageable pageable, Long cursorId) {
+    public PageResponse<AnnouncementResponse> getAnnouncementList(Pageable pageable, Long cursorId) {
         Long nextCursorId = cursorId;
         if (cursorId != null && cursorId == 0) {
             nextCursorId = announcementRepository.findFirstByVisibilityIsTrueOrderByCreatedAtDesc()
@@ -48,16 +49,17 @@ public class AnnouncementService {
         Page<AnnouncementResponse> announcementPage =
                 announcementRepository.findAllByOrderByCreatedAtDesc(pageable, cursorId, createdAt)
                 .map(AnnouncementResponse::of);
-        return AnnouncementListResponse.of(announcementPage);
+        Long totalElements = announcementRepository.countAllByVisibilityIsTrue();
+        return PageResponse.ofCursor(announcementPage, totalElements);
     }
 
 
     // 공지 전체 조회 (WEB)
-    public AnnouncementListResponse getAnnouncementListWithWeb(Pageable pageable) {
+    public PageResponse<AnnouncementResponse> getAnnouncementListWithWeb(Pageable pageable) {
         Page<AnnouncementResponse> announcementPage =
                 announcementRepository.findAll(pageable)
                         .map(AnnouncementResponse::of);
-        return AnnouncementListResponse.of(announcementPage);
+        return PageResponse.of(announcementPage);
     }
     // 공지 상세 조회
     public AnnouncementResponse getAnnouncementDetails(Long announcementId) {

@@ -8,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
+import plub.plubserver.common.dto.PageResponse;
 import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.account.service.AccountService;
 import plub.plubserver.domain.announcement.service.AnnouncementService;
@@ -37,7 +38,7 @@ public class AnnouncementController {
 
     @ApiOperation(value = "앱 공지사항 전체 조회")
     @GetMapping("")
-    public AnnouncementListResponse getAnnouncementList(
+    public PageResponse<AnnouncementResponse> getAnnouncementList(
             @PageableDefault(direction = Sort.Direction.DESC) Pageable pageable,
             @RequestParam(required = false) Long cursorId
     ) {
@@ -46,7 +47,7 @@ public class AnnouncementController {
 
     @ApiOperation(value = "앱 공지사항 전체 조회 (WEB)")
     @GetMapping("/web")
-    public AnnouncementListResponse getAnnouncementListWithWeb(
+    public  PageResponse<AnnouncementResponse> getAnnouncementListWithWeb(
             @PageableDefault(direction = Sort.Direction.DESC) Pageable pageable
     ) {
         return announcementService.getAnnouncementListWithWeb(pageable);
