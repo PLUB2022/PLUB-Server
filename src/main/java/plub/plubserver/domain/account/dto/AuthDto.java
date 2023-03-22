@@ -9,9 +9,11 @@ import plub.plubserver.common.exception.StatusCode;
 import plub.plubserver.config.jwt.JwtDto;
 import plub.plubserver.domain.account.exception.AccountException;
 import plub.plubserver.domain.account.model.Account;
+import plub.plubserver.domain.account.model.AccountStatus;
 import plub.plubserver.domain.account.model.Role;
 import plub.plubserver.domain.account.model.SocialType;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Slf4j
@@ -100,6 +102,8 @@ public class AuthDto {
                     .gender(gender)
                     .introduce(introduce)
                     .role(Role.ROLE_USER)
+                    .accountStatus(AccountStatus.NORMAL)
+                    .joinDate(LocalDateTime.now())
                     .profileImage(profileImage)
                     .build();
         }
@@ -115,6 +119,8 @@ public class AuthDto {
                     .gender("M")
                     .introduce("introduce admin")
                     .role(Role.ROLE_ADMIN)
+                    .accountStatus(AccountStatus.NORMAL)
+                    .joinDate(LocalDateTime.now())
                     .build();
         }
 
@@ -130,6 +136,8 @@ public class AuthDto {
                     .introduce("introduce dummy")
                     .fcmToken("f7mGlaDUTNSx5NOJ8k39bW:APA91bEogtcJPEcYrk5JGxU9GTOB1vq38oI3Jkntu0RgIjSe5pjfr1tAS_oD75ihUBg8Fr2bJ-sy9b_eIzWlbb26MdcpM_dqGVEYzXoVjgXi3P1FlsgpzxbjKPq40iX4Vnxil3GH-7-b")
                     .role(Role.ROLE_USER)
+                    .accountStatus(AccountStatus.NORMAL)
+                    .joinDate(LocalDateTime.now())
                     .build();
         }
     }

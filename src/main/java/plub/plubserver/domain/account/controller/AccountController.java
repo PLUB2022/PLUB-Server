@@ -3,9 +3,14 @@ package plub.plubserver.domain.account.controller;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
 import plub.plubserver.common.dto.ApiResponse;
-import plub.plubserver.domain.account.dto.AccountDto.*;
+import plub.plubserver.domain.account.dto.AccountDto.AccountCategoryRequest;
+import plub.plubserver.domain.account.dto.AccountDto.AccountCategoryResponse;
+import plub.plubserver.domain.account.dto.AccountDto.AccountListResponse;
+import plub.plubserver.domain.account.dto.AccountDto.AccountProfileRequest;
 import plub.plubserver.domain.account.service.AccountService;
 
 import javax.validation.Valid;
@@ -68,5 +73,24 @@ public class AccountController {
     @GetMapping("/interest")
     public ApiResponse<AccountCategoryResponse> getAccountCategory() {
         return success(accountService.getAccountCategory());
+    }
+
+    @ApiOperation(value = "회원 전체 조회")
+    @GetMapping("")
+    public ApiResponse<AccountListResponse> getAccountList(
+            @PageableDefault(size = 10) Pageable pageable
+    ) {
+        return success(accountService.getAccountList(pageable));
+    }
+
+    @ApiOperation(value = "회원 검색")
+    @GetMapping("/search")
+    public ApiResponse<AccountListResponse> searchAccountList(
+            @RequestParam String keyword,
+            @RequestParam(required = false) String startedAt,
+            @RequestParam(required = false) String endedAt,
+            @PageableDefault(size = 10) Pageable pageable
+    ) {
+        return success(accountService.searchAccountList(startedAt, endedAt, keyword, pageable));
     }
 }

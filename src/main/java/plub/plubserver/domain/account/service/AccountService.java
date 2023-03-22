@@ -1,15 +1,15 @@
 package plub.plubserver.domain.account.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import plub.plubserver.common.exception.StatusCode;
-import plub.plubserver.domain.account.dto.AccountDto.AccountCategoryRequest;
-import plub.plubserver.domain.account.dto.AccountDto.AccountCategoryResponse;
-import plub.plubserver.domain.account.dto.AccountDto.AccountProfileRequest;
 import plub.plubserver.domain.account.exception.AccountException;
 import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.account.model.AccountCategory;
+import plub.plubserver.domain.account.model.Role;
 import plub.plubserver.domain.account.repository.AccountRepository;
 import plub.plubserver.domain.category.exception.CategoryException;
 import plub.plubserver.domain.category.model.SubCategory;
@@ -20,8 +20,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import static plub.plubserver.config.security.SecurityUtils.getCurrentAccountEmail;
-import static plub.plubserver.domain.account.dto.AccountDto.AccountInfoResponse;
-import static plub.plubserver.domain.account.dto.AccountDto.NicknameResponse;
+import static plub.plubserver.domain.account.dto.AccountDto.*;
 import static plub.plubserver.domain.account.dto.AuthDto.AuthMessage;
 
 @Service
@@ -122,5 +121,25 @@ public class AccountService {
 
     public AccountCategoryResponse getAccountCategory() {
         return AccountCategoryResponse.of(getCurrentAccount());
+    }
+
+    public AccountListResponse getAccountList(Pageable pageable) {
+        Account myAccount = getCurrentAccount();
+        if (!myAccount.getRole().equals(Role.ROLE_ADMIN)) {
+            throw new AccountException(StatusCode.ROLE_ACCESS_ERROR);
+        }
+        Page<AccountInfoWeb> accountList = accountRepository.findAll(pageable)
+                .map(AccountInfoWeb::of);
+        return AccountListResponse.of(accountList);
+    }
+
+    public AccountListResponse searchAccountList(String startedAt, String endedAt, String keyword, Pageable pageable) {
+        Account myAccount = getCurrentAccount();
+        if (!myAccount.getRole().equals(Role.ROLE_ADMIN)) {
+            throw new AccountException(StatusCode.ROLE_ACCESS_ERROR);
+        }
+        Page<AccountInfoWeb> accountList = accountRepository.findBySearch(startedAt, endedAt, keyword, pageable)
+                .map(AccountInfoWeb::of);
+        return AccountListResponse.of(accountList);
     }
 }

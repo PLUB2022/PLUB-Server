@@ -2,10 +2,13 @@ package plub.plubserver.domain.account.dto;
 
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Builder;
+import org.springframework.data.domain.Page;
+import plub.plubserver.common.dto.PageResponse;
 import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.account.model.SocialType;
 
 import javax.validation.constraints.Size;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 // TODO : 검증 로직 추가할 것 (길이제한 등등)
@@ -115,6 +118,44 @@ public class AccountDto {
                     .accountId(account.getId())
                     .nickname(account.getNickname())
                     .profileImage(account.getProfileImage())
+                    .build();
+        }
+    }
+
+    public record AccountListResponse(
+            PageResponse<AccountInfoWeb> accountList
+    ) {
+        @Builder
+        public AccountListResponse {
+        }
+
+        public static AccountListResponse of(Page<AccountInfoWeb> accountList) {
+            return AccountListResponse.builder()
+                    .accountList(PageResponse.of(accountList))
+                    .build();
+        }
+    }
+
+    public record AccountInfoWeb(
+            Long accountId,
+            String email,
+            String nickname,
+            String role,
+            String status,
+            String joinDate
+    ) {
+        @Builder
+        public AccountInfoWeb {
+        }
+
+        public static AccountInfoWeb of(Account account) {
+            return AccountInfoWeb.builder()
+                    .accountId(account.getId())
+                    .email(account.getEmail())
+                    .nickname(account.getNickname())
+                    .role(account.getRole().toString())
+                    .status(account.getAccountStatus().toString())
+                    .joinDate(account.getJoinDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")))
                     .build();
         }
     }

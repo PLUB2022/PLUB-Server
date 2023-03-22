@@ -7,7 +7,7 @@ import plub.plubserver.domain.account.model.Account;
 
 import java.util.Optional;
 
-public interface AccountRepository extends JpaRepository<Account, Long> {
+public interface AccountRepository extends JpaRepository<Account, Long>, AccountRepositoryCustom {
     Optional<Account> findByEmail(String email);
     Optional<Account> findByNickname(String nickname);
     boolean existsByEmail(String email);

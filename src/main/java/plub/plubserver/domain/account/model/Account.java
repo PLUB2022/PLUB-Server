@@ -25,6 +25,7 @@ import plub.plubserver.domain.todo.model.TodoLike;
 import plub.plubserver.domain.todo.model.TodoTimeline;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -56,6 +57,11 @@ public class Account extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private Role role;
     private String providerRefreshToken;
+
+    @Enumerated(EnumType.STRING)
+    private AccountStatus accountStatus;
+
+    private LocalDateTime joinDate;
 
     // 회원(1) - 차단 사용자(다)
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
