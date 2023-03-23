@@ -128,7 +128,7 @@ public class RecruitController {
         return success(recruitService.getMyAppliedAccount(loginAccount, plubbingId));
     }
 
-    @ApiOperation(value = " 모집 신고")
+    @ApiOperation(value = "모집 신고")
     @PostMapping("/{plubbingId}/recruit/reports")
     public ApiResponse<ReportResponse> reportRecruit(
             @PathVariable Long plubbingId,
@@ -145,5 +145,14 @@ public class RecruitController {
     ) {
         Account loginAccount = accountService.getCurrentAccount();
         return success(recruitService.getMyAppliedRecruits(loginAccount, plubbingId));
+    }
+
+    @ApiOperation(value = "지원 취소(지원서 삭제)")
+    @DeleteMapping("/{plubbingId}/recruit/applicants/me")
+    public ApiResponse<CancelApplyResponse> cancelApply(
+            @PathVariable Long plubbingId
+    ) {
+        Account loginAccount = accountService.getCurrentAccount();
+        return success(recruitService.cancelApply(loginAccount, plubbingId));
     }
 }

@@ -262,4 +262,9 @@ public class RecruitDto {
                     .build();
         }
     }
+
+    public record CancelApplyResponse(
+        Long plubbingId,
+        Long accountId
+    ) {}
 }

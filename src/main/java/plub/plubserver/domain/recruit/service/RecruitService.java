@@ -339,4 +339,16 @@ public class RecruitService {
         Report report = reportService.createReport(createReportRequest, reporter);
         return reportService.notifyHost(report, recruit.getPlubbing());
     }
+
+    /**
+     * 지원 취소 (지원 삭제)
+     */
+    @Transactional
+    public CancelApplyResponse cancelApply(Account account, Long plubbingId) {
+        Recruit recruit = getRecruitByPlubbingId(plubbingId);
+        AppliedAccount appliedAccount = appliedAccountRepository.findByAccountIdAndRecruitId(account.getId(), recruit.getId())
+                .orElseThrow(() -> new RecruitException(StatusCode.NOT_APPLIED_RECRUIT));
+        appliedAccountRepository.delete(appliedAccount);
+        return new CancelApplyResponse(account.getId(), plubbingId);
+    }
 }
