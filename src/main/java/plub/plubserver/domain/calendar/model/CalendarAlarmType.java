@@ -8,17 +8,17 @@ public enum CalendarAlarmType {
     public LocalDateTime getAlarmTime(LocalDateTime startTime) {
         switch (this) {
             case FIVE_MINUTES:
-                return startTime.plusMinutes(5);
+                return startTime.minusMinutes(5);
             case FIFTEEN_MINUTES:
-                return startTime.plusMinutes(15);
+                return startTime.minusMinutes(15);
             case THIRTY_MINUTES:
-                return startTime.plusMinutes(30);
+                return startTime.minusMinutes(30);
             case ONE_HOUR:
-                return startTime.plusHours(1);
+                return startTime.minusHours(1);
             case ONE_DAY:
-                return startTime.plusDays(1);
+                return startTime.minusDays(1);
             case ONE_WEEK:
-                return startTime.plusWeeks(1);
+                return startTime.minusWeeks(1);
             default:
                 throw new IllegalArgumentException("Invalid alarm type");
         }

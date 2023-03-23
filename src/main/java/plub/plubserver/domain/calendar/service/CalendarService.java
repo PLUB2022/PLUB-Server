@@ -165,7 +165,11 @@ public class CalendarService {
             notificationService.pushMessage(params);
         });
 
-        //TODO: 푸시 알림 스케줄러에 변경
+        // 푸시 알림 스케줄러에 변경
+        ThreadPoolTaskScheduler scheduler = schedulerService.getScheduler();
+        if (calendar.getAlarmType() != CalendarAlarmType.NONE) {
+            schedulerService.changeScheduler(calendar, scheduler);
+        }
 
         return CalendarIdResponse.of(calendar.getId());
     }
