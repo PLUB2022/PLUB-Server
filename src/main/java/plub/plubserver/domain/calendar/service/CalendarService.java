@@ -3,6 +3,7 @@ package plub.plubserver.domain.calendar.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import plub.plubserver.common.dto.PageResponse;
@@ -33,10 +34,12 @@ import static plub.plubserver.domain.notification.dto.NotificationDto.NotifyPara
 @Transactional(readOnly = true)
 public class CalendarService {
 
-    public final CalendarRepository calendarRepository;
-    public final CalendarAttendRepository calendarAttendRepository;
-    public final PlubbingService plubbingService;
-    public final NotificationService notificationService;
+    private final CalendarRepository calendarRepository;
+    private final CalendarAttendRepository calendarAttendRepository;
+    private final PlubbingService plubbingService;
+    private final NotificationService notificationService;
+
+    private final SchedulerService schedulerService;
 
     public Calendar getCalendar(Long CalendarId) {
         return calendarRepository.findById(CalendarId).orElseThrow(
@@ -134,8 +137,9 @@ public class CalendarService {
             notificationService.pushMessage(params);
         });
 
-        //TODO: 푸시 알림 스케줄러에 등록
-
+        // 푸시 알림 스케줄러에 등록
+        ThreadPoolTaskScheduler scheduler = schedulerService.getScheduler();
+        schedulerService.addScheduler(calendar, scheduler);
         return CalendarIdResponse.of(calendar.getId());
     }
 
