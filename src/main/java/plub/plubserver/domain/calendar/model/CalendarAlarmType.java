@@ -5,20 +5,20 @@ import java.time.LocalDateTime;
 public enum CalendarAlarmType {
     FIVE_MINUTES, FIFTEEN_MINUTES, THIRTY_MINUTES, ONE_HOUR, ONE_DAY, ONE_WEEK, NONE;
 
-    public LocalDateTime getAlarmTime(LocalDateTime startedAt) {
+    public LocalDateTime getAlarmTime(LocalDateTime startTime) {
         switch (this) {
             case FIVE_MINUTES:
-                return startedAt.minusMinutes(5);
+                return startTime.plusMinutes(5);
             case FIFTEEN_MINUTES:
-                return startedAt.minusMinutes(15);
+                return startTime.plusMinutes(15);
             case THIRTY_MINUTES:
-                return startedAt.minusMinutes(30);
+                return startTime.plusMinutes(30);
             case ONE_HOUR:
-                return startedAt.minusHours(1);
+                return startTime.plusHours(1);
             case ONE_DAY:
-                return startedAt.minusDays(1);
+                return startTime.plusDays(1);
             case ONE_WEEK:
-                return startedAt.minusWeeks(1);
+                return startTime.plusWeeks(1);
             default:
                 throw new IllegalArgumentException("Invalid alarm type");
         }

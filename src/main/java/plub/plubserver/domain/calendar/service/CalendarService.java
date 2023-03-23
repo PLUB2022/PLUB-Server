@@ -139,7 +139,9 @@ public class CalendarService {
 
         // 푸시 알림 스케줄러에 등록
         ThreadPoolTaskScheduler scheduler = schedulerService.getScheduler();
-        schedulerService.addScheduler(calendar, scheduler);
+        if (calendar.getAlarmType() != CalendarAlarmType.NONE) {
+            schedulerService.addScheduler(calendar, scheduler);
+        }
         return CalendarIdResponse.of(calendar.getId());
     }
 

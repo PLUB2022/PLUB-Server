@@ -56,6 +56,12 @@ public class SchedulerService {
 
         Plubbing plubbing = calendar.getPlubbing();
         List<CalendarAttend> attendList = calendar.getCalendarAttendList();
+        if (attendList == null || attendList.isEmpty()) {
+            return () -> {
+                // 삭제 로직
+                removeScheduler(calendar);
+            };
+        }
         return () -> {
             // 알람 로직
             attendList.forEach(member -> {
