@@ -97,6 +97,7 @@ public enum StatusCode {
     ALREADY_APPLIED_RECRUIT(400, 6090, "this applicant is already applied."),
     ALREADY_ACCEPTED(400, 6100, "this applicant is already accepted."),
     ALREADY_REJECTED(400, 6110, "this applicant is already rejected."),
+    PLUBBING_MEMBER_FULL(400, 6120, "plubbing member is full."),
 
     /**
      * Todo

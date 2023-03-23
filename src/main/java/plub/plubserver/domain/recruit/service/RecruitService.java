@@ -216,6 +216,11 @@ public class RecruitService {
         if (appliedAccountRepository.existsByAccountAndRecruit(loginAccount, recruit))
             throw new RecruitException(StatusCode.ALREADY_APPLIED_RECRUIT);
 
+        // 모임 인원이 꽉 찼는지 확인
+        Plubbing plubbing = recruit.getPlubbing();
+        if (plubbing.getMaxAccountNum() < plubbing.getCurAccountNum() + 1)
+            throw new RecruitException(StatusCode.PLUBBING_MEMBER_FULL);
+
         // 지원자 생성
         AppliedAccount appliedAccount = AppliedAccount.builder()
                 .account(loginAccount)
@@ -242,7 +247,6 @@ public class RecruitService {
         recruit.addAppliedAccount(appliedAccount);
 
         // 호스트에게 푸시 알림
-        Plubbing plubbing = recruit.getPlubbing();
         NotifyParams params = NotifyParams.builder()
                 .receiver(plubbing.getHost())
                 .type(NotificationType.APPLY_RECRUIT)
