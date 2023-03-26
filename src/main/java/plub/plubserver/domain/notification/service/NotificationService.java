@@ -26,11 +26,11 @@ public class NotificationService {
     @Transactional
     public void pushMessage(NotifyParams params) {
         Account receiver = accountService.getAccount(params.receiver().getId());
-        CompletableFuture<Boolean> future = fcmService.sendPushMessage(
-                receiver.getFcmToken(),
-                params.title(),
-                params.content()
-        );
+
+        // 사용자가 알림 수신을 거부한 경우 바로 종료
+        if (!receiver.getReceiveNotificationCheck()) return;
+
+        CompletableFuture<Boolean> future = fcmService.sendPushMessage(receiver.getFcmToken(), params);
         future.thenAccept(success -> {
             if (success) {
                 Notification notification = Notification.builder()
@@ -54,8 +54,7 @@ public class NotificationService {
         Account receiver = accountService.getAccount(params.receiver().getId());
         fcmService.sendPushMessage(
                 receiver.getFcmToken(),
-                params.title(),
-                params.content()
+                params
         );
         Notification notification = Notification.builder()
                 .account(receiver)
@@ -73,6 +72,7 @@ public class NotificationService {
         return NotificationListResponse.of(account.getNotifications().stream()
                 .map(NotificationResponse::of)
                 .sorted((n1, n2) -> n2.createdAt().compareTo(n1.createdAt()))
+                .limit(30)
                 .toList()
         );
     }

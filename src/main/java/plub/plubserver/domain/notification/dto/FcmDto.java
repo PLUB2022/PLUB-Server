@@ -14,7 +14,8 @@ public class FcmDto {
 
     public record Notification(
             String title,
-            String body
+            String body,
+            String redirectTargetId
     ) {}
 
     public record PushMessage(
