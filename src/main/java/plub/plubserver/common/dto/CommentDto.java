@@ -12,7 +12,7 @@ import javax.validation.constraints.Size;
 
 public class CommentDto {
     public record CreateCommentRequest(
-            @Size(max = 100)
+            @Size(max = 300)
             String content,
             @Nullable
             Long parentCommentId
@@ -39,7 +39,7 @@ public class CommentDto {
     }
 
     public record UpdateCommentRequest(
-            @Size(max = 100)
+            @Size(max = 300)
             String content
     ) {
         @Builder
