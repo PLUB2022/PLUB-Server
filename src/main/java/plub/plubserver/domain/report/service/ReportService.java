@@ -44,6 +44,7 @@ public class ReportService {
         return reportRepository.countByReportTargetIdAndReportTarget(targetId, target);
     }
 
+    // TODO : 신고 바뀐 정책에 따라서 수정 필요
     public ReportResponse notifyHost(Report report, Plubbing plubbing) {
         Long reportCount = getReportCount(report.getTargetId(), report.getReportTarget());
         NotifyParams.NotifyParamsBuilder paramsBuilder = NotifyParams.builder()
@@ -52,7 +53,7 @@ public class ReportService {
                 .title("신고");
         if (reportCount >= REPORT_PLUBBING_PAUSE_COUNT) {
             // 모임 정지
-            NotifyParams params = paramsBuilder.type(NotificationType.PLUBBING_PERMANENTLY_PAUSED)
+            NotifyParams params = paramsBuilder.type(NotificationType.BAN_PERMANENTLY)
                     .content(plubbing.getName() + "모임장 경고 3회 누적으로 모임이 영구정지 되었습니다.")
                     .build();
             notificationService.pushMessage(params);
@@ -60,7 +61,7 @@ public class ReportService {
         }
         if (reportCount >= REPORT_WARNING_PUSH_COUNT) {
             // 모임장에게 경고 알림
-            NotifyParams params = paramsBuilder.type(NotificationType.PLUBBING_RECEIVED_MANY_REPORTS)
+            NotifyParams params = paramsBuilder.type(NotificationType.BAN_ONE_MONTH)
                     .content(plubbing.getName() + "에 6회 이상 다른 사용자의 신고가 누적되어 되었습니다.")
                     .build();
             notificationService.pushMessage(params);

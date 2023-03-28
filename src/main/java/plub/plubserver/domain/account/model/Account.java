@@ -58,6 +58,8 @@ public class Account extends BaseEntity {
     private Role role;
     private String providerRefreshToken;
 
+    private Boolean receiveNotificationCheck;
+
     @Enumerated(EnumType.STRING)
     private AccountStatus accountStatus;
 

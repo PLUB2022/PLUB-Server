@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.RestController;
 import plub.plubserver.common.dto.ApiResponse;
 import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.account.service.AccountService;
-import plub.plubserver.domain.notification.dto.FcmDto.PushMessage;
 import plub.plubserver.domain.notification.dto.NotificationDto.NotificationListResponse;
 import plub.plubserver.domain.notification.dto.NotificationDto.NotifyParams;
 import plub.plubserver.domain.notification.model.NotificationType;
@@ -39,12 +38,6 @@ public class TestController {
         }
         TestDto.AuthCodeResponse authCodeResponse = new TestDto.AuthCodeResponse(authCodeDto.authCode());
         return success(authCodeResponse);
-    }
-
-    @PostMapping("/push/single")
-    public ApiResponse<?> testPushSingle(@RequestBody PushMessage form) {
-        Account targetAccount = accountService.getAccount(form.receiverId());
-        return success(fcmService.sendPushMessage(targetAccount.getFcmToken(), form.title(), form.body()));
     }
 
     @PostMapping("/report")
