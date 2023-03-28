@@ -68,7 +68,9 @@ public class NoticeDto {
             String createdAt,
             Long likeCount,
             Long commentCount,
-            Boolean isHost
+            Boolean isHost,
+            String profileImage,
+            String nickname
 
     ) {
         @Builder
@@ -84,6 +86,8 @@ public class NoticeDto {
                     .likeCount(likeCount)
                     .commentCount(commentCount)
                     .isHost(isHost)
+                    .profileImage(notice.getAccount().getProfileImage())
+                    .nickname(notice.getAccount().getNickname())
                     .build();
         }
     }
