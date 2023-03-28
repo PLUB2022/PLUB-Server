@@ -14,6 +14,7 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import plub.plubserver.common.exception.StatusCode;
+import plub.plubserver.domain.notification.dto.NotificationDto.NotifyParams;
 import plub.plubserver.domain.notification.exception.NotificationException;
 
 import java.io.IOException;
@@ -43,10 +44,14 @@ public class FcmService {
         }
     }
 
-    private String makeMessage(String targetToken, String title, String body) {
+    private String makeMessage(String targetToken, NotifyParams params) {
         try {
-            FcmMessage fcmMessage = new FcmMessage(false,
-                    new Message(targetToken, new Notification(title, body))
+            FcmMessage fcmMessage = new FcmMessage(
+                    false,
+                    new Message(
+                            targetToken,
+                            new Notification(params.title(), params.content(), String.valueOf(params.redirectTargetId()))
+                    )
             );
             return objectMapper.writeValueAsString(fcmMessage);
         } catch (JsonProcessingException e) {
@@ -57,8 +62,8 @@ public class FcmService {
     }
 
     @Async
-    public CompletableFuture<Boolean> sendPushMessage(String targetToken, String title, String body) {
-        String message = makeMessage(targetToken, title, body);
+    public CompletableFuture<Boolean> sendPushMessage(String fcmToken, NotifyParams params) {
+        String message = makeMessage(fcmToken, params);
         String accessToken = getAccessToken();
         OkHttpClient client = new OkHttpClient();
         String FCM_URL = "https://fcm.googleapis.com/v1/projects/plub-1668049761866/messages:send";
