@@ -1,6 +1,7 @@
 package plub.plubserver.domain.notice.dto;
 
 import lombok.Builder;
+import plub.plubserver.domain.account.dto.AccountDto.*;
 import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.notice.model.Notice;
 import plub.plubserver.domain.plubbing.model.Plubbing;
@@ -69,8 +70,7 @@ public class NoticeDto {
             Long likeCount,
             Long commentCount,
             Boolean isHost,
-            String profileImage,
-            String nickname
+            AccountInfo accountInfo
 
     ) {
         @Builder
@@ -86,8 +86,7 @@ public class NoticeDto {
                     .likeCount(likeCount)
                     .commentCount(commentCount)
                     .isHost(isHost)
-                    .profileImage(notice.getAccount().getProfileImage())
-                    .nickname(notice.getAccount().getNickname())
+                    .accountInfo(AccountInfo.of(notice.getAccount()))
                     .build();
         }
     }
