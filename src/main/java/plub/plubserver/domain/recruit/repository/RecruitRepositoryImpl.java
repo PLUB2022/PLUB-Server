@@ -17,7 +17,6 @@ import plub.plubserver.util.CursorUtils;
 import java.util.List;
 
 import static plub.plubserver.domain.account.model.QAccount.account;
-import static plub.plubserver.domain.archive.model.QArchive.archive;
 import static plub.plubserver.domain.category.model.QPlubbingSubCategory.plubbingSubCategory;
 import static plub.plubserver.domain.category.model.QSubCategory.subCategory;
 import static plub.plubserver.domain.plubbing.model.QPlubbing.plubbing;
