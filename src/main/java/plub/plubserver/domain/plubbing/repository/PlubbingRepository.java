@@ -6,6 +6,7 @@ import org.springframework.data.repository.query.Param;
 import plub.plubserver.domain.plubbing.model.Plubbing;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface PlubbingRepository extends JpaRepository<Plubbing, Long>, PlubbingRepositoryCustom {
     /**
@@ -18,5 +19,7 @@ public interface PlubbingRepository extends JpaRepository<Plubbing, Long>, Plubb
 
     @Query("select count(b) from Plubbing b where b.createdAt like %:thisMonth%")
     Long countByCreatedAtMonthly(@Param("thisMonth") String thisMonth);
+
+    Optional<Plubbing> findFirstByVisibilityAndId(boolean visibility, Long cursorId);
 }
 

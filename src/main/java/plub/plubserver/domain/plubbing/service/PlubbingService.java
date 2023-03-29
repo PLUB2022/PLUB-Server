@@ -10,7 +10,6 @@ import plub.plubserver.common.dto.PageResponse;
 import plub.plubserver.common.exception.StatusCode;
 import plub.plubserver.common.model.SortType;
 import plub.plubserver.domain.account.model.Account;
-import plub.plubserver.domain.account.model.AccountCategory;
 import plub.plubserver.domain.account.repository.AccountCategoryRepository;
 import plub.plubserver.domain.account.service.AccountService;
 import plub.plubserver.domain.category.model.PlubbingSubCategory;
@@ -353,16 +352,24 @@ public class PlubbingService {
             throw new PlubbingException(StatusCode.DELETED_STATUS_PLUBBING);
     }
 
-    public PageResponse<PlubbingCardResponse> getRecommendation(Pageable pageable) {
+    public PageResponse<PlubbingCardResponse> getRecommendation(Pageable pageable, Long cursorId) {
         Account myAccount = accountService.getCurrentAccount();
+        Long nextCursorId = cursorId;
+        if (cursorId != null && cursorId == 0) {
+            Optional<Plubbing> first = plubbingRepository.findFirstByVisibilityAndId(true, cursorId);
+            nextCursorId = first.map(Plubbing::getId).orElse(null);
+        }
+
         if (!myAccount.getAccountCategories().isEmpty()) {
-            List<SubCategory> subCategories = accountCategoryRepository.findAllByAccount(myAccount)
-                    .stream().map(AccountCategory::getCategorySub).toList();
-            Page<PlubbingCardResponse> plubbingCardResponses = plubbingRepository.findAllBySubCategory(subCategories, pageable)
+            List<Long> subCategoryId = accountCategoryRepository.findAllByAccount(myAccount)
+                    .stream().map(it -> it.getCategorySub().getId()).toList();
+            Page<PlubbingCardResponse> plubbingCardResponses = plubbingRepository.findAllBySubCategory(subCategoryId, pageable, cursorId)
                     .map(p -> PlubbingCardResponse.of(p, isHost(myAccount, p), isBookmarked(myAccount, p)));
             return PageResponse.of(plubbingCardResponses);
         } else {
-            Page<PlubbingCardResponse> plubbingCardResponses = plubbingRepository.findAllByViews(pageable)
+            Integer views = nextCursorId == null ? null : getPlubbing(nextCursorId).getViews();
+
+            Page<PlubbingCardResponse> plubbingCardResponses = plubbingRepository.findAllByViews(pageable, cursorId, views)
                     .map(p -> PlubbingCardResponse.of(p, isHost(myAccount, p), isBookmarked(myAccount, p)));
             return PageResponse.of(plubbingCardResponses);
         }
@@ -372,11 +379,19 @@ public class PlubbingService {
             Long categoryId,
             Pageable pageable,
             String sort,
-            PlubbingCardRequest plubbingCardRequest
+            PlubbingCardRequest plubbingCardRequest,
+            Long cursorId
     ) {
         Account myAccount = accountService.getCurrentAccount();
+
+        Long nextCursorId = cursorId;
+        if (cursorId != null && cursorId == 0) {
+            Optional<Plubbing> first = plubbingRepository.findFirstByVisibilityAndId(true, cursorId);
+            nextCursorId = first.map(Plubbing::getId).orElse(null);
+        }
+
         if (plubbingCardRequest == null) {
-            return PageResponse.of(plubbingRepository.findAllByCategoryId(categoryId, pageable, SortType.of(sort))
+            return PageResponse.of(plubbingRepository.findAllByCategory(categoryId, pageable, SortType.of(sort), nextCursorId)
                     .map(p -> PlubbingCardResponse.of(p, isHost(myAccount, p), isBookmarked(myAccount, p))));
         }
 
@@ -388,7 +403,7 @@ public class PlubbingService {
             meetingDays = days.stream().map(MeetingDay::valueOf).toList();
 
         Page<PlubbingCardResponse> plubbingCardResponses = plubbingRepository
-                .findAllByCategory(categoryId, subCategoryId, meetingDays, accountNum, pageable, SortType.of(sort))
+                .findAllByCategoryAndFilter(categoryId, subCategoryId, meetingDays, accountNum, pageable, SortType.of(sort), nextCursorId)
                 .map(p -> PlubbingCardResponse.of(p, isHost(myAccount, p), isBookmarked(myAccount, p)));
         return PageResponse.of(plubbingCardResponses);
     }

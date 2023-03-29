@@ -96,9 +96,10 @@ public class PlubbingController {
     @ApiOperation(value = "추천 모임")
     @GetMapping("/recommendation")
     public ApiResponse<PageResponse<PlubbingCardResponse>> getRecommendation(
-            @PageableDefault Pageable pageable
+            @PageableDefault Pageable pageable,
+            @RequestParam("cursorId") Long cursorId
     ) {
-        return success(plubbingService.getRecommendation(pageable));
+        return success(plubbingService.getRecommendation(pageable, cursorId));
     }
 
     @ApiOperation(value = "카테고리별 모임 조회")
@@ -107,9 +108,10 @@ public class PlubbingController {
             @PathVariable Long categoryId,
             @PageableDefault Pageable pageable,
             @RequestParam("sort") String sort,
-            @RequestBody(required = false) PlubbingCardRequest plubbingCardRequest
+            @RequestBody(required = false) PlubbingCardRequest plubbingCardRequest,
+            @RequestParam("cursorId") Long cursorId
     ) {
-        return success(plubbingService.getPlubbingByCategory(categoryId, pageable, sort, plubbingCardRequest));
+        return success(plubbingService.getPlubbingByCategory(categoryId, pageable, sort, plubbingCardRequest, cursorId));
     }
 
     @ApiOperation(value = "모임 나가기")
