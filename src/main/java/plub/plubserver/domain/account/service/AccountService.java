@@ -37,28 +37,23 @@ public class AccountService {
 
     // 회원 정보 조회
     public AccountInfoResponse getMyAccount() {
-        return accountRepository.findByEmail(getCurrentAccountEmail()).map(AccountInfoResponse::of)
-                .orElseThrow(() -> new AccountException(StatusCode.NOT_FOUND_ACCOUNT));
+        return accountRepository.findByEmail(getCurrentAccountEmail()).map(AccountInfoResponse::of).orElseThrow(() -> new AccountException(StatusCode.NOT_FOUND_ACCOUNT));
     }
 
     public AccountInfoResponse getAccount(String nickname) {
-        return accountRepository.findByNickname(nickname).map(AccountInfoResponse::of)
-                .orElseThrow(() -> new AccountException(StatusCode.NOT_FOUND_ACCOUNT));
+        return accountRepository.findByNickname(nickname).map(AccountInfoResponse::of).orElseThrow(() -> new AccountException(StatusCode.NOT_FOUND_ACCOUNT));
     }
 
     public Account getAccount(Long accountId) {
-        return accountRepository.findById(accountId)
-                .orElseThrow(() -> new AccountException(StatusCode.NOT_FOUND_ACCOUNT));
+        return accountRepository.findById(accountId).orElseThrow(() -> new AccountException(StatusCode.NOT_FOUND_ACCOUNT));
     }
 
     public Account getAccountByEmail(String email) {
-        return accountRepository.findByEmail(email)
-                .orElseThrow(() -> new AccountException(StatusCode.NOT_FOUND_ACCOUNT));
+        return accountRepository.findByEmail(email).orElseThrow(() -> new AccountException(StatusCode.NOT_FOUND_ACCOUNT));
     }
 
     public Account getCurrentAccount() {
-        return accountRepository.findByEmail(getCurrentAccountEmail())
-                .orElseThrow(() -> new AccountException(StatusCode.NOT_FOUND_ACCOUNT));
+        return accountRepository.findByEmail(getCurrentAccountEmail()).orElseThrow(() -> new AccountException(StatusCode.NOT_FOUND_ACCOUNT));
     }
 
     public NicknameResponse isDuplicateNickname(String nickname) {
@@ -75,10 +70,10 @@ public class AccountService {
     @Transactional
     public AccountInfoResponse updateProfile(AccountProfileRequest profileRequest) {
         Account myAccount = getCurrentAccount();
-
-        NicknameResponse duplicateNickname = isDuplicateNickname(profileRequest.nickname());
-        if (!duplicateNickname.isAvailableNickname()) throw new AccountException(StatusCode.NICKNAME_DUPLICATION);
-
+        if (!myAccount.getNickname().equals(profileRequest.nickname())) {
+            NicknameResponse duplicateNickname = isDuplicateNickname(profileRequest.nickname());
+            if (!duplicateNickname.isAvailableNickname()) throw new AccountException(StatusCode.NICKNAME_DUPLICATION);
+        }
         myAccount.updateProfile(profileRequest.nickname(), profileRequest.introduce(), profileRequest.profileImageUrl());
         return AccountInfoResponse.of(myAccount);
     }
@@ -107,12 +102,8 @@ public class AccountService {
         Account myAccount = getCurrentAccount();
         List<AccountCategory> accountCategoryList = new ArrayList<>();
         for (Long id : accountCategoryRequest.subCategories()) {
-            SubCategory subCategory = subCategoryRepository.findById(id)
-                    .orElseThrow(() -> new CategoryException(StatusCode.NOT_FOUND_CATEGORY));
-            AccountCategory accountCategory = AccountCategory.builder()
-                    .account(myAccount)
-                    .categorySub(subCategory)
-                    .build();
+            SubCategory subCategory = subCategoryRepository.findById(id).orElseThrow(() -> new CategoryException(StatusCode.NOT_FOUND_CATEGORY));
+            AccountCategory accountCategory = AccountCategory.builder().account(myAccount).categorySub(subCategory).build();
             accountCategoryList.add(accountCategory);
         }
         myAccount.setAccountCategory(accountCategoryList);
@@ -128,8 +119,7 @@ public class AccountService {
         if (!myAccount.getRole().equals(Role.ROLE_ADMIN)) {
             throw new AccountException(StatusCode.ROLE_ACCESS_ERROR);
         }
-        Page<AccountInfoWeb> accountList = accountRepository.findAll(pageable)
-                .map(AccountInfoWeb::of);
+        Page<AccountInfoWeb> accountList = accountRepository.findAll(pageable).map(AccountInfoWeb::of);
         return AccountListResponse.of(accountList);
     }
 
@@ -138,8 +128,7 @@ public class AccountService {
         if (!myAccount.getRole().equals(Role.ROLE_ADMIN)) {
             throw new AccountException(StatusCode.ROLE_ACCESS_ERROR);
         }
-        Page<AccountInfoWeb> accountList = accountRepository.findBySearch(startedAt, endedAt, keyword, pageable)
-                .map(AccountInfoWeb::of);
+        Page<AccountInfoWeb> accountList = accountRepository.findBySearch(startedAt, endedAt, keyword, pageable).map(AccountInfoWeb::of);
         return AccountListResponse.of(accountList);
     }
 }
