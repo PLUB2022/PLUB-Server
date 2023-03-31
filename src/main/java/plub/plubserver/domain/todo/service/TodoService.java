@@ -229,7 +229,6 @@ public class TodoService {
             Long cursorId
     ) {
         Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
-        plubbingService.checkMember(currentAccount, plubbing);
         Account account = accountRepository.findById(accountId)
                 .orElseThrow(() -> new AccountException(StatusCode.NOT_FOUND_ACCOUNT));
         return getTodoTimelinePageResponse(plubbingId, pageable, account, cursorId);
