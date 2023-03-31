@@ -159,5 +159,11 @@ public class AccountDto {
                     .build();
         }
     }
+
+    // 앱 푸시 알림 변경
+    public record AccountPushNotificationStatusResponse(
+            boolean isReceivedPushNotification
+    ) {
+    }
 }
 
