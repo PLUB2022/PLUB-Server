@@ -138,6 +138,9 @@ public class PlubbingDto {
         public static PlubbingIdResponse of(Plubbing plubbing) {
             return new PlubbingIdResponse(plubbing.getId());
         }
+        public static PlubbingIdResponse of(Long plubbingId) {
+            return new PlubbingIdResponse(plubbingId);
+        }
     }
 
     public record JoinedAccountsInfoResponse(

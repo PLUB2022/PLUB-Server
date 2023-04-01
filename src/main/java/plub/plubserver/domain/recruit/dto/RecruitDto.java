@@ -266,5 +266,16 @@ public class RecruitDto {
     public record CancelApplyResponse(
         Long plubbingId,
         Long accountId
-    ) {}
+    ) {
+        @Builder
+        public CancelApplyResponse {
+        }
+
+        public static CancelApplyResponse of(AppliedAccount appliedAccount) {
+            return CancelApplyResponse.builder()
+                    .plubbingId(appliedAccount.getRecruit().getPlubbing().getId())
+                    .accountId(appliedAccount.getAccount().getId())
+                    .build();
+        }
+    }
 }

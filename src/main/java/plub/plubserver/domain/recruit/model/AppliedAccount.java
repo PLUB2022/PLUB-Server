@@ -42,7 +42,10 @@ public class AppliedAccount extends BaseEntity {
      */
     public void addAnswerList(List<RecruitQuestionAnswer> answers) {
         if (answerList == null) answerList = new ArrayList<>();
-        this.answerList.addAll(answers);
+        else {
+            answerList.clear();
+            answerList.addAll(answers);
+        }
     }
     public void accept() {
         status = ApplicantStatus.ACCEPTED;
