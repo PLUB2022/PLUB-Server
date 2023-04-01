@@ -66,7 +66,9 @@ public class AccountService {
         } else throw new AccountException(StatusCode.NICKNAME_DUPLICATION);
     }
 
-    // 회원 정보 수정
+    /**
+     * 회원 정보 수정
+     */
     @Transactional
     public AccountInfoResponse updateProfile(AccountProfileRequest profileRequest) {
         Account myAccount = getCurrentAccount();
@@ -76,6 +78,14 @@ public class AccountService {
         }
         myAccount.updateProfile(profileRequest.nickname(), profileRequest.introduce(), profileRequest.profileImageUrl());
         return AccountInfoResponse.of(myAccount);
+    }
+
+    // 앱 전체 푸시 알림 여부 수정
+    @Transactional
+    public AccountPushNotificationStatusResponse updatePushNotificationStatus(boolean isReceived) {
+        Account loginAccount = getCurrentAccount();
+        loginAccount.updatePushNotificationStatus(isReceived);
+        return new AccountPushNotificationStatusResponse(loginAccount.isReceivedPushNotification());
     }
 
     @Transactional

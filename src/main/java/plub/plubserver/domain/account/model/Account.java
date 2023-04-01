@@ -58,7 +58,7 @@ public class Account extends BaseEntity {
     private Role role;
     private String providerRefreshToken;
 
-    private Boolean receiveNotificationCheck;
+    private boolean isReceivedPushNotification;
 
     @Enumerated(EnumType.STRING)
     private AccountStatus accountStatus;
@@ -231,5 +231,9 @@ public class Account extends BaseEntity {
 
     public void updateFcmToken(String newFcmToken) {
         this.fcmToken = newFcmToken;
+    }
+
+    public void updatePushNotificationStatus(boolean pushNotificationStatus) {
+        this.isReceivedPushNotification = pushNotificationStatus;
     }
 }

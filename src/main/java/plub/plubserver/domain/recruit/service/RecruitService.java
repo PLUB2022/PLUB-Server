@@ -9,7 +9,6 @@ import org.springframework.transaction.annotation.Transactional;
 import plub.plubserver.common.dto.PageResponse;
 import plub.plubserver.common.exception.StatusCode;
 import plub.plubserver.common.model.SortType;
-import plub.plubserver.domain.account.exception.AccountException;
 import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.account.service.AccountService;
 import plub.plubserver.domain.feed.service.FeedService;
@@ -55,7 +54,6 @@ public class RecruitService {
     private final NotificationService notificationService;
     private final ReportService reportService;
     private final FeedService feedService;
-
     private final BookmarkRepository bookmarkRepository;
 
     private Recruit getRecruitByPlubbingId(Long plubbingId) {
@@ -99,7 +97,7 @@ public class RecruitService {
     }
 
     // 내 지원서 글 조회
-    public RecruitMyApplicationResponse getMyAppliedRecruits(Account account, Long plubbingId) {
+    public RecruitMyApplicationResponse getMyRecruitApplication(Account account, Long plubbingId) {
         Recruit recruit = getRecruitByPlubbingId(plubbingId);
         AppliedAccount appliedAccount = appliedAccountRepository
                 .findByAccountIdAndRecruitId(account.getId(), recruit.getId())
@@ -118,10 +116,9 @@ public class RecruitService {
             String keyword
     ) {
         Account account = accountService.getCurrentAccount();
-
         // 북마크 여부 체크해서 DTO로 반환
-        List<Long> bookmarkedRecruitIds = recruitRepository.findAllBookmarkedRecruitIdByAccountId(account.getId());
-
+        List<Long> bookmarkedRecruitIds = recruitRepository
+                .findAllBookmarkedRecruitIdByAccountId(account.getId());
         Page<RecruitCardResponse> searchResult = recruitRepository.search(
                 cursorId,
                 pageable,
@@ -132,9 +129,7 @@ public class RecruitService {
             boolean isBookmarked = bookmarkedRecruitIds.contains(it.getPlubbing().getId());
             return RecruitCardResponse.of(it, isBookmarked);
         });
-
         Long totalElements = recruitRepository.countAllBySearch(type, keyword);
-
         return PageResponse.ofCursor(searchResult, totalElements);
     }
 
@@ -187,10 +182,8 @@ public class RecruitService {
         Recruit recruit = getRecruitByPlubbingId(plubbingId);
         plubbingService.checkHost(recruit.getPlubbing());
         recruit.done();
-
         // 지원했던 지원자들 정보 초기화
         appliedAccountRepository.deleteAllByRecruitId(recruit.getId());
-
         return RecruitStatusResponse.of(recruit);
     }
 
@@ -229,6 +222,32 @@ public class RecruitService {
                 .build();
 
         // 질문 답변 매핑
+        setRecruitQuestionAnswers(applyRecruitRequest, recruit, appliedAccount);
+
+        // 지원자 추가 및 모집글 지원자 수 증가
+        recruit.addAppliedAccount(appliedAccount);
+
+        // 호스트에게 푸시 알림
+        NotifyParams params = NotifyParams.builder()
+                .receiver(plubbing.getHost())
+                .type(NotificationType.APPLY_RECRUIT)
+                .redirectTargetId(plubbingId)
+                .title(plubbing.getName())
+                .content(plubbing.getName() + "에 새로운 지원자가 있어요! \n지원서를 확인하러 가볼까요? \uD83E\uDD29") // 별눈 이모지
+                .build();
+        notificationService.pushMessage(params);
+        return PlubbingIdResponse.of(plubbingId);
+    }
+
+    /**
+     * 질문 답변 매핑
+     * 사용처 : 모집 지원, 지원 수정 (모집글 질문 답변 수정)
+     */
+    private static void setRecruitQuestionAnswers(
+            ApplyRecruitRequest applyRecruitRequest,
+            Recruit recruit,
+            AppliedAccount appliedAccount
+    ) {
         List<RecruitQuestion> questions = recruit.getRecruitQuestionList();
         List<RecruitQuestionAnswer> answers = new ArrayList<>();
         for (AnswerRequest ar : applyRecruitRequest.answers()) {
@@ -244,30 +263,57 @@ public class RecruitService {
                     .build());
         }
         appliedAccount.addAnswerList(answers);
-        recruit.addAppliedAccount(appliedAccount);
+    }
 
-        // 호스트에게 푸시 알림
-        NotifyParams params = NotifyParams.builder()
-                .receiver(plubbing.getHost())
-                .type(NotificationType.APPLY_RECRUIT)
-                .redirectTargetId(plubbingId)
-                .title(plubbing.getName())
-                .content(plubbing.getName() + "에 새로운 지원자가 있어요! \n지원서를 확인하러 가볼까요? \uD83E\uDD29") // 별눈 이모지
-                .build();
-        notificationService.pushMessage(params);
-        return new PlubbingIdResponse(plubbingId);
+    /**
+     * 지원 수정 (질문글 답변 수정)
+     */
+    @Transactional
+    public PlubbingIdResponse updateRecruitQuestionAnswers(
+            Long plubbingId,
+            ApplyRecruitRequest newApplyRecruitRequest
+    ) {
+        Account loginAccount = accountService.getCurrentAccount();
+        Recruit recruit = getRecruitByPlubbingId(plubbingId);
+        // 질문에 새로운 답변 다시 매핑
+        setRecruitQuestionAnswers(
+                newApplyRecruitRequest,
+                recruit,
+                getAppliedAccount(loginAccount, recruit)
+        );
+        return PlubbingIdResponse.of(plubbingId);
+    }
+
+    /**
+     * 지원 취소 (지원 삭제)
+     */
+    @Transactional
+    public CancelApplyResponse cancelApply(Account account, Long plubbingId) {
+        Recruit recruit = getRecruitByPlubbingId(plubbingId);
+        AppliedAccount appliedAccount = getAppliedAccount(account, recruit);
+        appliedAccountRepository.delete(appliedAccount);
+        return CancelApplyResponse.of(appliedAccount);
+    }
+
+    // 호스트 여부 체크하면서 지원자 찾기
+    private AppliedAccount getAppliedAccountWithCheckHost(
+            Account loginAccount, Long plubbingId, Long accountId) {
+        // loginAccount : 현재 로그인된 사용자 (API 호출 주체)
+        // accountId : 지원자인지 검사하고싶은 회원 ID
+        Recruit recruit = getRecruitByPlubbingId(plubbingId);
+
+        // 로그인한 사용자가 호스트인지 검사
+        plubbingService.checkHost(loginAccount, recruit.getPlubbing());
+
+        // 지원자 찾기
+        return getAppliedAccount(accountService.getAccount(accountId), recruit);
     }
 
     // 지원자 찾기
-    private AppliedAccount findAppliedAccount(Account account, Long plubbingId, Long accountId) {
-        Recruit recruit = getRecruitByPlubbingId(plubbingId);
-
-        plubbingService.checkHost(account, recruit.getPlubbing());
-
-        // recruit 에서 지원자를 찾기
+    private AppliedAccount getAppliedAccount(Account account, Recruit recruit) {
         return appliedAccountRepository
-                .findByAccountIdAndRecruitId(accountId, recruit.getId())
-                .orElseThrow(() -> new AccountException(StatusCode.NOT_FOUND_ACCOUNT));
+                .findByAccountIdAndRecruitId(account.getId(), recruit.getId())
+                .orElseThrow(() -> new RecruitException(StatusCode.NOT_APPLIED_RECRUIT));
     }
 
 
@@ -277,7 +323,7 @@ public class RecruitService {
     @Transactional
     public JoinedAccountsInfoResponse acceptApplicant(Account loginAccount, Long plubbingId, Long accountId) {
         Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
-        AppliedAccount appliedAccount = findAppliedAccount(loginAccount, plubbingId, accountId);
+        AppliedAccount appliedAccount = getAppliedAccountWithCheckHost(loginAccount, plubbingId, accountId);
 
         if (appliedAccount.getStatus().equals(ApplicantStatus.ACCEPTED) ||
                 appliedAccount.getStatus().equals(ApplicantStatus.REJECTED))
@@ -316,7 +362,7 @@ public class RecruitService {
      */
     @Transactional
     public JoinedAccountsInfoResponse rejectApplicant(Account loginAccount, Long plubbingId, Long accountId) {
-        AppliedAccount appliedAccount = findAppliedAccount(loginAccount, plubbingId, accountId);
+        AppliedAccount appliedAccount = getAppliedAccountWithCheckHost(loginAccount, plubbingId, accountId);
 
         if (appliedAccount.getStatus().equals(ApplicantStatus.REJECTED) ||
                 appliedAccount.getStatus().equals(ApplicantStatus.ACCEPTED))
@@ -338,17 +384,5 @@ public class RecruitService {
         Recruit recruit = getRecruitByPlubbingId(createReportRequest.reportTargetId()); // 해당 모임id에 해당하는 모집글 존재여부 확인
         Report report = reportService.createReport(createReportRequest, reporter);
         return reportService.notifyHost(report, recruit.getPlubbing());
-    }
-
-    /**
-     * 지원 취소 (지원 삭제)
-     */
-    @Transactional
-    public CancelApplyResponse cancelApply(Account account, Long plubbingId) {
-        Recruit recruit = getRecruitByPlubbingId(plubbingId);
-        AppliedAccount appliedAccount = appliedAccountRepository.findByAccountIdAndRecruitId(account.getId(), recruit.getId())
-                .orElseThrow(() -> new RecruitException(StatusCode.NOT_APPLIED_RECRUIT));
-        appliedAccountRepository.delete(appliedAccount);
-        return new CancelApplyResponse(account.getId(), plubbingId);
     }
 }

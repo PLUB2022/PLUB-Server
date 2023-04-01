@@ -105,7 +105,7 @@ public class AuthDto {
                     .accountStatus(AccountStatus.NORMAL)
                     .joinDate(LocalDateTime.now())
                     .profileImage(profileImage)
-                    .receiveNotificationCheck(true)
+                    .isReceivedPushNotification(true)
                     .build();
         }
 
@@ -122,7 +122,7 @@ public class AuthDto {
                     .role(Role.ROLE_ADMIN)
                     .accountStatus(AccountStatus.NORMAL)
                     .joinDate(LocalDateTime.now())
-                    .receiveNotificationCheck(true)
+                    .isReceivedPushNotification(true)
                     .build();
         }
 
@@ -140,7 +140,7 @@ public class AuthDto {
                     .role(Role.ROLE_USER)
                     .accountStatus(AccountStatus.NORMAL)
                     .joinDate(LocalDateTime.now())
-                    .receiveNotificationCheck(true)
+                    .isReceivedPushNotification(true)
                     .build();
         }
     }

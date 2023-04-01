@@ -28,7 +28,7 @@ public class NotificationService {
         Account receiver = accountService.getAccount(params.receiver().getId());
 
         // 사용자가 알림 수신을 거부한 경우 바로 종료
-        if (!receiver.getReceiveNotificationCheck()) return;
+        if (!receiver.isReceivedPushNotification()) return;
 
         CompletableFuture<Boolean> future = fcmService.sendPushMessage(receiver.getFcmToken(), params);
         future.thenAccept(success -> {

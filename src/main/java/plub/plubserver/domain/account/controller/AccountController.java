@@ -7,17 +7,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
 import plub.plubserver.common.dto.ApiResponse;
-import plub.plubserver.domain.account.dto.AccountDto.AccountCategoryRequest;
-import plub.plubserver.domain.account.dto.AccountDto.AccountCategoryResponse;
-import plub.plubserver.domain.account.dto.AccountDto.AccountListResponse;
-import plub.plubserver.domain.account.dto.AccountDto.AccountProfileRequest;
 import plub.plubserver.domain.account.service.AccountService;
 
 import javax.validation.Valid;
 
 import static plub.plubserver.common.dto.ApiResponse.success;
-import static plub.plubserver.domain.account.dto.AccountDto.AccountInfoResponse;
-import static plub.plubserver.domain.account.dto.AccountDto.NicknameResponse;
+import static plub.plubserver.domain.account.dto.AccountDto.*;
 import static plub.plubserver.domain.account.dto.AuthDto.AuthMessage;
 
 
@@ -52,6 +47,14 @@ public class AccountController {
             @Valid @RequestBody AccountProfileRequest accountProfileRequest
     ) {
         return success(accountService.updateProfile(accountProfileRequest));
+    }
+
+    @ApiOperation(value = "회원 앱 전체 푸시알림 수신 여부 변경")
+    @PutMapping("/me")
+    public ApiResponse<AccountPushNotificationStatusResponse> updatePushNotificationStatus(
+            @RequestParam(value = "push-notification", defaultValue = "true") boolean pushNotificationStatus
+    ) {
+        return success(accountService.updatePushNotificationStatus(pushNotificationStatus));
     }
 
     @ApiOperation(value = "회원 탈퇴")
