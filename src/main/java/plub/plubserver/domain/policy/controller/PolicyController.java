@@ -12,7 +12,7 @@ import plub.plubserver.domain.policy.service.PolicyService;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/policys")
+@RequestMapping("/api/polices")
 @Slf4j
 @Api(tags = "정책 API", hidden = true)
 public class PolicyController {
