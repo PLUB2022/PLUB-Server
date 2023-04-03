@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
 import plub.plubserver.common.dto.ApiResponse;
+import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.account.service.AccountService;
 
 import javax.validation.Valid;
@@ -14,6 +15,8 @@ import javax.validation.Valid;
 import static plub.plubserver.common.dto.ApiResponse.success;
 import static plub.plubserver.domain.account.dto.AccountDto.*;
 import static plub.plubserver.domain.account.dto.AuthDto.AuthMessage;
+import static plub.plubserver.domain.report.dto.ReportDto.CreateReportRequest;
+import static plub.plubserver.domain.report.dto.ReportDto.ReportResponse;
 
 
 @RestController
@@ -96,4 +99,16 @@ public class AccountController {
     ) {
         return success(accountService.searchAccountList(startedAt, endedAt, keyword, pageable));
     }
+
+    @ApiOperation(value = "회원 신고")
+    @PostMapping("/{accountId}/report")
+    public ApiResponse<ReportResponse> reportAccount(
+            @PathVariable Long accountId,
+            @Valid @RequestBody CreateReportRequest createReportRequest
+    ) {
+        Account loginAccount = accountService.getCurrentAccount();
+        return success(accountService.reportAccount(loginAccount, accountId, createReportRequest));
+    }
 }
+
+

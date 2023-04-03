@@ -26,6 +26,7 @@ public enum StatusCode {
     SOCIAL_TYPE_ERROR(400, 2030, "invalid social type error."),
     ROLE_ACCESS_ERROR(400, 2040, "role access error."),
     NICKNAME_ERROR(400, 2050, "invalid nickname error."),
+    SELF_REPORT_ERROR(400, 2060, "self report error."),
 
     /**
      * Auth

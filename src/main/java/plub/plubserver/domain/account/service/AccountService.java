@@ -14,6 +14,8 @@ import plub.plubserver.domain.account.repository.AccountRepository;
 import plub.plubserver.domain.category.exception.CategoryException;
 import plub.plubserver.domain.category.model.SubCategory;
 import plub.plubserver.domain.category.repository.SubCategoryRepository;
+import plub.plubserver.domain.report.model.Report;
+import plub.plubserver.domain.report.service.ReportService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,6 +24,8 @@ import java.util.regex.Pattern;
 import static plub.plubserver.config.security.SecurityUtils.getCurrentAccountEmail;
 import static plub.plubserver.domain.account.dto.AccountDto.*;
 import static plub.plubserver.domain.account.dto.AuthDto.AuthMessage;
+import static plub.plubserver.domain.report.dto.ReportDto.CreateReportRequest;
+import static plub.plubserver.domain.report.dto.ReportDto.ReportResponse;
 
 @Service
 @RequiredArgsConstructor
@@ -33,6 +37,8 @@ public class AccountService {
     private final AppleService appleService;
     private final GoogleService googleService;
     private final KakaoService kakaoService;
+
+    private final ReportService reportService;
 
 
     // 회원 정보 조회
@@ -140,5 +146,18 @@ public class AccountService {
         }
         Page<AccountInfoWeb> accountList = accountRepository.findBySearch(startedAt, endedAt, keyword, pageable).map(AccountInfoWeb::of);
         return AccountListResponse.of(accountList);
+    }
+
+    /**
+     * 회원 신고
+     */
+    @Transactional
+    public ReportResponse reportAccount(Account reporter, Long accountId, CreateReportRequest createReportRequest) {
+        Account ReportedAccount = getAccount(accountId);
+        if (ReportedAccount.getId().equals(reporter.getId())) {
+            throw new AccountException(StatusCode.SELF_REPORT_ERROR);
+        }
+        Report report = reportService.createReport(createReportRequest, reporter);
+        return reportService.notifyAccount(report, ReportedAccount);
     }
 }

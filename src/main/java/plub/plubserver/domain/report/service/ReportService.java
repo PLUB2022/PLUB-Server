@@ -19,8 +19,7 @@ import plub.plubserver.domain.report.repositoy.ReportRepository;
 
 import java.util.List;
 
-import static plub.plubserver.domain.report.config.ReportConstant.REPORT_PLUBBING_PAUSE_COUNT;
-import static plub.plubserver.domain.report.config.ReportConstant.REPORT_WARNING_PUSH_COUNT;
+import static plub.plubserver.domain.report.config.ReportConstant.*;
 import static plub.plubserver.domain.report.dto.ReportDto.CreateReportRequest;
 
 @Service
@@ -66,6 +65,39 @@ public class ReportService {
                     .build();
             notificationService.pushMessage(params);
             return ReportResponse.of(report, ReportMessage.REPORT_HOST_NOTIFY);
+        }
+        return ReportResponse.of(report, ReportMessage.REPORT_SUCCESS);
+    }
+
+    public ReportResponse notifyAccount(Report report, Account account) {
+        Long reportCount = getReportCount(report.getTargetId(), report.getReportTarget());
+        NotifyParams.NotifyParamsBuilder paramsBuilder = NotifyParams.builder()
+                .receiver(account)
+                .redirectTargetId(account.getId())
+                .title("신고");
+
+        if (reportCount >= REPORT_ACCOUNT_WARNING_PUSH_COUNT) {
+            // 경고 알림
+            NotifyParams params = paramsBuilder.type(NotificationType.BAN_PERMANENTLY)
+                    .content("경고 1회 입니다. 경고 3회 누적시 계정이 1개월 정지 됩니다.")
+                    .build();
+            notificationService.pushMessage(params);
+            return ReportResponse.of(report, ReportMessage.REPORT_ACCOUNT_WARNING);
+        }
+        else if (reportCount >= REPORT_ACCOUNT_PAUSED_COUNT) {
+            // 계정 1개월 정지
+            NotifyParams params = paramsBuilder.type(NotificationType.BAN_ONE_MONTH)
+                    .content("경고 3회 누적으로 계정이 1개월 정지 되었습니다.")
+                    .build();
+            notificationService.pushMessage(params);
+            return ReportResponse.of(report, ReportMessage.REPORT_ACCOUNT_PAUSED);
+        }else if (reportCount >= REPORT_ACCOUNT_BAN_COUNT) {
+            // 계정 영구 정지
+            NotifyParams params = paramsBuilder.type(NotificationType.BAN_PERMANENTLY)
+                    .content("경고 6회 누적으로 계정이 영구 정지 되었습니다.")
+                    .build();
+            notificationService.pushMessage(params);
+            return ReportResponse.of(report, ReportMessage.REPORT_ACCOUNT_BANNED);
         }
         return ReportResponse.of(report, ReportMessage.REPORT_SUCCESS);
     }
