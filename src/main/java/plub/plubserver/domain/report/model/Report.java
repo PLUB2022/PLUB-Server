@@ -5,6 +5,7 @@ import plub.plubserver.common.model.BaseEntity;
 import plub.plubserver.domain.account.model.Account;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -28,8 +29,17 @@ public class Report extends BaseEntity {
 
     private Long targetId;
 
+    private boolean isCanceled;
+
+    private LocalDateTime canceledDate;
+
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "account_id")
-    private Account account;
+    @JoinColumn(name = "reporter_account_id")
+    private Account reporter;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "reported_account_id")
+    private Account reportedAccount;
+
 
 }

@@ -20,9 +20,6 @@ import plub.plubserver.domain.archive.model.ArchiveImage;
 import plub.plubserver.domain.archive.repository.ArchiveRepository;
 import plub.plubserver.domain.plubbing.model.Plubbing;
 import plub.plubserver.domain.plubbing.service.PlubbingService;
-import plub.plubserver.domain.report.dto.ReportDto.CreateReportRequest;
-import plub.plubserver.domain.report.dto.ReportDto.ReportResponse;
-import plub.plubserver.domain.report.model.Report;
 import plub.plubserver.domain.report.service.ReportService;
 
 import java.util.List;
@@ -191,18 +188,5 @@ public class ArchiveService {
     @Transactional
     public void hardDeleteArchive(Long archiveId) {
         archiveRepository.deleteById(archiveId);
-    }
-
-
-    /**
-     * 아카이브 신고
-     */
-    @Transactional
-    public ReportResponse reportArchive(Account reporter, Long plubbingId, CreateReportRequest createReportRequest, Long archiveId) {
-        Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
-        plubbingService.checkMember(reporter, plubbing);
-        Archive archive = getArchive(archiveId); // 아카이브 존재 여부 확인
-        Report report = reportService.createReport(createReportRequest, reporter);
-        return reportService.notifyHost(report, archive.getPlubbing());
     }
 }

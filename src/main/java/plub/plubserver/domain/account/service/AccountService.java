@@ -147,17 +147,4 @@ public class AccountService {
         Page<AccountInfoWeb> accountList = accountRepository.findBySearch(startedAt, endedAt, keyword, pageable).map(AccountInfoWeb::of);
         return AccountListResponse.of(accountList);
     }
-
-    /**
-     * 회원 신고
-     */
-    @Transactional
-    public ReportResponse reportAccount(Account reporter, Long accountId, CreateReportRequest createReportRequest) {
-        Account ReportedAccount = getAccount(accountId);
-        if (ReportedAccount.getId().equals(reporter.getId())) {
-            throw new AccountException(StatusCode.SELF_REPORT_ERROR);
-        }
-        Report report = reportService.createReport(createReportRequest, reporter);
-        return reportService.notifyAccount(report, ReportedAccount);
-    }
 }

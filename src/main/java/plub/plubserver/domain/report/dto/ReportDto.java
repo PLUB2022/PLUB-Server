@@ -18,13 +18,15 @@ public class ReportDto {
         public CreateReportRequest {
         }
 
-        public Report toEntity(Account reporter) {
+        public Report toEntity(Account reporter, Account reportedAccount) {
             return Report.builder()
                     .reportType(ReportType.toEnum(reportType))
                     .reportTarget(ReportTarget.toEnum(reportTarget))
                     .targetId(reportTargetId)
                     .content(content)
-                    .account(reporter)
+                    .reporter(reporter)
+                    .reportedAccount(reportedAccount)
+                    .isCanceled(false)
                     .build();
         }
     }
@@ -59,6 +61,20 @@ public class ReportDto {
     ) {
         @Builder
         public ReportTypeResponse {
+        }
+    }
+
+    public record ReportIdResponse(
+            Long reportId
+    ) {
+        @Builder
+        public ReportIdResponse {
+        }
+
+        public static ReportIdResponse of(Report report) {
+            return ReportIdResponse.builder()
+                    .reportId(report.getId())
+                    .build();
         }
     }
 }

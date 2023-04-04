@@ -77,7 +77,9 @@ public enum StatusCode {
      * Report
      */
     NOT_FOUND_REPORT(404, 5000, "not found report error."),
-
+    NOT_FOUND_SUSPEND_ACCOUNT(404, 5010, "not found suspend account error."),
+    CANNOT_CHANGE_PERMANENTLY_BANNED_ACCOUNT(400, 5020, "cannot change permanently banned account."),
+    REPORT_TARGET_NOT_FOUND(404, 5030, "report target not found."),
     /**
      * Plubbing
      */
@@ -99,6 +101,7 @@ public enum StatusCode {
     ALREADY_ACCEPTED(400, 6100, "this applicant is already accepted."),
     ALREADY_REJECTED(400, 6110, "this applicant is already rejected."),
     PLUBBING_MEMBER_FULL(400, 6120, "plubbing member is full."),
+    NOT_FOUND_RECRUIT(404, 6130, "not found recruit error."),
 
     /**
      * Todo
