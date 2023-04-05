@@ -16,7 +16,8 @@ public class ReportMessage {
     public static final String REPORT_ACCOUNT_PAUSED_CONTENT = "경고 3회 누적으로 계정이 1개월 정지 되었습니다.";
     public static final String REPORT_ACCOUNT_BAN_CONTENT = "경고 6회 누적으로 계정이 영구 정지 되었습니다.";
 
-    public static final String ADMIN_REPORT_ACCOUNT_BAN = "신고가 접수되었습니다. 계정이 영구 정지 되었습니다.";
+    public static final String REPORT_TITLE = "신고";
+    public static final String REPORT_TITLE_ADMIN = "검토 완료";
 
 
 }

@@ -26,7 +26,7 @@ public class ReportDto {
                     .content(content)
                     .reporter(reporter)
                     .reportedAccount(reportedAccount)
-                    .isCanceled(false)
+                    .checkCanceled(false)
                     .build();
         }
     }

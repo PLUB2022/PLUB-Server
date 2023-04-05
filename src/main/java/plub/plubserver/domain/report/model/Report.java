@@ -29,7 +29,7 @@ public class Report extends BaseEntity {
 
     private Long targetId;
 
-    private boolean isCanceled;
+    private boolean checkCanceled;
 
     private LocalDateTime canceledDate;
 

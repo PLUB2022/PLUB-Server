@@ -4,12 +4,13 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.web.bind.annotation.*;
 import plub.plubserver.common.dto.ApiResponse;
 import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.account.service.AccountService;
-import plub.plubserver.domain.report.dto.ReportDto.*;
+import plub.plubserver.domain.report.dto.ReportDto.CreateReportRequest;
+import plub.plubserver.domain.report.dto.ReportDto.ReportIdResponse;
+import plub.plubserver.domain.report.dto.ReportDto.ReportTypeResponse;
 import plub.plubserver.domain.report.service.ReportService;
 
 import java.util.List;

@@ -7,7 +7,6 @@ import org.springframework.transaction.annotation.Transactional;
 import plub.plubserver.common.exception.StatusCode;
 import plub.plubserver.domain.account.exception.AccountException;
 import plub.plubserver.domain.account.model.Account;
-import plub.plubserver.domain.account.model.AccountStatus;
 import plub.plubserver.domain.account.model.SuspendAccount;
 import plub.plubserver.domain.account.repository.AccountRepository;
 import plub.plubserver.domain.account.repository.SuspendAccountRepository;
@@ -18,6 +17,7 @@ import plub.plubserver.domain.feed.repository.FeedCommentRepository;
 import plub.plubserver.domain.feed.repository.FeedRepository;
 import plub.plubserver.domain.notice.exception.NoticeException;
 import plub.plubserver.domain.notice.repository.NoticeCommentRepository;
+import plub.plubserver.domain.notification.dto.NotificationDto;
 import plub.plubserver.domain.notification.dto.NotificationDto.NotifyParams;
 import plub.plubserver.domain.notification.model.NotificationType;
 import plub.plubserver.domain.notification.service.NotificationService;
@@ -36,7 +36,8 @@ import plub.plubserver.domain.todo.repository.TodoRepository;
 
 import java.util.List;
 
-import static plub.plubserver.domain.account.model.AccountStatus.*;
+import static plub.plubserver.domain.account.model.AccountStatus.PAUSED;
+import static plub.plubserver.domain.account.model.AccountStatus.PERMANENTLY_BANNED;
 import static plub.plubserver.domain.notification.model.NotificationType.*;
 import static plub.plubserver.domain.report.config.ReportConstant.*;
 import static plub.plubserver.domain.report.config.ReportMessage.*;
@@ -65,39 +66,45 @@ public class ReportService {
     @Transactional
     public ReportIdResponse createReport(CreateReportRequest request, Account reporter) {
         Account reportedAccount = checkReportTargetAccount(request.reportTargetId(), request.reportTarget());
-        Report report = reportRepository.save(request.toEntity(reporter, reportedAccount));
+        Report createReport = request.toEntity(reporter, reportedAccount);
+        checkDuplicateReport(createReport);
+        Report report = reportRepository.save(createReport);
         return ReportIdResponse.of(report);
+    }
+
+    // 한 유저가 같은 대상을 중복 신고하는 것을 방지
+    private void checkDuplicateReport(Report createReport) {
+        if (reportRepository.existsByReporterAndReportedAccountAndReportTargetAndCheckCanceledFalse(
+                createReport.getReporter(), createReport.getReportedAccount(), createReport.getReportTarget())) {
+            throw new ReportException(StatusCode.DUPLICATE_REPORT);
+        }
     }
 
     public Account checkReportTargetAccount(Long targetId, String reportTarget) {
         ReportTarget target = ReportTarget.toEnum(reportTarget);
-        if (target == ReportTarget.ACCOUNT) {
-            return accountRepository.findById(targetId).orElseThrow(() -> new AccountException(StatusCode.NOT_FOUND_ACCOUNT));
-        } else if (target == ReportTarget.FEED) {
-            return feedRepository.findById(targetId).orElseThrow(() -> new FeedException(StatusCode.NOT_FOUND_FEED))
-                    .getAccount();
-        } else if (target == ReportTarget.FEED_COMMENT) {
-            return feedCommentRepository.findById(targetId).orElseThrow(() -> new FeedException(StatusCode.NOT_FOUND_COMMENT))
-                    .getAccount();
-        } else if (target == ReportTarget.NOTICE_COMMENT) {
-            return noticeCommentRepository.findById(targetId).orElseThrow(() -> new NoticeException(StatusCode.NOT_FOUND_COMMENT))
-                    .getAccount();
-        } else if (target == ReportTarget.TODO) {
-            return todoRepository.findById(targetId).orElseThrow(() -> new TodoException(StatusCode.NOT_FOUNT_TODO))
-                    .getAccount();
-        } else if (target == ReportTarget.ARCHIVE) {
-            return archiveRepository.findById(targetId).orElseThrow(() -> new ArchiveException(StatusCode.NOT_FOUND_ARCHIVE))
-                    .getAccount();
-        } else if (target == ReportTarget.RECRUIT) {
-            return recruitRepository.findById(targetId).orElseThrow(() -> new RecruitException(StatusCode.NOT_FOUND_RECRUIT))
-                    .getPlubbing().getHost();
-        } else {
-            throw new ReportException(StatusCode.REPORT_TARGET_NOT_FOUND);
-        }
+        Account account = switch (target) {
+            case ACCOUNT ->
+                    accountRepository.findById(targetId).orElseThrow(() -> new AccountException(StatusCode.NOT_FOUND_ACCOUNT));
+            case FEED ->
+                    feedRepository.findById(targetId).orElseThrow(() -> new FeedException(StatusCode.NOT_FOUND_FEED)).getAccount();
+            case FEED_COMMENT ->
+                    feedCommentRepository.findById(targetId).orElseThrow(() -> new FeedException(StatusCode.NOT_FOUND_COMMENT)).getAccount();
+            case NOTICE_COMMENT ->
+                    noticeCommentRepository.findById(targetId).orElseThrow(() -> new NoticeException(StatusCode.NOT_FOUND_COMMENT)).getAccount();
+            case TODO ->
+                    todoRepository.findById(targetId).orElseThrow(() -> new TodoException(StatusCode.NOT_FOUNT_TODO)).getAccount();
+            case ARCHIVE ->
+                    archiveRepository.findById(targetId).orElseThrow(() -> new ArchiveException(StatusCode.NOT_FOUND_ARCHIVE)).getAccount();
+            case RECRUIT ->
+                    recruitRepository.findById(targetId).orElseThrow(() -> new RecruitException(StatusCode.NOT_FOUND_RECRUIT)).getPlubbing().getHost();
+            default -> throw new ReportException(StatusCode.REPORT_TARGET_NOT_FOUND);
+        };
+        return account;
     }
 
+
     public Long countReportedAccount(Account reportedAccount) {
-        return reportRepository.countByReportedAccount(reportedAccount);
+        return reportRepository.countByReportedAccountAndCheckCanceledFalse(reportedAccount);
     }
 
     public ReportResponse notifyReportedAccount(Report report) {
@@ -105,7 +112,7 @@ public class ReportService {
         Long reportedAccountCount = countReportedAccount(reportedAccount);
         if (reportedAccountCount >= REPORT_ACCOUNT_BAN_COUNT) {
             // 계정 영구 정지
-            NotifyParams params = createNotifyParams(report, REPORT_ACCOUNT_BAN_CONTENT, BAN_PERMANENTLY);
+            NotifyParams params = createNotifyParams(report, REPORT_TITLE, REPORT_ACCOUNT_BAN_CONTENT, BAN_PERMANENTLY);
             notificationService.pushMessage(params);
             reportedAccount.updateAccountStatus(PERMANENTLY_BANNED);
 
@@ -118,20 +125,18 @@ public class ReportService {
             suspendAccountRepository.save(suspendAccount);
 
             return ReportResponse.of(report, ReportMessage.REPORT_ACCOUNT_BANNED);
-        }
-        else if (reportedAccountCount >= REPORT_ACCOUNT_PAUSED_COUNT) {
+        } else if (reportedAccountCount >= REPORT_ACCOUNT_PAUSED_COUNT) {
             // 계정 1개월 정지
-            NotifyParams params = createNotifyParams(report, REPORT_ACCOUNT_PAUSED_CONTENT, BAN_ONE_MONTH);
-             notificationService.pushMessage(params);
+            NotifyParams params = createNotifyParams(report, REPORT_TITLE, REPORT_ACCOUNT_PAUSED_CONTENT, BAN_ONE_MONTH);
+            notificationService.pushMessage(params);
 
             // 계정 상태 일시정지로 변경
             reportedAccount.updateAccountStatus(PAUSED);
 
             return ReportResponse.of(report, ReportMessage.REPORT_ACCOUNT_PAUSED);
-        }
-        else if (reportedAccountCount >= REPORT_ACCOUNT_WARNING_PUSH_COUNT) {
+        } else if (reportedAccountCount >= REPORT_ACCOUNT_WARNING_PUSH_COUNT) {
             // 경고 알림
-            NotifyParams params = createNotifyParams(report, REPORT_ACCOUNT_WARING_CONTENT, REPORTED_ONCE);
+            NotifyParams params = createNotifyParams(report, REPORT_TITLE, REPORT_ACCOUNT_WARING_CONTENT, REPORTED_ONCE);
             notificationService.pushMessage(params);
             return ReportResponse.of(report, ReportMessage.REPORT_ACCOUNT_WARNING);
         }
@@ -140,13 +145,14 @@ public class ReportService {
 
     public NotifyParams createNotifyParams(
             Report report,
+            String title,
             String reportMessage,
             NotificationType notificationType
     ) {
         return NotifyParams.builder()
                 .receiver(report.getReportedAccount())
                 .redirectTargetId(report.getId())
-                .title("신고")
+                .title(title)
                 .content(reportMessage)
                 .type(notificationType)
                 .build();
@@ -160,40 +166,20 @@ public class ReportService {
                 new ReportTypeResponse(ReportType.ETC.toString(), ReportType.ETC.getDetailContent()));
     }
 
-    // 회원 영구 정지 해제
-    @Transactional
-    public void unsuspendAccount(Account account) {
-        SuspendAccount suspendAccount = suspendAccountRepository.findByAccount(account)
-                        .orElseThrow(() -> new ReportException(StatusCode.NOT_FOUND_SUSPEND_ACCOUNT));
-        suspendAccount.setSuspended(false);
-        suspendAccount.getAccount().updateAccountStatus(NORMAL);
+    public void adminReportAccount(
+            Account loginAccount,
+            Account reportedAccount,
+            String content,
+            NotificationType notificationType
+    ) {
+        Report report = Report.builder()
+                .reporter(loginAccount)
+                .reportedAccount(reportedAccount)
+                .reportType(ReportType.ETC)
+                .content(content)
+                .build();
+        reportRepository.save(report);
+        NotificationDto.NotifyParams params = createNotifyParams(report, REPORT_TITLE_ADMIN, content, notificationType);
+        notificationService.pushMessage(params);
     }
-
-    // 회원 상태 변경
-    @Transactional
-    public void changeAccountStatus(Account loginAccount, Account reportedAccount, String status) {
-        loginAccount.isAdmin();
-        if (reportedAccount.getAccountStatus() == AccountStatus.PERMANENTLY_BANNED) {
-            throw new ReportException(StatusCode.CANNOT_CHANGE_PERMANENTLY_BANNED_ACCOUNT);
-        }
-        else if(status.equals("PERMANENTLY_BANNED")) {
-            SuspendAccount suspendAccount = SuspendAccount.builder()
-                    .account(reportedAccount)
-                    .isSuspended(true)
-                    .build();
-            suspendAccount.setSuspendedDate();
-            suspendAccountRepository.save(suspendAccount);
-
-            Report report = Report.builder()
-                    .reporter(loginAccount)
-                    .reportedAccount(reportedAccount)
-                    .reportType(ReportType.ETC)
-                    .content(ADMIN_REPORT_ACCOUNT_BAN)
-                    .build();
-            NotifyParams params = createNotifyParams(report, REPORT_ACCOUNT_BAN_CONTENT, BAN_PERMANENTLY);
-            notificationService.pushMessage(params);
-        }
-        reportedAccount.updateAccountStatus(AccountStatus.valueOf(status));
-    }
-
 }

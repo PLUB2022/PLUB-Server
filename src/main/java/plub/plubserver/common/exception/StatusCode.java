@@ -80,6 +80,8 @@ public enum StatusCode {
     NOT_FOUND_SUSPEND_ACCOUNT(404, 5010, "not found suspend account error."),
     CANNOT_CHANGE_PERMANENTLY_BANNED_ACCOUNT(400, 5020, "cannot change permanently banned account."),
     REPORT_TARGET_NOT_FOUND(404, 5030, "report target not found."),
+    DUPLICATE_REPORT(400, 5040, "duplicate report."),
+    INVALID_ACCOUNT_STATUS(400, 5050, "invalid account status."),
     /**
      * Plubbing
      */
