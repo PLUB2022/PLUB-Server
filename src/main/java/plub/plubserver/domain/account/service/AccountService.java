@@ -13,7 +13,7 @@ import plub.plubserver.domain.account.repository.SuspendAccountRepository;
 import plub.plubserver.domain.category.exception.CategoryException;
 import plub.plubserver.domain.category.model.SubCategory;
 import plub.plubserver.domain.category.repository.SubCategoryRepository;
-import plub.plubserver.domain.notification.service.NotificationService;
+import plub.plubserver.domain.report.config.ReportStatusMessage;
 import plub.plubserver.domain.report.exception.ReportException;
 import plub.plubserver.domain.report.service.ReportService;
 
@@ -41,8 +41,6 @@ public class AccountService {
 
     private final ReportService reportService;
     private final SuspendAccountRepository suspendAccountRepository;
-    private final NotificationService notificationService;
-
 
     // 회원 정보 조회
     public AccountInfoResponse getMyAccount() {
@@ -188,23 +186,40 @@ public class AccountService {
     private void handlePermanentlyBannedStatus(Account reportedAccount, String status, Account loginAccount) {
         AccountStatus accountStatus = AccountStatus.valueOf(status);
         switch (accountStatus) {
-            case PERMANENTLY_BANNED:
+            case PERMANENTLY_BANNED -> {
                 SuspendAccount suspendAccount = createSuspendAccount(reportedAccount);
                 suspendAccount.setSuspendedDate();
                 suspendAccountRepository.save(suspendAccount);
-                reportService.adminReportAccount(loginAccount, reportedAccount, REPORT_ACCOUNT_BAN_CONTENT, BAN_PERMANENTLY);
-                break;
-            case BANNED:
-                reportService.adminReportAccount(loginAccount, reportedAccount, REPORT_ACCOUNT_BAN_CONTENT, BAN_ONE_MONTH);
-                break;
-            case PAUSED:
-                reportService.adminReportAccount(loginAccount, reportedAccount, REPORT_ACCOUNT_PAUSED_CONTENT, BAN_ONE_MONTH);
-                break;
-            case NORMAL:
-                reportService.adminReportAccount(loginAccount, reportedAccount, REPORT_ACCOUNT_WARING_CONTENT, UNBAN);
-                break;
-            default:
-                throw new ReportException(StatusCode.INVALID_ACCOUNT_STATUS);
+                reportService.adminReportAccount(
+                        loginAccount,
+                        reportedAccount,
+                        REPORT_TITLE_ADMIN,
+                        ReportStatusMessage.PERMANENTLY_BANNED,
+                        BAN_PERMANENTLY
+                );
+            }
+            case BANNED -> reportService.adminReportAccount(
+                    loginAccount,
+                    reportedAccount,
+                    REPORT_TITLE_ADMIN,
+                    ReportStatusMessage.BANNED,
+                    BAN_ONE_MONTH
+            );
+            case PAUSED -> reportService.adminReportAccount(
+                    loginAccount,
+                    reportedAccount,
+                    REPORT_TITLE_ADMIN,
+                    ReportStatusMessage.PAUSED,
+                    BAN_ONE_MONTH
+            );
+            case NORMAL -> reportService.adminReportAccount(
+                    loginAccount,
+                    reportedAccount,
+                    REPORT_TITLE_ADMIN,
+                    ReportStatusMessage.NORMAL,
+                    UNBAN
+            );
+            default -> throw new ReportException(StatusCode.INVALID_ACCOUNT_STATUS);
         }
     }
 

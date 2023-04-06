@@ -16,6 +16,7 @@ import plub.plubserver.domain.report.service.ReportService;
 import java.util.List;
 
 import static plub.plubserver.common.dto.ApiResponse.success;
+import static plub.plubserver.domain.report.dto.ReportDto.ReportResponse;
 
 @Slf4j
 @RestController
@@ -40,5 +41,13 @@ public class ReportController {
     ) {
         Account currentAccount = accountService.getCurrentAccount();
         return success(reportService.createReport(reportRequest, currentAccount));
+    }
+
+    @ApiOperation(value = "신고 화면 조회")
+    @GetMapping("/{reportId}")
+    public ApiResponse<ReportResponse> getReport(
+            @PathVariable Long reportId
+    ) {
+        return success(reportService.getReport(reportId));
     }
 }

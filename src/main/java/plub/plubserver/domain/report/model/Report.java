@@ -3,6 +3,7 @@ package plub.plubserver.domain.report.model;
 import lombok.*;
 import plub.plubserver.common.model.BaseEntity;
 import plub.plubserver.domain.account.model.Account;
+import plub.plubserver.domain.report.config.ReportStatusMessage;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -22,7 +23,7 @@ public class Report extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private ReportType reportType;
 
-    private String content;
+    private String reportReason;
 
     @Enumerated(EnumType.STRING)
     private ReportTarget reportTarget;
@@ -41,5 +42,11 @@ public class Report extends BaseEntity {
     @JoinColumn(name = "reported_account_id")
     private Account reportedAccount;
 
+    private Long plubbingId;
 
+    private ReportStatusMessage reportStatusMessage;
+
+    public void setReportStatusMessage(ReportStatusMessage reportStatusMessage) {
+        this.reportStatusMessage = reportStatusMessage;
+    }
 }
