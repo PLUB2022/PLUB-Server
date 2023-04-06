@@ -36,6 +36,8 @@ import plub.plubserver.domain.report.repositoy.ReportRepository;
 import plub.plubserver.domain.todo.exception.TodoException;
 import plub.plubserver.domain.todo.repository.TodoRepository;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 
@@ -69,7 +71,26 @@ public class ReportService {
     @Transactional
     public ReportIdResponse createReport(CreateReportRequest request, Account reporter) {
         Account reportedAccount = checkReportTargetAccount(request.reportTargetId(), request.reportTarget());
-        plubbingRepository.findById(request.plubbingId()).orElseThrow(() -> new PlubException(StatusCode.NOT_FOUND_PLUBBING));
+        plubbingRepository.findById(request.plubbingId())
+                .orElseThrow(() -> new PlubException(StatusCode.NOT_FOUND_PLUBBING));
+
+        // 해당 유저가 최근 7일간에 신고한 기록이 있는지 확인
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime weekAgo = now.minusDays(7);
+
+        List<Report> reports = reportRepository.findAllByReporter(reporter);
+        long count = reports.stream()
+                .filter(r -> {
+                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+                    LocalDateTime createdAt = LocalDateTime.parse(r.getCreatedAt(), formatter);
+                    return createdAt.isAfter(weekAgo);
+                })
+                .count();
+
+        // 신고 횟수가 2회 이상일 경우, 예외 발생
+        if (count >= 2) {
+            throw new ReportException(StatusCode.TOO_MANY_REPORTS);
+        }
 
         Report createReport = request.toEntity(reporter, reportedAccount, request.plubbingId());
         checkDuplicateReport(createReport);

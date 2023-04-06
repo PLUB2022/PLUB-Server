@@ -82,6 +82,7 @@ public enum StatusCode {
     REPORT_TARGET_NOT_FOUND(404, 5030, "report target not found."),
     DUPLICATE_REPORT(400, 5040, "duplicate report."),
     INVALID_ACCOUNT_STATUS(400, 5050, "invalid account status."),
+    TOO_MANY_REPORTS(400, 5060, "too many reports."),
     /**
      * Plubbing
      */

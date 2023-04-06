@@ -5,6 +5,8 @@ import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.report.model.Report;
 import plub.plubserver.domain.report.model.ReportTarget;
 
+import java.util.List;
+
 public interface ReportRepository extends JpaRepository<Report, Long> {
     Long countByReportedAccountAndCheckCanceledFalse(Account account);
 
@@ -13,4 +15,8 @@ public interface ReportRepository extends JpaRepository<Report, Long> {
             Account reportedAccount,
             ReportTarget reportTarget
     );
+
+    Long countByReporterAndCreatedAtBetween(Account reporter, String start, String end);
+
+    List<Report> findAllByReporter(Account reporter);
 }
