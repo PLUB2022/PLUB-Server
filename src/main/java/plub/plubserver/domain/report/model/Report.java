@@ -49,4 +49,9 @@ public class Report extends BaseEntity {
     public void setReportStatusMessage(ReportStatusMessage reportStatusMessage) {
         this.reportStatusMessage = reportStatusMessage;
     }
+
+    public void cancelReport(boolean checkCanceled) {
+        this.checkCanceled = checkCanceled;
+        this.canceledDate = LocalDateTime.now();
+    }
 }

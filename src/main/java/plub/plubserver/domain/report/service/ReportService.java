@@ -55,7 +55,6 @@ public class ReportService {
     private final AccountRepository accountRepository;
     private final NotificationService notificationService;
     private final SuspendAccountRepository suspendAccountRepository;
-
     private final FeedRepository feedRepository;
     private final TodoRepository todoRepository;
     private final FeedCommentRepository feedCommentRepository;
@@ -74,9 +73,9 @@ public class ReportService {
 
         Report createReport = request.toEntity(reporter, reportedAccount, request.plubbingId());
         checkDuplicateReport(createReport);
+        Report report = reportRepository.save(createReport);
         ReportStatusMessage reportStatusMessage = checkReportFrequency(createReport.getReportedAccount());
         createReport.setReportStatusMessage(reportStatusMessage);
-        Report report = reportRepository.save(createReport);
         notifyReportedAccount(report);
 
         return ReportIdResponse.of(report);
@@ -247,5 +246,16 @@ public class ReportService {
                 notificationType
         );
         notificationService.pushMessage(params);
+    }
+
+
+    // 신고 취소 처리
+    @Transactional
+    public ReportIdResponse cancelReport(Long reportId, boolean isCancel, Account loginAccount) {
+        loginAccount.isAdmin();
+        Report report = reportRepository.findById(reportId)
+                .orElseThrow(() -> new ReportException(StatusCode.NOT_FOUND_REPORT));
+        report.cancelReport(isCancel);
+        return ReportIdResponse.of(report);
     }
 }

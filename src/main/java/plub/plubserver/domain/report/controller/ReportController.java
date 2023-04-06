@@ -50,4 +50,14 @@ public class ReportController {
     ) {
         return success(reportService.getReport(reportId));
     }
+
+    @ApiOperation(value = "신고 취소 처리")
+    @PutMapping("/{reportId}/cancel")
+    public ApiResponse<ReportIdResponse> cancelReport(
+            @PathVariable Long reportId,
+            @RequestParam(value = "isCancel") boolean isCancel
+    ) {
+        Account currentAccount = accountService.getCurrentAccount();
+        return success(reportService.cancelReport(reportId, isCancel, currentAccount));
+    }
 }
