@@ -152,4 +152,9 @@ public enum StatusCode {
     private final int HttpCode;
     private final int statusCode;
     private final String message;
+
+    // TODO : 코틀린 전환 작업 완료 후 제거 예정
+    public String getMessage() {
+        return message;
+    }
 }

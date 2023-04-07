@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import plub.plubserver.common.dto.PageResponse;
+import plub.plubserver.common.exception.ArchiveException;
 import plub.plubserver.common.exception.StatusCode;
 import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.account.service.AccountService;
@@ -14,13 +15,11 @@ import plub.plubserver.domain.archive.dto.ArchiveDto.ArchiveCardResponse;
 import plub.plubserver.domain.archive.dto.ArchiveDto.ArchiveIdResponse;
 import plub.plubserver.domain.archive.dto.ArchiveDto.ArchiveRequest;
 import plub.plubserver.domain.archive.dto.ArchiveDto.ArchiveResponse;
-import plub.plubserver.domain.archive.exception.ArchiveException;
 import plub.plubserver.domain.archive.model.Archive;
 import plub.plubserver.domain.archive.model.ArchiveImage;
 import plub.plubserver.domain.archive.repository.ArchiveRepository;
 import plub.plubserver.domain.plubbing.model.Plubbing;
 import plub.plubserver.domain.plubbing.service.PlubbingService;
-import plub.plubserver.domain.report.service.ReportService;
 
 import java.util.List;
 
@@ -33,7 +32,6 @@ public class ArchiveService {
     private final AccountService accountService;
     private final ArchiveRepository archiveRepository;
     private final PlubbingService plubbingService;
-    private final ReportService reportService;
 
     /**
      * 아카이브 조회
