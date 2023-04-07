@@ -19,13 +19,13 @@ interface ArchiveRepository : JpaRepository<Archive, Long>, ArchiveRepositoryCus
 }
 
 interface ArchiveRepositoryCustom {
-    fun findAllByPlubbingId(plubbingId: Long, pageable: Pageable, cursorId: Long): Page<Archive>
+    fun findAllByPlubbingId(plubbingId: Long, pageable: Pageable, cursorId: Long?): Page<Archive>
 }
 
 class ArchiveRepositoryImpl(
     private val queryFactory: JPAQueryFactory
 ) : ArchiveRepositoryCustom {
-    override fun findAllByPlubbingId(plubbingId: Long, pageable: Pageable, cursorId: Long): Page<Archive> {
+    override fun findAllByPlubbingId(plubbingId: Long, pageable: Pageable, cursorId: Long?): Page<Archive> {
         val query: JPQLQuery<Archive> = queryFactory
             .selectFrom(archive)
             .where(

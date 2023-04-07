@@ -213,4 +213,13 @@ public class Plubbing extends BaseEntity {
         status = PlubbingStatus.PAUSE;
         visibility = false;
     }
+
+    // TODO : 코틀린 전환 후 삭제 예정
+    public Long getId() {
+        return id;
+    }
+
+    public List<Archive> getArchives() {
+        return archives;
+    }
 }

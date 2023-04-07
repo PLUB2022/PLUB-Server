@@ -248,4 +248,9 @@ public class Account extends BaseEntity {
         this.pausedStartDate = LocalDateTime.now();
         this.pausedEndDate = LocalDateTime.now().plusMonths(1);
     }
+
+    // TODO : 코틀린 전환 후 삭제 예정
+    public Long getId() {
+        return id;
+    }
 }
