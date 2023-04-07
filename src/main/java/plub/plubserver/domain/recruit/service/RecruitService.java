@@ -31,9 +31,6 @@ import plub.plubserver.domain.recruit.model.*;
 import plub.plubserver.domain.recruit.repository.AppliedAccountRepository;
 import plub.plubserver.domain.recruit.repository.BookmarkRepository;
 import plub.plubserver.domain.recruit.repository.RecruitRepository;
-import plub.plubserver.domain.report.dto.ReportDto.CreateReportRequest;
-import plub.plubserver.domain.report.dto.ReportDto.ReportResponse;
-import plub.plubserver.domain.report.model.Report;
 import plub.plubserver.domain.report.service.ReportService;
 
 import java.util.ArrayList;
@@ -373,16 +370,5 @@ public class RecruitService {
         plubbing.updateCurAccountNum();
 
         return JoinedAccountsInfoResponse.of(plubbing);
-    }
-
-    /**
-     * 모집 신고
-     */
-    @Transactional
-    public ReportResponse reportRecruit(CreateReportRequest createReportRequest, Account reporter) {
-        // createReportRequest로 받은 id는 모임 id이다. (모집 id를 따로 프론트로 전달X)
-        Recruit recruit = getRecruitByPlubbingId(createReportRequest.reportTargetId()); // 해당 모임id에 해당하는 모집글 존재여부 확인
-        Report report = reportService.createReport(createReportRequest, reporter);
-        return reportService.notifyHost(report, recruit.getPlubbing());
     }
 }

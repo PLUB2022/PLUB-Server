@@ -16,16 +16,15 @@ import plub.plubserver.config.jwt.RefreshTokenRepository;
 import plub.plubserver.config.security.PrincipalDetails;
 import plub.plubserver.domain.account.exception.AccountException;
 import plub.plubserver.domain.account.exception.AuthException;
-import plub.plubserver.domain.account.model.Account;
-import plub.plubserver.domain.account.model.AccountCategory;
-import plub.plubserver.domain.account.model.Role;
+import plub.plubserver.domain.account.model.*;
 import plub.plubserver.domain.account.repository.AccountRepository;
+import plub.plubserver.domain.account.repository.SuspendAccountRepository;
 import plub.plubserver.domain.category.exception.CategoryException;
 import plub.plubserver.domain.category.model.SubCategory;
 import plub.plubserver.domain.category.repository.SubCategoryRepository;
-import plub.plubserver.domain.account.model.AccountPolicy;
 import plub.plubserver.domain.policy.repository.PolicyRepository;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -49,15 +48,18 @@ public class AuthService {
     private final KakaoService kakaoService;
     private final SubCategoryRepository subCategoryRepository;
     private final PolicyRepository policyRepository;
+    private final SuspendAccountRepository suspendAccountRepository;
 
     @Transactional
     public AuthMessage loginAccess(SocialLoginRequest socialLoginRequest) {
         OAuthIdAndRefreshTokenResponse response = fetchSocialEmail(socialLoginRequest);
         String email = response.id();
+        checkSuspendedAccount(email);
         String refreshToken = response.refreshToken();
         Optional<Account> account = accountRepository.findByEmail(email);
         AuthMessage loginMessage;
         if (account.isPresent()) {
+            checkAccountStatus(account.get());
             Account existAccount = account.get();
             JwtDto jwtDto = login(LoginRequest.toLoginRequest(existAccount));
             existAccount.updateRefreshToken(refreshToken);
@@ -161,6 +163,36 @@ public class AuthService {
         }
         if (accountRepository.existsByNickname(nickname)) {
             throw new AccountException(StatusCode.NICKNAME_DUPLICATION);
+        }
+    }
+
+    @Transactional
+    public void checkSuspendedAccount(String email) {
+        Optional<SuspendAccount> suspendAccount = suspendAccountRepository.findByAccountEmail(email);
+        if(suspendAccount.isEmpty()) return;
+        boolean isAccountExpired = LocalDateTime.now().isAfter(suspendAccount.get().getEndedSuspendedDate());
+        if (isAccountExpired) suspendAccount.get().setSuspended(false);
+        else throw new AccountException(StatusCode.SUSPENDED_ACCOUNT);
+    }
+
+    public static void checkAccountStatus(Account account) {
+        AccountStatus accountStatus = account.getAccountStatus();
+       // NORMAL, PAUSED, BANNED, PERMANENTLY_BANNED
+        switch (accountStatus) {
+            case NORMAL:
+                break;
+            case PAUSED:
+                if (account.getPausedEndDate().isAfter(LocalDateTime.now())) {
+                    account.updateAccountStatus(AccountStatus.NORMAL);
+                    break;
+                }else throw new AccountException(StatusCode.PAUSED_ACCOUNT);
+            case BANNED:
+                if (account.getPausedEndDate().isAfter(LocalDateTime.now())) {
+                    account.updateAccountStatus(AccountStatus.NORMAL);
+                    break;
+                }else throw new AccountException(StatusCode.BANNED_ACCOUNT);
+            case PERMANENTLY_BANNED:
+                throw new AccountException(StatusCode.PERMANENTLY_BANNED_ACCOUNT);
         }
     }
 

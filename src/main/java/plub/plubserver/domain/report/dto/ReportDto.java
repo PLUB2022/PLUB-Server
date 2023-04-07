@@ -12,19 +12,23 @@ public class ReportDto {
             String reportType,
             String reportTarget,
             Long reportTargetId,
-            String content
+            Long plubbingId,
+            String reportReason
     ) {
         @Builder
         public CreateReportRequest {
         }
 
-        public Report toEntity(Account reporter) {
+        public Report toEntity(Account reporter, Account reportedAccount, Long plubbingId) {
             return Report.builder()
                     .reportType(ReportType.toEnum(reportType))
                     .reportTarget(ReportTarget.toEnum(reportTarget))
                     .targetId(reportTargetId)
-                    .content(content)
-                    .account(reporter)
+                    .reportReason(reportReason)
+                    .plubbingId(plubbingId)
+                    .reporter(reporter)
+                    .reportedAccount(reportedAccount)
+                    .checkCanceled(false)
                     .build();
         }
     }
@@ -34,21 +38,23 @@ public class ReportDto {
             Long targetId,
             String reportType,
             String reportTarget,
-            String content,
-            String message
+            String reportTitle,
+            String reportContent,
+            String reportedAt
     ) {
         @Builder
         public ReportResponse {
         }
 
-        public static ReportResponse of(Report report, String message) {
+        public static ReportResponse of(Report report, String title, String content) {
             return ReportResponse.builder()
                     .reportId(report.getId())
                     .targetId(report.getTargetId())
                     .reportType(report.getReportType().toString())
                     .reportTarget(report.getReportTarget().toString())
-                    .content(report.getContent())
-                    .message(message)
+                    .reportTitle(title)
+                    .reportContent(content)
+                    .reportedAt(report.getCreatedAt())
                     .build();
         }
     }
@@ -59,6 +65,20 @@ public class ReportDto {
     ) {
         @Builder
         public ReportTypeResponse {
+        }
+    }
+
+    public record ReportIdResponse(
+            Long reportId
+    ) {
+        @Builder
+        public ReportIdResponse {
+        }
+
+        public static ReportIdResponse of(Report report) {
+            return ReportIdResponse.builder()
+                    .reportId(report.getId())
+                    .build();
         }
     }
 }

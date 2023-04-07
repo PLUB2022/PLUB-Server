@@ -165,5 +165,13 @@ public class AccountDto {
             boolean isReceivedPushNotification
     ) {
     }
+
+    public record AccountIdResponse(
+            Long accountId
+    ) {
+        public static AccountIdResponse of(Account account) {
+            return new AccountIdResponse(account.getId());
+        }
+    }
 }
 

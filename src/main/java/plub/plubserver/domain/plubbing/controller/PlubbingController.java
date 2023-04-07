@@ -15,8 +15,6 @@ import plub.plubserver.domain.plubbing.dto.PlubbingDto.*;
 import plub.plubserver.domain.plubbing.service.PlubbingService;
 import plub.plubserver.domain.recruit.dto.RecruitDto.UpdateRecruitQuestionRequest;
 import plub.plubserver.domain.recruit.dto.RecruitDto.UpdateRecruitRequest;
-import plub.plubserver.domain.report.dto.ReportDto.CreateReportRequest;
-import plub.plubserver.domain.report.dto.ReportDto.ReportResponse;
 
 import javax.validation.Valid;
 
@@ -126,15 +124,5 @@ public class PlubbingController {
             @RequestParam("status") String status
     ) {
         return success(plubbingService.getMyPlubbingByStatus(status));
-    }
-
-    @ApiOperation(value = "모임 신고")
-    @PostMapping("/{plubbingId}/reports")
-    public ApiResponse<ReportResponse> reportPlubbing(
-            @PathVariable Long plubbingId,
-            @Valid @RequestBody CreateReportRequest createReportRequest
-    ) {
-        Account loginAccount = accountService.getCurrentAccount();
-        return success(plubbingService.reportPlubbing(createReportRequest, loginAccount));
     }
 }

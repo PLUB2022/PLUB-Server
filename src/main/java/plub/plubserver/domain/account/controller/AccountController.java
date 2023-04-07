@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
 import plub.plubserver.common.dto.ApiResponse;
+import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.account.service.AccountService;
 
 import javax.validation.Valid;
@@ -96,4 +97,25 @@ public class AccountController {
     ) {
         return success(accountService.searchAccountList(startedAt, endedAt, keyword, pageable));
     }
+
+    @ApiOperation(value = "회원 상태 변경")
+    @PutMapping("/{accountId}/changeStatus")
+    public ApiResponse<AccountIdResponse> updateAccountStatus(
+            @PathVariable Long accountId,
+            @RequestParam String status
+    ) {
+        Account currentAccount = accountService.getCurrentAccount();
+        return success(accountService.updateAccountStatus(currentAccount, accountId, status));
+    }
+
+    @ApiOperation(value = "회원 영구 정지 해제")
+    @PutMapping("/{accountId}/unSuspend")
+    public ApiResponse<AccountIdResponse> unSuspendAccount(
+            @PathVariable Long accountId
+    ) {
+        Account currentAccount = accountService.getCurrentAccount();
+        return success(accountService.unSuspendAccount(currentAccount, accountId));
+    }
 }
+
+

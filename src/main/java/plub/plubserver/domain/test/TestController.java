@@ -59,6 +59,6 @@ public class TestController {
                 .content("자기 자신의 아이디를 리턴")
                 .build();
         notificationService.pushMessageForceSave(params);
-        return success(notificationService.getMyNotifications());
+        return success(notificationService.getMyNotifications(currentAccount));
     }
 }

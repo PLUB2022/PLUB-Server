@@ -7,13 +7,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import plub.plubserver.common.exception.StatusCode;
 import plub.plubserver.domain.account.exception.AccountException;
-import plub.plubserver.domain.account.model.Account;
-import plub.plubserver.domain.account.model.AccountCategory;
-import plub.plubserver.domain.account.model.Role;
+import plub.plubserver.domain.account.model.*;
 import plub.plubserver.domain.account.repository.AccountRepository;
+import plub.plubserver.domain.account.repository.SuspendAccountRepository;
 import plub.plubserver.domain.category.exception.CategoryException;
 import plub.plubserver.domain.category.model.SubCategory;
 import plub.plubserver.domain.category.repository.SubCategoryRepository;
+import plub.plubserver.domain.report.config.ReportStatusMessage;
+import plub.plubserver.domain.report.exception.ReportException;
+import plub.plubserver.domain.report.service.ReportService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,6 +24,9 @@ import java.util.regex.Pattern;
 import static plub.plubserver.config.security.SecurityUtils.getCurrentAccountEmail;
 import static plub.plubserver.domain.account.dto.AccountDto.*;
 import static plub.plubserver.domain.account.dto.AuthDto.AuthMessage;
+import static plub.plubserver.domain.account.model.AccountStatus.NORMAL;
+import static plub.plubserver.domain.notification.model.NotificationType.*;
+import static plub.plubserver.domain.report.config.ReportMessage.*;
 
 @Service
 @RequiredArgsConstructor
@@ -34,6 +39,8 @@ public class AccountService {
     private final GoogleService googleService;
     private final KakaoService kakaoService;
 
+    private final ReportService reportService;
+    private final SuspendAccountRepository suspendAccountRepository;
 
     // 회원 정보 조회
     public AccountInfoResponse getMyAccount() {
@@ -140,5 +147,90 @@ public class AccountService {
         }
         Page<AccountInfoWeb> accountList = accountRepository.findBySearch(startedAt, endedAt, keyword, pageable).map(AccountInfoWeb::of);
         return AccountListResponse.of(accountList);
+    }
+
+
+    // 회원 영구 정지 해제
+    @Transactional
+    public AccountIdResponse unSuspendAccount(Account loginAccount, Long accountId) {
+        loginAccount.isAdmin();
+        SuspendAccount suspendAccount = suspendAccountRepository.findByAccountId(accountId)
+                .orElseThrow(() -> new ReportException(StatusCode.NOT_FOUND_SUSPEND_ACCOUNT));
+        suspendAccount.setSuspended(false);
+        Account account = accountRepository.findById(suspendAccount.getAccountId())
+                .orElseThrow(() -> new ReportException(StatusCode.ALREADY_REVOKE_SUSPEND_ACCOUNT));
+        account.updateAccountStatus(NORMAL);
+        return AccountIdResponse.of(account);
+    }
+
+    // 회원 상태 변경
+    @Transactional
+    public AccountIdResponse updateAccountStatus(Account loginAccount, Long reportedAccountId, String status) {
+        loginAccount.isAdmin();
+        Account reportedAccount = getAccountById(reportedAccountId);
+        validateAccountNotPermanentlyBanned(reportedAccount);
+        handlePermanentlyBannedStatus(reportedAccount, status, loginAccount);
+        reportedAccount.updateAccountStatus(AccountStatus.valueOf(status));
+        return AccountIdResponse.of(reportedAccount);
+    }
+
+    private Account getAccountById(Long accountId) {
+        return accountRepository.findById(accountId)
+                .orElseThrow(() -> new AccountException(StatusCode.NOT_FOUND_ACCOUNT));
+    }
+
+    private void validateAccountNotPermanentlyBanned(Account reportedAccount) {
+        if (reportedAccount.getAccountStatus() == AccountStatus.PERMANENTLY_BANNED) {
+            throw new ReportException(StatusCode.CANNOT_CHANGE_PERMANENTLY_BANNED_ACCOUNT);
+        }
+    }
+
+    private void handlePermanentlyBannedStatus(Account reportedAccount, String status, Account loginAccount) {
+        AccountStatus accountStatus = AccountStatus.valueOf(status);
+        switch (accountStatus) {
+            case PERMANENTLY_BANNED -> {
+                SuspendAccount suspendAccount = createSuspendAccount(reportedAccount);
+                suspendAccount.setSuspendedDate();
+                suspendAccountRepository.save(suspendAccount);
+                reportService.adminReportAccount(
+                        loginAccount,
+                        reportedAccount,
+                        REPORT_TITLE_ADMIN,
+                        ReportStatusMessage.PERMANENTLY_BANNED,
+                        BAN_PERMANENTLY
+                );
+            }
+            case BANNED -> reportService.adminReportAccount(
+                    loginAccount,
+                    reportedAccount,
+                    REPORT_TITLE_ADMIN,
+                    ReportStatusMessage.BANNED,
+                    BAN_ONE_MONTH
+            );
+            case PAUSED -> reportService.adminReportAccount(
+                    loginAccount,
+                    reportedAccount,
+                    REPORT_TITLE_ADMIN,
+                    ReportStatusMessage.PAUSED,
+                    BAN_ONE_MONTH
+            );
+            case NORMAL -> reportService.adminReportAccount(
+                    loginAccount,
+                    reportedAccount,
+                    REPORT_TITLE_ADMIN,
+                    ReportStatusMessage.NORMAL,
+                    UNBAN
+            );
+            default -> throw new ReportException(StatusCode.INVALID_ACCOUNT_STATUS);
+        }
+    }
+
+    private SuspendAccount createSuspendAccount(Account account) {
+        return SuspendAccount.builder()
+                .accountId(account.getId())
+                .accountEmail(account.getEmail())
+                .accountDI(account.getEmail().split("@")[0])
+                .isSuspended(true)
+                .build();
     }
 }

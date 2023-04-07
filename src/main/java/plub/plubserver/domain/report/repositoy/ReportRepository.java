@@ -1,13 +1,22 @@
 package plub.plubserver.domain.report.repositoy;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
+import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.report.model.Report;
 import plub.plubserver.domain.report.model.ReportTarget;
 
-public interface ReportRepository extends JpaRepository<Report, Long> {
+import java.util.List;
 
-    @Query("select count(r) from Report r where r.targetId = :targetId and r.reportTarget = :target")
-    Long countByReportTargetIdAndReportTarget(@Param("targetId") Long targetId, @Param("target") ReportTarget target);
+public interface ReportRepository extends JpaRepository<Report, Long> {
+    Long countByReportedAccountAndCheckCanceledFalse(Account account);
+
+    boolean existsByReporterAndReportedAccountAndReportTargetAndCheckCanceledFalse(
+            Account reporter,
+            Account reportedAccount,
+            ReportTarget reportTarget
+    );
+
+    Long countByReporterAndCreatedAtBetween(Account reporter, String start, String end);
+
+    List<Report> findAllByReporter(Account reporter);
 }

@@ -64,6 +64,9 @@ public class Account extends BaseEntity {
     private AccountStatus accountStatus;
 
     private LocalDateTime joinDate;
+    private LocalDateTime lastLoginDate;
+    private LocalDateTime pausedStartDate;
+    private LocalDateTime pausedEndDate;
 
     // 회원(1) - 차단 사용자(다)
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -111,7 +114,7 @@ public class Account extends BaseEntity {
 
     // 회원(1) - 공지 좋아요(다)
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<NoticeLike>  noticeLikeList = new ArrayList<>();
+    private List<NoticeLike> noticeLikeList = new ArrayList<>();
 
     // 회원(1) - 공지 댓글(다)
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -134,8 +137,12 @@ public class Account extends BaseEntity {
     private List<TodoTimeline> timeLineList = new ArrayList<>();
 
     // 회원(1) - 신고(다)
-    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "reporter", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Report> reportList = new ArrayList<>();
+
+    // 회원(1) - 신고 됨(다)
+    @OneToMany(mappedBy = "reportedAccount", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Report> reportedList = new ArrayList<>();
 
     // 회원(1) - 투두 좋아요(다)
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -224,10 +231,6 @@ public class Account extends BaseEntity {
         }
     }
 
-    public void addReport(Report report) {
-        if (reportList == null) reportList = new ArrayList<>();
-        reportList.add(report);
-    }
 
     public void updateFcmToken(String newFcmToken) {
         this.fcmToken = newFcmToken;
@@ -235,5 +238,14 @@ public class Account extends BaseEntity {
 
     public void updatePushNotificationStatus(boolean pushNotificationStatus) {
         this.isReceivedPushNotification = pushNotificationStatus;
+    }
+
+    public void updateAccountStatus(AccountStatus accountStatus) {
+        this.accountStatus = accountStatus;
+    }
+
+    public void setPausedDate() {
+        this.pausedStartDate = LocalDateTime.now();
+        this.pausedEndDate = LocalDateTime.now().plusMonths(1);
     }
 }

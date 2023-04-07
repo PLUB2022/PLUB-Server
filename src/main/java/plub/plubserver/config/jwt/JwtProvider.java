@@ -22,6 +22,7 @@ import java.util.Date;
 import java.util.Optional;
 
 import static plub.plubserver.domain.account.dto.AuthDto.SigningAccount;
+import static plub.plubserver.domain.account.service.AuthService.checkAccountStatus;
 
 @Component
 @Slf4j
@@ -36,7 +37,8 @@ public class JwtProvider {
     public JwtProvider(@Value("${jwt.secret-key}") String secretKey,
                        PrincipalDetailService principalDetailService,
                        RefreshTokenRepository refreshTokenRepository,
-                       CustomEncryptUtil customEncryptUtil) {
+                       CustomEncryptUtil customEncryptUtil
+    ) {
         this.privateKey = Keys.hmacShaKeyFor(secretKey.getBytes());
         this.principalDetailService = principalDetailService;
         this.refreshTokenRepository = refreshTokenRepository;
@@ -178,11 +180,10 @@ public class JwtProvider {
         }
         RefreshToken findRefreshToken = refreshTokenRepository
                 .findByRefreshToken(refreshToken)
-                .orElseThrow(
-                        () -> new AuthException(StatusCode.NOT_FOUND_REFRESH_TOKEN)
-                );
+                .orElseThrow(() -> new AuthException(StatusCode.NOT_FOUND_REFRESH_TOKEN));
 
         Account account = findRefreshToken.getAccount();
+        checkAccountStatus(account);
         String newAccessToken = createAccessToken(account);
         String newRefreshToken = createRefreshToken(account);
 

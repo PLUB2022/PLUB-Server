@@ -29,9 +29,6 @@ import plub.plubserver.domain.recruit.model.*;
 import plub.plubserver.domain.recruit.repository.AppliedAccountRepository;
 import plub.plubserver.domain.recruit.repository.BookmarkRepository;
 import plub.plubserver.domain.recruit.repository.RecruitRepository;
-import plub.plubserver.domain.report.dto.ReportDto.CreateReportRequest;
-import plub.plubserver.domain.report.dto.ReportDto.ReportResponse;
-import plub.plubserver.domain.report.model.Report;
 import plub.plubserver.domain.report.service.ReportService;
 
 import java.util.ArrayList;
@@ -437,16 +434,6 @@ public class PlubbingService {
 
     public Boolean isBookmarked(Account account, Plubbing plubbing) {
         return bookmarkRepository.existsByAccountAndRecruit(account, plubbing.getRecruit());
-    }
-
-    /**
-     * 모임 신고
-     */
-    @Transactional
-    public ReportResponse reportPlubbing(CreateReportRequest createReportRequest, Account reporter) {
-        Report report = reportService.createReport(createReportRequest, reporter);
-        Plubbing plubbing = getPlubbing(createReportRequest.reportTargetId()); // 존재여부도 확인
-        return reportService.notifyHost(report, plubbing);
     }
 }
 

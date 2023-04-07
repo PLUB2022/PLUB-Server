@@ -16,6 +16,10 @@ public enum StatusCode {
     AWS_S3_UPLOAD_FAIL(400, 9040, "AWS S3 upload fail."),
     AWS_S3_DELETE_FAIL(400, 9050, "AWS S3 delete fail."),
     AWS_S3_FILE_SIZE_EXCEEDED(400, 9060, "exceeded file size."),
+    PAUSED_ACCOUNT(400, 9070, "paused account error."),
+    BANNED_ACCOUNT(400, 9080, "banned account error."),
+    PERMANENTLY_BANNED_ACCOUNT(400, 9090, "permanently banned account error."),
+
 
     /**
      * Account
@@ -26,6 +30,8 @@ public enum StatusCode {
     SOCIAL_TYPE_ERROR(400, 2030, "invalid social type error."),
     ROLE_ACCESS_ERROR(400, 2040, "role access error."),
     NICKNAME_ERROR(400, 2050, "invalid nickname error."),
+    SELF_REPORT_ERROR(400, 2060, "self report error."),
+    SUSPENDED_ACCOUNT(400, 2070, "suspended account error."),
 
     /**
      * Auth
@@ -76,7 +82,13 @@ public enum StatusCode {
      * Report
      */
     NOT_FOUND_REPORT(404, 5000, "not found report error."),
-
+    NOT_FOUND_SUSPEND_ACCOUNT(404, 5010, "not found suspend account error."),
+    CANNOT_CHANGE_PERMANENTLY_BANNED_ACCOUNT(400, 5020, "cannot change permanently banned account."),
+    REPORT_TARGET_NOT_FOUND(404, 5030, "report target not found."),
+    DUPLICATE_REPORT(400, 5040, "duplicate report."),
+    INVALID_ACCOUNT_STATUS(400, 5050, "invalid account status."),
+    TOO_MANY_REPORTS(400, 5060, "too many reports."),
+    ALREADY_REVOKE_SUSPEND_ACCOUNT(400, 5070, "already revoke suspend account."),
     /**
      * Plubbing
      */
@@ -98,6 +110,7 @@ public enum StatusCode {
     ALREADY_ACCEPTED(400, 6100, "this applicant is already accepted."),
     ALREADY_REJECTED(400, 6110, "this applicant is already rejected."),
     PLUBBING_MEMBER_FULL(400, 6120, "plubbing member is full."),
+    NOT_FOUND_RECRUIT(404, 6130, "not found recruit error."),
 
     /**
      * Todo

@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import plub.plubserver.common.exception.StatusCode;
 import plub.plubserver.domain.account.model.Account;
-import plub.plubserver.domain.account.service.AccountService;
+import plub.plubserver.domain.account.repository.AccountRepository;
 import plub.plubserver.domain.notification.exception.NotificationException;
 import plub.plubserver.domain.notification.model.Notification;
 
@@ -21,11 +21,12 @@ import static plub.plubserver.domain.notification.dto.NotificationDto.*;
 public class NotificationService {
 
     private final FcmService fcmService;
-    private final AccountService accountService;
+    private final AccountRepository accountRepository;
 
     @Transactional
     public void pushMessage(NotifyParams params) {
-        Account receiver = accountService.getAccount(params.receiver().getId());
+        Account receiver = accountRepository.findById(params.receiver().getId())
+                .orElseThrow(() -> new NotificationException(StatusCode.NOT_FOUND_ACCOUNT));
 
         // 사용자가 알림 수신을 거부한 경우 바로 종료
         if (!receiver.isReceivedPushNotification()) return;
@@ -51,7 +52,8 @@ public class NotificationService {
     // FCM 송신 성공 여부와 상관없이 강제로 Notification 엔티티 저장 (테스트용)
     @Transactional
     public void pushMessageForceSave(NotifyParams params) {
-        Account receiver = accountService.getAccount(params.receiver().getId());
+        Account receiver = accountRepository.findById(params.receiver().getId())
+                .orElseThrow(() -> new NotificationException(StatusCode.NOT_FOUND_ACCOUNT));
         fcmService.sendPushMessage(
                 receiver.getFcmToken(),
                 params
@@ -67,8 +69,7 @@ public class NotificationService {
         receiver.addNotification(notification);
     }
 
-    public NotificationListResponse getMyNotifications() {
-        Account account = accountService.getCurrentAccount();
+    public NotificationListResponse getMyNotifications(Account account) {
         return NotificationListResponse.of(account.getNotifications().stream()
                 .map(NotificationResponse::of)
                 .sorted((n1, n2) -> n2.createdAt().compareTo(n1.createdAt()))
@@ -77,8 +78,7 @@ public class NotificationService {
         );
     }
 
-    public NotificationResponse readNotification(Long notificationId) {
-        Account account = accountService.getCurrentAccount();
+    public NotificationResponse readNotification(Long notificationId, Account account) {
         Notification notification = account.getNotifications().stream()
                 .filter(n -> n.getId().equals(notificationId))
                 .findFirst()
