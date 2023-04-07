@@ -157,8 +157,10 @@ public class AccountService {
         SuspendAccount suspendAccount = suspendAccountRepository.findByAccountId(accountId)
                 .orElseThrow(() -> new ReportException(StatusCode.NOT_FOUND_SUSPEND_ACCOUNT));
         suspendAccount.setSuspended(false);
-        suspendAccount.getAccount().updateAccountStatus(NORMAL);
-        return AccountIdResponse.of(suspendAccount.getAccount());
+        Account account = accountRepository.findById(suspendAccount.getAccountId())
+                .orElseThrow(() -> new ReportException(StatusCode.ALREADY_REVOKE_SUSPEND_ACCOUNT));
+        account.updateAccountStatus(NORMAL);
+        return AccountIdResponse.of(account);
     }
 
     // 회원 상태 변경
@@ -225,7 +227,9 @@ public class AccountService {
 
     private SuspendAccount createSuspendAccount(Account account) {
         return SuspendAccount.builder()
-                .account(account)
+                .accountId(account.getId())
+                .accountEmail(account.getEmail())
+                .accountDI(account.getEmail().split("@")[0])
                 .isSuspended(true)
                 .build();
     }

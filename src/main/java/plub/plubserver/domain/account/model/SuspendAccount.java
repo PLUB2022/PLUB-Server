@@ -19,9 +19,9 @@ public class SuspendAccount extends BaseEntity {
     private Long id;
     private LocalDateTime startedSuspendedDate;
     private LocalDateTime endedSuspendedDate;
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "account_id")
-    private Account account;
+    private Long accountId;
+    private String accountEmail;
+    private String accountDI;
 
     private boolean isSuspended;
 

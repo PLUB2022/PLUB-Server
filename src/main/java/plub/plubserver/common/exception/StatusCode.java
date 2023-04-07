@@ -16,6 +16,10 @@ public enum StatusCode {
     AWS_S3_UPLOAD_FAIL(400, 9040, "AWS S3 upload fail."),
     AWS_S3_DELETE_FAIL(400, 9050, "AWS S3 delete fail."),
     AWS_S3_FILE_SIZE_EXCEEDED(400, 9060, "exceeded file size."),
+    PAUSED_ACCOUNT(400, 9070, "paused account error."),
+    BANNED_ACCOUNT(400, 9080, "banned account error."),
+    PERMANENTLY_BANNED_ACCOUNT(400, 9090, "permanently banned account error."),
+
 
     /**
      * Account
@@ -27,6 +31,7 @@ public enum StatusCode {
     ROLE_ACCESS_ERROR(400, 2040, "role access error."),
     NICKNAME_ERROR(400, 2050, "invalid nickname error."),
     SELF_REPORT_ERROR(400, 2060, "self report error."),
+    SUSPENDED_ACCOUNT(400, 2070, "suspended account error."),
 
     /**
      * Auth
@@ -83,6 +88,7 @@ public enum StatusCode {
     DUPLICATE_REPORT(400, 5040, "duplicate report."),
     INVALID_ACCOUNT_STATUS(400, 5050, "invalid account status."),
     TOO_MANY_REPORTS(400, 5060, "too many reports."),
+    ALREADY_REVOKE_SUSPEND_ACCOUNT(400, 5070, "already revoke suspend account."),
     /**
      * Plubbing
      */

@@ -63,7 +63,6 @@ public class ReportService {
     private final NoticeCommentRepository noticeCommentRepository;
     private final ArchiveRepository archiveRepository;
     private final RecruitRepository recruitRepository;
-
     private final PlubbingRepository plubbingRepository;
 
 
@@ -177,7 +176,9 @@ public class ReportService {
 
             // 디비에 영구 계정 등록
             SuspendAccount suspendAccount = SuspendAccount.builder()
-                    .account(reportedAccount)
+                    .accountId(reportedAccount.getId())
+                    .accountEmail(reportedAccount.getEmail())
+                    .accountDI(reportedAccount.getEmail().split("@")[0])
                     .isSuspended(true)
                     .build();
             suspendAccount.setSuspendedDate();
@@ -194,6 +195,7 @@ public class ReportService {
 
             // 계정 상태 일시정지로 변경
             reportedAccount.updateAccountStatus(PAUSED);
+            reportedAccount.setPausedDate();
         } else if (reportedAccountCount >= REPORT_ACCOUNT_WARNING_PUSH_COUNT) {
             // 경고 알림
             NotifyParams params = createNotifyParams(
@@ -268,7 +270,6 @@ public class ReportService {
         );
         notificationService.pushMessage(params);
     }
-
 
     // 신고 취소 처리
     @Transactional
