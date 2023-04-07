@@ -42,4 +42,9 @@ public abstract class BaseEntity {
         visibility = true;
     }
 
+    // TODO : 코틀린 전환 되면 삭제할 예정
+    public String getCreatedAt() {
+        return createdAt;
+    }
+
 }

@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.account.service.AccountService;
-import plub.plubserver.domain.archive.dto.ArchiveDto;
+import plub.plubserver.domain.archive.dto.ArchiveRequest;
 import plub.plubserver.domain.archive.repository.ArchiveRepository;
 import plub.plubserver.domain.archive.service.ArchiveService;
 
@@ -37,7 +37,7 @@ public class ArchiveDummy implements ApplicationRunner {
         }
         Account admin1 = accountService.getAccountByEmail("admin1");
         for (int i = 0; i < 30; i++) {
-            ArchiveDto.ArchiveRequest archiveRequest = new ArchiveDto.ArchiveRequest(
+            ArchiveRequest archiveRequest = new ArchiveRequest(
                     "테스트 아카이브" + i,
                     List.of(PLUB_MAIN_LOGO, PLUB_MAIN_LOGO, PLUB_PROFILE_TEST)
             );

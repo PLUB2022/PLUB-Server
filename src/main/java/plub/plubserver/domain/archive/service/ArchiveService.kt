@@ -8,10 +8,10 @@ import plub.plubserver.common.exception.ArchiveException
 import plub.plubserver.common.exception.StatusCode
 import plub.plubserver.domain.account.model.Account
 import plub.plubserver.domain.account.service.AccountService
-import plub.plubserver.domain.archive.dto.ArchiveDto.ArchiveCardResponse
-import plub.plubserver.domain.archive.dto.ArchiveDto.ArchiveIdResponse
-import plub.plubserver.domain.archive.dto.ArchiveDto.ArchiveRequest
-import plub.plubserver.domain.archive.dto.ArchiveDto.ArchiveResponse
+import plub.plubserver.domain.archive.dto.ArchiveCardResponse
+import plub.plubserver.domain.archive.dto.ArchiveIdResponse
+import plub.plubserver.domain.archive.dto.ArchiveRequest
+import plub.plubserver.domain.archive.dto.ArchiveResponse
 import plub.plubserver.domain.archive.model.Archive
 import plub.plubserver.domain.archive.model.ArchiveImage
 import plub.plubserver.domain.archive.repository.ArchiveRepository
@@ -48,7 +48,7 @@ class ArchiveService(
         val result = archiveRepository
             .findAllByPlubbingId(plubbingId, pageable, cursorId)
             .map {
-                ArchiveCardResponse.of(
+                ArchiveCardResponse(
                     it,
                     getAccessType(loginAccount, it)
                 )
@@ -75,7 +75,7 @@ class ArchiveService(
         val archive = plubbing.archives
             .findLast { it.id == archiveId }
             ?: throw ArchiveException(StatusCode.NOT_FOUND_ARCHIVE)
-        return ArchiveResponse.of(archive)
+        return ArchiveResponse(archive)
     }
 
     private fun ArchiveRequest.toArchiveImageList(archive: Archive) = this.images
@@ -118,7 +118,7 @@ class ArchiveService(
         plubbing.addArchive(archive)
         loginAccount.addArchive(archive)
 
-        return ArchiveIdResponse.of(archive)
+        return ArchiveIdResponse(archive.id!!)
     }
 
     // 호스트, 작성자인지 권한 체크
@@ -152,7 +152,7 @@ class ArchiveService(
             archiveRequest.toArchiveImageList(archive)
         )
         val accessType = getAccessType(loginAccount, archive)
-        return ArchiveCardResponse.of(archive, accessType)
+        return ArchiveCardResponse(archive, accessType)
     }
 
     /**
@@ -172,7 +172,7 @@ class ArchiveService(
         checkAuthorities(loginAccount, plubbing, archive)
         archive.softDelete()
         val accessType = getAccessType(loginAccount, archive)
-        return ArchiveCardResponse.of(archive, accessType)
+        return ArchiveCardResponse(archive, accessType)
     }
 
     @Transactional

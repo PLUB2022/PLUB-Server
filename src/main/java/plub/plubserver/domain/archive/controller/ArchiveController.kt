@@ -17,10 +17,10 @@ import plub.plubserver.common.dto.ApiResponse
 import plub.plubserver.common.dto.ApiResponse.success
 import plub.plubserver.common.dto.PageResponse
 import plub.plubserver.domain.account.service.AccountService
-import plub.plubserver.domain.archive.dto.ArchiveDto.ArchiveCardResponse
-import plub.plubserver.domain.archive.dto.ArchiveDto.ArchiveIdResponse
-import plub.plubserver.domain.archive.dto.ArchiveDto.ArchiveRequest
-import plub.plubserver.domain.archive.dto.ArchiveDto.ArchiveResponse
+import plub.plubserver.domain.archive.dto.ArchiveCardResponse
+import plub.plubserver.domain.archive.dto.ArchiveIdResponse
+import plub.plubserver.domain.archive.dto.ArchiveRequest
+import plub.plubserver.domain.archive.dto.ArchiveResponse
 import plub.plubserver.domain.archive.service.ArchiveService
 
 @RestController
