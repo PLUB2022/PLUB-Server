@@ -26,9 +26,9 @@ data class ArchiveCardResponse(
     val accessType: String,
 ) {
     constructor(archive: Archive, accessType: String) : this(
-        archiveId = archive.id!!,
+        archiveId = archive.id,
         title = archive.title,
-        images = archive.images.map { it.image }.take(3),
+        images = archive.images.take(3),
         imageCount = archive.images.size,
         sequence = archive.sequence,
         createdAt = archive.createdAt,
@@ -45,7 +45,7 @@ data class ArchiveResponse(
 ) {
     constructor(archive: Archive) : this(
         title = archive.title,
-        images = archive.images.map { it.image },
+        images = archive.images,
         imageCount = archive.images.size,
         sequence = archive.sequence,
         createdAt = archive.createdAt

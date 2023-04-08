@@ -13,7 +13,6 @@ import plub.plubserver.domain.archive.dto.ArchiveIdResponse
 import plub.plubserver.domain.archive.dto.ArchiveRequest
 import plub.plubserver.domain.archive.dto.ArchiveResponse
 import plub.plubserver.domain.archive.model.Archive
-import plub.plubserver.domain.archive.model.ArchiveImage
 import plub.plubserver.domain.archive.repository.ArchiveRepository
 import plub.plubserver.domain.plubbing.model.Plubbing
 import plub.plubserver.domain.plubbing.service.PlubbingService
@@ -78,9 +77,10 @@ class ArchiveService(
         return ArchiveResponse(archive)
     }
 
-    private fun ArchiveRequest.toArchiveImageList(archive: Archive) = this.images
-        .map { ArchiveImage(archive = archive, image = it) }
-        .toList()
+//    private fun ArchiveRequest.toArchiveImageList(archive: Archive) = this.images
+//        //.map { ArchiveImage(archive = archive, image = it) }
+//        .joinToString { it }
+//        .toList()
 
     /**
      * 아카이브 생성
@@ -107,18 +107,14 @@ class ArchiveService(
                 sequence = sequence
             )
         )
-
-        // Archive 매핑해서 이미지 엔티티화
-        val archiveImages = archiveRequest.toArchiveImageList(archive)
-
         // ArchiveImage 매핑
-        archive.setArchiveImages(archiveImages)
+        archive.updateArchive(images = archiveRequest.images)
 
         // Archive 저장
         plubbing.addArchive(archive)
         loginAccount.addArchive(archive)
 
-        return ArchiveIdResponse(archive.id!!)
+        return ArchiveIdResponse(archive.id)
     }
 
     // 호스트, 작성자인지 권한 체크
@@ -147,10 +143,11 @@ class ArchiveService(
         val archive = getArchive(archiveId)
         checkAuthorities(loginAccount, plubbing, archive)
 
-        archive.update(
-            archiveRequest.title,
-            archiveRequest.toArchiveImageList(archive)
+        archive.updateArchive(
+            title = archiveRequest.title,
+            images = archiveRequest.images
         )
+
         val accessType = getAccessType(loginAccount, archive)
         return ArchiveCardResponse(archive, accessType)
     }
