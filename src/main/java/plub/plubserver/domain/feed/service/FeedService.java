@@ -155,8 +155,7 @@ public class FeedService {
         Long commentGroupId = nextCursorId == null ? null : getFeedComment(nextCursorId).getCommentGroupId();
         Page<FeedCommentResponse> feedCommentList = feedCommentRepository.findAllByFeed(feed, pageable, commentGroupId, cursorId)
                 .map(it -> FeedCommentResponse.of(it, isCommentAuthor(account, it), isFeedAuthor(account, feed), isAuthorComment(it)));
-        Long totalElements = getCommentCount(feed);
-        return PageResponse.ofCursor(feedCommentList, totalElements);
+        return PageResponse.of(feedCommentList);
     }
 
     @Transactional
