@@ -206,7 +206,7 @@ public class PlubbingService {
 
     public PlubbingMemberListResponse getPlubbingMembers(Long plubbingId) {
         checkHost(plubbingId);
-        return PlubbingMemberListResponse.of(accountPlubbingRepository.findAllByPlubbingId(plubbingId)
+        return PlubbingMemberListResponse.of(accountPlubbingRepository.findAllByPlubbingIdAndAccountPlubbingStatusAndIsHost(plubbingId, AccountPlubbingStatus.ACTIVE, false)
                 .stream().map(AccountPlubbing::getAccount).toList());
     }
 
@@ -350,11 +350,12 @@ public class PlubbingService {
         return PlubbingIdResponse.of(plubbing);
     }
 
+    @Transactional
     public PlubbingMessage kickPlubbingMember(Long plubbingId, Long accountId) {
         Plubbing plubbing = getPlubbing(plubbingId);
         checkHost(plubbing);
         Account account = accountService.getAccount(accountId);
-        accountPlubbingRepository.findByAccountAndPlubbing(account, plubbing)
+        accountPlubbingRepository.findAllByAccountAndPlubbingAndAccountPlubbingStatusAndIsHost(account, plubbing, AccountPlubbingStatus.ACTIVE, false)
                 .orElseThrow(() -> new PlubbingException(StatusCode.NOT_MEMBER_ERROR))
                 .exitPlubbing();
         return new PlubbingMessage(account.getNickname()+"님을 강퇴하였습니다.");
