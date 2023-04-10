@@ -55,7 +55,7 @@ public class PlubbingController {
     }
 
     @ApiOperation(value = "모임 멤버 강퇴")
-    @PostMapping("/{plubbingId}/accounts/{accountId}")
+    @DeleteMapping("/{plubbingId}/accounts/{accountId}")
     public ApiResponse<PlubbingMessage> kickPlubbingMember(
             @PathVariable Long plubbingId,
             @PathVariable Long accountId
