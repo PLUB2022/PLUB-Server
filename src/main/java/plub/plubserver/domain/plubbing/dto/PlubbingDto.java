@@ -294,6 +294,22 @@ public class PlubbingDto {
         }
     }
 
+    public record PlubbingMemberListResponse(
+           List<PlubbingAccountInfoResponse> accountInfo
+    ) {
+        @Builder
+        public PlubbingMemberListResponse {
+        }
+
+        public static PlubbingMemberListResponse of(List<Account> accounts) {
+            return PlubbingMemberListResponse.builder()
+                    .accountInfo(accounts.stream()
+                            .map(PlubbingAccountInfoResponse::of)
+                            .toList())
+                    .build();
+        }
+    }
+
     public record MainPlubbingResponse(
             Long plubbingId,
             String name,

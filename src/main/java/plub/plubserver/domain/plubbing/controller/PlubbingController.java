@@ -46,6 +46,23 @@ public class PlubbingController {
         return success(plubbingService.getMyPlubbing(isHost));
     }
 
+    @ApiOperation(value = "모임 멤버 조회")
+    @GetMapping("/{plubbingId}/members")
+    public ApiResponse<PlubbingMemberListResponse> getPlubbingMembers(
+            @PathVariable Long plubbingId
+    ) {
+        return success(plubbingService.getPlubbingMembers(plubbingId));
+    }
+
+    @ApiOperation(value = "모임 멤버 강퇴")
+    @PostMapping("/{plubbingId}/accounts/{accountId}")
+    public ApiResponse<PlubbingMessage> kickPlubbingMember(
+            @PathVariable Long plubbingId,
+            @PathVariable Long accountId
+    ) {
+        return success(plubbingService.kickPlubbingMember(plubbingId, accountId));
+    }
+
     @ApiOperation(value = "모임 메인페이지 조회")
     @GetMapping("/{plubbingId}/main")
     public ApiResponse<MainPlubbingResponse> getMainPlubbing(@PathVariable Long plubbingId) {

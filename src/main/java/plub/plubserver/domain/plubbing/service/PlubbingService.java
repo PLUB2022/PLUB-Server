@@ -204,6 +204,12 @@ public class PlubbingService {
         return MyPlubbingListResponse.of(myPlubbingResponses);
     }
 
+    public PlubbingMemberListResponse getPlubbingMembers(Long plubbingId) {
+        checkHost(plubbingId);
+        return PlubbingMemberListResponse.of(accountPlubbingRepository.findAllByPlubbingId(plubbingId)
+                .stream().map(AccountPlubbing::getAccount).toList());
+    }
+
     @Transactional
     public MainPlubbingResponse getMainPlubbing(Long plubbingId) {
         Account currentAccount = accountService.getCurrentAccount();
@@ -344,30 +350,40 @@ public class PlubbingService {
         return PlubbingIdResponse.of(plubbing);
     }
 
+    public PlubbingMessage kickPlubbingMember(Long plubbingId, Long accountId) {
+        Plubbing plubbing = getPlubbing(plubbingId);
+        checkHost(plubbing);
+        Account account = accountService.getAccount(accountId);
+        accountPlubbingRepository.findByAccountAndPlubbing(account, plubbing)
+                .orElseThrow(() -> new PlubbingException(StatusCode.NOT_MEMBER_ERROR))
+                .exitPlubbing();
+        return new PlubbingMessage(account.getNickname()+"님을 강퇴하였습니다.");
+    }
+
     private void checkPlubbingStatus(Plubbing plubbing) {
         if (plubbing.getStatus().equals(PlubbingStatus.END) || !plubbing.isVisibility())
             throw new PlubbingException(StatusCode.DELETED_STATUS_PLUBBING);
     }
 
     public PageResponse<PlubbingCardResponse> getRecommendation(Pageable pageable, Long cursorId) {
-        Account myAccount = accountService.getCurrentAccount();
+        Account currentAccount = accountService.getCurrentAccount();
         Long nextCursorId = cursorId;
         if (cursorId != null && cursorId == 0) {
             Optional<Plubbing> first = plubbingRepository.findFirstByVisibilityAndId(true, cursorId);
             nextCursorId = first.map(Plubbing::getId).orElse(null);
         }
 
-        if (!myAccount.getAccountCategories().isEmpty()) {
-            List<Long> subCategoryId = accountCategoryRepository.findAllByAccount(myAccount)
+        if (!currentAccount.getAccountCategories().isEmpty()) {
+            List<Long> subCategoryId = accountCategoryRepository.findAllByAccount(currentAccount)
                     .stream().map(it -> it.getCategorySub().getId()).toList();
             Page<PlubbingCardResponse> plubbingCardResponses = plubbingRepository.findAllBySubCategory(subCategoryId, pageable, cursorId)
-                    .map(p -> PlubbingCardResponse.of(p, isHost(myAccount, p), isBookmarked(myAccount, p)));
+                    .map(p -> PlubbingCardResponse.of(p, isHost(currentAccount, p), isBookmarked(currentAccount, p)));
             return PageResponse.of(plubbingCardResponses);
         } else {
             Integer views = nextCursorId == null ? null : getPlubbing(nextCursorId).getViews();
 
             Page<PlubbingCardResponse> plubbingCardResponses = plubbingRepository.findAllByViews(pageable, cursorId, views)
-                    .map(p -> PlubbingCardResponse.of(p, isHost(myAccount, p), isBookmarked(myAccount, p)));
+                    .map(p -> PlubbingCardResponse.of(p, isHost(currentAccount, p), isBookmarked(currentAccount, p)));
             return PageResponse.of(plubbingCardResponses);
         }
     }
@@ -379,7 +395,7 @@ public class PlubbingService {
             PlubbingCardRequest plubbingCardRequest,
             Long cursorId
     ) {
-        Account myAccount = accountService.getCurrentAccount();
+        Account currentAccount = accountService.getCurrentAccount();
 
         Long nextCursorId = cursorId;
         if (cursorId != null && cursorId == 0) {
@@ -389,7 +405,7 @@ public class PlubbingService {
 
         if (plubbingCardRequest == null) {
             return PageResponse.of(plubbingRepository.findAllByCategory(categoryId, pageable, SortType.of(sort), nextCursorId)
-                    .map(p -> PlubbingCardResponse.of(p, isHost(myAccount, p), isBookmarked(myAccount, p))));
+                    .map(p -> PlubbingCardResponse.of(p, isHost(currentAccount, p), isBookmarked(currentAccount, p))));
         }
 
         Integer accountNum = plubbingCardRequest.accountNum();
@@ -401,7 +417,7 @@ public class PlubbingService {
 
         Page<PlubbingCardResponse> plubbingCardResponses = plubbingRepository
                 .findAllByCategoryAndFilter(categoryId, subCategoryId, meetingDays, accountNum, pageable, SortType.of(sort), nextCursorId)
-                .map(p -> PlubbingCardResponse.of(p, isHost(myAccount, p), isBookmarked(myAccount, p)));
+                .map(p -> PlubbingCardResponse.of(p, isHost(currentAccount, p), isBookmarked(currentAccount, p)));
         return PageResponse.of(plubbingCardResponses);
     }
 
@@ -435,5 +451,6 @@ public class PlubbingService {
     public Boolean isBookmarked(Account account, Plubbing plubbing) {
         return bookmarkRepository.existsByAccountAndRecruit(account, plubbing.getRecruit());
     }
+
 }
 

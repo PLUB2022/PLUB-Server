@@ -18,7 +18,7 @@ public interface AccountPlubbingRepository extends JpaRepository<AccountPlubbing
 
     boolean existsByAccountAndPlubbingId(Account currentAccount, Long plubbingId);
 
-    Optional<AccountPlubbing> findByAccountAndPlubbing(Account currentAccount, Plubbing plubbing);
+    Optional<AccountPlubbing> findByAccountAndPlubbing(Account account, Plubbing plubbing);
 
     @Query("select ap from AccountPlubbing ap where ap.plubbing.id = :plubbingId and ap.isHost = true")
     Optional<AccountPlubbing> findByPlubbingIdAndIsHost(@Param("plubbingId") Long plubbingId);
