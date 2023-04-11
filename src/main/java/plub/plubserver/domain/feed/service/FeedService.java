@@ -155,7 +155,10 @@ public class FeedService {
         Long commentGroupId = nextCursorId == null ? null : getFeedComment(nextCursorId).getCommentGroupId();
         Page<FeedCommentResponse> feedCommentList = feedCommentRepository.findAllByFeed(feed, pageable, commentGroupId, cursorId)
                 .map(it -> FeedCommentResponse.of(it, isCommentAuthor(account, it), isFeedAuthor(account, feed), isAuthorComment(it)));
-        return PageResponse.of(feedCommentList);
+        Long totalElements = feedCommentRepository.countAllByVisibilityAndFeed(true, feed);
+        boolean pageLast = feedCommentList.getNumber() == feedCommentList.getTotalPages() - 1
+                || feedCommentList.getNumber() * feedCommentList.getSize() + feedCommentList.getNumberOfElements() >= totalElements;
+        return PageResponse.ofCursor(feedCommentList, totalElements, pageLast);
     }
 
     @Transactional

@@ -34,6 +34,14 @@ public class PageResponse<T> {
                 .build();
     }
 
+    public static <T> PageResponse<T> ofCursor(Page<T> page, Long totalElements, boolean last) {
+        return PageResponse.<T>builder()
+                .totalElements(totalElements)
+                .last(last)
+                .content(page.getContent())
+                .build();
+    }
+
     // 리스트를 페이징 자체 처리
     public static <T> PageResponse<T> of(Pageable pageable, List<T> list) {
         int start = (int) pageable.getOffset();

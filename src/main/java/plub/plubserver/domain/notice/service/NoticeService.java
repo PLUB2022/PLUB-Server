@@ -144,7 +144,10 @@ public class NoticeService {
         Long commentGroupId = nextCursorId == null ? null : getNoticeComment(nextCursorId).getCommentGroupId();
         Page<NoticeCommentResponse> noticeCommentList = noticeCommentRepository.findAllByNotice(notice, pageable, commentGroupId, cursorId)
                 .map(it -> NoticeCommentResponse.of(it, isCommentAuthor(currentAccount, it), isNoticeAuthor(currentAccount, notice), isAuthorComment(it)));
-        return PageResponse.of(noticeCommentList);
+        Long totalElements = noticeCommentRepository.countAllByVisibilityAndNotice(true, notice);
+        boolean pageLast = noticeCommentList.getNumber() == noticeCommentList.getTotalPages() - 1
+                || noticeCommentList.getNumber() * noticeCommentList.getSize() + noticeCommentList.getNumberOfElements() >= totalElements;
+        return PageResponse.ofCursor(noticeCommentList, totalElements, pageLast);
     }
 
     @Transactional
