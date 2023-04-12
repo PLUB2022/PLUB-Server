@@ -44,6 +44,7 @@ public class QuestionDto {
     ) {}
 
     public record QuestionAnswerResponse(
+            Long questionId,
             String question,
             String answer
     ) {
@@ -54,7 +55,9 @@ public class QuestionDto {
         public static QuestionAnswerResponse of(RecruitQuestionAnswer recruitQuestionAnswer) {
             String question = recruitQuestionAnswer
                     .getRecruitQuestion().getQuestionTitle();
+            Long questionId = recruitQuestionAnswer.getRecruitQuestion().getId();
             return QuestionAnswerResponse.builder()
+                    .questionId(questionId)
                     .question(question)
                     .answer(recruitQuestionAnswer.getAnswer())
                     .build();
