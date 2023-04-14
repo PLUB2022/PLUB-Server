@@ -6,25 +6,19 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import plub.plubserver.common.exception.PlubException;
 import plub.plubserver.common.exception.StatusCode;
-import plub.plubserver.domain.account.exception.AccountException;
 import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.account.model.SuspendAccount;
-import plub.plubserver.domain.account.repository.AccountRepository;
 import plub.plubserver.domain.account.repository.SuspendAccountRepository;
-import plub.plubserver.domain.archive.exception.ArchiveException;
-import plub.plubserver.domain.archive.repository.ArchiveRepository;
-import plub.plubserver.domain.feed.exception.FeedException;
-import plub.plubserver.domain.feed.repository.FeedCommentRepository;
-import plub.plubserver.domain.feed.repository.FeedRepository;
-import plub.plubserver.domain.notice.exception.NoticeException;
-import plub.plubserver.domain.notice.repository.NoticeCommentRepository;
+import plub.plubserver.domain.archive.model.Archive;
+import plub.plubserver.domain.feed.model.Feed;
+import plub.plubserver.domain.feed.model.FeedComment;
+import plub.plubserver.domain.notice.model.NoticeComment;
 import plub.plubserver.domain.notification.dto.NotificationDto.NotifyParams;
 import plub.plubserver.domain.notification.model.NotificationType;
 import plub.plubserver.domain.notification.service.NotificationService;
 import plub.plubserver.domain.plubbing.model.Plubbing;
 import plub.plubserver.domain.plubbing.repository.PlubbingRepository;
-import plub.plubserver.domain.recruit.exception.RecruitException;
-import plub.plubserver.domain.recruit.repository.RecruitRepository;
+import plub.plubserver.domain.recruit.model.Recruit;
 import plub.plubserver.domain.report.config.ReportStatusMessage;
 import plub.plubserver.domain.report.dto.ReportDto.ReportResponse;
 import plub.plubserver.domain.report.dto.ReportDto.ReportTypeResponse;
@@ -33,9 +27,9 @@ import plub.plubserver.domain.report.model.Report;
 import plub.plubserver.domain.report.model.ReportTarget;
 import plub.plubserver.domain.report.model.ReportType;
 import plub.plubserver.domain.report.repositoy.ReportRepository;
-import plub.plubserver.domain.todo.exception.TodoException;
-import plub.plubserver.domain.todo.repository.TodoRepository;
+import plub.plubserver.domain.todo.model.Todo;
 
+import javax.persistence.EntityManager;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -54,22 +48,16 @@ import static plub.plubserver.domain.report.dto.ReportDto.ReportIdResponse;
 @RequiredArgsConstructor
 public class ReportService {
     private final ReportRepository reportRepository;
-    private final AccountRepository accountRepository;
     private final NotificationService notificationService;
     private final SuspendAccountRepository suspendAccountRepository;
-    private final FeedRepository feedRepository;
-    private final TodoRepository todoRepository;
-    private final FeedCommentRepository feedCommentRepository;
-    private final NoticeCommentRepository noticeCommentRepository;
-    private final ArchiveRepository archiveRepository;
-    private final RecruitRepository recruitRepository;
     private final PlubbingRepository plubbingRepository;
-
+    private final EntityManager em;
 
     // 신고하기
     @Transactional
     public ReportIdResponse createReport(CreateReportRequest request, Account reporter) {
-        Account reportedAccount = checkReportTargetAccount(request.reportTargetId(), request.reportTarget());
+        Account reportedAccount = getReportTargetAccount(request.reportTargetId(), request.reportTarget());
+
         plubbingRepository.findById(request.plubbingId())
                 .orElseThrow(() -> new PlubException(StatusCode.NOT_FOUND_PLUBBING));
 
@@ -123,23 +111,28 @@ public class ReportService {
         }
     }
 
-    public Account checkReportTargetAccount(Long targetId, String reportTarget) {
+    private <T> T findOrThrow(Class<T> targetClass, Long id) {
+        return Optional.ofNullable(em.find(targetClass, id)).orElseThrow(
+                () -> new ReportException(StatusCode.REPORT_TARGET_NOT_FOUND)
+        );
+    }
+
+    public Account getReportTargetAccount(Long targetId, String reportTarget) {
         ReportTarget target = ReportTarget.toEnum(reportTarget);
         return switch (target) {
-            case ACCOUNT ->
-                    accountRepository.findById(targetId).orElseThrow(() -> new AccountException(StatusCode.NOT_FOUND_ACCOUNT));
-            case FEED ->
-                    feedRepository.findById(targetId).orElseThrow(() -> new FeedException(StatusCode.NOT_FOUND_FEED)).getAccount();
-            case FEED_COMMENT ->
-                    feedCommentRepository.findById(targetId).orElseThrow(() -> new FeedException(StatusCode.NOT_FOUND_COMMENT)).getAccount();
-            case NOTICE_COMMENT ->
-                    noticeCommentRepository.findById(targetId).orElseThrow(() -> new NoticeException(StatusCode.NOT_FOUND_COMMENT)).getAccount();
-            case TODO ->
-                    todoRepository.findById(targetId).orElseThrow(() -> new TodoException(StatusCode.NOT_FOUNT_TODO)).getAccount();
-            case ARCHIVE ->
-                    archiveRepository.findById(targetId).orElseThrow(() -> new ArchiveException(StatusCode.NOT_FOUND_ARCHIVE)).getAccount();
-            case RECRUIT ->
-                    recruitRepository.findById(targetId).orElseThrow(() -> new RecruitException(StatusCode.NOT_FOUND_RECRUIT)).getPlubbing().getHost();
+            case ACCOUNT -> findOrThrow(Account.class, targetId);
+            case FEED -> findOrThrow(Feed.class, targetId)
+                    .getAccount();
+            case FEED_COMMENT -> findOrThrow(FeedComment.class, targetId)
+                    .getAccount();
+            case NOTICE_COMMENT -> findOrThrow(NoticeComment.class, targetId)
+                    .getAccount();
+            case TODO -> findOrThrow(Todo.class, targetId)
+                    .getAccount();
+            case ARCHIVE -> findOrThrow(Archive.class, targetId)
+                    .getAccount();
+            case RECRUIT -> findOrThrow(Recruit.class, targetId)
+                    .getPlubbing().getHost();
         };
     }
 
