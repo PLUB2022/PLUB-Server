@@ -7,4 +7,6 @@ import plub.plubserver.domain.recruit.model.Recruit;
 
 public interface BookmarkRepository extends JpaRepository<Bookmark, Long>, BookmarkRepositoryCustom {
     Boolean existsByAccountAndRecruit(Account account, Recruit recruit);
+
+    void deleteByRecruit(Recruit recruit);
 }

@@ -17,9 +17,11 @@ import plub.plubserver.domain.notification.model.NotificationType;
 import plub.plubserver.domain.notification.service.NotificationService;
 import plub.plubserver.domain.plubbing.dto.PlubbingDto.JoinedAccountsInfoResponse;
 import plub.plubserver.domain.plubbing.dto.PlubbingDto.PlubbingIdResponse;
+import plub.plubserver.domain.plubbing.exception.PlubbingException;
 import plub.plubserver.domain.plubbing.model.AccountPlubbing;
 import plub.plubserver.domain.plubbing.model.AccountPlubbingStatus;
 import plub.plubserver.domain.plubbing.model.Plubbing;
+import plub.plubserver.domain.plubbing.model.PlubbingStatus;
 import plub.plubserver.domain.plubbing.repository.AccountPlubbingRepository;
 import plub.plubserver.domain.plubbing.service.PlubbingService;
 import plub.plubserver.domain.recruit.dto.QuestionDto.AnswerRequest;
@@ -139,6 +141,11 @@ public class RecruitService {
         // 영속성 컨텍스트로 다시 불러오기 - no session lazy 예외 핸들용
         Account account = accountService.getAccount(loginAccount.getId());
         Recruit recruit = getRecruitByPlubbingId(plubbingId);
+
+        // 모임 상태 체크
+        if (!recruit.getPlubbing().getStatus().equals(PlubbingStatus.ACTIVE))
+            throw new PlubbingException(StatusCode.DELETED_STATUS_PLUBBING);
+
         Optional<Bookmark> bookmark = account.getBookmarkList().stream()
                 .filter(b -> b.getRecruit().equals(recruit))
                 .findFirst();
@@ -181,6 +188,10 @@ public class RecruitService {
         recruit.done();
         // 지원했던 지원자들 정보 초기화
         appliedAccountRepository.deleteAllByRecruitId(recruit.getId());
+
+        // 북마크 전체 삭제
+        bookmarkRepository.deleteByRecruit(recruit);
+
         return RecruitStatusResponse.of(recruit);
     }
 
