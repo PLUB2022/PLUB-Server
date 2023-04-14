@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 import plub.plubserver.common.exception.PlubException;
 import plub.plubserver.common.exception.StatusCode;
 import plub.plubserver.domain.account.model.Account;
+import plub.plubserver.domain.account.model.Role;
 import plub.plubserver.domain.account.model.SuspendAccount;
 import plub.plubserver.domain.account.repository.SuspendAccountRepository;
 import plub.plubserver.domain.archive.model.Archive;
@@ -19,6 +20,7 @@ import plub.plubserver.domain.notification.service.NotificationService;
 import plub.plubserver.domain.plubbing.model.Plubbing;
 import plub.plubserver.domain.plubbing.repository.PlubbingRepository;
 import plub.plubserver.domain.recruit.model.Recruit;
+import plub.plubserver.domain.recruit.repository.BookmarkRepository;
 import plub.plubserver.domain.report.config.ReportStatusMessage;
 import plub.plubserver.domain.report.dto.ReportDto.ReportResponse;
 import plub.plubserver.domain.report.dto.ReportDto.ReportTypeResponse;
@@ -51,6 +53,7 @@ public class ReportService {
     private final NotificationService notificationService;
     private final SuspendAccountRepository suspendAccountRepository;
     private final PlubbingRepository plubbingRepository;
+    private final BookmarkRepository bookmarkRepository;
     private final EntityManager em;
 
     // 신고하기
@@ -74,8 +77,8 @@ public class ReportService {
                 })
                 .count();
 
-        // 신고 횟수가 2회 이상일 경우, 예외 발생
-        if (count >= 2) {
+        // 신고 횟수가 2회 이상일 경우, 예외 발생 (어드민은 해당 X)
+        if (count >= 2 && reporter.getRole().equals(Role.ROLE_USER)) {
             throw new ReportException(StatusCode.TOO_MANY_REPORTS);
         }
 
@@ -152,6 +155,7 @@ public class ReportService {
         return plubbingName;
     }
 
+    @Transactional
     public void notifyReportedAccount(Report report) {
         Account reportedAccount = report.getReportedAccount();
         Long reportedAccountCount = countReportedAccount(reportedAccount);
@@ -176,6 +180,12 @@ public class ReportService {
                     .build();
             suspendAccount.setSuspendedDate();
             suspendAccountRepository.save(suspendAccount);
+
+            // 북마크 전체 삭제 후 모임 상태 정지로 변경
+            plubbingRepository.findAllByHost(reportedAccount).forEach(plubbing -> {
+                bookmarkRepository.deleteByRecruit(plubbing.getRecruit());
+                plubbing.pause();
+            });
         } else if (reportedAccountCount >= REPORT_ACCOUNT_PAUSED_COUNT) {
             // 계정 1개월 정지
             NotifyParams params = createNotifyParams(

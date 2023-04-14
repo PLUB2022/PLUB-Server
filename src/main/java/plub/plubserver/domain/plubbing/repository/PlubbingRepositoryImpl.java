@@ -9,13 +9,16 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
 import plub.plubserver.common.model.SortType;
+import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.plubbing.model.*;
 import plub.plubserver.domain.recruit.model.RecruitStatus;
 
 import java.util.List;
 
+import static plub.plubserver.domain.account.model.QAccount.account;
 import static plub.plubserver.domain.category.model.QPlubbingSubCategory.plubbingSubCategory;
 import static plub.plubserver.domain.category.model.QSubCategory.subCategory;
+import static plub.plubserver.domain.plubbing.model.QAccountPlubbing.accountPlubbing;
 import static plub.plubserver.domain.plubbing.model.QPlubbing.plubbing;
 import static plub.plubserver.domain.plubbing.model.QPlubbingMeetingDay.plubbingMeetingDay;
 
@@ -123,6 +126,20 @@ public class PlubbingRepositoryImpl implements PlubbingRepositoryCustom {
                         .fetch(),
                 pageable,
                 query::fetchCount);
+    }
+
+    // 내가 호스트인 모임 전체 조회
+    @Override
+    public List<Plubbing> findAllByHost(Account host) {
+        return queryFactory
+                .selectFrom(plubbing)
+                .join(plubbing.accountPlubbingList, accountPlubbing)
+                .fetchJoin()
+                .join(accountPlubbing.account, account)
+                .fetchJoin()
+                .where(account.id.eq(host.getId()))
+                .distinct()
+                .fetch();
     }
 
     private BooleanExpression eqAccountNum(Integer accountNum) {
