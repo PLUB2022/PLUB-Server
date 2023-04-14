@@ -3,6 +3,7 @@ package plub.plubserver.util.s3.controller;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import plub.plubserver.common.dto.ApiResponse;
+import plub.plubserver.util.s3.dto.AwsS3Dto.DeleteFileResponse;
 import plub.plubserver.util.s3.dto.AwsS3Dto.FileListDto;
 import plub.plubserver.util.s3.dto.AwsS3Dto.UpdateFileRequest;
 import plub.plubserver.util.s3.dto.AwsS3Dto.UploadFileRequest;
@@ -27,9 +28,12 @@ public class AwsS3Controller {
     }
 
     @DeleteMapping("/api/files/{type}")
-    public ApiResponse<?> deleteFiles(@PathVariable String type, @RequestParam String fileUrl) {
+    public ApiResponse<DeleteFileResponse> deleteFiles(
+            @PathVariable String type,
+            @RequestParam String fileUrl
+    ) {
         awsS3Service.deleteFiles(type, fileUrl);
-        return success("DELETE SUCCESS");
+        return success(DeleteFileResponse.success());
     }
 
 }

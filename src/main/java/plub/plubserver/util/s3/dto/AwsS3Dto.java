@@ -1,5 +1,6 @@
 package plub.plubserver.util.s3.dto;
 
+import lombok.Builder;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -21,4 +22,14 @@ public class AwsS3Dto {
     public record FileListDto(
             List<FileDto> files
     ) {}
+
+    public record DeleteFileResponse(
+        String message
+    ) {
+        @Builder public DeleteFileResponse {}
+
+        public static DeleteFileResponse success() {
+            return new DeleteFileResponse("DELETE SUCCESS");
+        }
+    }
 }
