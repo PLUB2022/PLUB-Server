@@ -197,13 +197,16 @@ public class RecruitService {
      */
     @Transactional
     public PlubbingIdResponse applyRecruit(
-            Account loginAccount,
+            Account account,
             Long plubbingId,
             ApplyRecruitRequest applyRecruitRequest
     ) {
+        Account loginAccount = accountService.getAccount(account.getId());
         Recruit recruit = getRecruitByPlubbingId(plubbingId);
 
-        // TODO : 모집글 상태 체크
+        // 모집글 상태 체크
+        if (recruit.getStatus().equals(RecruitStatus.END))
+            throw new RecruitException(StatusCode.ALREADY_DONE_RECRUIT);
 
         // 호스트 본인은 지원 불가 처리
         accountPlubbingRepository.findByAccountAndPlubbing(loginAccount, recruit.getPlubbing())
@@ -212,16 +215,13 @@ public class RecruitService {
                         throw new RecruitException(StatusCode.HOST_RECRUIT_ERROR);
                 });
 
+        // 지원자가 활동중인 모임이 3개 인지 확인
+        if (loginAccount.getAccountPlubbingList().size() >= 3)
+            throw new RecruitException(StatusCode.MAX_PLUBBING_LIMIT_OVER);
+
         // 이미 지원했는지 확인
         if (appliedAccountRepository.existsByAccountAndRecruit(loginAccount, recruit))
             throw new RecruitException(StatusCode.ALREADY_APPLIED_RECRUIT);
-
-        // TODO : 내가 모임 세개인지아닌지 체크해서 예외던지는 로직 추가
-
-        // 모임 인원이 꽉 찼는지 확인
-        Plubbing plubbing = recruit.getPlubbing();
-        //if (plubbing.getMaxAccountNum() < plubbing.getCurAccountNum() + 1)
-        //    throw new RecruitException(StatusCode.PLUBBING_MEMBER_FULL);
 
         // 지원자 생성
         AppliedAccount appliedAccount = AppliedAccount.builder()
@@ -237,6 +237,7 @@ public class RecruitService {
         recruit.addAppliedAccount(appliedAccount);
 
         // 호스트에게 푸시 알림
+        Plubbing plubbing = recruit.getPlubbing();
         NotifyParams params = NotifyParams.builder()
                 .receiver(plubbing.getHost())
                 .type(NotificationType.APPLY_RECRUIT)
@@ -334,9 +335,16 @@ public class RecruitService {
         Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
         AppliedAccount appliedAccount = getAppliedAccountWithCheckHost(loginAccount, plubbingId, accountId);
 
+        // 모임이 꽉 찼는지 확인
+        if (plubbing.getCurAccountNum() >= plubbing.getMaxAccountNum())
+            throw new RecruitException(StatusCode.PLUBBING_MEMBER_IS_FULL);
+
+        // 이미 승낙 또는 거절한 지원자인지 확인
         if (appliedAccount.getStatus().equals(ApplicantStatus.ACCEPTED) ||
                 appliedAccount.getStatus().equals(ApplicantStatus.REJECTED))
             throw new RecruitException(StatusCode.ALREADY_ACCEPTED);
+
+        // 지원자 승낙
         appliedAccount.accept();
 
         // 모임에 해당 지원자 추가

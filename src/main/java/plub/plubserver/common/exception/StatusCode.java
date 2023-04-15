@@ -89,6 +89,7 @@ public enum StatusCode {
     INVALID_ACCOUNT_STATUS(400, 5050, "invalid account status."),
     TOO_MANY_REPORTS(400, 5060, "too many reports."),
     ALREADY_REVOKE_SUSPEND_ACCOUNT(400, 5070, "already revoke suspend account."),
+
     /**
      * Plubbing
      */
@@ -99,7 +100,6 @@ public enum StatusCode {
     NOT_MEMBER_ERROR(403, 6040, "this account is not a member of this plubbing."),
     NOT_FOUND_SUB_CATEGORY(404, 6050, "not found sub category error."),
 
-
     /**
      * Recruit
      */
@@ -109,8 +109,10 @@ public enum StatusCode {
     ALREADY_APPLIED_RECRUIT(400, 6090, "this applicant is already applied."),
     ALREADY_ACCEPTED(400, 6100, "this applicant is already accepted."),
     ALREADY_REJECTED(400, 6110, "this applicant is already rejected."),
-    PLUBBING_MEMBER_FULL(400, 6120, "plubbing member is full."),
+    PLUBBING_MEMBER_IS_FULL(400, 6120, "plubbing member is full."),
     NOT_FOUND_RECRUIT(404, 6130, "not found recruit error."),
+    ALREADY_DONE_RECRUIT(400, 6140, "this recruit is already done."),
+    MAX_PLUBBING_LIMIT_OVER(400, 6150, "max active plubbing limit is 3."),
 
     /**
      * Todo
