@@ -150,4 +150,12 @@ public class PlubbingController {
     ) {
         return success(plubbingService.hardDeletePlubbing(plubbingId));
     }
+
+    @ApiOperation(value = "모임 삭제 복구 - 관리자용")
+    @PutMapping("/{plubbingId}/rollback")
+    public ApiResponse<PlubbingMessage> rollbackSoftDeletedPlubbing(
+            @PathVariable Long plubbingId
+    ) {
+        return success(plubbingService.rollbackSoftDeletedPlubbing(plubbingId));
+    }
 }

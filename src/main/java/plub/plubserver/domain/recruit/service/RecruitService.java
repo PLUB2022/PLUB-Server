@@ -33,7 +33,6 @@ import plub.plubserver.domain.recruit.model.*;
 import plub.plubserver.domain.recruit.repository.AppliedAccountRepository;
 import plub.plubserver.domain.recruit.repository.BookmarkRepository;
 import plub.plubserver.domain.recruit.repository.RecruitRepository;
-import plub.plubserver.domain.report.service.ReportService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,7 +50,6 @@ public class RecruitService {
     private final PlubbingService plubbingService;
     private final RecruitRepository recruitRepository;
     private final NotificationService notificationService;
-    private final ReportService reportService;
     private final FeedService feedService;
     private final BookmarkRepository bookmarkRepository;
 
@@ -87,6 +85,7 @@ public class RecruitService {
         );
     }
 
+    // 가져올때 상태값 체크
     public AppliedAccountResponse getMyAppliedAccount(Account account, Long plubbingId) {
         Recruit recruit = getRecruitByPlubbingId(plubbingId);
         return AppliedAccountResponse.of(
@@ -187,11 +186,9 @@ public class RecruitService {
         plubbingService.checkHost(recruit.getPlubbing());
         recruit.done();
         // 지원했던 지원자들 정보 초기화
-        appliedAccountRepository.deleteAllByRecruitId(recruit.getId());
-
+        //appliedAccountRepository.deleteAllByRecruitId(recruit.getId());
         // 북마크 전체 삭제
         bookmarkRepository.deleteByRecruit(recruit);
-
         return RecruitStatusResponse.of(recruit);
     }
 
@@ -206,6 +203,8 @@ public class RecruitService {
     ) {
         Recruit recruit = getRecruitByPlubbingId(plubbingId);
 
+        // TODO : 모집글 상태 체크
+
         // 호스트 본인은 지원 불가 처리
         accountPlubbingRepository.findByAccountAndPlubbing(loginAccount, recruit.getPlubbing())
                 .ifPresent(accountPlubbing -> {
@@ -217,10 +216,12 @@ public class RecruitService {
         if (appliedAccountRepository.existsByAccountAndRecruit(loginAccount, recruit))
             throw new RecruitException(StatusCode.ALREADY_APPLIED_RECRUIT);
 
+        // TODO : 내가 모임 세개인지아닌지 체크해서 예외던지는 로직 추가
+
         // 모임 인원이 꽉 찼는지 확인
         Plubbing plubbing = recruit.getPlubbing();
-        if (plubbing.getMaxAccountNum() < plubbing.getCurAccountNum() + 1)
-            throw new RecruitException(StatusCode.PLUBBING_MEMBER_FULL);
+        //if (plubbing.getMaxAccountNum() < plubbing.getCurAccountNum() + 1)
+        //    throw new RecruitException(StatusCode.PLUBBING_MEMBER_FULL);
 
         // 지원자 생성
         AppliedAccount appliedAccount = AppliedAccount.builder()

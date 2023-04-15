@@ -22,6 +22,7 @@ import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
+import static plub.plubserver.domain.plubbing.model.PlubbingStatus.ACTIVE;
 import static plub.plubserver.domain.plubbing.model.PlubbingStatus.DELETED;
 
 @Entity
@@ -141,6 +142,18 @@ public class Plubbing extends BaseEntity {
         todoTimelineList.forEach(TodoTimeline::softDelete);
         calendarList.forEach(Calendar::softDelete);
         accountPlubbingList.forEach(AccountPlubbing::softDelete);
+    }
+
+    public void rollbackSoftDelete() {
+        visibility = true;
+        status = ACTIVE;
+        recruit.setVisible();
+        archiveList.forEach(Archive::setVisible);
+        feedList.forEach(Feed::setVisible);
+        noticeList.forEach(Notice::setVisible);
+        todoTimelineList.forEach(TodoTimeline::setVisible);
+        calendarList.forEach(Calendar::setVisible);
+        accountPlubbingList.forEach(AccountPlubbing::setVisible);
     }
 
     // 모집글 수정 : 타이틀, 모임 이름, 목표, 모임 소개글, 메인이미지

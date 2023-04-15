@@ -280,14 +280,25 @@ public class PlubbingService {
 
         // 해당 모집글 북마크도 전체 삭제
         plubbing.getRecruit().getBookmarkList().clear();
-
         return new PlubbingMessage(true);
     }
 
+
+    // soft delete rollback
+    @Deprecated
+    @Transactional
+    public PlubbingMessage rollbackSoftDeletedPlubbing(Long plubbingId) {
+        Plubbing plubbing = plubbingRepository.findByIdAnyway(plubbingId)
+                .orElseThrow(() -> new PlubbingException(StatusCode.NOT_FOUND_PLUBBING));
+        plubbing.rollbackSoftDelete();
+        return new PlubbingMessage("ROLLBACK SUCCESS");
+    }
+
     // hard delete for admin
+    @Deprecated
     @Transactional
     public PlubbingMessage hardDeletePlubbing(Long plubbingId) {
-        Plubbing plubbing = plubbingRepository.findById(plubbingId)
+        Plubbing plubbing = plubbingRepository.findByIdAnyway(plubbingId)
                 .orElseThrow(() -> new PlubbingException(StatusCode.NOT_FOUND_PLUBBING));
         accountPlubbingRepository.deleteByPlubbing(plubbing);
         // 해당 모집글 북마크도 전체 삭제

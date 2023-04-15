@@ -21,5 +21,8 @@ public interface PlubbingRepository extends JpaRepository<Plubbing, Long>, Plubb
     Long countByCreatedAtMonthly(@Param("thisMonth") String thisMonth);
 
     Optional<Plubbing> findFirstByVisibilityAndId(boolean visibility, Long cursorId);
+
+    @Query("select b from Plubbing b where b.id = :id and b.visibility = true or b.visibility = false")
+    Optional<Plubbing> findByIdAnyway(@Param("id") Long id);
 }
 
