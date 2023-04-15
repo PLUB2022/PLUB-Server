@@ -362,7 +362,7 @@ public class PlubbingService {
         NotifyParams params = NotifyParams.builder()
                 .receiver(kickAccount)
                 .type(NotificationType.KICK_MEMBER)
-                .redirectTargetId(plubbingId)
+                .redirectTargetId(0L)
                 .title(plubbing.getName())
                 .content(plubbing.getName() + "에서 강퇴되었어요.\uD83D\uDE22") // 슬픈 이모지
                 .build();

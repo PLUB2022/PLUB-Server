@@ -239,7 +239,7 @@ public class RecruitService {
         NotifyParams params = NotifyParams.builder()
                 .receiver(plubbing.getHost())
                 .type(NotificationType.APPLY_RECRUIT)
-                .redirectTargetId(plubbingId)
+                .redirectTargetId(0L)
                 .title(plubbing.getName())
                 .content(plubbing.getName() + "에 새로운 지원자가 있어요! \n지원서를 확인하러 가볼까요? \uD83E\uDD29") // 별눈 이모지
                 .build();

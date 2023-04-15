@@ -230,7 +230,7 @@ public class ReportService {
     ) {
         return NotifyParams.builder()
                 .receiver(report.getReportedAccount())
-                .redirectTargetId(report.getId())
+                .redirectTargetId(0L)
                 .title(title)
                 .content(reportMessage)
                 .type(notificationType)

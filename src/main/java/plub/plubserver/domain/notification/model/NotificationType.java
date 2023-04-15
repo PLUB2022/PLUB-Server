@@ -15,7 +15,7 @@ public enum NotificationType {
      * 받는 사람 : 신고 대상자
      * 리다이렉트 : 신고 1회 고지 화면
      */
-    REPORTED_ONCE(ReceiverType.ACCOUNT, Account.class),
+    REPORTED_ONCE(ReceiverType.ACCOUNT, Object.class),
 
     /**
      * 알림명 : 정지해제
@@ -23,7 +23,7 @@ public enum NotificationType {
      * 받는 사람 : 정지 해제 대상자
      * 리다이렉트 : 플러빙 내 모임 페이지
      */
-    UNBAN(ReceiverType.ACCOUNT, Account.class),
+    UNBAN(ReceiverType.ACCOUNT, Object.class),
 
     /**
      * 알림명 : 한 달 정지
@@ -31,7 +31,7 @@ public enum NotificationType {
      * 받는 사람 : 한 달 정지 대상자
      * 리다이렉트 : 한 달 정지 안내 화면, 뒤로가기 및 앱 종료 후 재실행 시 앱 이용 불가 모달 계속 출력
      */
-    BAN_ONE_MONTH(ReceiverType.ACCOUNT, Account.class),
+    BAN_ONE_MONTH(ReceiverType.ACCOUNT, Object.class),
 
     /**
      * 알림명 : 영구정지
@@ -39,7 +39,7 @@ public enum NotificationType {
      * 받는 사람 : 영구정지 대상자
      * 리다이렉트 : 영구정지 안내 화면, 뒤로가기 및 앱 종료 후 재실행 시 앱 이용 불가 모달 계속 출력
      */
-    BAN_PERMANENTLY(ReceiverType.ACCOUNT, Account.class),
+    BAN_PERMANENTLY(ReceiverType.ACCOUNT, Object.class),
 
     /**
      * 알림명 : 내 게시글에 댓글
@@ -83,7 +83,7 @@ public enum NotificationType {
      * 받는 사람 : 호스트
      * 리다이렉트 : 마이페이지 모집 중인 모임 지원자 내역 페이지 (해당 지원자 내역 드롭다운)
      */
-    APPLY_RECRUIT(ReceiverType.HOST, Plubbing.class),
+    APPLY_RECRUIT(ReceiverType.HOST, Object.class),
 
     /**
      * 알림명 : 모임 나가기, 탈퇴
@@ -106,7 +106,7 @@ public enum NotificationType {
      * 받는 사람 : 강퇴된 사용자
      * 리다이렉트 : 강퇴된 모임이 사라진 내 모임 화면
      */
-    KICK_MEMBER(ReceiverType.ACCOUNT, Plubbing.class),
+    KICK_MEMBER(ReceiverType.ACCOUNT, Object.class),
 
     TEST_ACCOUNT_ITSELF(ReceiverType.ACCOUNT, Account.class)
     ;
