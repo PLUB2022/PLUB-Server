@@ -51,7 +51,6 @@ public class PlubbingService {
     private final AccountPlubbingRepository accountPlubbingRepository;
     private final BookmarkRepository bookmarkRepository;
     private final RecruitRepository recruitRepository;
-
     private final AppliedAccountRepository appliedAccountRepository;
 
     public Plubbing getPlubbing(Long plubbingId) {
@@ -264,8 +263,9 @@ public class PlubbingService {
     }
 
     /**
-     * 모임 삭제 (soft delete)
+     * 모임 삭제
      */
+    // soft delete
     @Transactional
     public PlubbingMessage deletePlubbing(Long plubbingId) {
         Plubbing plubbing = plubbingRepository.findById(plubbingId)
@@ -273,7 +273,7 @@ public class PlubbingService {
         checkPlubbingStatus(plubbing);
         checkHost(plubbing);
 
-        plubbing.deletePlubbing();
+        plubbing.softDeletePlubbing();
 
         accountPlubbingRepository.findAllByPlubbingId(plubbingId)
                 .forEach(ap -> ap.changeStatus(AccountPlubbingStatus.END));
@@ -281,6 +281,18 @@ public class PlubbingService {
         // 해당 모집글 북마크도 전체 삭제
         plubbing.getRecruit().getBookmarkList().clear();
 
+        return new PlubbingMessage(true);
+    }
+
+    // hard delete for admin
+    @Transactional
+    public PlubbingMessage hardDeletePlubbing(Long plubbingId) {
+        Plubbing plubbing = plubbingRepository.findById(plubbingId)
+                .orElseThrow(() -> new PlubbingException(StatusCode.NOT_FOUND_PLUBBING));
+        accountPlubbingRepository.deleteByPlubbing(plubbing);
+        // 해당 모집글 북마크도 전체 삭제
+        plubbing.getRecruit().getBookmarkList().clear();
+        plubbingRepository.deleteById(plubbingId);
         return new PlubbingMessage(true);
     }
 

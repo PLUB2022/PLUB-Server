@@ -91,11 +91,7 @@ public class Plubbing extends BaseEntity {
 
     // 모임(1) - 아카이브(다)
     @OneToMany(mappedBy = "plubbing", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Archive> archives;
-
-    // 모임(1) - 일정(다)
-    @OneToMany(mappedBy = "plubbing", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Calendar> calendars;
+    private List<Archive> archiveList;
 
     /**
      * methods
@@ -130,9 +126,21 @@ public class Plubbing extends BaseEntity {
         this.recruit = recruit;
     }
 
-    public void deletePlubbing() {
+    public void addCalendar(Calendar calendar) {
+        if (calendarList == null) calendarList = new ArrayList<>();
+        calendarList.add(calendar);
+    }
+
+    public void softDeletePlubbing() {
         visibility = false;
         status = DELETED;
+        recruit.softDelete();
+        archiveList.forEach(Archive::softDelete);
+        feedList.forEach(Feed::softDelete);
+        noticeList.forEach(Notice::softDelete);
+        todoTimelineList.forEach(TodoTimeline::softDelete);
+        calendarList.forEach(Calendar::softDelete);
+        accountPlubbingList.forEach(AccountPlubbing::softDelete);
     }
 
     // 모집글 수정 : 타이틀, 모임 이름, 목표, 모임 소개글, 메인이미지
@@ -173,8 +181,8 @@ public class Plubbing extends BaseEntity {
 
     // archive
     public void addArchive(Archive archive) {
-        if (archives == null) archives = new ArrayList<>();
-        archives.add(archive);
+        if (archiveList == null) archiveList = new ArrayList<>();
+        archiveList.add(archive);
     }
 
     public String getTime() {

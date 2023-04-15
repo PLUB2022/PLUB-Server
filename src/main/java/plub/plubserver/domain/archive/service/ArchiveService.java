@@ -78,7 +78,7 @@ public class ArchiveService {
         Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
         plubbingService.checkMember(loginAccount, plubbing);
 
-        Archive archive = plubbing.getArchives().stream()
+        Archive archive = plubbing.getArchiveList().stream()
                 .filter(it -> it.getId().equals(archiveId))
                 .findFirst()
                 .orElseThrow(() -> new ArchiveException(StatusCode.NOT_FOUND_ARCHIVE));

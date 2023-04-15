@@ -33,12 +33,10 @@ import static plub.plubserver.domain.notification.dto.NotificationDto.NotifyPara
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class CalendarService {
-
     private final CalendarRepository calendarRepository;
     private final CalendarAttendRepository calendarAttendRepository;
     private final PlubbingService plubbingService;
     private final NotificationService notificationService;
-
     private final SchedulerService schedulerService;
 
     public Calendar getCalendar(Long CalendarId) {
@@ -124,6 +122,8 @@ public class CalendarService {
                     .build();
             calendarAttendRepository.save(calendarAttend);
         }
+
+        plubbing.addCalendar(calendar);
 
         // 멤버들에게 푸시 알림
         plubbing.getMembers().forEach(member -> {

@@ -142,4 +142,12 @@ public class PlubbingController {
     ) {
         return success(plubbingService.getMyPlubbingByStatus(status));
     }
+
+    @ApiOperation(value = "모임 영구 삭제 (hard delete) - 관리자용")
+    @DeleteMapping("/{plubbingId}/hard")
+    public ApiResponse<PlubbingMessage> hardDeletePlubbing(
+            @PathVariable Long plubbingId
+    ) {
+        return success(plubbingService.hardDeletePlubbing(plubbingId));
+    }
 }
