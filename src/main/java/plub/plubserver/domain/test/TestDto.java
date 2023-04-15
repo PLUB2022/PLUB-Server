@@ -15,8 +15,4 @@ public class TestDto {
             String authCode
     ) {}
 
-    public record JsonTestRequest(
-            String testMessage
-    ) {}
-
 }

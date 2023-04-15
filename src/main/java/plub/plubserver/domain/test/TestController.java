@@ -49,7 +49,7 @@ public class TestController {
 
     // for test
     @PostMapping("/push/self")
-    public ApiResponse<NotificationListResponse> testCreateNotification() {
+    public ApiResponse<NotificationListResponse> testCreateNotificationMyself() {
         Account currentAccount = accountService.getCurrentAccount();
         NotifyParams params = NotifyParams.builder()
                 .receiver(currentAccount)

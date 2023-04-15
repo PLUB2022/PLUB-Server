@@ -29,6 +29,4 @@ public class NotificationController {
         Account currentAccount = accountService.getCurrentAccount();
         return success(notificationService.readNotification(notificationId, currentAccount));
     }
-
-
 }

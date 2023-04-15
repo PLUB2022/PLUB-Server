@@ -70,7 +70,9 @@ public class NotificationService {
     }
 
     public NotificationListResponse getMyNotifications(Account account) {
-        return NotificationListResponse.of(account.getNotifications().stream()
+        Account loginAccount = accountRepository.findById(account.getId())
+                .orElseThrow(() -> new NotificationException(StatusCode.NOT_FOUND_ACCOUNT));
+        return NotificationListResponse.of(loginAccount.getNotifications().stream()
                 .map(NotificationResponse::of)
                 .sorted((n1, n2) -> n2.createdAt().compareTo(n1.createdAt()))
                 .limit(30)

@@ -44,7 +44,7 @@ public class FcmService {
         }
     }
 
-    private String makeMessage(String targetToken, NotifyParams params) {
+    public String makeMessage(String targetToken, NotifyParams params) {
         try {
             FcmMessage fcmMessage = new FcmMessage(
                     false,
@@ -63,7 +63,6 @@ public class FcmService {
             log.warn("FCM [makeMessage] Error : {}", e.getMessage());
             throw new NotificationException(StatusCode.FCM_MESSAGE_JSON_PARSING_ERROR);
         }
-
     }
 
     @Async
