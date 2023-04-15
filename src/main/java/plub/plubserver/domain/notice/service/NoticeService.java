@@ -177,18 +177,6 @@ public class NoticeService {
 
         currentAccount.addNoticeComment(noticeComment);
 
-        // 작성자에게 푸시 알림
-        NotifyParams params = NotifyParams.builder()
-                .receiver(noticeComment.getAccount())
-                .type(NotificationType.CREATE_NOTICE_COMMENT)
-                .redirectTargetId(notice.getId())
-                .title(notice.getTitle() + "에 새로운 댓글이 달렸습니다.")
-                .content(currentAccount.getNickname() + ":" + noticeComment.getContent())
-                .build();
-        notificationService.pushMessage(params);
-
-        // TODO : 대댓글 알림
-
         return NoticeCommentResponse.of(noticeComment, isCommentAuthor(currentAccount, noticeComment), isNoticeAuthor(currentAccount, notice), isAuthorComment(noticeComment));
     }
 

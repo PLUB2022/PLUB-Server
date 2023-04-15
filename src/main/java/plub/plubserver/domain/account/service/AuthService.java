@@ -169,7 +169,7 @@ public class AuthService {
     @Transactional
     public void checkSuspendedAccount(String email) {
         Optional<SuspendAccount> suspendAccount = suspendAccountRepository.findByAccountEmail(email);
-        if(suspendAccount.isEmpty()) return;
+        if (suspendAccount.isEmpty()) return;
         boolean isAccountExpired = LocalDateTime.now().isAfter(suspendAccount.get().getEndedSuspendedDate());
         if (isAccountExpired) suspendAccount.get().setSuspended(false);
         else throw new AccountException(StatusCode.SUSPENDED_ACCOUNT);
@@ -177,7 +177,7 @@ public class AuthService {
 
     public static void checkAccountStatus(Account account) {
         AccountStatus accountStatus = account.getAccountStatus();
-       // NORMAL, PAUSED, BANNED, PERMANENTLY_BANNED
+        // NORMAL, PAUSED, BANNED, PERMANENTLY_BANNED
         switch (accountStatus) {
             case NORMAL:
                 break;
@@ -185,12 +185,12 @@ public class AuthService {
                 if (account.getPausedEndDate().isAfter(LocalDateTime.now())) {
                     account.updateAccountStatus(AccountStatus.NORMAL);
                     break;
-                }else throw new AccountException(StatusCode.PAUSED_ACCOUNT);
+                } else throw new AccountException(StatusCode.PAUSED_ACCOUNT);
             case BANNED:
                 if (account.getPausedEndDate().isAfter(LocalDateTime.now())) {
                     account.updateAccountStatus(AccountStatus.NORMAL);
                     break;
-                }else throw new AccountException(StatusCode.BANNED_ACCOUNT);
+                } else throw new AccountException(StatusCode.BANNED_ACCOUNT);
             case PERMANENTLY_BANNED:
                 throw new AccountException(StatusCode.PERMANENTLY_BANNED_ACCOUNT);
         }

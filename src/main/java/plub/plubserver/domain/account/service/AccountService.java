@@ -44,7 +44,9 @@ public class AccountService {
 
     // 회원 정보 조회
     public AccountInfoResponse getMyAccount() {
-        return accountRepository.findByEmail(getCurrentAccountEmail()).map(AccountInfoResponse::of).orElseThrow(() -> new AccountException(StatusCode.NOT_FOUND_ACCOUNT));
+        return accountRepository.findByEmail(getCurrentAccountEmail())
+                .map(AccountInfoResponse::of)
+                .orElseThrow(() -> new AccountException(StatusCode.NOT_FOUND_ACCOUNT));
     }
 
     public AccountInfoResponse getAccount(String nickname) {

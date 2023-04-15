@@ -29,7 +29,6 @@ import plub.plubserver.domain.recruit.model.*;
 import plub.plubserver.domain.recruit.repository.AppliedAccountRepository;
 import plub.plubserver.domain.recruit.repository.BookmarkRepository;
 import plub.plubserver.domain.recruit.repository.RecruitRepository;
-import plub.plubserver.domain.report.service.ReportService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,7 +50,6 @@ public class PlubbingService {
     private final AccountCategoryRepository accountCategoryRepository;
     private final AccountPlubbingRepository accountPlubbingRepository;
     private final BookmarkRepository bookmarkRepository;
-    private final ReportService reportService;
     private final RecruitRepository recruitRepository;
 
     private final AppliedAccountRepository appliedAccountRepository;
@@ -238,14 +236,14 @@ public class PlubbingService {
                     .stream()
                     .map((Recruit recruit) -> MyProfilePlubbingResponse.of(recruit.getPlubbing(), HOST)).toList();
             return MyProfilePlubbingListResponse.of(myPlubbingResponses, status);
-        } else if(Objects.equals(status, ApplicantStatus.WAITING.name())){
+        } else if (Objects.equals(status, ApplicantStatus.WAITING.name())) {
             List<MyProfilePlubbingResponse> myPlubbingResponses = appliedAccountRepository
                     .findAllByAccountAndStatus(currentAccount, ApplicantStatus.WAITING)
                     .stream()
-                    .map((AppliedAccount appliedAccount) 
+                    .map((AppliedAccount appliedAccount)
                             -> MyProfilePlubbingResponse.of(appliedAccount.getRecruit().getPlubbing(), GUEST)).toList();
             return MyProfilePlubbingListResponse.of(myPlubbingResponses, status);
-        }else {
+        } else {
             AccountPlubbingStatus plubbingStatus = AccountPlubbingStatus.valueOf(status);
             List<MyProfilePlubbingResponse> myPlubbingResponses = accountPlubbingRepository
                     .findAllByAccount(currentAccount, plubbingStatus).stream()
@@ -350,15 +348,26 @@ public class PlubbingService {
         return PlubbingIdResponse.of(plubbing);
     }
 
+    // 멤버 강퇴
     @Transactional
     public PlubbingMessage kickPlubbingMember(Long plubbingId, Long accountId) {
         Plubbing plubbing = getPlubbing(plubbingId);
         checkHost(plubbing);
-        Account account = accountService.getAccount(accountId);
-        accountPlubbingRepository.findAllByAccountAndPlubbingAndAccountPlubbingStatusAndIsHost(account, plubbing, AccountPlubbingStatus.ACTIVE, false)
+        Account kickAccount = accountService.getAccount(accountId);
+        accountPlubbingRepository.findAllByAccountAndPlubbingAndAccountPlubbingStatusAndIsHost(kickAccount, plubbing, AccountPlubbingStatus.ACTIVE, false)
                 .orElseThrow(() -> new PlubbingException(StatusCode.NOT_MEMBER_ERROR))
                 .exitPlubbing();
-        return new PlubbingMessage(account.getNickname()+"님을 강퇴하였습니다.");
+
+        // 강퇴자에게 푸시 알림
+        NotifyParams params = NotifyParams.builder()
+                .receiver(kickAccount)
+                .type(NotificationType.KICK_MEMBER)
+                .redirectTargetId(plubbingId)
+                .title(plubbing.getName())
+                .content(plubbing.getName() + "에서 강퇴되었어요.\uD83D\uDE22") // 슬픈 이모지
+                .build();
+        notificationService.pushMessage(params);
+        return new PlubbingMessage(kickAccount.getNickname() + "님을 강퇴하였습니다.");
     }
 
     private void checkPlubbingStatus(Plubbing plubbing) {

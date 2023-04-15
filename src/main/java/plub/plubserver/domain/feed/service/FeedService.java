@@ -44,7 +44,9 @@ public class FeedService {
     private final NotificationService notificationService;
 
     public Feed getFeed(Long feedId) {
-        return feedRepository.findById(feedId).orElseThrow(() -> new FeedException(StatusCode.NOT_FOUND_FEED));
+        return feedRepository.findById(feedId).orElseThrow(
+                () -> new FeedException(StatusCode.NOT_FOUND_FEED)
+        );
     }
 
     public FeedComment getFeedComment(Long commentId) {
@@ -124,6 +126,17 @@ public class FeedService {
             throw new FeedException(StatusCode.MAX_FEED_PIN);
         plubbingService.checkHost(account, feed.getPlubbing());
         feed.pin();
+
+        // 핀된 게시글 사용자에게 알림
+        NotifyParams params = NotifyParams.builder()
+                .receiver(feed.getAccount())
+                .type(NotificationType.PINNED_FEED)
+                .redirectTargetId(feed.getId())
+                .title(feed.getPlubbing().getName())
+                .content("호스트가 " + feed.getTitle() + "을 클립보드에 고정했어요.\uD83D\uDE03") // 웃는 이모지
+                .build();
+        notificationService.pushMessage(params);
+
         return new FeedIdResponse(feedId);
     }
 
@@ -157,7 +170,7 @@ public class FeedService {
                 .map(it -> FeedCommentResponse.of(it, isCommentAuthor(account, it), isFeedAuthor(account, feed), isAuthorComment(it)));
         Long totalElements = feedCommentRepository.countAllByVisibilityAndFeed(true, feed);
         boolean pageLast = feedCommentList.getNumber() == feedCommentList.getTotalPages() - 1
-                || feedCommentList.getNumber() * feedCommentList.getSize() + feedCommentList.getNumberOfElements() >= totalElements;
+                || (long) feedCommentList.getNumber() * feedCommentList.getSize() + feedCommentList.getNumberOfElements() >= totalElements;
         return PageResponse.ofCursor(feedCommentList, totalElements, pageLast);
     }
 
@@ -179,32 +192,38 @@ public class FeedService {
                 throw new FeedException(StatusCode.NOT_FOUND_FEED);
         }
 
-        FeedComment feedComment = feedCommentRepository.save(createCommentRequest.toFeedComment(feed, commentAuthor));
+        FeedComment feedComment = feedCommentRepository.save(
+                createCommentRequest.toFeedComment(feed, commentAuthor)
+        );
+
+
+        NotifyParams.NotifyParamsBuilder paramsBuilder = NotifyParams.builder()
+                .title(feed.getPlubbing().getName())
+                .redirectTargetId(feed.getId());
+
+        // 대댓글을 다는 경우
         if (parentComment != null) {
             parentComment.addChildComment(feedComment);
             feedComment.setCommentGroupId(parentComment.getCommentGroupId());
             feedCommentRepository.save(parentComment);
             feedCommentRepository.save(feedComment);
-        } else {
+
+            // 대댓글 주인에게 푸시 알림 발송
+            paramsBuilder.type(NotificationType.CREATE_FEED_COMMENT_COMMENT)
+                    .receiver(parentComment.getAccount())
+                    .content(commentAuthor.getNickname() + " 님이 " + parentComment.getAccount().getNickname() + " 님의 댓글에 댓글을 남겼어요\n : " + feedComment.getContent());
+        } else { // 댓글을 다는 경우
             feedComment.setCommentGroupId(feedComment.getId());
+
+            // 작성자에게 푸시 알림 (단, 게시글 작성자가 자신의 글에 댓글을 달면 알림 발송 X)
+            Account feedAuthor = feed.getAccount();
+            if (!feedAuthor.getId().equals(commentAuthor.getId())) {
+                paramsBuilder.type(NotificationType.CREATE_FEED_COMMENT)
+                        .receiver(feedAuthor)
+                        .content(commentAuthor.getNickname() + " 님이 " + feedAuthor.getNickname() + " 님의 게시글에 댓글을 남겼어요\n : " + feedComment.getContent());
+            }
         }
-
-        // 작성자에게 푸시 알림 (단, 게시글 작성자가 자신의 글에 댓글을 달면 알림 발송 X)
-        Account feedAuthor = feed.getAccount();
-        if (!feedAuthor.getId().equals(commentAuthor.getId())) {
-            Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
-            NotifyParams params = NotifyParams.builder()
-                    .receiver(feedAuthor)
-                    .type(NotificationType.CREATE_FEED_COMMENT)
-                    .redirectTargetId(feed.getId())
-                    .title(plubbing.getName())
-                    .content(commentAuthor.getNickname() + " 님이 " + feedAuthor.getNickname() + " 님의 게시글에 댓글을 남겼어요\n : " + feedComment.getContent())
-                    .build();
-            notificationService.pushMessage(params);
-
-            // TODO : 대댓글 알림
-        }
-
+        notificationService.pushMessage(paramsBuilder.build());
         return FeedCommentResponse.of(feedComment, true, isFeedAuthor(commentAuthor, feed), isAuthorComment(feedComment));
     }
 
@@ -312,7 +331,7 @@ public class FeedService {
     @Transactional
     public void createSystemFeed(Plubbing plubbing, String nickname) {
         String title = plubbing.getCurAccountNum() + "번째 멤버와 함께 갑니다.";
-        String content = "<b>"+ nickname +"</b> 님이 <b>"+ plubbing.getName() +"</b> 에 들어왔어요";
+        String content = "<b>" + nickname + "</b> 님이 <b>" + plubbing.getName() + "</b> 에 들어왔어요";
         Feed feed = Feed.createSystemFeed(plubbing, title, content);
         feedRepository.save(feed);
     }
