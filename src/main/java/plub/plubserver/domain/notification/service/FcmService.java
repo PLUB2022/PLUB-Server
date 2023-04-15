@@ -50,7 +50,12 @@ public class FcmService {
                     false,
                     new Message(
                             targetToken,
-                            new Notification(params.title(), params.content(), String.valueOf(params.redirectTargetId()))
+                            new Notification(
+                                    params.title(),
+                                    params.content(),
+                                    String.valueOf(params.redirectTargetId()),
+                                    params.type().toString()
+                            )
                     )
             );
             return objectMapper.writeValueAsString(fcmMessage);
