@@ -10,6 +10,7 @@ import plub.plubserver.common.dto.PageResponse;
 import plub.plubserver.common.exception.StatusCode;
 import plub.plubserver.common.model.SortType;
 import plub.plubserver.domain.account.model.Account;
+import plub.plubserver.domain.account.model.Role;
 import plub.plubserver.domain.account.service.AccountService;
 import plub.plubserver.domain.feed.service.FeedService;
 import plub.plubserver.domain.notification.dto.NotificationDto.NotifyParams;
@@ -32,6 +33,7 @@ import plub.plubserver.domain.recruit.exception.RecruitException;
 import plub.plubserver.domain.recruit.model.*;
 import plub.plubserver.domain.recruit.repository.AppliedAccountRepository;
 import plub.plubserver.domain.recruit.repository.BookmarkRepository;
+import plub.plubserver.domain.recruit.repository.RecruitQuestionAnswerRepository;
 import plub.plubserver.domain.recruit.repository.RecruitRepository;
 
 import java.util.ArrayList;
@@ -52,6 +54,7 @@ public class RecruitService {
     private final NotificationService notificationService;
     private final FeedService feedService;
     private final BookmarkRepository bookmarkRepository;
+    private final RecruitQuestionAnswerRepository recruitQuestionAnswerRepository;
 
     private Recruit getRecruitByPlubbingId(Long plubbingId) {
         return plubbingService.getPlubbing(plubbingId).getRecruit();
@@ -185,8 +188,6 @@ public class RecruitService {
         Recruit recruit = getRecruitByPlubbingId(plubbingId);
         plubbingService.checkHost(recruit.getPlubbing());
         recruit.done();
-        // 지원했던 지원자들 정보 초기화
-        //appliedAccountRepository.deleteAllByRecruitId(recruit.getId());
         // 북마크 전체 삭제
         bookmarkRepository.deleteByRecruit(recruit);
         return RecruitStatusResponse.of(recruit);
@@ -202,7 +203,8 @@ public class RecruitService {
             ApplyRecruitRequest applyRecruitRequest
     ) {
         Account loginAccount = accountService.getAccount(account.getId());
-        Recruit recruit = getRecruitByPlubbingId(plubbingId);
+        Recruit recruit = plubbingService.getPlubbing(plubbingId).getRecruit();
+        //Recruit recruit = getRecruitByPlubbingId(plubbingId);
 
         // 모집글 상태 체크
         if (recruit.getStatus().equals(RecruitStatus.END))
@@ -216,7 +218,9 @@ public class RecruitService {
                 });
 
         // 지원자가 활동중인 모임이 3개 인지 확인
-        if (loginAccount.getAccountPlubbingList().size() >= 3)
+        if (loginAccount.getAccountPlubbingList().size() >= 3
+                // 어드민은 제외
+                && !loginAccount.getRole().equals(Role.ROLE_ADMIN))
             throw new RecruitException(StatusCode.MAX_PLUBBING_LIMIT_OVER);
 
         // 이미 지원했는지 확인
@@ -231,7 +235,9 @@ public class RecruitService {
                 .build();
 
         // 질문 답변 매핑
-        setRecruitQuestionAnswers(applyRecruitRequest, recruit, appliedAccount);
+        List<RecruitQuestionAnswer> recruitQuestionAnswers =
+                makeAnswerList(applyRecruitRequest, recruit, appliedAccount);
+        appliedAccount.addAnswerList(recruitQuestionAnswers);
 
         // 지원자 추가 및 모집글 지원자 수 증가
         recruit.addAppliedAccount(appliedAccount);
@@ -253,7 +259,8 @@ public class RecruitService {
      * 질문 답변 매핑
      * 사용처 : 모집 지원, 지원 수정 (모집글 질문 답변 수정)
      */
-    private static void setRecruitQuestionAnswers(
+    @Transactional
+    public List<RecruitQuestionAnswer> makeAnswerList(
             ApplyRecruitRequest applyRecruitRequest,
             Recruit recruit,
             AppliedAccount appliedAccount
@@ -265,14 +272,16 @@ public class RecruitService {
                     .filter(it -> it.getId().equals(ar.questionId()))
                     .findFirst()
                     .orElseThrow(() -> new RecruitException(StatusCode.NOT_FOUND_QUESTION));
-
-            answers.add(RecruitQuestionAnswer.builder()
+            RecruitQuestionAnswer answer = recruitQuestionAnswerRepository.save(
+                    RecruitQuestionAnswer.builder()
                     .recruitQuestion(question)
                     .appliedAccount(appliedAccount)
                     .answer(ar.answer())
-                    .build());
+                    .build()
+            );
+            answers.add(answer);
         }
-        appliedAccount.addAnswerList(answers);
+        return answers;
     }
 
     /**
@@ -286,7 +295,7 @@ public class RecruitService {
         Account loginAccount = accountService.getCurrentAccount();
         Recruit recruit = getRecruitByPlubbingId(plubbingId);
         // 질문에 새로운 답변 다시 매핑
-        setRecruitQuestionAnswers(
+        makeAnswerList(
                 newApplyRecruitRequest,
                 recruit,
                 getAppliedAccount(loginAccount, recruit)
