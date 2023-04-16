@@ -80,5 +80,4 @@ public class AnnouncementController {
         Account currentAccount = accountService.getCurrentAccount();
         return announcementService.updateAnnouncement(announcementId, currentAccount, updateAnnouncementRequest);
     }
-
 }
