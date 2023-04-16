@@ -89,13 +89,14 @@ public class RecruitDto {
             int curAccountNum,
             int remainAccountNum,
             int views,
-            List<JoinedAccountDto> joinedAccounts
+            List<JoinedAccountDto> joinedAccounts,
+            boolean isHost
     ) {
         @Builder
         public RecruitResponse {
         }
 
-        public static RecruitResponse of(Recruit recruit, boolean isApplied, boolean isBookmarked) {
+        public static RecruitResponse of(Recruit recruit, boolean isApplied, boolean isBookmarked, boolean isHost) {
             Plubbing plubbing = recruit.getPlubbing();
 
             List<String> categories = plubbing.getPlubbingSubCategories().stream()
@@ -130,6 +131,7 @@ public class RecruitDto {
                     .remainAccountNum(plubbing.getMaxAccountNum() - plubbing.getCurAccountNum())
                     .joinedAccounts(joinedAccounts)
                     .views(recruit.getViews())
+                    .isHost(isHost)
                     .build();
         }
     }

@@ -71,7 +71,8 @@ public class RecruitService {
         boolean isBookmarked = account.getBookmarkList().stream()
                 .anyMatch(it -> it.getRecruit().equals(recruit));
         recruit.plusView();
-        return RecruitResponse.of(recruit, isApplied, isBookmarked);
+        boolean isHost = account.equals(recruit.getPlubbing().getHost());
+        return RecruitResponse.of(recruit, isApplied, isBookmarked, isHost);
     }
 
     public QuestionListResponse getRecruitQuestions(Long plubbingId) {

@@ -183,7 +183,7 @@ public class PlubbingDto {
         public PlubbingResponse {
         }
 
-        public static PlubbingResponse of(Plubbing plubbing) {
+        public static PlubbingResponse of(Plubbing plubbing, boolean isHost) {
             return PlubbingResponse.builder()
                     .plubbingId(plubbing.getId())
                     .subCategories(plubbing.getPlubbingSubCategories().stream()
@@ -206,7 +206,7 @@ public class PlubbingDto {
                     .maxAccountNum(plubbing.getMaxAccountNum())
                     .createdAt(plubbing.getCreatedAt())
                     .modifiedAt(plubbing.getModifiedAt())
-                    .recruit(RecruitResponse.of(plubbing.getRecruit(), true, false))
+                    .recruit(RecruitResponse.of(plubbing.getRecruit(), true, false, isHost))
                     .build();
         }
     }

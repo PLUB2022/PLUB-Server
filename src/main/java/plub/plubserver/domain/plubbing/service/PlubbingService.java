@@ -473,7 +473,8 @@ public class PlubbingService {
                 .build();
         notificationService.pushMessage(params);
 
-        return PlubbingResponse.of(plubbing);
+        boolean isHost = plubbing.getHost().equals(account);
+        return PlubbingResponse.of(plubbing, isHost);
     }
 
     public void checkMember(Account account, Plubbing plubbing) {

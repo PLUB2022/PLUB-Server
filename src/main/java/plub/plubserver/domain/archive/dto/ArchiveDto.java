@@ -15,7 +15,7 @@ public class ArchiveDto {
      * Request
      */
     public record ArchiveRequest(
-            @NotBlank @Size(max = 12)
+            @NotBlank @Size(max = 16)
             String title,
 
             @Size(max = 10)

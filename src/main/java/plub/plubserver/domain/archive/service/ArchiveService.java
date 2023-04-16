@@ -20,7 +20,6 @@ import plub.plubserver.domain.archive.model.ArchiveImage;
 import plub.plubserver.domain.archive.repository.ArchiveRepository;
 import plub.plubserver.domain.plubbing.model.Plubbing;
 import plub.plubserver.domain.plubbing.service.PlubbingService;
-import plub.plubserver.domain.report.service.ReportService;
 
 import java.util.List;
 
@@ -33,7 +32,6 @@ public class ArchiveService {
     private final AccountService accountService;
     private final ArchiveRepository archiveRepository;
     private final PlubbingService plubbingService;
-    private final ReportService reportService;
 
     /**
      * 아카이브 조회
@@ -51,18 +49,17 @@ public class ArchiveService {
             Long cursorId
     ) {
         Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
-        log.warn("1");
         plubbingService.checkMember(account, plubbing);
-        log.warn("2");
         // 로그인한 사용자를 기반으로 액세스 타입 체크
         Account loginAccount = accountService.getCurrentAccount();
-        log.warn("3");
+
+        // TODO : 가끔 전체 조회 not unique resultSet 에러 발생하는거 핸들해야함, 근데
+        // 상황 시연을 하기 어려워서 못 하는 중
+        // cursorId = sequence
         Page<ArchiveCardResponse> result = archiveRepository
                 .findAllByPlubbingId(plubbingId, pageable, cursorId)
                 .map(it -> ArchiveCardResponse.of(it, getAccessType(loginAccount, it)));
-        log.warn("4");
         Long totalElements = archiveRepository.countAllByPlubbingId(plubbingId);
-        log.warn("5");
         return PageResponse.ofCursor(result, totalElements);
     }
 

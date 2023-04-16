@@ -16,7 +16,6 @@ import static plub.plubserver.domain.archive.model.QArchive.archive;
 public class ArchiveRepositoryImpl implements ArchiveRepositoryCustom {
 
     private final JPAQueryFactory queryFactory;
-
     @Override
     public Page<Archive> findAllByPlubbingId(Long plubbingId, Pageable pageable, Long cursorId) {
         JPQLQuery<Archive> query = queryFactory
