@@ -24,9 +24,11 @@
 
 
 ### ERD
-![image](https://user-images.githubusercontent.com/85692623/219872669-362253ac-2459-4a48-b29e-30065cf385b5.png)
+![_plub ERD](https://user-images.githubusercontent.com/55054505/232809363-f3cddb9c-dcfc-4cb4-9371-47fe1d65acda.png)
 [ERDCloud](https://www.erdcloud.com/d/YS42PxLSqZYDEeytw)
 
+
 ### System Architecture
-![1](https://user-images.githubusercontent.com/85692623/211998826-ef990336-4a8f-4c14-b235-1e5fa1d00de0.png)
+![plub-infra](https://user-images.githubusercontent.com/55054505/232809967-07172856-e35c-4962-b0a6-d3cbcd93e380.png)
+
 
