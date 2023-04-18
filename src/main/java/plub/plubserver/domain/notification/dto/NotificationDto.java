@@ -48,7 +48,6 @@ public class NotificationDto {
                     .createdAt(notification.getCreatedAt())
                     .isRead(notification.isRead())
                     .build();
-            
         }
     }
     

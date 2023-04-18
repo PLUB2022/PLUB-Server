@@ -28,7 +28,9 @@ public class AccountDto {
             @ApiModelProperty(value = "자기소개", example = "안녕하세요! 저는 플럽이에요")
             String introduce,
             @ApiModelProperty(value = "프로필 이미지", example = "https://s3.ap-northeast-2.amazonaws.com/plub/account/profile/test_profile.jpg")
-            String profileImage
+            String profileImage,
+            @ApiModelProperty(value = "푸시알림 수신여부", example = "true/false")
+            boolean isReceivedPushNotification
     ) {
         @Builder
         public AccountInfoResponse {
@@ -43,6 +45,7 @@ public class AccountDto {
                     .birthday(account.getBirthday())
                     .introduce(account.getIntroduce())
                     .profileImage(account.getProfileImage())
+                    .isReceivedPushNotification(account.isReceivedPushNotification())
                     .build();
         }
     }
