@@ -205,7 +205,6 @@ public class RecruitService {
     ) {
         Account loginAccount = accountService.getAccount(account.getId());
         Recruit recruit = plubbingService.getPlubbing(plubbingId).getRecruit();
-        //Recruit recruit = getRecruitByPlubbingId(plubbingId);
 
         // 모집글 상태 체크
         if (recruit.getStatus().equals(RecruitStatus.END))
@@ -219,7 +218,10 @@ public class RecruitService {
                 });
 
         // 지원자가 활동중인 모임이 3개 인지 확인
-        if (loginAccount.getAccountPlubbingList().size() >= 3
+        int activePlubbingNumber = loginAccount.getAccountPlubbingList().stream()
+                .filter(it -> it.getAccountPlubbingStatus().equals(AccountPlubbingStatus.ACTIVE))
+                .toList().size();
+        if (activePlubbingNumber >= 3
                 // 어드민은 제외
                 && !loginAccount.getRole().equals(Role.ROLE_ADMIN))
             throw new RecruitException(StatusCode.MAX_PLUBBING_LIMIT_OVER);
@@ -275,10 +277,10 @@ public class RecruitService {
                     .orElseThrow(() -> new RecruitException(StatusCode.NOT_FOUND_QUESTION));
             RecruitQuestionAnswer answer = recruitQuestionAnswerRepository.save(
                     RecruitQuestionAnswer.builder()
-                    .recruitQuestion(question)
-                    .appliedAccount(appliedAccount)
-                    .answer(ar.answer())
-                    .build()
+                            .recruitQuestion(question)
+                            .appliedAccount(appliedAccount)
+                            .answer(ar.answer())
+                            .build()
             );
             answers.add(answer);
         }
@@ -296,11 +298,12 @@ public class RecruitService {
         Account loginAccount = accountService.getCurrentAccount();
         Recruit recruit = getRecruitByPlubbingId(plubbingId);
         // 질문에 새로운 답변 다시 매핑
-        makeAnswerList(
+        AppliedAccount appliedAccount = getAppliedAccount(loginAccount, recruit);
+        appliedAccount.addAnswerList(makeAnswerList(
                 newApplyRecruitRequest,
                 recruit,
-                getAppliedAccount(loginAccount, recruit)
-        );
+                appliedAccount
+        ));
         return PlubbingIdResponse.of(plubbingId);
     }
 
