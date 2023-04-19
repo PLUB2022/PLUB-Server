@@ -17,5 +17,6 @@ public class AccountNicknameHistory {
     private String nickname;
     private LocalDateTime changedAt;
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "account_id")
     private Account account;
 }
