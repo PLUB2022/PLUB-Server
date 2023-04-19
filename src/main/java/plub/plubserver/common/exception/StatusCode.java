@@ -32,6 +32,7 @@ public enum StatusCode {
     NICKNAME_ERROR(400, 2050, "invalid nickname error."),
     SELF_REPORT_ERROR(400, 2060, "self report error."),
     SUSPENDED_ACCOUNT(400, 2070, "suspended account error."),
+    NICKNAME_CHANGE_LIMIT(400, 2080, "nickname change limit error."),
 
     /**
      * Auth
