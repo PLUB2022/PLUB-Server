@@ -1,6 +1,7 @@
 package plub.plubserver.domain.account.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -8,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import plub.plubserver.common.exception.StatusCode;
 import plub.plubserver.domain.account.exception.AccountException;
 import plub.plubserver.domain.account.model.*;
+import plub.plubserver.domain.account.repository.AccountNicknameHistoryRepository;
 import plub.plubserver.domain.account.repository.AccountRepository;
 import plub.plubserver.domain.account.repository.SuspendAccountRepository;
 import plub.plubserver.domain.category.exception.CategoryException;
@@ -17,17 +19,20 @@ import plub.plubserver.domain.report.config.ReportStatusMessage;
 import plub.plubserver.domain.report.exception.ReportException;
 import plub.plubserver.domain.report.service.ReportService;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import static plub.plubserver.common.constant.GlobalConstants.NICKNAME_CHANGE_LIMIT;
 import static plub.plubserver.config.security.SecurityUtils.getCurrentAccountEmail;
 import static plub.plubserver.domain.account.dto.AccountDto.*;
 import static plub.plubserver.domain.account.dto.AuthDto.AuthMessage;
 import static plub.plubserver.domain.account.model.AccountStatus.NORMAL;
 import static plub.plubserver.domain.notification.model.NotificationType.*;
-import static plub.plubserver.domain.report.config.ReportMessage.*;
+import static plub.plubserver.domain.report.config.ReportMessage.REPORT_TITLE_ADMIN;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -38,9 +43,9 @@ public class AccountService {
     private final AppleService appleService;
     private final GoogleService googleService;
     private final KakaoService kakaoService;
-
     private final ReportService reportService;
     private final SuspendAccountRepository suspendAccountRepository;
+    private final AccountNicknameHistoryRepository accountNicknameHistoryRepository;
 
     // 회원 정보 조회
     public AccountInfoResponse getMyAccount() {
@@ -66,13 +71,19 @@ public class AccountService {
     }
 
     public NicknameResponse isDuplicateNickname(String nickname) {
-        String pattern = "^[0-9|a-z|A-Z|ㄱ-ㅎ|ㅏ-ㅣ|가-힣]*$";
+        validateNicknameChangeLimit(getCurrentAccount());
+        validateNicknameDuplication(nickname);
+        return new NicknameResponse(true);
+    }
+
+    public void validateNicknameDuplication(String nickname) {
+        String pattern = "^[0-9a-zA-Zㄱ-ㅎㅏ-ㅣ가-힣]*$";
         if (!Pattern.matches(pattern, nickname)) {
             throw new AccountException(StatusCode.NICKNAME_ERROR);
         }
-        if (!accountRepository.existsByNickname(nickname)) {
-            return new NicknameResponse(true);
-        } else throw new AccountException(StatusCode.NICKNAME_DUPLICATION);
+        if (accountRepository.existsByNickname(nickname)) {
+            throw new AccountException(StatusCode.NICKNAME_DUPLICATION);
+        }
     }
 
     /**
@@ -80,13 +91,33 @@ public class AccountService {
      */
     @Transactional
     public AccountInfoResponse updateProfile(AccountProfileRequest profileRequest) {
-        Account myAccount = getCurrentAccount();
-        if (!myAccount.getNickname().equals(profileRequest.nickname())) {
-            NicknameResponse duplicateNickname = isDuplicateNickname(profileRequest.nickname());
-            if (!duplicateNickname.isAvailableNickname()) throw new AccountException(StatusCode.NICKNAME_DUPLICATION);
+        Account loginAccount = getCurrentAccount();
+        String newNickname = profileRequest.nickname();
+
+        if (!loginAccount.getNickname().equals(newNickname)) {
+            validateNicknameChangeLimit(loginAccount);
+            validateNicknameDuplication(newNickname);
+            saveNicknameHistory(loginAccount.getNickname(), loginAccount);
         }
-        myAccount.updateProfile(profileRequest.nickname(), profileRequest.introduce(), profileRequest.profileImageUrl());
-        return AccountInfoResponse.of(myAccount);
+
+        loginAccount.updateProfile(newNickname, profileRequest.introduce(), profileRequest.profileImageUrl());
+        return AccountInfoResponse.of(loginAccount);
+    }
+
+    private void validateNicknameChangeLimit(Account account) {
+        int nicknameChangeCount = accountNicknameHistoryRepository.countAllByAccount(account);
+        if (nicknameChangeCount >= NICKNAME_CHANGE_LIMIT) {
+            throw new AccountException(StatusCode.NICKNAME_CHANGE_LIMIT);
+        }
+    }
+
+    private void saveNicknameHistory(String oldNickname, Account account) {
+        AccountNicknameHistory history = AccountNicknameHistory.builder()
+                .account(account)
+                .nickname(oldNickname)
+                .changedAt(LocalDateTime.now())
+                .build();
+        accountNicknameHistoryRepository.save(history);
     }
 
     // 앱 전체 푸시 알림 여부 수정

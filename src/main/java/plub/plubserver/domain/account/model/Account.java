@@ -152,6 +152,10 @@ public class Account extends BaseEntity {
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Calendar> calendars = new ArrayList<>();
 
+    // 회원 (1) - 닉네임 변경 이력(다)
+    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<AccountNicknameHistory> nicknameHistoryList = new ArrayList<>();
+
     public void setIdForTest(Long id) {
         this.id = id;
     }
