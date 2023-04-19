@@ -35,10 +35,10 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 
+import static plub.plubserver.common.constant.GlobalConstants.*;
 import static plub.plubserver.domain.account.model.AccountStatus.PAUSED;
 import static plub.plubserver.domain.account.model.AccountStatus.PERMANENTLY_BANNED;
 import static plub.plubserver.domain.notification.model.NotificationType.*;
-import static plub.plubserver.domain.report.config.ReportConstant.*;
 import static plub.plubserver.domain.report.dto.ReportDto.*;
 
 @Slf4j

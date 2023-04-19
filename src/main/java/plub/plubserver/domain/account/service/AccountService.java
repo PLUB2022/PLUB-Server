@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import static plub.plubserver.common.constant.GlobalConstants.NICKNAME_CHANGE_LIMIT;
 import static plub.plubserver.config.security.SecurityUtils.getCurrentAccountEmail;
 import static plub.plubserver.domain.account.dto.AccountDto.*;
 import static plub.plubserver.domain.account.dto.AuthDto.AuthMessage;
@@ -105,7 +106,7 @@ public class AccountService {
 
     private void validateNicknameChangeLimit(Account account) {
         int nicknameChangeCount = accountNicknameHistoryRepository.countAllByAccount(account);
-        if (nicknameChangeCount >= 1) {
+        if (nicknameChangeCount >= NICKNAME_CHANGE_LIMIT) {
             throw new AccountException(StatusCode.NICKNAME_CHANGE_LIMIT);
         }
     }
