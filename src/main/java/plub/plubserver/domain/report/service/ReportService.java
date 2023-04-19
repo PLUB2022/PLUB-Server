@@ -22,8 +22,6 @@ import plub.plubserver.domain.plubbing.repository.PlubbingRepository;
 import plub.plubserver.domain.recruit.model.Recruit;
 import plub.plubserver.domain.recruit.repository.BookmarkRepository;
 import plub.plubserver.domain.report.config.ReportStatusMessage;
-import plub.plubserver.domain.report.dto.ReportDto.ReportResponse;
-import plub.plubserver.domain.report.dto.ReportDto.ReportTypeResponse;
 import plub.plubserver.domain.report.exception.ReportException;
 import plub.plubserver.domain.report.model.Report;
 import plub.plubserver.domain.report.model.ReportTarget;
@@ -41,8 +39,7 @@ import static plub.plubserver.domain.account.model.AccountStatus.PAUSED;
 import static plub.plubserver.domain.account.model.AccountStatus.PERMANENTLY_BANNED;
 import static plub.plubserver.domain.notification.model.NotificationType.*;
 import static plub.plubserver.domain.report.config.ReportConstant.*;
-import static plub.plubserver.domain.report.dto.ReportDto.CreateReportRequest;
-import static plub.plubserver.domain.report.dto.ReportDto.ReportIdResponse;
+import static plub.plubserver.domain.report.dto.ReportDto.*;
 
 @Slf4j
 @Service
@@ -237,12 +234,13 @@ public class ReportService {
                 .build();
     }
 
-    public List<ReportTypeResponse> getReportType() {
-        return List.of(
+    public ReportTypeListResponse getReportType() {
+        List<ReportTypeResponse> reportTypeResponses = List.of(
                 new ReportTypeResponse(ReportType.BAD_WORDS.toString(), ReportType.BAD_WORDS.getDetailContent()),
                 new ReportTypeResponse(ReportType.FALSE_FACT.toString(), ReportType.FALSE_FACT.getDetailContent()),
                 new ReportTypeResponse(ReportType.ADVERTISEMENT.toString(), ReportType.ADVERTISEMENT.getDetailContent()),
                 new ReportTypeResponse(ReportType.ETC.toString(), ReportType.ETC.getDetailContent()));
+        return ReportTypeListResponse.of(reportTypeResponses);
     }
 
     public void adminReportAccount(

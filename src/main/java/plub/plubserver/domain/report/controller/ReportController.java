@@ -10,13 +10,11 @@ import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.account.service.AccountService;
 import plub.plubserver.domain.report.dto.ReportDto.CreateReportRequest;
 import plub.plubserver.domain.report.dto.ReportDto.ReportIdResponse;
-import plub.plubserver.domain.report.dto.ReportDto.ReportTypeResponse;
 import plub.plubserver.domain.report.service.ReportService;
-
-import java.util.List;
 
 import static plub.plubserver.common.dto.ApiResponse.success;
 import static plub.plubserver.domain.report.dto.ReportDto.ReportResponse;
+import static plub.plubserver.domain.report.dto.ReportDto.ReportTypeListResponse;
 
 @Slf4j
 @RestController
@@ -29,7 +27,7 @@ public class ReportController {
 
     @ApiOperation(value = "신고 사유 조회")
     @GetMapping()
-    public ApiResponse<List<ReportTypeResponse>> getReportType(
+    public ApiResponse<ReportTypeListResponse> getReportType(
     ) {
         return success(reportService.getReportType());
     }

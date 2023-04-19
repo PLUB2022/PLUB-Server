@@ -6,6 +6,8 @@ import plub.plubserver.domain.report.model.Report;
 import plub.plubserver.domain.report.model.ReportTarget;
 import plub.plubserver.domain.report.model.ReportType;
 
+import java.util.List;
+
 public class ReportDto {
 
     public record CreateReportRequest(
@@ -78,6 +80,20 @@ public class ReportDto {
         public static ReportIdResponse of(Report report) {
             return ReportIdResponse.builder()
                     .reportId(report.getId())
+                    .build();
+        }
+    }
+
+    public record ReportTypeListResponse(
+        List<ReportTypeResponse> reportList
+    ){
+        @Builder
+        public ReportTypeListResponse {
+        }
+
+        public static ReportTypeListResponse of(List<ReportTypeResponse> reportList) {
+            return ReportTypeListResponse.builder()
+                    .reportList(reportList)
                     .build();
         }
     }
