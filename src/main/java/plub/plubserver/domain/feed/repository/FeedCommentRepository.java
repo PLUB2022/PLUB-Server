@@ -11,5 +11,6 @@ public interface FeedCommentRepository extends JpaRepository<FeedComment, Long>,
 
     Optional<FeedComment> findFirstByVisibilityAndFeedId(boolean visibility, Long feedId);
 
+    Optional<FeedComment> findByIdAndVisibility(Long commentId, boolean visibility);
 }
 

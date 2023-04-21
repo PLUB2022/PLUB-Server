@@ -11,4 +11,5 @@ public interface NoticeCommentRepository extends JpaRepository<NoticeComment, Lo
 
     Optional<NoticeComment> findFirstByVisibilityAndNoticeId(boolean visibility, Long noticeId);
 
+    Optional<NoticeComment> findByIdAndVisibility(Long commentId, boolean visibility);
 }

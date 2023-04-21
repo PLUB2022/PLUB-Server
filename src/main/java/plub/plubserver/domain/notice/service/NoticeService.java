@@ -40,12 +40,12 @@ public class NoticeService {
     private final NotificationService notificationService; // TODO : AOP로 의존성을 줄일 방법 생각하기
 
     public Notice getNotice(Long noticeId) {
-        return noticeRepository.findById(noticeId)
+        return noticeRepository.findByIdAndVisibility(noticeId, true)
                 .orElseThrow(() -> new NoticeException(StatusCode.NOT_FOUND_NOTICE));
     }
 
     public NoticeComment getNoticeComment(Long commentId) {
-        return noticeCommentRepository.findById(commentId)
+        return noticeCommentRepository.findByIdAndVisibility(commentId, true)
                 .orElseThrow(() -> new NoticeException(StatusCode.NOT_FOUND_COMMENT));
     }
 

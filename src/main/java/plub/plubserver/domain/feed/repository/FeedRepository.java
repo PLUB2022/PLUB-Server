@@ -7,6 +7,7 @@ import plub.plubserver.domain.feed.model.Feed;
 import plub.plubserver.domain.plubbing.model.Plubbing;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface FeedRepository extends JpaRepository<Feed, Long>, FeedRepositoryCustom {
 
@@ -18,4 +19,6 @@ public interface FeedRepository extends JpaRepository<Feed, Long>, FeedRepositor
     Long countAll();
 
     Long countAllByPlubbingAndVisibility(Plubbing plubbing, boolean visibility);
+
+    Optional<Feed> findByIdAndVisibility(Long feedId, boolean visibility);
 }

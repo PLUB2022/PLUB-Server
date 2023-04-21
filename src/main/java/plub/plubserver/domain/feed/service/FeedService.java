@@ -44,13 +44,13 @@ public class FeedService {
     private final NotificationService notificationService;
 
     public Feed getFeed(Long feedId) {
-        return feedRepository.findById(feedId).orElseThrow(
+        return feedRepository.findByIdAndVisibility(feedId, true).orElseThrow(
                 () -> new FeedException(StatusCode.NOT_FOUND_FEED)
         );
     }
 
     public FeedComment getFeedComment(Long commentId) {
-        return feedCommentRepository.findById(commentId)
+        return feedCommentRepository.findByIdAndVisibility(commentId, true)
                 .orElseThrow(() -> new FeedException(NOT_FOUND_COMMENT));
     }
 
