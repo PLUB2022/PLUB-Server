@@ -23,6 +23,7 @@ public class Notice extends BaseEntity {
     private Long id;
 
     private String title;
+    @Column(length = 400)
     private String content;
 
     @ManyToOne(fetch = FetchType.LAZY)

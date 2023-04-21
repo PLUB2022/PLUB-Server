@@ -21,6 +21,7 @@ public class NoticeComment extends BaseEntity {
     @Column(name = "notice_comment_id")
     private Long id;
 
+    @Column(length = 300)
     private String content;
 
     private Long commentGroupId;

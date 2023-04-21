@@ -21,6 +21,7 @@ public class FeedComment extends BaseEntity {
     @Column(name = "feed_comment_id")
     private Long id;
 
+    @Column(length = 300)
     private String content;
 
     private Long commentGroupId;

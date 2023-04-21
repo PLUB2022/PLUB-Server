@@ -26,6 +26,7 @@ public class Feed extends BaseEntity {
     private Long id;
 
     private String title;
+    @Column(length = 800)
     private String content;
     private String feedImage;
 
