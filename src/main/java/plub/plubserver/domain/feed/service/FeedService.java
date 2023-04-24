@@ -93,7 +93,7 @@ public class FeedService {
         checkFeedAuthor(account, feed);
         feed.updateFeed(updateFeedRequest);
         Boolean isHost = plubbingService.isHost(account, feed.getPlubbing());
-        return FeedResponse.of(feed, true, isHost, getLikeCount(feed), getCommentCount(feed));
+        return FeedResponse.of(feed, true, isHost, isLike(account, feed), getLikeCount(feed), getCommentCount(feed));
     }
 
     @Transactional
@@ -114,7 +114,7 @@ public class FeedService {
         checkFeedStatus(feed);
         plubbingService.checkMember(account, feed.getPlubbing());
         Boolean isHost = plubbingService.isHost(account, feed.getPlubbing());
-        return FeedResponse.of(feed, isFeedAuthor(account, feed), isHost, getLikeCount(feed), getCommentCount(feed));
+        return FeedResponse.of(feed, isFeedAuthor(account, feed), isHost, isLike(account, feed), getLikeCount(feed), getCommentCount(feed));
     }
 
     @Transactional
@@ -324,6 +324,10 @@ public class FeedService {
 
     public Long getLikeCount(Feed feed) {
         return feedLikeRepository.countAllByVisibilityAndFeed(true, feed);
+    }
+
+    private Boolean isLike(Account account, Feed feed) {
+        return feedLikeRepository.existsByAccountAndFeed(account, feed);
     }
 
     // 더미용

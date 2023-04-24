@@ -139,6 +139,7 @@ public class FeedDto {
             String nickname,
             Boolean isAuthor,
             Boolean isHost,
+            Boolean isLike,
             Long likeCount,
             Long commentCount
     ) {
@@ -146,7 +147,7 @@ public class FeedDto {
         public FeedResponse {
         }
 
-        public static FeedResponse of(Feed feed, Boolean isAuthor, Boolean isHost, Long likeCount, Long commentCount) {
+        public static FeedResponse of(Feed feed, Boolean isAuthor, Boolean isHost, Boolean isLike, Long likeCount, Long commentCount) {
             return FeedResponse.builder()
                     .feedId(feed.getId())
                     .feedType(feed.getFeedType().toString())
@@ -163,6 +164,7 @@ public class FeedDto {
                     .commentCount(commentCount)
                     .isAuthor(isAuthor)
                     .isHost(isHost)
+                    .isLike(isLike)
                     .build();
         }
     }
