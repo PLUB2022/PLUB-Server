@@ -65,6 +65,7 @@ public class FcmService {
         }
     }
 
+
     @Async
     public CompletableFuture<Boolean> sendPushMessage(String fcmToken, NotifyParams params) {
         String message = makeMessage(fcmToken, params);

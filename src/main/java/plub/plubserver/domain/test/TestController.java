@@ -2,10 +2,7 @@ package plub.plubserver.domain.test;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import plub.plubserver.common.dto.ApiResponse;
 import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.account.service.AccountService;
@@ -59,6 +56,22 @@ public class TestController {
                 .content("자기 자신의 아이디를 리턴")
                 .build();
         notificationService.pushMessageForceSave(params);
+        return success(notificationService.getMyNotifications(currentAccount));
+    }
+
+    @PostMapping("/push")
+    public ApiResponse<NotificationListResponse> testCreateNotificationByToken(
+            @RequestParam Long accountId
+    ) {
+        Account currentAccount = accountService.getAccount(accountId);
+        NotifyParams params = NotifyParams.builder()
+                .receiver(currentAccount)
+                .type(NotificationType.TEST_ACCOUNT_ITSELF)
+                .redirectTargetId(currentAccount.getId())
+                .title("test")
+                .content("자기 자신의 아이디를 리턴")
+                .build();
+        notificationService.pushMessage(params);
         return success(notificationService.getMyNotifications(currentAccount));
     }
 }

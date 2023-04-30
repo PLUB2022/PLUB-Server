@@ -10,8 +10,6 @@ import plub.plubserver.domain.account.repository.AccountRepository;
 import plub.plubserver.domain.notification.exception.NotificationException;
 import plub.plubserver.domain.notification.model.Notification;
 
-import java.util.concurrent.CompletableFuture;
-
 import static plub.plubserver.domain.notification.dto.NotificationDto.*;
 
 @Slf4j
@@ -31,25 +29,26 @@ public class NotificationService {
         // 사용자가 알림 수신을 거부한 경우 바로 종료
         if (!receiver.isReceivedPushNotification()) return;
 
-        CompletableFuture<Boolean> future = fcmService.sendPushMessage(receiver.getFcmToken(), params);
-        future.thenAccept(success -> {
-            if (success) {
-                Notification notification = Notification.builder()
-                        .account(receiver)
-                        .title(params.title())
-                        .content(params.content())
-                        .isRead(false)
-                        .type(params.type())
-                        .redirectTargetId(params.redirectTargetId())
-                        .build();
-                receiver.addNotification(notification);
-            } else {
-                log.warn("accountId={} push failed.", receiver.getId());
-            }
-        });
+        // 원래 future로 비동기 fcm 송신을 하려고 했으나, thenAccept 이후 트랜잭션이 해당
+        // 컨텍스트에서는 걸리지 않아서 future=true여도 저장이안됨, 그래서 그냥 동기로 처리
+        // 단점 : FCM 메시지가 정상적으로 송신되지 않아도 디비에 notification이 저장 됨
+        fcmService.sendPushMessage(
+                receiver.getFcmToken(),
+                params
+        );
+        Notification notification = Notification.builder()
+                .account(receiver)
+                .title(params.title())
+                .content(params.content())
+                .isRead(false)
+                .type(params.type())
+                .redirectTargetId(params.redirectTargetId())
+                .build();
+        receiver.addNotification(notification);
     }
 
     // FCM 송신 성공 여부와 상관없이 강제로 Notification 엔티티 저장 (테스트용)
+    @Deprecated
     @Transactional
     public void pushMessageForceSave(NotifyParams params) {
         Account receiver = accountRepository.findById(params.receiver().getId())
