@@ -6,8 +6,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import plub.plubserver.common.exception.PlubException;
 import plub.plubserver.common.exception.StatusCode;
+import plub.plubserver.common.model.BaseEntity;
 import plub.plubserver.domain.account.model.Account;
-import plub.plubserver.domain.account.model.Role;
 import plub.plubserver.domain.account.model.SuspendAccount;
 import plub.plubserver.domain.account.repository.SuspendAccountRepository;
 import plub.plubserver.domain.archive.model.Archive;
@@ -25,7 +25,6 @@ import plub.plubserver.domain.report.config.ReportStatusMessage;
 import plub.plubserver.domain.report.exception.ReportException;
 import plub.plubserver.domain.report.model.Report;
 import plub.plubserver.domain.report.model.ReportTarget;
-import plub.plubserver.domain.report.model.ReportType;
 import plub.plubserver.domain.report.repositoy.ReportRepository;
 import plub.plubserver.domain.todo.model.Todo;
 
@@ -40,6 +39,7 @@ import static plub.plubserver.domain.account.model.AccountStatus.PAUSED;
 import static plub.plubserver.domain.account.model.AccountStatus.PERMANENTLY_BANNED;
 import static plub.plubserver.domain.notification.model.NotificationType.*;
 import static plub.plubserver.domain.report.dto.ReportDto.*;
+import static plub.plubserver.domain.report.model.ReportType.*;
 
 @Slf4j
 @Service
@@ -57,35 +57,13 @@ public class ReportService {
     @Transactional
     public ReportIdResponse createReport(CreateReportRequest request, Account reporter) {
         Account reportedAccount = getReportTargetAccount(request.reportTargetId(), request.reportTarget());
-
         plubbingRepository.findById(request.plubbingId())
                 .orElseThrow(() -> new PlubException(StatusCode.NOT_FOUND_PLUBBING));
-
-        // 해당 유저가 최근 7일간에 신고한 기록이 있는지 확인
-        LocalDateTime now = LocalDateTime.now();
-        LocalDateTime weekAgo = now.minusDays(7);
-
-        List<Report> reports = reportRepository.findAllByReporter(reporter);
-        long count = reports.stream()
-                .filter(r -> {
-                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-                    LocalDateTime createdAt = LocalDateTime.parse(r.getCreatedAt(), formatter);
-                    return createdAt.isAfter(weekAgo);
-                })
-                .count();
-
-        // 신고 횟수가 2회 이상일 경우, 예외 발생 (어드민은 해당 X)
-        if (count >= 2 && reporter.getRole().equals(Role.ROLE_USER)) {
-            throw new ReportException(StatusCode.TOO_MANY_REPORTS);
-        }
 
         Report createReport = request.toEntity(reporter, reportedAccount, request.plubbingId());
         checkDuplicateReport(createReport);
         Report report = reportRepository.save(createReport);
-        ReportStatusMessage reportStatusMessage = checkReportFrequency(createReport.getReportedAccount());
-        createReport.setReportStatusMessage(reportStatusMessage);
-        notifyReportedAccount(report);
-
+        checkReportFrequency(report);
         return ReportIdResponse.of(report);
     }
 
@@ -137,8 +115,27 @@ public class ReportService {
     }
 
 
-    public Long countReportedAccount(Account reportedAccount) {
-        return reportRepository.countByReportedAccountAndCheckCanceledFalse(reportedAccount);
+    // 누적 신고 수 확인
+    public Long countTarget(Report report) {
+        return reportRepository
+                .countByTargetIdAndReportTypeAndCheckCanceledFalse(report.getTargetId(), report.getReportTarget());
+    }
+
+    // 최근 신고 수 확인
+    public Long countTargetWithRecentDateTime(Report report) {
+        List<Report> reportList = reportRepository
+                .findAllByTargetIdAndReportTypeAndCheckCanceledFalse(report.getTargetId(), report.getReportTarget());
+
+        return reportList.stream()
+                .filter(r -> {
+                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+                    LocalDateTime checkDateTime = LocalDateTime.parse(r.getModifiedAt(), formatter);
+                    if (report.getReportTarget() == ReportTarget.ACCOUNT || report.getReportTarget() == ReportTarget.FEED_COMMENT || report.getReportTarget() == ReportTarget.NOTICE_COMMENT) {
+                        return checkDateTime.isAfter(LocalDateTime.now().minusHours(6));
+                    } else {
+                        return checkDateTime.isAfter(LocalDateTime.now().minusHours(12));
+                    }
+                }).count();
     }
 
     private String checkPlubbingName(Long plubbingId) {
@@ -155,7 +152,7 @@ public class ReportService {
     @Transactional
     public void notifyReportedAccount(Report report) {
         Account reportedAccount = report.getReportedAccount();
-        Long reportedAccountCount = countReportedAccount(reportedAccount);
+        int reportedAccountCount = reportedAccount.getReportCount();
         String nickname = reportedAccount.getNickname();
         if (reportedAccountCount >= REPORT_ACCOUNT_BAN_COUNT) {
             // 계정 영구 정지
@@ -208,14 +205,62 @@ public class ReportService {
         }
     }
 
-    public ReportStatusMessage checkReportFrequency(Account reportedAccount) {
-        Long frequency = countReportedAccount(reportedAccount);
-        if (frequency >= REPORT_ACCOUNT_BAN_COUNT) {
-            return ReportStatusMessage.PERMANENTLY_BANNED;
-        } else if (frequency >= REPORT_ACCOUNT_PAUSED_COUNT) {
-            return ReportStatusMessage.PAUSED;
-        } else {
-            return ReportStatusMessage.WARNING;
+    @Transactional
+    public void checkReportFrequency(Report report) {
+        switch (report.getReportTarget()) {
+            case RECRUIT -> handleDeletableReport(
+                    report, Recruit.class,
+                    RECRUIT_CHECK_FREQUENCY, RECRUIT_CHECK_RECENT_FREQUENCY
+            );
+            case FEED -> handleDeletableReport(
+                    report, Feed.class,
+                    FEED_CHECK_FREQUENCY, FEED_CHECK_RECENT_FREQUENCY
+            );
+            case TODO -> handleDeletableReport(
+                    report, Todo.class,
+                    TODO_CHECK_FREQUENCY, TODO_CHECK_RECENT_FREQUENCY
+            );
+            case ARCHIVE -> handleDeletableReport(
+                    report, Archive.class,
+                    ARCHIVE_CHECK_FREQUENCY, ARCHIVE_CHECK_RECENT_FREQUENCY
+            );
+            case FEED_COMMENT -> handleDeletableReport(
+                    report, FeedComment.class,
+                    FEED_COMMENT_CHECK_FREQUENCY, FEED_COMMENT_CHECK_RECENT_FREQUENCY
+            );
+            case NOTICE_COMMENT -> handleDeletableReport(
+                    report, NoticeComment.class,
+                    NOTICE_COMMENT_CHECK_FREQUENCY, NOTICE_COMMENT_CHECK_RECENT_FREQUENCY
+            );
+            case ACCOUNT -> handleAccountReport(report);
+        }
+    }
+
+    private <T extends BaseEntity> void handleDeletableReport(
+            Report report,
+            Class<T> clazz,
+            int maxFrequency,
+            int maxRecentFrequency
+    ) {
+        Long frequency = countTarget(report);
+        Long recentFrequency = countTargetWithRecentDateTime(report);
+        T entity = findOrThrow(clazz, report.getTargetId());
+        if (frequency >= maxFrequency || recentFrequency >= maxRecentFrequency) {
+            entity.softDelete();
+        }
+    }
+
+    private void handleAccountReport(Report report) {
+        Account account = findOrThrow(Account.class, report.getTargetId());
+        Long frequency = countTarget(report);
+        Long recentFrequency = countTargetWithRecentDateTime(report);
+        if (frequency >= ACCOUNT_CHECK_FREQUENCY || recentFrequency >= ACCOUNT_CHECK_RECENT_FREQUENCY) {
+            // 일시 정지
+            account.updateAccountStatus(PAUSED);
+            account.plusReportCount();
+            // 알림
+            report.setReportStatusMessage(ReportStatusMessage.PAUSED);
+            notifyReportedAccount(report);
         }
     }
 
@@ -236,10 +281,10 @@ public class ReportService {
 
     public ReportTypeListResponse getReportType() {
         List<ReportTypeResponse> reportTypeResponses = List.of(
-                new ReportTypeResponse(ReportType.BAD_WORDS.toString(), ReportType.BAD_WORDS.getDetailContent()),
-                new ReportTypeResponse(ReportType.FALSE_FACT.toString(), ReportType.FALSE_FACT.getDetailContent()),
-                new ReportTypeResponse(ReportType.ADVERTISEMENT.toString(), ReportType.ADVERTISEMENT.getDetailContent()),
-                new ReportTypeResponse(ReportType.ETC.toString(), ReportType.ETC.getDetailContent()));
+                new ReportTypeResponse(BAD_WORDS.toString(), BAD_WORDS.getDetailContent()),
+                new ReportTypeResponse(FALSE_FACT.toString(), FALSE_FACT.getDetailContent()),
+                new ReportTypeResponse(ADVERTISEMENT.toString(), ADVERTISEMENT.getDetailContent()),
+                new ReportTypeResponse(ETC.toString(), ETC.getDetailContent()));
         return ReportTypeListResponse.of(reportTypeResponses);
     }
 
@@ -251,7 +296,7 @@ public class ReportService {
             NotificationType notificationType
     ) {
         Report report = Report.builder()
-                .reportType(ReportType.ETC)
+                .reportType(ETC)
                 .reportTarget(ReportTarget.ACCOUNT)
                 .targetId(reportedAccount.getId())
                 .reportReason(content)

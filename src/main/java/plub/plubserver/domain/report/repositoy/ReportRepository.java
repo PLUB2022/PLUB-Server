@@ -8,7 +8,9 @@ import plub.plubserver.domain.report.model.ReportTarget;
 import java.util.List;
 
 public interface ReportRepository extends JpaRepository<Report, Long> {
-    Long countByReportedAccountAndCheckCanceledFalse(Account account);
+    Long countByTargetIdAndReportTypeAndCheckCanceledFalse(Long targetId, ReportTarget reportTarget);
+
+    List<Report> findAllByTargetIdAndReportTypeAndCheckCanceledFalse(Long targetId, ReportTarget reportTarget);
 
     boolean existsByReporterAndReportedAccountAndReportTargetAndCheckCanceledFalse(
             Account reporter,
