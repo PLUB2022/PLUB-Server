@@ -116,6 +116,15 @@ public class AccountController {
         Account currentAccount = accountService.getCurrentAccount();
         return success(accountService.unSuspendAccount(currentAccount, accountId));
     }
+
+    @ApiOperation(value = "회원 비활성화 설정/해제")
+    @PutMapping("/inActive")
+    public ApiResponse<AccountIdResponse> inActiveAccount(
+            @RequestParam(value = "push-notification", defaultValue = "true") boolean isInactive
+    ) {
+        Account currentAccount = accountService.getCurrentAccount();
+        return success(accountService.inActiveAccount(currentAccount, isInactive));
+    }
 }
 
 

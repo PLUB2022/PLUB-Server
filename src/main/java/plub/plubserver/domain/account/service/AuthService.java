@@ -177,7 +177,7 @@ public class AuthService {
 
     public static void checkAccountStatus(Account account) {
         AccountStatus accountStatus = account.getAccountStatus();
-        // NORMAL, PAUSED, BANNED, PERMANENTLY_BANNED
+        // NORMAL, PAUSED, BANNED, PERMANENTLY_BANNED, INACTIVE, DORMANT
         switch (accountStatus) {
             case NORMAL:
                 break;
@@ -193,6 +193,10 @@ public class AuthService {
                 } else throw new AccountException(StatusCode.BANNED_ACCOUNT);
             case PERMANENTLY_BANNED:
                 throw new AccountException(StatusCode.PERMANENTLY_BANNED_ACCOUNT);
+            case INACTIVE:
+                account.updateAccountStatus(AccountStatus.NORMAL);
+            case DORMANT:
+                account.updateAccountStatus(AccountStatus.NORMAL);
         }
     }
 

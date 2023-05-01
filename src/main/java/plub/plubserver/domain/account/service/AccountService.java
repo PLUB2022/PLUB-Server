@@ -21,6 +21,8 @@ import plub.plubserver.domain.category.model.SubCategory;
 import plub.plubserver.domain.category.repository.SubCategoryRepository;
 import plub.plubserver.domain.feed.repository.FeedRepository;
 import plub.plubserver.domain.notice.repository.NoticeRepository;
+import plub.plubserver.domain.plubbing.model.AccountPlubbing;
+import plub.plubserver.domain.plubbing.model.AccountPlubbingStatus;
 import plub.plubserver.domain.plubbing.repository.AccountPlubbingRepository;
 import plub.plubserver.domain.recruit.repository.AppliedAccountRepository;
 import plub.plubserver.domain.recruit.repository.BookmarkRepository;
@@ -308,5 +310,24 @@ public class AccountService {
                 .accountDI(account.getEmail().split("@")[0])
                 .isSuspended(true)
                 .build();
+    }
+
+    // 회원 비활성화 설정
+    @Transactional
+    public AccountIdResponse inActiveAccount(Account loginAccount, boolean isInactive) {
+        LocalDateTime lastInActiveDate = loginAccount.getLastInActiveDate().plusDays(7);
+        if (!lastInActiveDate.isAfter(LocalDateTime.now())) {
+           throw new AccountException(StatusCode.ALREADY_INACTIVE_ACCOUNT);
+        }
+        if (isInactive) {
+            // Active 된 모임 탈퇴 처리
+            accountPlubbingRepository.findAllByAccount(loginAccount, AccountPlubbingStatus.ACTIVE)
+                    .forEach(AccountPlubbing::exitPlubbing);
+            loginAccount.updateAccountStatus(AccountStatus.INACTIVE);
+            loginAccount.updateLastInActiveDate();
+        } else {
+            loginAccount.updateAccountStatus(AccountStatus.NORMAL);
+        }
+        return AccountIdResponse.of(loginAccount);
     }
 }
