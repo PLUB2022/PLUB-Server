@@ -252,4 +252,18 @@ public class Account extends BaseEntity {
         this.pausedStartDate = LocalDateTime.now();
         this.pausedEndDate = LocalDateTime.now().plusMonths(1);
     }
+
+    public void deletedAccount() {
+        this.accountStatus = AccountStatus.DELETED;
+        this.email = null;
+        this.password = null;
+        this.nickname = null;
+        this.profileImage = null;
+        this.introduce = null;
+        this.birthday = null;
+        this.gender = null;
+        this.age = 0;
+        this.phone = null;
+        this.socialType = null;
+    }
 }
