@@ -31,6 +31,7 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static plub.plubserver.config.security.SecurityUtils.getCurrentAccountEmail;
+import static plub.plubserver.domain.account.dto.AccountDto.LogoutResponse;
 import static plub.plubserver.domain.account.dto.AuthDto.*;
 
 @Slf4j
@@ -216,16 +217,15 @@ public class AuthService {
     }
 
     @Transactional
-    public String logout() {
-        Account account = accountRepository
-                .findByEmail(getCurrentAccountEmail())
+    public LogoutResponse logout() {
+        Account account = accountRepository.findByEmail(getCurrentAccountEmail())
                 .orElseThrow(() -> new AccountException(StatusCode.NOT_FOUND_ACCOUNT));
-        RefreshToken refreshToken = refreshTokenRepository
-                .findByAccount(account)
+        RefreshToken refreshToken = refreshTokenRepository.findByAccount(account)
                 .orElseThrow(() -> new AuthException(StatusCode.NOT_FOUND_REFRESH_TOKEN));
         refreshTokenRepository.delete(refreshToken);
         refreshTokenRepository.flush();
-        return "로그아웃 완료";
+
+        return LogoutResponse.of(refreshTokenRepository.existsByAccount(account));
     }
 
     public AuthMessage loginAdmin(LoginRequest loginRequest) {

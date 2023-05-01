@@ -176,5 +176,13 @@ public class AccountDto {
             return new AccountIdResponse(account.getId());
         }
     }
+
+    public record LogoutResponse(
+            boolean isLogout
+    ) {
+        public static LogoutResponse of(boolean isLogout) {
+            return new LogoutResponse(!isLogout);
+        }
+    }
 }
 
