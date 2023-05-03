@@ -7,17 +7,29 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import plub.plubserver.common.exception.StatusCode;
+import plub.plubserver.config.jwt.RefreshTokenRepository;
 import plub.plubserver.domain.account.exception.AccountException;
 import plub.plubserver.domain.account.model.*;
 import plub.plubserver.domain.account.repository.AccountNicknameHistoryRepository;
 import plub.plubserver.domain.account.repository.AccountRepository;
+import plub.plubserver.domain.account.repository.RevokeAccountRepository;
 import plub.plubserver.domain.account.repository.SuspendAccountRepository;
+import plub.plubserver.domain.archive.repository.ArchiveRepository;
+import plub.plubserver.domain.calendar.repository.CalendarRepository;
 import plub.plubserver.domain.category.exception.CategoryException;
 import plub.plubserver.domain.category.model.SubCategory;
 import plub.plubserver.domain.category.repository.SubCategoryRepository;
+import plub.plubserver.domain.feed.repository.FeedRepository;
+import plub.plubserver.domain.notice.repository.NoticeRepository;
+import plub.plubserver.domain.plubbing.model.AccountPlubbing;
+import plub.plubserver.domain.plubbing.model.AccountPlubbingStatus;
+import plub.plubserver.domain.plubbing.repository.AccountPlubbingRepository;
+import plub.plubserver.domain.recruit.repository.AppliedAccountRepository;
+import plub.plubserver.domain.recruit.repository.BookmarkRepository;
 import plub.plubserver.domain.report.config.ReportStatusMessage;
 import plub.plubserver.domain.report.exception.ReportException;
 import plub.plubserver.domain.report.service.ReportService;
+import plub.plubserver.domain.todo.repository.TodoTimelineRepository;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -46,6 +58,17 @@ public class AccountService {
     private final ReportService reportService;
     private final SuspendAccountRepository suspendAccountRepository;
     private final AccountNicknameHistoryRepository accountNicknameHistoryRepository;
+    private final RevokeAccountRepository revokeAccountRepository;
+    private final RefreshTokenRepository refreshTokenRepository;
+
+    private final FeedRepository feedRepository;
+    private final TodoTimelineRepository todoTimelineRepository;
+    private final AccountPlubbingRepository accountPlubbingRepository;
+    private final AppliedAccountRepository appliedAccountRepository;
+    private final NoticeRepository noticeRepository;
+    private final ArchiveRepository archiveRepository;
+    private final BookmarkRepository bookmarkRepository;
+    private final CalendarRepository calendarRepository;
 
     // 회원 정보 조회
     public AccountInfoResponse getMyAccount() {
@@ -131,20 +154,42 @@ public class AccountService {
     @Transactional
     public AuthMessage revoke() {
         Account myAccount = getCurrentAccount();
-        String socialName = myAccount.getSocialType().getSocialName();
+        SocialType socialType = myAccount.getSocialType();
         String refreshToken = myAccount.getProviderRefreshToken();
         String[] split = myAccount.getEmail().split("@");
-        boolean result;
-        if (socialName.equalsIgnoreCase("Google")) {
-            result = googleService.revokeGoogle(refreshToken);
-        } else if (socialName.equalsIgnoreCase("Kakao")) {
-            result = kakaoService.revokeKakao(split[0]);
-        } else if (socialName.equalsIgnoreCase("Apple")) {
-            result = appleService.revokeApple(refreshToken);
-        } else {
-            throw new AccountException(StatusCode.SOCIAL_TYPE_ERROR);
+
+        boolean result = switch (socialType) {
+            case GOOGLE -> googleService.revokeGoogle(refreshToken);
+            case KAKAO -> kakaoService.revokeKakao(split[0]);
+            case APPLE -> appleService.revokeApple(refreshToken);
+            default -> throw new AccountException(StatusCode.SOCIAL_TYPE_ERROR);
+        };
+
+        if (result) {
+            RevokeAccount revokeAccount = RevokeAccount.builder()
+                    .email(myAccount.getEmail())
+                    .socialType(socialType)
+                    .phoneNumber(myAccount.getPhone())
+                    .nickname(myAccount.getNickname())
+                    .revokedAt(LocalDateTime.now())
+                    .build();
+            revokeAccountRepository.save(revokeAccount);
+
+            // refreshToken, 지원한 사용자, 가입된 모임, 피드, 투두, 공지, 아카이브, 북마크, 일정 삭제
+            refreshTokenRepository.deleteByAccount(myAccount);
+            appliedAccountRepository.deleteAllByAccount(myAccount);
+            accountPlubbingRepository.deleteAllByAccount(myAccount);
+            feedRepository.deleteAllByAccount(myAccount);
+            todoTimelineRepository.deleteAllByAccount(myAccount);
+            noticeRepository.deleteAllByAccount(myAccount);
+            archiveRepository.deleteAllByAccount(myAccount);
+            bookmarkRepository.deleteAllByAccount(myAccount);
+            calendarRepository.deleteAllByAccount(myAccount);
+
+            myAccount.deletedAccount();
         }
-        return new AuthMessage(result, "revoke result.");
+
+        return new AuthMessage(result, "Revoke result: " + result);
     }
 
     @Transactional
@@ -265,5 +310,24 @@ public class AccountService {
                 .accountDI(account.getEmail().split("@")[0])
                 .isSuspended(true)
                 .build();
+    }
+
+    // 회원 비활성화 설정
+    @Transactional
+    public AccountIdResponse inActiveAccount(Account loginAccount, boolean isInactive) {
+        LocalDateTime lastInActiveDate = loginAccount.getLastInActiveDate().plusDays(7);
+        if (!lastInActiveDate.isAfter(LocalDateTime.now())) {
+           throw new AccountException(StatusCode.ALREADY_INACTIVE_ACCOUNT);
+        }
+        if (isInactive) {
+            // Active 된 모임 탈퇴 처리
+            accountPlubbingRepository.findAllByAccount(loginAccount, AccountPlubbingStatus.ACTIVE)
+                    .forEach(AccountPlubbing::exitPlubbing);
+            loginAccount.updateAccountStatus(AccountStatus.INACTIVE);
+            loginAccount.updateLastInActiveDate();
+        } else {
+            loginAccount.updateAccountStatus(AccountStatus.NORMAL);
+        }
+        return AccountIdResponse.of(loginAccount);
     }
 }

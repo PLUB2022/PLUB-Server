@@ -19,7 +19,8 @@ public enum StatusCode {
     PAUSED_ACCOUNT(400, 9070, "paused account error."),
     BANNED_ACCOUNT(400, 9080, "banned account error."),
     PERMANENTLY_BANNED_ACCOUNT(400, 9090, "permanently banned account error."),
-
+    INACTIVE_ACCOUNT(400, 9100, "inactive account error."),
+    DORMANT_ACCOUNT(400, 9110, "dormant account error."),
 
     /**
      * Account
@@ -33,6 +34,7 @@ public enum StatusCode {
     SELF_REPORT_ERROR(400, 2060, "self report error."),
     SUSPENDED_ACCOUNT(400, 2070, "suspended account error."),
     NICKNAME_CHANGE_LIMIT(400, 2080, "nickname change limit error."),
+    ALREADY_INACTIVE_ACCOUNT(400, 2090, "already inactive account error."),
 
     /**
      * Auth
