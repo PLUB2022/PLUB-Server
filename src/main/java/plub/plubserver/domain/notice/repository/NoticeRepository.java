@@ -5,6 +5,7 @@ import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.notice.model.Notice;
 import plub.plubserver.domain.plubbing.model.Plubbing;
 
+import java.util.List;
 import java.util.Optional;
 
 
@@ -14,6 +15,6 @@ public interface NoticeRepository extends JpaRepository<Notice, Long>, NoticeRep
 
     Optional<Notice> findByIdAndVisibility(Long noticeId, boolean visibility);
 
-    void deleteAllByAccount(Account account);
+    List<Notice> findAllByAccount(Account account);
 }
 

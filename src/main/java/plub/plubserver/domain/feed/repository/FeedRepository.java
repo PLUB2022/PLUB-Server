@@ -23,5 +23,5 @@ public interface FeedRepository extends JpaRepository<Feed, Long>, FeedRepositor
 
     Optional<Feed> findByIdAndVisibility(Long feedId, boolean visibility);
 
-    void deleteAllByAccount(Account account);
+    List<Feed> findAllByAccount(Account account);
 }

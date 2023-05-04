@@ -30,7 +30,7 @@ public interface AccountPlubbingRepository extends JpaRepository<AccountPlubbing
 
     void deleteByPlubbing(Plubbing plubbing);
 
-    void deleteAllByAccount(Account account);
+    List<AccountPlubbing> findAllByAccount(Account account);
 }
 
 

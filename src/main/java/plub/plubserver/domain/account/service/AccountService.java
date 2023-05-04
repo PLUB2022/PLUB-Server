@@ -14,12 +14,16 @@ import plub.plubserver.domain.account.repository.AccountNicknameHistoryRepositor
 import plub.plubserver.domain.account.repository.AccountRepository;
 import plub.plubserver.domain.account.repository.RevokeAccountRepository;
 import plub.plubserver.domain.account.repository.SuspendAccountRepository;
+import plub.plubserver.domain.archive.model.Archive;
 import plub.plubserver.domain.archive.repository.ArchiveRepository;
+import plub.plubserver.domain.calendar.model.Calendar;
 import plub.plubserver.domain.calendar.repository.CalendarRepository;
 import plub.plubserver.domain.category.exception.CategoryException;
 import plub.plubserver.domain.category.model.SubCategory;
 import plub.plubserver.domain.category.repository.SubCategoryRepository;
+import plub.plubserver.domain.feed.model.Feed;
 import plub.plubserver.domain.feed.repository.FeedRepository;
+import plub.plubserver.domain.notice.model.Notice;
 import plub.plubserver.domain.notice.repository.NoticeRepository;
 import plub.plubserver.domain.plubbing.model.AccountPlubbing;
 import plub.plubserver.domain.plubbing.model.AccountPlubbingStatus;
@@ -29,6 +33,7 @@ import plub.plubserver.domain.recruit.repository.BookmarkRepository;
 import plub.plubserver.domain.report.config.ReportStatusMessage;
 import plub.plubserver.domain.report.exception.ReportException;
 import plub.plubserver.domain.report.service.ReportService;
+import plub.plubserver.domain.todo.model.TodoTimeline;
 import plub.plubserver.domain.todo.repository.TodoTimelineRepository;
 
 import java.time.LocalDateTime;
@@ -177,15 +182,14 @@ public class AccountService {
 
             // refreshToken, 지원한 사용자, 가입된 모임, 피드, 투두, 공지, 아카이브, 북마크, 일정 삭제
             refreshTokenRepository.deleteByAccount(myAccount);
-            appliedAccountRepository.deleteAllByAccount(myAccount);
-            accountPlubbingRepository.deleteAllByAccount(myAccount);
-            feedRepository.deleteAllByAccount(myAccount);
-            todoTimelineRepository.deleteAllByAccount(myAccount);
-            noticeRepository.deleteAllByAccount(myAccount);
-            archiveRepository.deleteAllByAccount(myAccount);
+            appliedAccountRepository.findAllByAccount(myAccount).softDelete();
+            accountPlubbingRepository.findAllByAccount(myAccount).forEach(AccountPlubbing::softDelete);
+            feedRepository.findAllByAccount(myAccount).forEach(Feed::softDelete);
+            todoTimelineRepository.findAllByAccount(myAccount).forEach(TodoTimeline::softDelete);
+            noticeRepository.findAllByAccount(myAccount).forEach(Notice::softDelete);
+            archiveRepository.findAllByAccount(myAccount).forEach(Archive::softDelete);
             bookmarkRepository.deleteAllByAccount(myAccount);
-            calendarRepository.deleteAllByAccount(myAccount);
-
+            calendarRepository.findAllByAccount(myAccount).forEach(Calendar::softDelete);
             myAccount.deletedAccount();
         }
 

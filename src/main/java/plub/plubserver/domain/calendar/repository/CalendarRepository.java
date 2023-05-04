@@ -6,6 +6,7 @@ import org.springframework.data.repository.query.Param;
 import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.calendar.model.Calendar;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface CalendarRepository extends JpaRepository<Calendar, Long>, CalendarRepositoryCustom {
@@ -16,5 +17,5 @@ public interface CalendarRepository extends JpaRepository<Calendar, Long>, Calen
 
     Optional<Calendar> findFirstByPlubbingIdAndVisibilityIsTrueOrderByStartedAtDesc(Long plubbingId);
 
-    void deleteAllByAccount(Account account);
+    List<Calendar> findAllByAccount(Account account);
 }
