@@ -16,7 +16,6 @@ import plub.plubserver.domain.calendar.model.CalendarAlarmType;
 import plub.plubserver.domain.calendar.model.CalendarAttend;
 import plub.plubserver.domain.calendar.repository.CalendarAttendRepository;
 import plub.plubserver.domain.calendar.repository.CalendarRepository;
-import plub.plubserver.domain.notification.model.NotificationType;
 import plub.plubserver.domain.notification.service.NotificationService;
 import plub.plubserver.domain.plubbing.model.AccountPlubbing;
 import plub.plubserver.domain.plubbing.model.Plubbing;
@@ -127,14 +126,9 @@ public class CalendarService {
 
         // 멤버들에게 푸시 알림
         plubbing.getMembers().forEach(member -> {
-            NotifyParams params = NotifyParams.builder()
-                    .receiver(member)
-                    .type(NotificationType.CREATE_UPDATE_CALENDAR)
-                    .redirectTargetId(plubbing.getId())
-                    .title(plubbing.getName())
-                    .content("새로운 일정이 등록되었어요! 모이는 시간과 장소를 확인하고 참여해 보세요!\n : " + calendar.getTitle() + "," + calendar.getStartedAt() + " ~ " + calendar.getEndedAt() + "," + calendar.getPlaceName())
-                    .build();
-            notificationService.pushMessage(params);
+            notificationService.pushMessage(
+                    NotifyParams.ofCreateCalendar(member, plubbing, calendar)
+            );
         });
 
         // 푸시 알림 스케줄러에 등록
@@ -152,17 +146,12 @@ public class CalendarService {
                 .orElseThrow(() -> new CalendarException(StatusCode.NOT_FOUNT_CALENDAR));
         checkCalendarRole(account, calendar);
         calendar.updateCalendar(updateCalendarResponse);
-        
+
         // 멤버들에게 푸시 알림
         plubbing.getMembers().forEach(member -> {
-            NotifyParams params = NotifyParams.builder()
-                    .receiver(member)
-                    .type(NotificationType.CREATE_UPDATE_CALENDAR)
-                    .redirectTargetId(plubbing.getId())
-                    .title(plubbing.getName())
-                    .content("모임 일정이 수정되었어요. 어떻게 변경되었는지 확인해 볼까요?\n : " + calendar.getTitle() + "," + calendar.getStartedAt() + " ~ " + calendar.getEndedAt() + "," + calendar.getPlaceName())
-                    .build();
-            notificationService.pushMessage(params);
+            notificationService.pushMessage(
+                    NotifyParams.ofUpdateCalendar(member, plubbing, calendar)
+            );
         });
 
         // 푸시 알림 스케줄러에 변경

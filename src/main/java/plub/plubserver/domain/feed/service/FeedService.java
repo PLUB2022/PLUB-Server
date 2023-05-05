@@ -206,27 +206,17 @@ public class FeedService {
             feedCommentRepository.save(feedComment);
 
             // 대댓글 주인에게 푸시 알림 발송
-            params = NotifyParams.builder()
-                    .receiver(parentComment.getAccount())
-                    .type(NotificationType.CREATE_FEED_COMMENT_COMMENT)
-                    .redirectTargetId(feed.getId())
-                    .title(feed.getPlubbing().getName())
-                    .content(commentAuthor.getNickname() + " 님이 " + parentComment.getAccount().getNickname() + " 님의 댓글에 댓글을 남겼어요\n : " + feedComment.getContent())
-                    .build();
+            params = NotifyParams.ofCreateFeedCommentComment(
+                    commentAuthor, feed, parentComment, feedComment
+            );
 
         } else { // 댓글을 다는 경우
             feedComment.setCommentGroupId(feedComment.getId());
-
             // 작성자에게 푸시 알림 (단, 게시글 작성자가 자신의 글에 댓글을 달면 알림 발송 X)
             Account feedAuthor = feed.getAccount();
-
-            params = NotifyParams.builder()
-                    .receiver(feedAuthor)
-                    .type(NotificationType.CREATE_FEED_COMMENT)
-                    .redirectTargetId(feed.getId())
-                    .title(feed.getPlubbing().getName())
-                    .content(commentAuthor.getNickname() + " 님이 " + feedAuthor.getNickname() + " 님의 게시글에 댓글을 남겼어요\n : " + feedComment.getContent())
-                    .build();
+            params = NotifyParams.ofCreateFeedComment(
+                    feedAuthor, commentAuthor, feed, feedComment
+            );
         }
         notificationService.pushMessage(params);
         return FeedCommentResponse.of(feedComment, true, isFeedAuthor(commentAuthor, feed), isAuthorComment(feedComment));
