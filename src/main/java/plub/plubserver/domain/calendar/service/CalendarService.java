@@ -130,7 +130,7 @@ public class CalendarService {
             NotifyParams params = NotifyParams.builder()
                     .receiver(member)
                     .type(NotificationType.CREATE_UPDATE_CALENDAR)
-                    .redirectTargetId(calendar.getId())
+                    .redirectTargetId(plubbing.getId())
                     .title(plubbing.getName())
                     .content("새로운 일정이 등록되었어요! 모이는 시간과 장소를 확인하고 참여해 보세요!\n : " + calendar.getTitle() + "," + calendar.getStartedAt() + " ~ " + calendar.getEndedAt() + "," + calendar.getPlaceName())
                     .build();
@@ -152,13 +152,13 @@ public class CalendarService {
                 .orElseThrow(() -> new CalendarException(StatusCode.NOT_FOUNT_CALENDAR));
         checkCalendarRole(account, calendar);
         calendar.updateCalendar(updateCalendarResponse);
-
+        
         // 멤버들에게 푸시 알림
         plubbing.getMembers().forEach(member -> {
             NotifyParams params = NotifyParams.builder()
                     .receiver(member)
                     .type(NotificationType.CREATE_UPDATE_CALENDAR)
-                    .redirectTargetId(calendar.getId())
+                    .redirectTargetId(plubbing.getId())
                     .title(plubbing.getName())
                     .content("모임 일정이 수정되었어요. 어떻게 변경되었는지 확인해 볼까요?\n : " + calendar.getTitle() + "," + calendar.getStartedAt() + " ~ " + calendar.getEndedAt() + "," + calendar.getPlaceName())
                     .build();
