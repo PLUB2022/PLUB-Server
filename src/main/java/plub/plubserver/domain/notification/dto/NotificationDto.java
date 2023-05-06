@@ -116,6 +116,19 @@ public class NotificationDto {
                     .content(content)
                     .build();
         }
+
+        public static NotifyParams ofPinFeed(Feed feed) {
+            String content = """
+                    호스트가 %s을(를) 클립보드에 고정했어요.\uD83D\uDE03
+                    """.formatted(feed.getTitle()); // 웃는 이모지
+            return NotifyParams.builder()
+                    .receiver(feed.getAccount())
+                    .type(NotificationType.PINNED_FEED)
+                    .redirectTargetId(feed.getId())
+                    .title(feed.getPlubbing().getName())
+                    .content(content)
+                    .build();
+        }
     }
 
     /**

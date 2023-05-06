@@ -20,7 +20,6 @@ import plub.plubserver.domain.feed.model.ViewType;
 import plub.plubserver.domain.feed.repository.FeedCommentRepository;
 import plub.plubserver.domain.feed.repository.FeedLikeRepository;
 import plub.plubserver.domain.feed.repository.FeedRepository;
-import plub.plubserver.domain.notification.model.NotificationType;
 import plub.plubserver.domain.notification.service.NotificationService;
 import plub.plubserver.domain.plubbing.model.Plubbing;
 import plub.plubserver.domain.plubbing.service.PlubbingService;
@@ -127,16 +126,8 @@ public class FeedService {
         plubbingService.checkHost(account, feed.getPlubbing());
         feed.pin();
 
-        // 핀된 게시글 사용자에게 알림
-        NotifyParams params = NotifyParams.builder()
-                .receiver(feed.getAccount())
-                .type(NotificationType.PINNED_FEED)
-                .redirectTargetId(feed.getId())
-                .title(feed.getPlubbing().getName())
-                .content("호스트가 " + feed.getTitle() + "을 클립보드에 고정했어요.\uD83D\uDE03") // 웃는 이모지
-                .build();
-        notificationService.pushMessage(params);
-
+        // 핀된 게시글 사용자에게 푸시 알림
+        notificationService.pushMessage(NotifyParams.ofPinFeed(feed));
         return new FeedIdResponse(feedId);
     }
 
