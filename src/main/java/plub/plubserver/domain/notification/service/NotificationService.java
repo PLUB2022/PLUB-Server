@@ -79,6 +79,7 @@ public class NotificationService {
         );
     }
 
+    @Transactional
     public NotificationResponse readNotification(Long notificationId, Account account) {
         Account loginAccount = accountRepository.findById(account.getId()).orElseThrow(
                 () -> new NotificationException(StatusCode.NOT_FOUND_ACCOUNT)
