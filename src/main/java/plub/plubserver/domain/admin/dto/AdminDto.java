@@ -45,4 +45,9 @@ public class AdminDto {
             Long plubbingId,
             String title
     ) {}
+
+    public record AccountPlubbingTotalCountResponse(
+            Long totalAccounts,
+            Long totalPlubbings
+    ) {}
 }
