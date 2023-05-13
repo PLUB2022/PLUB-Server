@@ -116,6 +116,7 @@ public enum StatusCode {
     NOT_FOUND_RECRUIT(404, 6130, "not found recruit error."),
     ALREADY_DONE_RECRUIT(400, 6140, "this recruit is already done."),
     MAX_PLUBBING_LIMIT_OVER(400, 6150, "max active plubbing limit is 3."),
+    PULL_UP_LIMIT_OVER(400, 6160, "pull up limit is 2."),
 
     /**
      * Todo
