@@ -242,10 +242,19 @@ public class PlubbingService {
                     .map((AppliedAccount appliedAccount)
                             -> MyProfilePlubbingResponse.of(appliedAccount.getRecruit().getPlubbing(), GUEST)).toList();
             return MyProfilePlubbingListResponse.of(myPlubbingResponses, status);
+        } else if (Objects.equals(status, AccountPlubbingStatus.ACTIVE.name())) {
+            List<MyProfilePlubbingResponse> myPlubbingResponses = accountPlubbingRepository
+                    .findAllByAccount(currentAccount, AccountPlubbingStatus.ACTIVE)
+                    .stream()
+                    .map((AccountPlubbing accountPlubbing)
+                            -> MyProfilePlubbingResponse.of(accountPlubbing.getPlubbing(), HOST)).toList();
+            return MyProfilePlubbingListResponse.of(myPlubbingResponses, status);
+
         } else {
             AccountPlubbingStatus plubbingStatus = AccountPlubbingStatus.valueOf(status);
             List<MyProfilePlubbingResponse> myPlubbingResponses = accountPlubbingRepository
-                    .findAllByAccount(currentAccount, plubbingStatus).stream()
+                    .findAllByAccount(currentAccount, plubbingStatus)
+                    .stream()
                     .map((AccountPlubbing accountPlubbing) -> {
                         MyPlubbingStatus myPlubbingStatus =
                                 getMyPlubbingStatus(accountPlubbing.isHost(), plubbingStatus.name());
@@ -257,7 +266,7 @@ public class PlubbingService {
 
     public MyPlubbingStatus getMyPlubbingStatus(boolean isHost, String status) {
         if (status.equals(PlubbingStatus.END.name())) return MyPlubbingStatus.END;
-        else if (status.equals(AccountPlubbingStatus.END.name())) return MyPlubbingStatus.EXIT;
+        else if (status.equals(AccountPlubbingStatus.EXIT.name())) return MyPlubbingStatus.EXIT;
         else if (isHost) return HOST;
         else return GUEST;
     }
