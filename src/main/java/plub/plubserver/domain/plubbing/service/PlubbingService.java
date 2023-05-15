@@ -260,6 +260,11 @@ public class PlubbingService {
                                 getMyPlubbingStatus(accountPlubbing.isHost(), plubbingStatus.name());
                         return MyProfilePlubbingResponse.of(accountPlubbing.getPlubbing(), myPlubbingStatus);
                     }).toList();
+
+            // 최근 리스트 5개만 보여주기
+            if (myPlubbingResponses.size() > 5) {
+                myPlubbingResponses = myPlubbingResponses.subList(0, 5);
+            }
             return MyProfilePlubbingListResponse.of(myPlubbingResponses, status);
         }
     }
