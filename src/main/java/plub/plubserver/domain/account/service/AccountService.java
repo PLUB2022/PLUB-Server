@@ -236,9 +236,9 @@ public class AccountService {
     @Transactional
     public AccountIdResponse unSuspendAccount(Account loginAccount, Long accountId) {
         loginAccount.isAdmin();
-        SuspendAccount suspendAccount = suspendAccountRepository.findByAccountId(accountId)
+        SuspendAccount suspendAccount = suspendAccountRepository.findByAccountIdAndCheckSuspendedIsTrue(accountId)
                 .orElseThrow(() -> new ReportException(StatusCode.NOT_FOUND_SUSPEND_ACCOUNT));
-        suspendAccount.setSuspended(false);
+        suspendAccount.setCheckSuspended(false);
         Account account = accountRepository.findById(suspendAccount.getAccountId())
                 .orElseThrow(() -> new ReportException(StatusCode.ALREADY_REVOKE_SUSPEND_ACCOUNT));
         account.updateAccountStatus(NORMAL);
@@ -312,7 +312,7 @@ public class AccountService {
                 .accountId(account.getId())
                 .accountEmail(account.getEmail())
                 .accountDI(account.getEmail().split("@")[0])
-                .isSuspended(true)
+                .checkSuspended(true)
                 .build();
     }
 

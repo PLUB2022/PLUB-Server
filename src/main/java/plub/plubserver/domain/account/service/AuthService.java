@@ -169,10 +169,10 @@ public class AuthService {
 
     @Transactional
     public void checkSuspendedAccount(String email) {
-        Optional<SuspendAccount> suspendAccount = suspendAccountRepository.findByAccountEmail(email);
+        Optional<SuspendAccount> suspendAccount = suspendAccountRepository.findByAccountEmailAndCheckSuspendedIsTrue(email);
         if (suspendAccount.isEmpty()) return;
         boolean isAccountExpired = LocalDateTime.now().isAfter(suspendAccount.get().getEndedSuspendedDate());
-        if (isAccountExpired) suspendAccount.get().setSuspended(false);
+        if (isAccountExpired) suspendAccount.get().setCheckSuspended(false);
         else throw new AccountException(StatusCode.SUSPENDED_ACCOUNT);
     }
 

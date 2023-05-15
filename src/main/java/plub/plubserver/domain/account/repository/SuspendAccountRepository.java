@@ -6,6 +6,6 @@ import plub.plubserver.domain.account.model.SuspendAccount;
 import java.util.Optional;
 
 public interface SuspendAccountRepository extends JpaRepository<SuspendAccount, Long> {
-    Optional<SuspendAccount> findByAccountId(Long accountId);
-    Optional<SuspendAccount> findByAccountEmail(String email);
+    Optional<SuspendAccount> findByAccountIdAndCheckSuspendedIsTrue(Long accountId);
+    Optional<SuspendAccount> findByAccountEmailAndCheckSuspendedIsTrue(String email);
 }

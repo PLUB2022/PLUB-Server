@@ -17,6 +17,7 @@ import plub.plubserver.domain.notice.model.NoticeComment;
 import plub.plubserver.domain.notification.dto.NotificationDto.NotifyParams;
 import plub.plubserver.domain.notification.model.NotificationType;
 import plub.plubserver.domain.notification.service.NotificationService;
+import plub.plubserver.domain.plubbing.model.AccountPlubbing;
 import plub.plubserver.domain.plubbing.model.Plubbing;
 import plub.plubserver.domain.plubbing.repository.PlubbingRepository;
 import plub.plubserver.domain.recruit.model.Recruit;
@@ -170,7 +171,7 @@ public class ReportService {
                     .accountId(reportedAccount.getId())
                     .accountEmail(reportedAccount.getEmail())
                     .accountDI(reportedAccount.getEmail().split("@")[0])
-                    .isSuspended(true)
+                    .checkSuspended(true)
                     .build();
             suspendAccount.setSuspendedDate();
             suspendAccountRepository.save(suspendAccount);
@@ -295,27 +296,36 @@ public class ReportService {
             ReportStatusMessage reportStatusMessage,
             NotificationType notificationType
     ) {
-        Report report = Report.builder()
-                .reportType(ETC)
-                .reportTarget(ReportTarget.ACCOUNT)
-                .targetId(reportedAccount.getId())
-                .reportReason(content)
-                .plubbingId(reportedAccount.getAccountPlubbingList().get(0).getPlubbing().getId())
-                .reporter(loginAccount)
-                .reportedAccount(reportedAccount)
-                .reportStatusMessage(reportStatusMessage)
-                .checkCanceled(true)
-                .build();
-        reportRepository.save(report);
+        Optional<AccountPlubbing> plubbingOpt = reportedAccount.getAccountPlubbingList().stream()
+                .filter(accountPlubbing -> accountPlubbing != null && accountPlubbing.getPlubbing() != null)
+                .findFirst();
 
-        NotifyParams params = createNotifyParams(
-                report,
-                reportStatusMessage.getReportFCMTitle(),
-                reportStatusMessage.toFCMContent(reportedAccount.getNickname()),
-                notificationType
-        );
-        notificationService.pushMessage(params);
+        if (plubbingOpt.isPresent()) {
+            AccountPlubbing accountPlubbing = plubbingOpt.get();
+            Long plubbingId = accountPlubbing.getPlubbing().getId();
+            Report report = Report.builder()
+                    .reportType(ETC)
+                    .reportTarget(ReportTarget.ACCOUNT)
+                    .targetId(reportedAccount.getId())
+                    .reportReason(content)
+                    .plubbingId(plubbingId)
+                    .reporter(loginAccount)
+                    .reportedAccount(reportedAccount)
+                    .reportStatusMessage(reportStatusMessage)
+                    .checkCanceled(true)
+                    .build();
+            reportRepository.save(report);
+
+            NotifyParams params = createNotifyParams(
+                    report,
+                    reportStatusMessage.getReportFCMTitle(),
+                    reportStatusMessage.toFCMContent(reportedAccount.getNickname()),
+                    notificationType
+            );
+            notificationService.pushMessage(params);
+        }
     }
+
 
     // 신고 취소 처리
     @Transactional
