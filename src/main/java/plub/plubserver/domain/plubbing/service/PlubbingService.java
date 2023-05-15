@@ -377,9 +377,9 @@ public class PlubbingService {
         Plubbing plubbing = getPlubbing(plubbingId);
         checkHost(plubbing);
         Account kickAccount = accountService.getAccount(accountId);
-        accountPlubbingRepository.findAllByAccountAndPlubbingAndAccountPlubbingStatusAndIsHost(kickAccount, plubbing, AccountPlubbingStatus.ACTIVE, false)
-                .orElseThrow(() -> new PlubbingException(StatusCode.NOT_MEMBER_ERROR))
-                .exitPlubbing();
+        AccountPlubbing accountPlubbing = accountPlubbingRepository.findAllByAccountAndPlubbingAndAccountPlubbingStatusAndIsHost(kickAccount, plubbing, AccountPlubbingStatus.ACTIVE, false)
+                .orElseThrow(() -> new PlubbingException(StatusCode.NOT_MEMBER_ERROR));
+        accountService.exitPlubbing(accountPlubbing);
 
         // 강퇴자에게 푸시 알림
         NotifyParams params = NotifyParams.builder()
@@ -459,9 +459,9 @@ public class PlubbingService {
     public PlubbingResponse leavePlubbing(Long plubbingId) {
         Plubbing plubbing = getPlubbing(plubbingId);
         Account account = accountService.getCurrentAccount();
-        accountPlubbingRepository.findByAccountAndPlubbing(account, plubbing)
-                .orElseThrow(() -> new PlubbingException(StatusCode.NOT_MEMBER_ERROR))
-                .exitPlubbing();
+        AccountPlubbing accountPlubbing = accountPlubbingRepository.findByAccountAndPlubbing(account, plubbing)
+                .orElseThrow(() -> new PlubbingException(StatusCode.NOT_MEMBER_ERROR));
+        accountService.exitPlubbing(accountPlubbing);
 
         // 호스트에게 푸시 알림
         NotifyParams params = NotifyParams.builder()

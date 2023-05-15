@@ -27,7 +27,10 @@ import plub.plubserver.domain.notice.model.Notice;
 import plub.plubserver.domain.notice.repository.NoticeRepository;
 import plub.plubserver.domain.plubbing.model.AccountPlubbing;
 import plub.plubserver.domain.plubbing.model.AccountPlubbingStatus;
+import plub.plubserver.domain.plubbing.model.Plubbing;
+import plub.plubserver.domain.plubbing.model.PlubbingStatus;
 import plub.plubserver.domain.plubbing.repository.AccountPlubbingRepository;
+import plub.plubserver.domain.plubbing.repository.PlubbingRepository;
 import plub.plubserver.domain.recruit.repository.AppliedAccountRepository;
 import plub.plubserver.domain.recruit.repository.BookmarkRepository;
 import plub.plubserver.domain.report.config.ReportStatusMessage;
@@ -39,6 +42,7 @@ import plub.plubserver.domain.todo.repository.TodoTimelineRepository;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.regex.Pattern;
 
 import static plub.plubserver.common.constant.GlobalConstants.NICKNAME_CHANGE_LIMIT;
@@ -74,6 +78,7 @@ public class AccountService {
     private final ArchiveRepository archiveRepository;
     private final BookmarkRepository bookmarkRepository;
     private final CalendarRepository calendarRepository;
+    private final PlubbingRepository plubbingRepository;
 
     // 회원 정보 조회
     public AccountInfoResponse getMyAccount() {
@@ -319,19 +324,50 @@ public class AccountService {
     // 회원 비활성화 설정
     @Transactional
     public AccountIdResponse inActiveAccount(Account loginAccount, boolean isInactive) {
-        LocalDateTime lastInActiveDate = loginAccount.getLastInActiveDate().plusDays(7);
-        if (!lastInActiveDate.isAfter(LocalDateTime.now())) {
-           throw new AccountException(StatusCode.ALREADY_INACTIVE_ACCOUNT);
+        LocalDateTime lastInActiveDate = loginAccount.getLastInActiveDate();
+        if (isInactive && lastInActiveDate != null && !lastInActiveDate.plusDays(7).isBefore(LocalDateTime.now())) {
+            throw new AccountException(StatusCode.ALREADY_INACTIVE_ACCOUNT);
         }
         if (isInactive) {
             // Active 된 모임 탈퇴 처리
-            accountPlubbingRepository.findAllByAccount(loginAccount, AccountPlubbingStatus.ACTIVE)
-                    .forEach(AccountPlubbing::exitPlubbing);
+            List<AccountPlubbing> activeAccountPlubbings = accountPlubbingRepository.findAllByAccount(loginAccount, AccountPlubbingStatus.ACTIVE);
+            for (AccountPlubbing activeAccountPlubbing : activeAccountPlubbings) {
+                exitPlubbing(activeAccountPlubbing);
+            }
             loginAccount.updateAccountStatus(AccountStatus.INACTIVE);
             loginAccount.updateLastInActiveDate();
+            accountRepository.save(loginAccount);
         } else {
             loginAccount.updateAccountStatus(AccountStatus.NORMAL);
+            accountRepository.save(loginAccount);
         }
         return AccountIdResponse.of(loginAccount);
+    }
+
+
+    public void exitPlubbing(AccountPlubbing accountPlubbing) {
+        checkAdmin(accountPlubbing.getPlubbing(), accountPlubbing);
+        accountPlubbing.updateAccountPlubbingStatus(AccountPlubbingStatus.EXIT);
+        accountPlubbingRepository.save(accountPlubbing);
+    }
+
+    private void checkAdmin(Plubbing plubbing, AccountPlubbing accountPlubbing) {
+        if (accountPlubbing.isHost()) {
+            accountPlubbing.changeHost();
+            accountPlubbingRepository.save(accountPlubbing);
+            accountPlubbingRepository.flush();
+
+            Optional<AccountPlubbing> first = plubbing.getAccountPlubbingList().stream()
+                    .filter(ap -> !ap.isHost() && ap.getAccountPlubbingStatus() == AccountPlubbingStatus.ACTIVE && ap.getAccount().getId() != accountPlubbing.getAccount().getId())
+                    .findFirst();
+
+            if (first.isPresent()) {
+                first.get().changeHost();
+                accountPlubbingRepository.save(accountPlubbing);
+            } else {
+                plubbing.endPlubbing(PlubbingStatus.END);
+                plubbingRepository.save(plubbing);
+            }
+        }
     }
 }
