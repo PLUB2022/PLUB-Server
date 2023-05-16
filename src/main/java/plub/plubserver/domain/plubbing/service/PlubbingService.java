@@ -242,17 +242,6 @@ public class PlubbingService {
                     .map((AppliedAccount appliedAccount)
                             -> MyProfilePlubbingResponse.of(appliedAccount.getRecruit().getPlubbing(), GUEST)).toList();
             return MyProfilePlubbingListResponse.of(myPlubbingResponses, status);
-        } else if (Objects.equals(status, AccountPlubbingStatus.ACTIVE.name())) {
-            AccountPlubbingStatus plubbingStatus = AccountPlubbingStatus.valueOf(status);
-            List<MyProfilePlubbingResponse> myPlubbingResponses = accountPlubbingRepository
-                    .findAllByAccount(currentAccount, AccountPlubbingStatus.ACTIVE)
-                    .stream()
-                    .map((AccountPlubbing accountPlubbing) -> {
-                        MyPlubbingStatus myPlubbingStatus =
-                                getMyPlubbingStatus(accountPlubbing.isHost(), plubbingStatus.name());
-                        return MyProfilePlubbingResponse.of(accountPlubbing.getPlubbing(), myPlubbingStatus);
-                    }).toList();
-
         } else {
             AccountPlubbingStatus plubbingStatus = AccountPlubbingStatus.valueOf(status);
             List<MyProfilePlubbingResponse> myPlubbingResponses = accountPlubbingRepository
@@ -260,7 +249,7 @@ public class PlubbingService {
                     .stream()
                     .map((AccountPlubbing accountPlubbing) -> {
                         MyPlubbingStatus myPlubbingStatus =
-                                getMyPlubbingStatus(accountPlubbing.isHost(), plubbingStatus.name());
+                                getMyPlubbingStatus(accountPlubbing.isHost(), accountPlubbing.getAccountPlubbingStatus().name());
                         return MyProfilePlubbingResponse.of(accountPlubbing.getPlubbing(), myPlubbingStatus);
                     }).toList();
 
@@ -270,7 +259,6 @@ public class PlubbingService {
             }
             return MyProfilePlubbingListResponse.of(myPlubbingResponses, status);
         }
-        return null;
     }
 
     public MyPlubbingStatus getMyPlubbingStatus(boolean isHost, String status) {
