@@ -38,7 +38,7 @@ public class AccountPlubbingRepositoryImpl implements AccountPlubbingRepositoryC
             return accountPlubbing.accountPlubbingStatus.eq(AccountPlubbingStatus.EXIT)
                     .or(accountPlubbing.accountPlubbingStatus.eq(AccountPlubbingStatus.END));
         } else {
-            return accountPlubbing.accountPlubbingStatus.eq(plubbingStatus);
+            return accountPlubbing.accountPlubbingStatus.eq(AccountPlubbingStatus.ACTIVE);
         }
     }
 }

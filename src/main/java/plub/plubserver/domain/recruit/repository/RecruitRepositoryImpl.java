@@ -12,6 +12,7 @@ import org.springframework.data.support.PageableExecutionUtils;
 import plub.plubserver.common.model.SortType;
 import plub.plubserver.domain.recruit.model.Recruit;
 import plub.plubserver.domain.recruit.model.RecruitSearchType;
+import plub.plubserver.domain.recruit.model.RecruitStatus;
 import plub.plubserver.util.CursorUtils;
 
 import java.util.List;
@@ -94,7 +95,12 @@ public class RecruitRepositoryImpl implements RecruitRepositoryCustom {
         return queryFactory.selectFrom(recruit)
                 .leftJoin(recruit.plubbing, plubbing)
                 .fetchJoin()
-                .where(recruit.plubbing.accountPlubbingList.any().account.id.eq(accountId))
+                .where(
+                        recruit.status.eq(RecruitStatus.RECRUITING),
+                        recruit.plubbing.curAccountNum.lt(recruit.plubbing.maxAccountNum),
+                        recruit.plubbing.accountPlubbingList.any().isHost.eq(true)
+                                .and(recruit.plubbing.accountPlubbingList.any().account.id.eq(accountId)
+                ))
                 .fetch();
     }
 }
