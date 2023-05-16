@@ -10,6 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
 import plub.plubserver.common.model.SortType;
+import plub.plubserver.domain.plubbing.model.PlubbingStatus;
 import plub.plubserver.domain.recruit.model.Recruit;
 import plub.plubserver.domain.recruit.model.RecruitSearchType;
 import plub.plubserver.domain.recruit.model.RecruitStatus;
@@ -98,6 +99,7 @@ public class RecruitRepositoryImpl implements RecruitRepositoryCustom {
                 .where(
                         recruit.status.eq(RecruitStatus.RECRUITING),
                         recruit.plubbing.curAccountNum.lt(recruit.plubbing.maxAccountNum),
+                        recruit.plubbing.status.eq(PlubbingStatus.ACTIVE),
                         recruit.plubbing.accountPlubbingList.any().isHost.eq(true)
                                 .and(recruit.plubbing.accountPlubbingList.any().account.id.eq(accountId)
                 ))
