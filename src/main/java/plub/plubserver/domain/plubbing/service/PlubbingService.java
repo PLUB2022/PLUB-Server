@@ -252,7 +252,7 @@ public class PlubbingService {
                                 getMyPlubbingStatus(accountPlubbing.isHost(), plubbingStatus.name());
                         return MyProfilePlubbingResponse.of(accountPlubbing.getPlubbing(), myPlubbingStatus);
                     }).toList();
-
+            return MyProfilePlubbingListResponse.of(myPlubbingResponses, status);
         } else {
             AccountPlubbingStatus plubbingStatus = AccountPlubbingStatus.valueOf(status);
             List<MyProfilePlubbingResponse> myPlubbingResponses = accountPlubbingRepository
@@ -270,7 +270,6 @@ public class PlubbingService {
             }
             return MyProfilePlubbingListResponse.of(myPlubbingResponses, status);
         }
-        return null;
     }
 
     public MyPlubbingStatus getMyPlubbingStatus(boolean isHost, String status) {
