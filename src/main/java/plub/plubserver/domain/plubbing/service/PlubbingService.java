@@ -243,12 +243,15 @@ public class PlubbingService {
                             -> MyProfilePlubbingResponse.of(appliedAccount.getRecruit().getPlubbing(), GUEST)).toList();
             return MyProfilePlubbingListResponse.of(myPlubbingResponses, status);
         } else if (Objects.equals(status, AccountPlubbingStatus.ACTIVE.name())) {
+            AccountPlubbingStatus plubbingStatus = AccountPlubbingStatus.valueOf(status);
             List<MyProfilePlubbingResponse> myPlubbingResponses = accountPlubbingRepository
                     .findAllByAccount(currentAccount, AccountPlubbingStatus.ACTIVE)
                     .stream()
-                    .map((AccountPlubbing accountPlubbing)
-                            -> MyProfilePlubbingResponse.of(accountPlubbing.getPlubbing(), HOST)).toList();
-            return MyProfilePlubbingListResponse.of(myPlubbingResponses, status);
+                    .map((AccountPlubbing accountPlubbing) -> {
+                        MyPlubbingStatus myPlubbingStatus =
+                                getMyPlubbingStatus(accountPlubbing.isHost(), plubbingStatus.name());
+                        return MyProfilePlubbingResponse.of(accountPlubbing.getPlubbing(), myPlubbingStatus);
+                    }).toList();
 
         } else {
             AccountPlubbingStatus plubbingStatus = AccountPlubbingStatus.valueOf(status);
@@ -267,6 +270,7 @@ public class PlubbingService {
             }
             return MyProfilePlubbingListResponse.of(myPlubbingResponses, status);
         }
+        return null;
     }
 
     public MyPlubbingStatus getMyPlubbingStatus(boolean isHost, String status) {
