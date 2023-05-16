@@ -230,8 +230,14 @@ public class PlubbingService {
     public MyProfilePlubbingListResponse getMyPlubbingByStatus(String status) {
         Account currentAccount = accountService.getCurrentAccount();
         if (Objects.equals(status, RecruitStatus.RECRUITING.name())) {
+            List<Long> accountPlubbingList =
+                    accountPlubbingRepository.findAllByAccountIdAndAccountPlubbingStatusAndIsHost(
+                            currentAccount.getId(),
+                            AccountPlubbingStatus.ACTIVE,
+                            true
+                    ).stream().map(AccountPlubbing::getId).toList();
             List<MyProfilePlubbingResponse> myPlubbingResponses = recruitRepository
-                    .findAllPlubbingRecruitByAccountId(currentAccount.getId())
+                    .findAllPlubbingRecruitByAccountId(accountPlubbingList)
                     .stream()
                     .map((Recruit recruit) -> MyProfilePlubbingResponse.of(recruit.getPlubbing(), HOST)).toList();
             return MyProfilePlubbingListResponse.of(myPlubbingResponses, status);

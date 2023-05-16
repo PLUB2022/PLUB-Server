@@ -25,6 +25,7 @@ public interface AccountPlubbingRepository extends JpaRepository<AccountPlubbing
     void deleteByPlubbingAndAccount(Plubbing plubbing, Account account);
 
     List<AccountPlubbing> findAllByPlubbingIdAndAccountPlubbingStatusAndIsHost(Long plubbingId, AccountPlubbingStatus accountPlubbingStatus, Boolean isHost);
+    List<AccountPlubbing> findAllByAccountIdAndAccountPlubbingStatusAndIsHost(Long accountId, AccountPlubbingStatus accountPlubbingStatus, Boolean isHost);
 
     Optional<AccountPlubbing> findAllByAccountAndPlubbingAndAccountPlubbingStatusAndIsHost(Account account, Plubbing plubbing, AccountPlubbingStatus active, Boolean isHost);
 
