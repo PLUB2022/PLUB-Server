@@ -60,7 +60,6 @@ public class ReportService {
         Account reportedAccount = getReportTargetAccount(request.reportTargetId(), request.reportTarget());
         plubbingRepository.findById(request.plubbingId())
                 .orElseThrow(() -> new PlubException(StatusCode.NOT_FOUND_PLUBBING));
-
         Report createReport = request.toEntity(reporter, reportedAccount, request.plubbingId());
         checkDuplicateReport(createReport);
         Report report = reportRepository.save(createReport);
@@ -119,14 +118,13 @@ public class ReportService {
     // 누적 신고 수 확인
     public Long countTarget(Report report) {
         return reportRepository
-                .countByTargetIdAndReportTypeAndCheckCanceledFalse(report.getTargetId(), report.getReportTarget());
+                .countByTargetIdAndReportTargetAndCheckCanceledFalse(report.getTargetId(), report.getReportTarget());
     }
 
     // 최근 신고 수 확인
     public Long countTargetWithRecentDateTime(Report report) {
         List<Report> reportList = reportRepository
-                .findAllByTargetIdAndReportTypeAndCheckCanceledFalse(report.getTargetId(), report.getReportTarget());
-
+                .findAllByTargetIdAndReportTargetAndCheckCanceledFalse(report.getTargetId(), report.getReportTarget());
         return reportList.stream()
                 .filter(r -> {
                     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
