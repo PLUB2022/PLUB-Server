@@ -104,7 +104,6 @@ public class AccountService {
     }
 
     public NicknameResponse isDuplicateNickname(String nickname) {
-        validateNicknameChangeLimit(getCurrentAccount());
         validateNicknameDuplication(nickname);
         return new NicknameResponse(true);
     }
@@ -139,6 +138,7 @@ public class AccountService {
 
     private void validateNicknameChangeLimit(Account account) {
         int nicknameChangeCount = accountNicknameHistoryRepository.countAllByAccount(account);
+        System.out.println("nicknameChangeCount = " + nicknameChangeCount);
         if (nicknameChangeCount >= NICKNAME_CHANGE_LIMIT) {
             throw new AccountException(StatusCode.NICKNAME_CHANGE_LIMIT);
         }
