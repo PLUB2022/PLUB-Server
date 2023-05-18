@@ -254,7 +254,7 @@ public class FeedService {
     public MyFeedListResponse getMyFeedList(Account account, Long plubbingId, Pageable pageable, Long cursorId) {
         Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
         Pageable sortedPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(Sort.Direction.DESC, "createdAt"));
-        Page<FeedCardResponse> myFeedCardList = feedRepository.findAllByPlubbingAndAccountAndVisibility(plubbing, account, true, sortedPageable, cursorId)
+        Page<FeedCardResponse> myFeedCardList = feedRepository.findAllByPlubbingAndAccountAndVisibilityAndViewType(plubbing, account, true, ViewType.NORMAL, sortedPageable, cursorId)
                 .map((Feed feed) -> FeedCardResponse.of(feed, true, true, getLikeCount(feed), getCommentCount(feed)));
         Long totalElements = CursorUtils.getTotalElements(myFeedCardList.getTotalElements(), cursorId);
         PageResponse<FeedCardResponse> response = PageResponse.ofCursor(myFeedCardList, totalElements);
