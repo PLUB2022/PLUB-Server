@@ -235,7 +235,7 @@ public class PlubbingService {
                             currentAccount.getId(),
                             AccountPlubbingStatus.ACTIVE,
                             true
-                    ).stream().map(AccountPlubbing::getId).toList();
+                    ).stream().map(accountPlubbing -> accountPlubbing.getPlubbing().getId()).toList();
             List<MyProfilePlubbingResponse> myPlubbingResponses = recruitRepository
                     .findAllPlubbingRecruitByAccountId(accountPlubbingList)
                     .stream()
