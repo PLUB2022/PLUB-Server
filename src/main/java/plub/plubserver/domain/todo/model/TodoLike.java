@@ -1,6 +1,8 @@
 package plub.plubserver.domain.todo.model;
 
 import lombok.*;
+import org.hibernate.annotations.Where;
+import plub.plubserver.common.constant.Visibility;
 import plub.plubserver.common.model.BaseEntity;
 import plub.plubserver.domain.account.model.Account;
 
@@ -11,6 +13,7 @@ import javax.persistence.*;
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
+@Where(clause = Visibility.TRUE)
 public class TodoLike extends BaseEntity {
 
     @Id

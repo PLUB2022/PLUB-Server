@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import plub.plubserver.common.dto.PageResponse;
 import plub.plubserver.common.exception.StatusCode;
+import plub.plubserver.common.model.BaseEntity;
 import plub.plubserver.domain.account.exception.AccountException;
 import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.account.repository.AccountRepository;
@@ -36,6 +37,12 @@ public class TodoService {
     private final PlubbingService plubbingService;
     private final AccountRepository accountRepository;
     private final TodoLikeRepository todoLikeRepository;
+
+
+    private Todo getTodoById(Long todoId) {
+        return todoRepository.findById(todoId)
+                .orElseThrow(() -> new TodoException(StatusCode.NOT_FOUNT_TODO));
+    }
 
     public TodoTimeline getTodoTimeline(Long todoTimelineId) {
         return todoTimelineRepository.findById(todoTimelineId).orElseThrow(
@@ -136,17 +143,30 @@ public class TodoService {
         }).orElseGet(() -> TodoTimelineResponse.ofTemp(date));
     }
 
-    // 투두 삭제
     @Transactional
     public TodoMessage deleteTodoList(Account currentAccount, Long plubbingId, Long todoId) {
         Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
         plubbingService.checkMember(currentAccount, plubbing);
-        plubbingService.getPlubbing(plubbingId);
-        Todo todo = todoRepository.findById(todoId)
-                .orElseThrow(() -> new TodoException(StatusCode.NOT_FOUNT_TODO));
-        todoRepository.delete(todo);
+
+        Todo todo = getTodoById(todoId);
+        TodoTimeline todoTimeline = todo.getTodoTimeline();
+
+        if (isLastTodoInTimeline(todoTimeline)) {
+            todoTimeline.softDelete();
+        }
+
+        todo.softDelete();
+
         return new TodoMessage("투두 삭제 성공");
     }
+
+    private boolean isLastTodoInTimeline(TodoTimeline todoTimeline) {
+        long count = todoTimeline.getTodoList().stream()
+                .filter(BaseEntity::isVisibility)
+                .count();
+        return count == 1;
+    }
+
 
     // 투두 업데이트
     @Transactional
