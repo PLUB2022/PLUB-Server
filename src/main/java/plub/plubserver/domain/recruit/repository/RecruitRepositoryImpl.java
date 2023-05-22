@@ -84,7 +84,10 @@ public class RecruitRepositoryImpl implements RecruitRepositoryCustom {
         return queryFactory.selectFrom(bookmark)
                 .leftJoin(bookmark.account, account)
                 .fetchJoin()
-                .where(bookmark.account.id.eq(accountId))
+                .where(
+                        bookmark.account.id.eq(accountId),
+                        bookmark.recruit.status.eq(RecruitStatus.RECRUITING)
+                )
                 .fetch()
                 .stream()
                 .map(it -> it.getRecruit().getId())

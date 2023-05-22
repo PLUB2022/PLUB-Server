@@ -1,15 +1,16 @@
 package plub.plubserver.domain.recruit.repository;
 
-import org.springframework.data.domain.Page;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
 import plub.plubserver.domain.recruit.model.Bookmark;
+import plub.plubserver.domain.recruit.model.RecruitStatus;
 import plub.plubserver.util.CursorUtils;
-import org.springframework.data.domain.Pageable;
 
 import static plub.plubserver.domain.recruit.model.QBookmark.bookmark;
 
@@ -24,6 +25,7 @@ public class BookmarkRepositoryImpl implements BookmarkRepositoryCustom {
         JPQLQuery<Bookmark> query = queryFactory
                 .selectFrom(bookmark)
                 .where(bookmark.account.id.eq(accountId),
+                        bookmark.recruit.status.eq(RecruitStatus.RECRUITING),
                         getCursorId(cursorId))
                 .distinct();
 
