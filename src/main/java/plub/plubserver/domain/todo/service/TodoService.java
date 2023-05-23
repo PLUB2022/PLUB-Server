@@ -263,15 +263,13 @@ public class TodoService {
             Long cursorId
     ) {
         String date = nextCursorTimelineByPlubbing(plubbing, account, cursorId);
-        Page<TodoTimelineResponse> todoTimelinePage =
+        Page<TodoTimelineResponse> timelineResponsePage =
                 todoTimelineRepository.findByAccountAndPlubbing(account, plubbing, pageable, cursorId, date)
                         .map(todoTimeline -> {
                             List<Todo> todoList = todoRepository.findAllByTodoTimelineAndPlubbing(todoTimeline, plubbing);
                             return TodoTimelineResponse.of(todoTimeline, currentAccount, todoList);
                         });
-
-        Long totalElements = todoTimelineRepository.countAllByPlubbing(plubbing);
-        return PageResponse.ofCursor(todoTimelinePage, totalElements);
+        return PageResponse.ofCursor(timelineResponsePage, timelineResponsePage.getTotalElements());
     }
 
     public String nextCursorTimelineByPlubbing(Plubbing plubbing, Account account, Long cursorId) {
@@ -307,8 +305,7 @@ public class TodoService {
                             return TodoTimelineAllResponse.of(todoTimeline, currentAccount, todoList);
                         });
 
-        Long totalElements = todoTimelineRepository.countAllByPlubbing(plubbing);
-        return PageResponse.ofCursor(timelineResponsePage, totalElements);
+        return PageResponse.ofCursor(timelineResponsePage, timelineResponsePage.getTotalElements());
     }
 
     // 회원 타임라인 날짜 조회
