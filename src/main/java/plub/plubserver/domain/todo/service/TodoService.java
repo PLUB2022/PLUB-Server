@@ -230,13 +230,14 @@ public class TodoService {
 
     // 내 타임라인 조회
     public MyTodoListResponse getMyTodoTimelinePage(
-            Account account,
+            Account currentAccount,
             Long plubbingId,
             Pageable pageable,
             Long cursorId
     ) {
         Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
-        PageResponse<TodoTimelineResponse> response = getTodoTimelinePageResponse(plubbingId, pageable, account, cursorId);
+        PageResponse<TodoTimelineResponse> response =
+                getTodoTimelinePageResponse(currentAccount, plubbing, pageable, currentAccount, cursorId);
         return MyTodoListResponse.of(plubbing, response);
     }
 
@@ -251,40 +252,30 @@ public class TodoService {
         Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
         Account account = accountRepository.findById(accountId)
                 .orElseThrow(() -> new AccountException(StatusCode.NOT_FOUND_ACCOUNT));
-        return getTodoTimelinePageResponse(plubbingId, pageable, account, cursorId);
+        return getTodoTimelinePageResponse(currentAccount, plubbing, pageable, account, cursorId);
     }
 
     private PageResponse<TodoTimelineResponse> getTodoTimelinePageResponse(
-            Long plubbingId,
+            Account currentAccount,
+            Plubbing plubbing,
             Pageable pageable,
             Account account,
             Long cursorId
     ) {
-        Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
-        plubbingService.checkMember(account, plubbing);
-
-        Long nextCursorId = cursorId;
-        if (cursorId != null && cursorId == 0) {
-            Optional<TodoTimeline> first = todoTimelineRepository.findFirstByPlubbingOrderByDateDesc(plubbing);
-            nextCursorId = first.map(TodoTimeline::getId).orElse(null);
-        }
-        String date = nextCursorId == null ? null : getTodoTimeline(nextCursorId).getDate().toString();
-
+        String date = nextCursorTimelineByPlubbing(plubbing, account, cursorId);
         Page<TodoTimelineResponse> todoTimelinePage =
                 todoTimelineRepository.findByAccountAndPlubbing(account, plubbing, pageable, cursorId, date)
                         .map(todoTimeline -> {
                             List<Todo> todoList = todoRepository.findAllByTodoTimelineAndPlubbing(todoTimeline, plubbing);
-                            return TodoTimelineResponse.of(todoTimeline, account, todoList);
+                            return TodoTimelineResponse.of(todoTimeline, currentAccount, todoList);
                         });
 
         Long totalElements = todoTimelineRepository.countAllByPlubbing(plubbing);
         return PageResponse.ofCursor(todoTimelinePage, totalElements);
     }
 
-    // 타임라인 전체 조회
-    public PageResponse<TodoTimelineAllResponse> getAllTodoList(Account currentAccount, Long plubbingId, Pageable pageable, Long cursorId) {
-        Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
-        plubbingService.checkMember(currentAccount, plubbing);
+    public String nextCursorTimelineByPlubbing(Plubbing plubbing, Account account, Long cursorId) {
+        plubbingService.checkMember(account, plubbing);
 
         Long nextCursorId = cursorId;
         if (cursorId != null && cursorId == 0) {
@@ -295,7 +286,18 @@ public class TodoService {
                 nextCursorId = first.map(TodoTimeline::getId).orElse(null);
             }
         }
-        String date = nextCursorId == null ? null : getTodoTimeline(nextCursorId).getDate().toString();
+        return nextCursorId == null ? null : getTodoTimeline(nextCursorId).getDate().toString();
+    }
+
+    // 타임라인 전체 조회
+    public PageResponse<TodoTimelineAllResponse> getAllTodoList(
+            Account currentAccount,
+            Long plubbingId,
+            Pageable pageable,
+            Long cursorId
+    ) {
+        Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
+        String date = nextCursorTimelineByPlubbing(plubbing, currentAccount, cursorId);
 
         Page<TodoTimelineAllResponse> timelineResponsePage =
                 todoTimelineRepository.findAllByPlubbing(plubbing, pageable, cursorId, date)

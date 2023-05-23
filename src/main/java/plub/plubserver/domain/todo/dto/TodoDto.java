@@ -105,24 +105,22 @@ public class TodoDto {
         public TodoTimelineResponse {
         }
 
-        public static TodoTimelineResponse of(TodoTimeline todoTimeline, Account account, List<Todo> todoList) {
+        public static TodoTimelineResponse of(TodoTimeline todoTimeline, Account currentAccount, List<Todo> todoList) {
+            boolean isAuthor = IsAuthor(currentAccount, todoTimeline.getTodoList().get(0));
 
-            List<TodoResponse> todoResponseList = todoList
-                    .stream()
-                    .map(todo -> TodoResponse.of(todo, IsAuthor(account, todo)))
+            List<TodoResponse> todoResponseList = todoList.stream()
+                    .map(todo -> TodoResponse.of(todo, IsAuthor(currentAccount, todo)))
                     .toList();
-
 
             return TodoTimelineResponse.builder()
                     .todoTimelineId(todoTimeline.getId())
                     .totalLikes(todoTimeline.getLikeTodo())
                     .date(todoTimeline.getDate())
-                    .isAuthor(IsAuthor(account, todoTimeline.getTodoList().get(0)))
-                    .isLike(IsLike(account, todoTimeline))
+                    .isAuthor(isAuthor)
+                    .isLike(IsLike(currentAccount, todoTimeline))
                     .todoList(todoResponseList)
                     .build();
         }
-
         public static TodoTimelineResponse ofTemp(LocalDate date) {
             return TodoTimelineResponse.builder()
                     .todoTimelineId(0L)
@@ -180,19 +178,19 @@ public class TodoDto {
         public TodoTimelineAllResponse {
         }
 
-        public static TodoTimelineAllResponse of(TodoTimeline todoTimeline, Account account, List<Todo> todoList) {
+        public static TodoTimelineAllResponse of(TodoTimeline todoTimeline, Account currentAccount, List<Todo> todoList) {
 
             List<TodoResponse> todoResponseList = todoList
                     .stream()
-                    .map(todo -> TodoResponse.of(todo, IsAuthor(account, todo)))
+                    .map(todo -> TodoResponse.of(todo, IsAuthor(currentAccount, todo)))
                     .toList();
 
             return TodoTimelineAllResponse.builder()
                     .accountInfo(AccountInfo.of(todoTimeline.getAccount()))
                     .todoTimelineId(todoTimeline.getId())
                     .totalLikes(todoTimeline.getLikeTodo())
-                    .isAuthor(IsAuthor(account, todoTimeline.getTodoList().get(0)))
-                    .isLike(IsLike(account, todoTimeline))
+                    .isAuthor(IsAuthor(currentAccount, todoTimeline.getTodoList().get(0)))
+                    .isLike(IsLike(currentAccount, todoTimeline))
                     .date(todoTimeline.getDate())
                     .todoList(todoResponseList)
                     .build();
