@@ -21,6 +21,7 @@ public class ArchiveRepositoryImpl implements ArchiveRepositoryCustom {
         JPQLQuery<Archive> query = queryFactory
                 .selectFrom(archive)
                 .where(archive.plubbing.id.eq(plubbingId),
+                        archive.visibility.eq(true),
                         getCursorId(cursorId))
                 .distinct();
 

@@ -59,8 +59,7 @@ public class ArchiveService {
         Page<ArchiveCardResponse> result = archiveRepository
                 .findAllByPlubbingId(plubbingId, pageable, cursorId)
                 .map(it -> ArchiveCardResponse.of(it, getAccessType(loginAccount, it)));
-        Long totalElements = archiveRepository.countAllByPlubbingId(plubbingId);
-        return PageResponse.ofCursor(result, totalElements);
+        return PageResponse.ofCursor(result, result.getTotalElements());
     }
 
     private String getAccessType(Account loginAccount, Archive archive) {

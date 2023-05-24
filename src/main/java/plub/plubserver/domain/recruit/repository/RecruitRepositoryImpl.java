@@ -37,6 +37,8 @@ public class RecruitRepositoryImpl implements RecruitRepositoryCustom {
                 .fetchJoin()
                 .leftJoin(plubbing.plubbingSubCategories, plubbingSubCategory)
                 .leftJoin(plubbingSubCategory.subCategory, subCategory)
+                .where(plubbing.status.eq(PlubbingStatus.ACTIVE),
+                        recruit.status.eq(RecruitStatus.RECRUITING))
                 .distinct();
 
         return switch (type) {
