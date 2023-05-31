@@ -489,13 +489,23 @@ public class PlubbingService {
         return PlubbingResponse.of(plubbing, isHost);
     }
 
-    public void checkMember(Account account, Plubbing plubbing) {
-        accountPlubbingRepository.findByAccountAndPlubbing(account, plubbing)
-                .orElseThrow(() -> new PlubbingException(StatusCode.NOT_MEMBER_ERROR));
+    public void checkMemberAndActive(Account account, Plubbing plubbing) {
+        checkActive(plubbing);
+        checkMember(account, plubbing);
     }
 
     public Boolean isBookmarked(Account account, Plubbing plubbing) {
         return bookmarkRepository.existsByAccountAndRecruit(account, plubbing.getRecruit());
+    }
+
+    public void checkActive(Plubbing plubbing) {
+        if (!plubbing.getStatus().equals(PlubbingStatus.ACTIVE))
+            throw new PlubbingException(StatusCode.DELETED_STATUS_PLUBBING);
+    }
+
+    public void checkMember(Account account, Plubbing plubbing) {
+        accountPlubbingRepository.findByAccountAndPlubbing(account, plubbing)
+                .orElseThrow(() -> new PlubbingException(StatusCode.NOT_MEMBER_ERROR));
     }
 
 }

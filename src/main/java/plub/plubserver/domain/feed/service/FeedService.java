@@ -56,7 +56,7 @@ public class FeedService {
     @Transactional
     public FeedIdResponse createFeed(Long plubbingId, Account account, CreateFeedRequest createFeedRequest) {
         Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
-        plubbingService.checkMember(account, plubbing);
+        plubbingService.checkMemberAndActive(account, plubbing);
         Feed feed = createFeedRequest.toEntity(plubbing, account);
         feedRepository.save(feed);
         return new FeedIdResponse(feed.getId());
@@ -64,7 +64,7 @@ public class FeedService {
 
     public PageResponse<FeedCardResponse> getFeedList(Account account, Long plubbingId, Pageable pageable, Long cursorId) {
         Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
-        plubbingService.checkMember(account, plubbing);
+        plubbingService.checkMemberAndActive(account, plubbing);
         Boolean isHost = plubbingService.isHost(account, plubbing);
         Pageable sortedPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(Sort.Direction.DESC, "createdAt"));
         Page<FeedCardResponse> feedCardList = feedRepository.findAllByPlubbingAndPinAndVisibilityCursor(plubbing, false, true, sortedPageable, cursorId)
@@ -75,7 +75,7 @@ public class FeedService {
 
     public FeedListResponse getPinedFeedList(Account account, Long plubbingId) {
         Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
-        plubbingService.checkMember(account, plubbing);
+        plubbingService.checkMemberAndActive(account, plubbing);
         Boolean isHost = plubbingService.isHost(account, plubbing);
         List<FeedCardResponse> pinedFeedCardList = feedRepository.findAllByPlubbingAndPinAndVisibility(plubbing, true, true, Sort.by(Sort.Direction.DESC, "pinedAt"))
                 .stream().map((Feed feed) -> FeedCardResponse.of(feed, isFeedAuthor(account, feed), isHost, getLikeCount(feed), getCommentCount(feed))).toList();
@@ -111,7 +111,7 @@ public class FeedService {
         plubbingService.getPlubbing(plubbingId);
         Feed feed = getFeed(feedId);
         checkFeedStatus(feed);
-        plubbingService.checkMember(account, feed.getPlubbing());
+        plubbingService.checkMemberAndActive(account, feed.getPlubbing());
         Boolean isHost = plubbingService.isHost(account, feed.getPlubbing());
         return FeedResponse.of(feed, isFeedAuthor(account, feed), isHost, isLike(account, feed), getLikeCount(feed), getCommentCount(feed));
     }
@@ -136,7 +136,7 @@ public class FeedService {
         plubbingService.getPlubbing(plubbingId);
         Feed feed = getFeed(feedId);
         checkFeedStatus(feed);
-        plubbingService.checkMember(account, feed.getPlubbing());
+        plubbingService.checkMemberAndActive(account, feed.getPlubbing());
         if (!feedLikeRepository.existsByAccountAndFeed(account, feed)) {
             feedLikeRepository.save(FeedLike.builder().feed(feed).account(account).build());
             return new FeedMessage(feedId + ", Like Success.");
@@ -174,7 +174,7 @@ public class FeedService {
     ) {
         Feed feed = getFeed(feedId);
         checkFeedStatus(feed);
-        plubbingService.checkMember(commentAuthor, feed.getPlubbing());
+        plubbingService.checkMemberAndActive(commentAuthor, feed.getPlubbing());
 
         FeedComment parentComment = null;
         if (createCommentRequest.parentCommentId() != null) {
@@ -251,10 +251,11 @@ public class FeedService {
         });
     }
 
-    public MyFeedListResponse getMyFeedList(Account account, Long plubbingId, Pageable pageable, Long cursorId) {
+    public MyFeedListResponse getMyFeedList(Account loginAccount, Long plubbingId, Pageable pageable, Long cursorId) {
         Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
+        plubbingService.checkMember(loginAccount, plubbing);
         Pageable sortedPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(Sort.Direction.DESC, "createdAt"));
-        Page<FeedCardResponse> myFeedCardList = feedRepository.findAllByPlubbingAndAccountAndVisibilityAndViewType(plubbing, account, true, ViewType.NORMAL, sortedPageable, cursorId)
+        Page<FeedCardResponse> myFeedCardList = feedRepository.findAllByPlubbingAndAccountAndVisibilityAndViewType(plubbing, loginAccount, true, ViewType.NORMAL, sortedPageable, cursorId)
                 .map((Feed feed) -> FeedCardResponse.of(feed, true, true, getLikeCount(feed), getCommentCount(feed)));
         Long totalElements = CursorUtils.getTotalElements(myFeedCardList.getTotalElements(), cursorId);
         PageResponse<FeedCardResponse> response = PageResponse.ofCursor(myFeedCardList, totalElements);

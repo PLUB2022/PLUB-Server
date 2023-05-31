@@ -49,7 +49,7 @@ public class ArchiveService {
             Long cursorId
     ) {
         Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
-        plubbingService.checkMember(account, plubbing);
+        plubbingService.checkMemberAndActive(account, plubbing);
         // 로그인한 사용자를 기반으로 액세스 타입 체크
         Account loginAccount = accountService.getCurrentAccount();
 
@@ -72,7 +72,7 @@ public class ArchiveService {
 
     public ArchiveResponse getArchive(Account loginAccount, Long plubbingId, Long archiveId) {
         Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
-        plubbingService.checkMember(loginAccount, plubbing);
+        plubbingService.checkMemberAndActive(loginAccount, plubbing);
 
         Archive archive = plubbing.getArchiveList().stream()
                 .filter(it -> it.getId().equals(archiveId))
@@ -99,7 +99,7 @@ public class ArchiveService {
     public ArchiveIdResponse createArchive(Account account, Long plubbingId, ArchiveRequest archiveRequest) {
         Account loginAccount = accountService.getAccount(account.getId());
         Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
-        plubbingService.checkMember(loginAccount, plubbing);
+        plubbingService.checkMemberAndActive(loginAccount, plubbing);
 
         int sequence = archiveRepository.findFirstByPlubbingIdOrderBySequenceDesc(plubbingId)
                 .map(Archive::getSequence)
@@ -151,7 +151,7 @@ public class ArchiveService {
     ) {
         Account loginAccount = accountService.getAccount(account.getId());
         Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
-        plubbingService.checkMember(loginAccount, plubbing);
+        plubbingService.checkMemberAndActive(loginAccount, plubbing);
 
         Archive archive = getArchive(archiveId);
         checkAuthorities(loginAccount, plubbing, archive);
@@ -176,7 +176,7 @@ public class ArchiveService {
     ) {
         Account loginAccount = accountService.getAccount(account.getId());
         Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
-        plubbingService.checkMember(loginAccount, plubbing);
+        plubbingService.checkMemberAndActive(loginAccount, plubbing);
 
         Archive archive = getArchive(archiveId);
         checkAuthorities(loginAccount, plubbing, archive);

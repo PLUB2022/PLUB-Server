@@ -105,12 +105,13 @@ public class CalendarService {
     }
 
     @Transactional
-    public CalendarIdResponse createCalendar(Account account, Long plubbingId, CreateCalendarRequest request) {
+    public CalendarIdResponse createCalendar(Account loginAccount, Long plubbingId, CreateCalendarRequest request) {
         Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
+        plubbingService.checkMemberAndActive(loginAccount, plubbing);
         CreateCalendarRequest createCalendarRequest = checkCalender(request);
         CalendarAlarmType calendarAlarmType = CalendarAlarmType.valueOf(request.alarmType());
         Calendar calendar = calendarRepository.save(
-                createCalendarRequest.toEntity(account, plubbing, calendarAlarmType)
+                createCalendarRequest.toEntity(loginAccount, plubbing, calendarAlarmType)
         );
         List<AccountPlubbing> accountPlubbingList = plubbing.getAccountPlubbingList();
         for (AccountPlubbing accountPlubbing : accountPlubbingList) {
@@ -140,11 +141,12 @@ public class CalendarService {
     }
 
     @Transactional
-    public CalendarIdResponse updateCalendar(Account account, Long plubbingId, Long calendarId, UpdateCalendarRequest updateCalendarResponse) {
+    public CalendarIdResponse updateCalendar(Account loginAccount, Long plubbingId, Long calendarId, UpdateCalendarRequest updateCalendarResponse) {
         Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
+        plubbingService.checkMemberAndActive(loginAccount, plubbing);
         Calendar calendar = calendarRepository.findById(calendarId)
                 .orElseThrow(() -> new CalendarException(StatusCode.NOT_FOUNT_CALENDAR));
-        checkCalendarRole(account, calendar);
+        checkCalendarRole(loginAccount, calendar);
         calendar.updateCalendar(updateCalendarResponse);
 
         // 멤버들에게 푸시 알림
@@ -166,7 +168,7 @@ public class CalendarService {
     @Transactional
     public CalendarMessage softDeleteCalendar(Account account, Long plubbingId, Long calendarId) {
         Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
-        plubbingService.checkMember(account, plubbing);
+        plubbingService.checkMemberAndActive(account, plubbing);
         Calendar calendar = calendarRepository.findById(calendarId)
                 .orElseThrow(() -> new CalendarException(StatusCode.NOT_FOUNT_CALENDAR));
         checkCalendarRole(account, calendar);
@@ -182,7 +184,7 @@ public class CalendarService {
             CheckAttendRequest calendarAttendRequest
     ) {
         Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
-        plubbingService.checkMember(account, plubbing);
+        plubbingService.checkMemberAndActive(account, plubbing);
         Calendar calendar = calendarRepository.findById(calendarId)
                 .orElseThrow(() -> new CalendarException(StatusCode.NOT_FOUNT_CALENDAR));
         AttendStatus attendStatus = AttendStatus.valueOf(calendarAttendRequest.attendStatus());
@@ -226,7 +228,7 @@ public class CalendarService {
 
     public CalendarAttendList getAttendList(Account currentAccount, Long plubbingId, Long calendarId) {
         Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
-        plubbingService.checkMember(currentAccount, plubbing);
+        plubbingService.checkMemberAndActive(currentAccount, plubbing);
         Calendar calendar = calendarRepository.findById(calendarId)
                 .orElseThrow(() -> new CalendarException(StatusCode.NOT_FOUNT_CALENDAR));
         List<CalendarAttend> attendList = calendarAttendRepository.findByCalendarIdOrderByAttendStatus(calendar.getId())

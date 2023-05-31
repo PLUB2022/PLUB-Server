@@ -125,8 +125,8 @@ public enum StatusCode {
     NOT_COMPLETE_TODO(400, 7010, "not complete todo."),
     ALREADY_CHECKED_TODO(400, 7020, "already checked todo."),
     ALREADY_PROOF_TODO(400, 7030, "already proof todo."),
-    NOT_FOUNT_TODO_TIMELINE(404, 7040, "not found todo timeline error."),
-    TOO_MANY_TODO(400, 7050, "too many todo error."),
+    TOO_MANY_TODO(400, 7040, "too many todo error."),
+    NOT_FOUNT_TODO_TIMELINE(404, 7050, "not found todo timeline error."),
 
     /**
      * Calender
