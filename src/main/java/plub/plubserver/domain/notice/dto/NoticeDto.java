@@ -1,7 +1,6 @@
 package plub.plubserver.domain.notice.dto;
 
 import lombok.Builder;
-import plub.plubserver.common.dto.PageResponse;
 import plub.plubserver.domain.account.dto.AccountDto.AccountInfo;
 import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.notice.model.Notice;
@@ -98,7 +97,4 @@ public class NoticeDto {
     public record NoticeMessage(Object result) {
     }
 
-    public record NoticeListResponse(PageResponse<NoticeCardResponse> noticeList){
-
-    }
 }

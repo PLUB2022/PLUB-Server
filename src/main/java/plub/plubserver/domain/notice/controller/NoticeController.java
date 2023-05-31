@@ -40,7 +40,7 @@ public class NoticeController {
 
     @ApiOperation(value = "공지 목록 조회")
     @GetMapping("/{plubbingId}/notices")
-    public ApiResponse<NoticeListResponse> getNoticeList(
+    public ApiResponse<PageResponse<NoticeCardResponse>> getNoticeList(
             @PathVariable Long plubbingId,
             @RequestParam(required = false) Long cursorId,
             @PageableDefault(size = 20) Pageable pageable

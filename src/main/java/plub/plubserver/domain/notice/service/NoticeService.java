@@ -77,7 +77,7 @@ public class NoticeService {
         });
     }
 
-    public NoticeListResponse getNoticeList(Account account, Long plubbingId, Long cursorId, Pageable pageable) {
+    public PageResponse<NoticeCardResponse> getNoticeList(Account account, Long plubbingId, Long cursorId, Pageable pageable) {
         Account currentAccount = accountService.getAccount(account.getId());
         Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
         plubbingService.checkMemberAndActive(currentAccount, plubbing);
@@ -85,7 +85,7 @@ public class NoticeService {
         Page<NoticeCardResponse> noticeCardResponses = noticeRepository.findAllByPlubbingAndVisibilityCursor(plubbing, true, sortedPageable, cursorId)
                 .map(it -> NoticeCardResponse.of(it, isNoticeAuthor(currentAccount, it)));
         Long totalElements = noticeRepository.countAllByPlubbingAndVisibility(plubbing, true);
-        return new NoticeListResponse(PageResponse.ofCursor(noticeCardResponses, totalElements));
+        return PageResponse.ofCursor(noticeCardResponses, totalElements);
     }
 
     public NoticeResponse getNotice(Account account, Long plubbingId, Long noticeId) {
