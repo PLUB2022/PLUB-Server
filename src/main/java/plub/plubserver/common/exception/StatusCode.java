@@ -145,6 +145,8 @@ public enum StatusCode {
     CANNOT_DELETED_FEED(400, 8040, "system feed cannot be deleted."),
     DELETED_STATUS_COMMENT(400, 8050, "deleted status comment error."),
     MAX_FEED_PIN(400, 8060, "max feed pin error."),
+    NOT_COMMENT_AUTHOR_ERROR(403, 8070, "not comment author error."),
+
 
     /**
      * Notice
@@ -152,6 +154,7 @@ public enum StatusCode {
     NOT_FOUND_NOTICE(404, 8500, "not found notice error."),
     NOT_NOTICE_AUTHOR_ERROR(403, 8510, "not notice author error."),
     DELETED_STATUS_NOTICE(400, 8520, "deleted status notice error."),
+
 
     ;
 

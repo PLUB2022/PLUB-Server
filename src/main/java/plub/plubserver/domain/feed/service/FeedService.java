@@ -274,7 +274,7 @@ public class FeedService {
 
     public void checkCommentAuthor(Account account, FeedComment feedComment) {
         if (!feedComment.getAccount().getId().equals(account.getId())) {
-            throw new FeedException(StatusCode.NOT_FEED_AUTHOR_ERROR);
+            throw new FeedException(StatusCode.NOT_COMMENT_AUTHOR_ERROR);
         }
     }
 
