@@ -55,7 +55,7 @@ public class AnnouncementDto {
     public record AnnouncementMessage(Object result) {
     }
 
-    public record AnnouncementListResponse(PageResponse<AnnouncementResponse> announcementList) {
+    public record AnnouncementListResponse(PageResponse<AnnouncementResponse> data) {
     }
 
 }
