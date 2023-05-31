@@ -219,11 +219,6 @@ public class NoticeService {
         });
     }
 
-    // TODO
-    public CommentIdResponse reportNoticeComment(Account account, Long plubbingId, Long noticeId, Long commentId) {
-        return new CommentIdResponse(1L);
-    }
-
     private void checkNoticeStatus(Notice notice) {
         if (!notice.isVisibility())
             throw new NoticeException(StatusCode.DELETED_STATUS_NOTICE);
