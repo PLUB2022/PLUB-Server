@@ -237,7 +237,7 @@ public class NoticeService {
     public void checkCommentAuthor(Account account, NoticeComment noticeComment) {
         checkCommentStatus(noticeComment);
         if (!noticeComment.getAccount().getId().equals(account.getId())) {
-            throw new NoticeException(StatusCode.NOT_FOUND_COMMENT);
+            throw new NoticeException(StatusCode.NOT_COMMENT_AUTHOR_ERROR);
         }
     }
 
