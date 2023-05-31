@@ -118,6 +118,9 @@ public class Plubbing extends BaseEntity {
         if (accountPlubbingList == null) accountPlubbingList = new ArrayList<>();
         accountPlubbingList.add(accountPlubbing);
     }
+    public void removeAccountPlubbing(AccountPlubbing accountPlubbing) {
+        accountPlubbingList.remove(accountPlubbing);
+    }
 
     public void addPlubbingPlace(PlubbingPlace plubbingPlace) {
         this.plubbingPlace = plubbingPlace;
@@ -234,4 +237,5 @@ public class Plubbing extends BaseEntity {
         status = PlubbingStatus.PAUSE;
         visibility = false;
     }
+
 }

@@ -348,6 +348,7 @@ public class AccountService {
     public void exitPlubbing(AccountPlubbing accountPlubbing) {
         checkAdmin(accountPlubbing.getPlubbing(), accountPlubbing);
         accountPlubbing.updateAccountPlubbingStatus(AccountPlubbingStatus.EXIT);
+        accountPlubbing.getPlubbing().removeAccountPlubbing(accountPlubbing);
         accountPlubbingRepository.save(accountPlubbing);
     }
 
