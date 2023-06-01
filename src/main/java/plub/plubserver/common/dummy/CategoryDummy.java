@@ -27,14 +27,14 @@ public class CategoryDummy {
         }
 
         // 전체 카테고리
-        categoryService.createCategory("예술", 1, "https://plub.s3.ap-northeast-2.amazonaws.com/category/art.svg");
-        categoryService.createCategory("스포츠", 2, "https://plub.s3.ap-northeast-2.amazonaws.com/category/sports.svg");
-        categoryService.createCategory("제테크/투자", 3, "https://plub.s3.ap-northeast-2.amazonaws.com/category/investment.svg");
-        categoryService.createCategory("어학", 4, "https://plub.s3.ap-northeast-2.amazonaws.com/category/language.svg");
-        categoryService.createCategory("문화", 5, "https://plub.s3.ap-northeast-2.amazonaws.com/category/culture.svg");
-        categoryService.createCategory("음식", 6, "https://plub.s3.ap-northeast-2.amazonaws.com/category/food.svg");
-        categoryService.createCategory("취업/창업", 7, "https://plub.s3.ap-northeast-2.amazonaws.com/category/work.svg");
-        categoryService.createCategory("컴퓨터", 8, "https://plub.s3.ap-northeast-2.amazonaws.com/category/computer.svg");
+        categoryService.createCategory("예술", 1, "https://plub.s3.ap-northeast-2.amazonaws.com/category/art.png");
+        categoryService.createCategory("스포츠", 2, "https://plub.s3.ap-northeast-2.amazonaws.com/category/sports.png");
+        categoryService.createCategory("제테크/투자", 3, "https://plub.s3.ap-northeast-2.amazonaws.com/category/investment.png");
+        categoryService.createCategory("어학", 4, "https://plub.s3.ap-northeast-2.amazonaws.com/category/language.png");
+        categoryService.createCategory("문화", 5, "https://plub.s3.ap-northeast-2.amazonaws.com/category/culture.png");
+        categoryService.createCategory("음식", 6, "https://plub.s3.ap-northeast-2.amazonaws.com/category/food.png");
+        categoryService.createCategory("취업/창업", 7, "https://plub.s3.ap-northeast-2.amazonaws.com/category/work.png");
+        categoryService.createCategory("컴퓨터", 8, "https://plub.s3.ap-northeast-2.amazonaws.com/category/computer.png");
 
         // 예술 세부 카테고리
         categoryService.createSubCategory("미술", 1, 1L, "https://plub.s3.ap-northeast-2.amazonaws.com/category/subCategory/art/art.jpeg");
