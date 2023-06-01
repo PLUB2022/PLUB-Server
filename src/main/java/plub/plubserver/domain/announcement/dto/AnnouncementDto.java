@@ -58,4 +58,7 @@ public class AnnouncementDto {
     public record AnnouncementListResponse(PageResponse<AnnouncementResponse> data) {
     }
 
+    public record AnnouncementDataResponse(AnnouncementResponse data) {
+    }
+
 }

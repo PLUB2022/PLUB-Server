@@ -62,10 +62,10 @@ public class AnnouncementService {
         return PageResponse.of(announcementPage);
     }
     // 공지 상세 조회
-    public AnnouncementResponse getAnnouncementDetails(Long announcementId) {
+    public AnnouncementDataResponse getAnnouncementDetails(Long announcementId) {
         Announcement announcement = announcementRepository.findById(announcementId)
                 .orElseThrow(() -> new AnnouncementException(StatusCode.NOT_FOUND_ANNOUNCEMENT));
-        return AnnouncementResponse.of(announcement);
+        return new AnnouncementDataResponse(AnnouncementResponse.of(announcement));
     }
 
     // 공지 수정
