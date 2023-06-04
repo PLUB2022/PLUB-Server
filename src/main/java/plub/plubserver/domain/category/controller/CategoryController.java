@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import plub.plubserver.common.dto.ApiResponse;
+import plub.plubserver.domain.category.dto.CategoryDto.SubCategoryImageResponse;
 import plub.plubserver.domain.category.dto.CategoryDto.AllCategoryListResponse;
 import plub.plubserver.domain.category.dto.CategoryDto.CategoryListResponse;
 import plub.plubserver.domain.category.dto.CategoryDto.SubCategoryListResponse;
@@ -38,5 +39,11 @@ public class CategoryController {
     @GetMapping("/all")
     public ApiResponse<AllCategoryListResponse> getAllCategory() {
         return success(categoryService.getAllCategory());
+    }
+
+    @ApiOperation(value = "서브 카테고리 별 기본 이미지 조회")
+    @GetMapping("/{categoryId}/sub/{subCategoryId}/images")
+    public ApiResponse<SubCategoryImageResponse> getSubCategoryImage(@PathVariable Long categoryId, @PathVariable Long subCategoryId) {
+        return success(categoryService.getSubCategoryImage(categoryId, subCategoryId));
     }
 }
