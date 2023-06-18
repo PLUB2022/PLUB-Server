@@ -98,6 +98,7 @@ public class AuthService {
         String refreshToken = signKey.refreshToken();
         String nickname = signUpRequest.nickname();
         String profileImage = signUpRequest.profileImage();
+        String phone = signUpRequest.phone();
 
         boolean agePolicy = signUpRequest.agePolicy();
         boolean personalPolicy = signUpRequest.personalPolicy();
@@ -113,7 +114,7 @@ public class AuthService {
         policyCheckList.put("marketPolicy", marketPolicy);
 
         checkDuplicationEmailAndNickName(email, nickname);
-        Account account = signUpRequest.toAccount(email, socialType, passwordEncoder);
+        Account account = signUpRequest.toAccount(email, socialType, phone, passwordEncoder);
 
         // 정책 리스트
         List<AccountPolicy> accountPolicyList = new ArrayList<>();

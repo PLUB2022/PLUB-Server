@@ -75,7 +75,8 @@ public class AuthDto {
             @ApiModelProperty(value = "관심사 선택", example = "[음악, 맛집, 뷰티, 계절스포츠]")
             List<Long> categoryList,
             @ApiModelProperty(value = "FCM 토큰", example = "f7mGlaDUTNSx5NOJ8k39bW:APA91bEogtcJPEcYrk5JGxU9GTOB1vq38oI3Jkntu0RgIjSe5pjfr1tAS_oD75ihUBg8Fr2bJ-sy9b_eIzWlbb26MdcpM_dqGVEYzXoVjgXi3P1FlsgpzxbjKPq40iX4Vnxil3GH-7-b")
-            String fcmToken
+            String fcmToken,
+            String phone
     ) {
         @Builder
         public SignUpRequest {
@@ -91,7 +92,7 @@ public class AuthDto {
             } else throw new AccountException(StatusCode.SOCIAL_TYPE_ERROR);
         }
 
-        public Account toAccount(String email, String socialType, PasswordEncoder passwordEncoder) {
+        public Account toAccount(String email, String socialType, String phone, PasswordEncoder passwordEncoder) {
             return Account.builder()
                     .email(email)
                     .password(passwordEncoder.encode(email + "plub"))
@@ -99,6 +100,7 @@ public class AuthDto {
                     .nickname(nickname)
                     .birthday(birthday)
                     .gender(gender)
+                    .phone(phone)
                     .introduce(introduce)
                     .role(Role.ROLE_USER)
                     .accountStatus(AccountStatus.NORMAL)
