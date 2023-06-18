@@ -1,9 +1,11 @@
 package plub.plubserver.domain.notice.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.notice.model.Notice;
 import plub.plubserver.domain.plubbing.model.Plubbing;
 
+import java.util.List;
 import java.util.Optional;
 
 
@@ -12,5 +14,7 @@ public interface NoticeRepository extends JpaRepository<Notice, Long>, NoticeRep
     Long countAllByPlubbingAndVisibility(Plubbing plubbing, boolean visibility);
 
     Optional<Notice> findByIdAndVisibility(Long noticeId, boolean visibility);
+
+    List<Notice> findAllByAccount(Account account);
 }
 

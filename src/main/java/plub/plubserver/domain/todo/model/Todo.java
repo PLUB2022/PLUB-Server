@@ -2,7 +2,9 @@ package plub.plubserver.domain.todo.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
+import org.hibernate.annotations.Where;
 import org.springframework.format.annotation.DateTimeFormat;
+import plub.plubserver.common.constant.Visibility;
 import plub.plubserver.common.model.BaseEntity;
 import plub.plubserver.domain.account.model.Account;
 
@@ -15,6 +17,7 @@ import java.time.LocalDateTime;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Where(clause = Visibility.TRUE)
 public class Todo extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

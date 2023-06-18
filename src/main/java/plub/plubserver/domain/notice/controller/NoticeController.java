@@ -133,15 +133,4 @@ public class NoticeController {
         Account loginAccount = accountService.getCurrentAccount();
         return success(noticeService.deleteNoticeComment(loginAccount, plubbingId, noticeId, commentId));
     }
-
-    @ApiOperation(value = "공지 댓글 신고")
-    @PostMapping("/{plubbingId}/notices/{noticeId}/comments/{commentId}/report")
-    public ApiResponse<CommentIdResponse> reportNoticeComment(
-            @PathVariable Long plubbingId,
-            @PathVariable Long noticeId,
-            @PathVariable Long commentId
-    ) {
-        Account loginAccount = accountService.getCurrentAccount();
-        return success(noticeService.reportNoticeComment(loginAccount, plubbingId, noticeId, commentId));
-    }
 }

@@ -1,6 +1,7 @@
 package plub.plubserver.domain.announcement.dto;
 
 import lombok.Builder;
+import plub.plubserver.common.dto.PageResponse;
 import plub.plubserver.domain.announcement.model.Announcement;
 
 public class AnnouncementDto {
@@ -52,6 +53,12 @@ public class AnnouncementDto {
     }
 
     public record AnnouncementMessage(Object result) {
+    }
+
+    public record AnnouncementListResponse(PageResponse<AnnouncementResponse> data) {
+    }
+
+    public record AnnouncementDataResponse(AnnouncementResponse data) {
     }
 
 }

@@ -38,7 +38,7 @@ public class AnnouncementController {
 
     @ApiOperation(value = "앱 공지사항 전체 조회")
     @GetMapping("")
-    public PageResponse<AnnouncementResponse> getAnnouncementList(
+    public AnnouncementListResponse getAnnouncementList(
             @PageableDefault(direction = Sort.Direction.DESC) Pageable pageable,
             @RequestParam(required = false) Long cursorId
     ) {
@@ -56,7 +56,7 @@ public class AnnouncementController {
 
     @ApiOperation(value = "앱 공지사항 상세 조회")
     @GetMapping("/{announcementId}")
-    public AnnouncementResponse getAnnouncement(
+    public AnnouncementDataResponse getAnnouncement(
             @PathVariable Long announcementId
     ) {
         return announcementService.getAnnouncementDetails(announcementId);

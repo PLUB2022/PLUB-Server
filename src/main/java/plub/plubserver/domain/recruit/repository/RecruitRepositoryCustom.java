@@ -19,7 +19,7 @@ public interface RecruitRepositoryCustom {
 
     List<Long> findAllBookmarkedRecruitIdByAccountId(Long accountId);
 
-    List<Recruit> findAllPlubbingRecruitByAccountId(Long accountId);
+    List<Recruit> findAllPlubbingRecruitByAccountId(List<Long> plubIdList);
 
     Long countAllBySearch(RecruitSearchType type, String keyword);
 }

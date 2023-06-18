@@ -178,7 +178,6 @@ public class AccountDto {
         }
     }
 
-
     public record SmsRequest(
         String to
     ) {
@@ -221,7 +220,14 @@ public class AccountDto {
     ) {
     }
 
-    public record SmsMessage(Object result) {
+    public record SmsMessage(Object result) {}
+  
+    public record LogoutResponse(
+            boolean isLogout
+    ) {
+        public static LogoutResponse of(boolean isLogout) {
+            return new LogoutResponse(!isLogout);
+        }
     }
 }
 

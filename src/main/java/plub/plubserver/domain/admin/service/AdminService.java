@@ -90,4 +90,10 @@ public class AdminService {
                 .toList();
     }
 
+    public AccountPlubbingTotalCountResponse getAccountPlubbingTotalCount() {
+        Long totalAccounts = accountRepository.count();
+        Long totalPlubbings = plubbingRepository.count();
+        return new AccountPlubbingTotalCountResponse(totalAccounts, totalPlubbings);
+    }
+
 }

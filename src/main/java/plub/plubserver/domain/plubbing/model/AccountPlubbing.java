@@ -43,7 +43,7 @@ public class AccountPlubbing extends BaseEntity {
         this.isHost = !this.isHost;
     }
 
-    public void exitPlubbing() {
-        this.accountPlubbingStatus = AccountPlubbingStatus.EXIT;
+    public void updateAccountPlubbingStatus(AccountPlubbingStatus accountPlubbingStatus) {
+        this.accountPlubbingStatus = accountPlubbingStatus;
     }
 }

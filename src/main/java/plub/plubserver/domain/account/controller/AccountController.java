@@ -105,7 +105,7 @@ public class AccountController {
     }
 
     @ApiOperation(value = "회원 상태 변경")
-    @PutMapping("/{accountId}/changeStatus")
+    @PutMapping("/{accountId}/update-status")
     public ApiResponse<AccountIdResponse> updateAccountStatus(
             @PathVariable Long accountId,
             @RequestParam String status
@@ -115,7 +115,7 @@ public class AccountController {
     }
 
     @ApiOperation(value = "회원 영구 정지 해제")
-    @PutMapping("/{accountId}/unSuspend")
+    @PutMapping("/{accountId}/unsuspend")
     public ApiResponse<AccountIdResponse> unSuspendAccount(
             @PathVariable Long accountId
     ) {
@@ -135,6 +135,15 @@ public class AccountController {
     public ApiResponse<SmsMessage> certifySms(@RequestBody CertifySmsRequest certifySmsRequest){
         SmsMessage smsMessage = accountService.certifySms(certifySmsRequest);
         return success(smsMessage);
+    }
+
+    @ApiOperation(value = "회원 비활성화 설정/해제")
+    @PutMapping("/inactive")
+    public ApiResponse<AccountIdResponse> inActiveAccount(
+            @RequestParam(value = "inactive", defaultValue = "true") boolean isInactive
+    ) {
+        Account currentAccount = accountService.getCurrentAccount();
+        return success(accountService.inActiveAccount(currentAccount, isInactive));
     }
 }
 

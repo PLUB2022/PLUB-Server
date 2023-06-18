@@ -6,11 +6,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import plub.plubserver.common.dto.ApiResponse;
 import plub.plubserver.config.jwt.JwtDto;
+import plub.plubserver.domain.account.dto.AccountDto;
 import plub.plubserver.domain.account.service.AuthService;
 
 import javax.validation.Valid;
 
 import static plub.plubserver.common.dto.ApiResponse.success;
+import static plub.plubserver.domain.account.dto.AccountDto.*;
 import static plub.plubserver.domain.account.dto.AuthDto.*;
 
 @RestController
@@ -43,7 +45,7 @@ public class AuthController {
 
     @ApiOperation(value = "로그아웃")
     @GetMapping("/logout")
-    public ApiResponse<String> logout() {
+    public ApiResponse<LogoutResponse> logout() {
         return success(authService.logout());
     }
 

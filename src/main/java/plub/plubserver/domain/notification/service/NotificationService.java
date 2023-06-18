@@ -79,8 +79,12 @@ public class NotificationService {
         );
     }
 
+    @Transactional
     public NotificationResponse readNotification(Long notificationId, Account account) {
-        Notification notification = account.getNotifications().stream()
+        Account loginAccount = accountRepository.findById(account.getId()).orElseThrow(
+                () -> new NotificationException(StatusCode.NOT_FOUND_ACCOUNT)
+        );
+        Notification notification = loginAccount.getNotifications().stream()
                 .filter(n -> n.getId().equals(notificationId))
                 .findFirst()
                 .orElseThrow(() -> new NotificationException(StatusCode.NOT_FOUND_NOTIFICATION));

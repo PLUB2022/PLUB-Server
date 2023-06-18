@@ -1,5 +1,6 @@
 package plub.plubserver.domain.plubbing.repository;
 
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -25,10 +26,19 @@ public class AccountPlubbingRepositoryImpl implements AccountPlubbingRepositoryC
                 .selectFrom(accountPlubbing)
                 .where(
                         accountPlubbing.account.eq(currentAccount),
-                        accountPlubbing.accountPlubbingStatus.eq(plubbingStatus)
+                        eqPlubbingStatus(plubbingStatus)
                 )
                 .orderBy(accountPlubbing.id.desc());
-
         return query.fetch();
+    }
+
+    // plubbingStatus가 END 일때 EXIT 랑 END랑 합치기
+    public BooleanExpression eqPlubbingStatus(AccountPlubbingStatus plubbingStatus) {
+        if (plubbingStatus.equals(AccountPlubbingStatus.END)) {
+            return accountPlubbing.accountPlubbingStatus.eq(AccountPlubbingStatus.EXIT)
+                    .or(accountPlubbing.accountPlubbingStatus.eq(AccountPlubbingStatus.END));
+        } else {
+            return accountPlubbing.accountPlubbingStatus.eq(AccountPlubbingStatus.ACTIVE);
+        }
     }
 }

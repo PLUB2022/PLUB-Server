@@ -20,7 +20,6 @@ import plub.plubserver.domain.feed.model.ViewType;
 import plub.plubserver.domain.feed.repository.FeedCommentRepository;
 import plub.plubserver.domain.feed.repository.FeedLikeRepository;
 import plub.plubserver.domain.feed.repository.FeedRepository;
-import plub.plubserver.domain.notification.model.NotificationType;
 import plub.plubserver.domain.notification.service.NotificationService;
 import plub.plubserver.domain.plubbing.model.Plubbing;
 import plub.plubserver.domain.plubbing.service.PlubbingService;
@@ -57,7 +56,7 @@ public class FeedService {
     @Transactional
     public FeedIdResponse createFeed(Long plubbingId, Account account, CreateFeedRequest createFeedRequest) {
         Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
-        plubbingService.checkMember(account, plubbing);
+        plubbingService.checkMemberAndActive(account, plubbing);
         Feed feed = createFeedRequest.toEntity(plubbing, account);
         feedRepository.save(feed);
         return new FeedIdResponse(feed.getId());
@@ -65,7 +64,7 @@ public class FeedService {
 
     public PageResponse<FeedCardResponse> getFeedList(Account account, Long plubbingId, Pageable pageable, Long cursorId) {
         Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
-        plubbingService.checkMember(account, plubbing);
+        plubbingService.checkMemberAndActive(account, plubbing);
         Boolean isHost = plubbingService.isHost(account, plubbing);
         Pageable sortedPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(Sort.Direction.DESC, "createdAt"));
         Page<FeedCardResponse> feedCardList = feedRepository.findAllByPlubbingAndPinAndVisibilityCursor(plubbing, false, true, sortedPageable, cursorId)
@@ -76,7 +75,7 @@ public class FeedService {
 
     public FeedListResponse getPinedFeedList(Account account, Long plubbingId) {
         Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
-        plubbingService.checkMember(account, plubbing);
+        plubbingService.checkMemberAndActive(account, plubbing);
         Boolean isHost = plubbingService.isHost(account, plubbing);
         List<FeedCardResponse> pinedFeedCardList = feedRepository.findAllByPlubbingAndPinAndVisibility(plubbing, true, true, Sort.by(Sort.Direction.DESC, "pinedAt"))
                 .stream().map((Feed feed) -> FeedCardResponse.of(feed, isFeedAuthor(account, feed), isHost, getLikeCount(feed), getCommentCount(feed))).toList();
@@ -112,7 +111,7 @@ public class FeedService {
         plubbingService.getPlubbing(plubbingId);
         Feed feed = getFeed(feedId);
         checkFeedStatus(feed);
-        plubbingService.checkMember(account, feed.getPlubbing());
+        plubbingService.checkMemberAndActive(account, feed.getPlubbing());
         Boolean isHost = plubbingService.isHost(account, feed.getPlubbing());
         return FeedResponse.of(feed, isFeedAuthor(account, feed), isHost, isLike(account, feed), getLikeCount(feed), getCommentCount(feed));
     }
@@ -127,16 +126,8 @@ public class FeedService {
         plubbingService.checkHost(account, feed.getPlubbing());
         feed.pin();
 
-        // 핀된 게시글 사용자에게 알림
-        NotifyParams params = NotifyParams.builder()
-                .receiver(feed.getAccount())
-                .type(NotificationType.PINNED_FEED)
-                .redirectTargetId(feed.getId())
-                .title(feed.getPlubbing().getName())
-                .content("호스트가 " + feed.getTitle() + "을 클립보드에 고정했어요.\uD83D\uDE03") // 웃는 이모지
-                .build();
-        notificationService.pushMessage(params);
-
+        // 핀된 게시글 사용자에게 푸시 알림
+        notificationService.pushMessage(NotifyParams.ofPinFeed(feed));
         return new FeedIdResponse(feedId);
     }
 
@@ -145,7 +136,7 @@ public class FeedService {
         plubbingService.getPlubbing(plubbingId);
         Feed feed = getFeed(feedId);
         checkFeedStatus(feed);
-        plubbingService.checkMember(account, feed.getPlubbing());
+        plubbingService.checkMemberAndActive(account, feed.getPlubbing());
         if (!feedLikeRepository.existsByAccountAndFeed(account, feed)) {
             feedLikeRepository.save(FeedLike.builder().feed(feed).account(account).build());
             return new FeedMessage(feedId + ", Like Success.");
@@ -183,7 +174,7 @@ public class FeedService {
     ) {
         Feed feed = getFeed(feedId);
         checkFeedStatus(feed);
-        plubbingService.checkMember(commentAuthor, feed.getPlubbing());
+        plubbingService.checkMemberAndActive(commentAuthor, feed.getPlubbing());
 
         FeedComment parentComment = null;
         if (createCommentRequest.parentCommentId() != null) {
@@ -206,27 +197,17 @@ public class FeedService {
             feedCommentRepository.save(feedComment);
 
             // 대댓글 주인에게 푸시 알림 발송
-            params = NotifyParams.builder()
-                    .receiver(parentComment.getAccount())
-                    .type(NotificationType.CREATE_FEED_COMMENT_COMMENT)
-                    .redirectTargetId(feed.getId())
-                    .title(feed.getPlubbing().getName())
-                    .content(commentAuthor.getNickname() + " 님이 " + parentComment.getAccount().getNickname() + " 님의 댓글에 댓글을 남겼어요\n : " + feedComment.getContent())
-                    .build();
+            params = NotifyParams.ofCreateFeedCommentComment(
+                    commentAuthor, feed, parentComment, feedComment
+            );
 
         } else { // 댓글을 다는 경우
             feedComment.setCommentGroupId(feedComment.getId());
-
             // 작성자에게 푸시 알림 (단, 게시글 작성자가 자신의 글에 댓글을 달면 알림 발송 X)
             Account feedAuthor = feed.getAccount();
-
-            params = NotifyParams.builder()
-                    .receiver(feedAuthor)
-                    .type(NotificationType.CREATE_FEED_COMMENT)
-                    .redirectTargetId(feed.getId())
-                    .title(feed.getPlubbing().getName())
-                    .content(commentAuthor.getNickname() + " 님이 " + feedAuthor.getNickname() + " 님의 게시글에 댓글을 남겼어요\n : " + feedComment.getContent())
-                    .build();
+            params = NotifyParams.ofCreateFeedComment(
+                    feedAuthor, commentAuthor, feed, feedComment
+            );
         }
         notificationService.pushMessage(params);
         return FeedCommentResponse.of(feedComment, true, isFeedAuthor(commentAuthor, feed), isAuthorComment(feedComment));
@@ -270,10 +251,11 @@ public class FeedService {
         });
     }
 
-    public MyFeedListResponse getMyFeedList(Account account, Long plubbingId, Pageable pageable, Long cursorId) {
+    public MyFeedListResponse getMyFeedList(Account loginAccount, Long plubbingId, Pageable pageable, Long cursorId) {
         Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
+        plubbingService.checkMember(loginAccount, plubbing);
         Pageable sortedPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(Sort.Direction.DESC, "createdAt"));
-        Page<FeedCardResponse> myFeedCardList = feedRepository.findAllByPlubbingAndAccountAndVisibility(plubbing, account, true, sortedPageable, cursorId)
+        Page<FeedCardResponse> myFeedCardList = feedRepository.findAllByPlubbingAndAccountAndVisibilityAndViewType(plubbing, loginAccount, true, ViewType.NORMAL, sortedPageable, cursorId)
                 .map((Feed feed) -> FeedCardResponse.of(feed, true, true, getLikeCount(feed), getCommentCount(feed)));
         Long totalElements = CursorUtils.getTotalElements(myFeedCardList.getTotalElements(), cursorId);
         PageResponse<FeedCardResponse> response = PageResponse.ofCursor(myFeedCardList, totalElements);
@@ -292,7 +274,7 @@ public class FeedService {
 
     public void checkCommentAuthor(Account account, FeedComment feedComment) {
         if (!feedComment.getAccount().getId().equals(account.getId())) {
-            throw new FeedException(StatusCode.NOT_FEED_AUTHOR_ERROR);
+            throw new FeedException(StatusCode.NOT_COMMENT_AUTHOR_ERROR);
         }
     }
 

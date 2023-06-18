@@ -80,7 +80,7 @@ public class NoticeService {
     public PageResponse<NoticeCardResponse> getNoticeList(Account account, Long plubbingId, Long cursorId, Pageable pageable) {
         Account currentAccount = accountService.getAccount(account.getId());
         Plubbing plubbing = plubbingService.getPlubbing(plubbingId);
-        plubbingService.checkMember(currentAccount, plubbing);
+        plubbingService.checkMemberAndActive(currentAccount, plubbing);
         Pageable sortedPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(Sort.Direction.DESC, "createdAt"));
         Page<NoticeCardResponse> noticeCardResponses = noticeRepository.findAllByPlubbingAndVisibilityCursor(plubbing, true, sortedPageable, cursorId)
                 .map(it -> NoticeCardResponse.of(it, isNoticeAuthor(currentAccount, it)));
@@ -93,7 +93,7 @@ public class NoticeService {
         Account currentAccount = accountService.getAccount(account.getId());
         Notice notice = getNotice(noticeId);
         checkNoticeStatus(notice);
-        plubbingService.checkMember(currentAccount, notice.getPlubbing());
+        plubbingService.checkMemberAndActive(currentAccount, notice.getPlubbing());
         return NoticeResponse.of(notice, isNoticeAuthor(currentAccount, notice), getLikeCount(notice), getCommentCount(notice));
     }
 
@@ -121,7 +121,7 @@ public class NoticeService {
         Account currentAccount = accountService.getAccount(account.getId());
         Notice notice = getNotice(noticeId);
         checkNoticeStatus(notice);
-        plubbingService.checkMember(currentAccount, notice.getPlubbing());
+        plubbingService.checkMemberAndActive(currentAccount, notice.getPlubbing());
         if (!noticeLikeRepository.existsByAccountAndNotice(currentAccount, notice)) {
             noticeLikeRepository.save(NoticeLike.builder().notice(notice).account(currentAccount).build());
             return new NoticeMessage(noticeId + ", Like Success.");
@@ -135,7 +135,7 @@ public class NoticeService {
         plubbingService.getPlubbing(plubbingId);
         Account currentAccount = accountService.getAccount(account.getId());
         Notice notice = getNotice(noticeId);
-        plubbingService.checkMember(account, notice.getPlubbing());
+        plubbingService.checkMemberAndActive(account, notice.getPlubbing());
         Long nextCursorId = cursorId;
         if (cursorId != null && cursorId == 0) {
             Optional<NoticeComment> first = noticeCommentRepository.findFirstByVisibilityAndNoticeId(true, noticeId);
@@ -156,7 +156,7 @@ public class NoticeService {
         Account currentAccount = accountService.getAccount(account.getId());
         Notice notice = getNotice(noticeId);
         checkNoticeStatus(notice);
-        plubbingService.checkMember(currentAccount, notice.getPlubbing());
+        plubbingService.checkMemberAndActive(currentAccount, notice.getPlubbing());
 
         NoticeComment parentComment = null;
         if (createCommentRequest.parentCommentId() != null) {
@@ -219,11 +219,6 @@ public class NoticeService {
         });
     }
 
-    // TODO
-    public CommentIdResponse reportNoticeComment(Account account, Long plubbingId, Long noticeId, Long commentId) {
-        return new CommentIdResponse(1L);
-    }
-
     private void checkNoticeStatus(Notice notice) {
         if (!notice.isVisibility())
             throw new NoticeException(StatusCode.DELETED_STATUS_NOTICE);
@@ -237,7 +232,7 @@ public class NoticeService {
     public void checkCommentAuthor(Account account, NoticeComment noticeComment) {
         checkCommentStatus(noticeComment);
         if (!noticeComment.getAccount().getId().equals(account.getId())) {
-            throw new NoticeException(StatusCode.NOT_FOUND_COMMENT);
+            throw new NoticeException(StatusCode.NOT_COMMENT_AUTHOR_ERROR);
         }
     }
 

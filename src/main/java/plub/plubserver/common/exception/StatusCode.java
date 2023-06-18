@@ -19,7 +19,8 @@ public enum StatusCode {
     PAUSED_ACCOUNT(400, 9070, "paused account error."),
     BANNED_ACCOUNT(400, 9080, "banned account error."),
     PERMANENTLY_BANNED_ACCOUNT(400, 9090, "permanently banned account error."),
-
+    INACTIVE_ACCOUNT(400, 9100, "inactive account error."),
+    DORMANT_ACCOUNT(400, 9110, "dormant account error."),
 
     /**
      * Account
@@ -33,9 +34,10 @@ public enum StatusCode {
     SELF_REPORT_ERROR(400, 2060, "self report error."),
     SUSPENDED_ACCOUNT(400, 2070, "suspended account error."),
     NICKNAME_CHANGE_LIMIT(400, 2080, "nickname change limit error."),
-    NOT_FOUND_SMS_KEY(404, 2090, "not found sms key error."),
-    INVALID_SMS_KEY(400, 2100, "invalid sms key error."),
-
+    ALREADY_INACTIVE_ACCOUNT(400, 2090, "already inactive account error."),
+    NOT_FOUND_SMS_KEY(404, 2100, "not found sms key error."),
+    INVALID_SMS_KEY(400, 2110, "invalid sms key error."),
+  
     /**
      * Auth
      */
@@ -116,6 +118,7 @@ public enum StatusCode {
     NOT_FOUND_RECRUIT(404, 6130, "not found recruit error."),
     ALREADY_DONE_RECRUIT(400, 6140, "this recruit is already done."),
     MAX_PLUBBING_LIMIT_OVER(400, 6150, "max active plubbing limit is 3."),
+    PULL_UP_LIMIT_OVER(400, 6160, "pull up limit is 2."),
 
     /**
      * Todo
@@ -124,8 +127,8 @@ public enum StatusCode {
     NOT_COMPLETE_TODO(400, 7010, "not complete todo."),
     ALREADY_CHECKED_TODO(400, 7020, "already checked todo."),
     ALREADY_PROOF_TODO(400, 7030, "already proof todo."),
-    NOT_FOUNT_TODO_TIMELINE(404, 7040, "not found todo timeline error."),
-    TOO_MANY_TODO(400, 7050, "too many todo error."),
+    TOO_MANY_TODO(400, 7040, "too many todo error."),
+    NOT_FOUNT_TODO_TIMELINE(404, 7050, "not found todo timeline error."),
 
     /**
      * Calender
@@ -144,6 +147,8 @@ public enum StatusCode {
     CANNOT_DELETED_FEED(400, 8040, "system feed cannot be deleted."),
     DELETED_STATUS_COMMENT(400, 8050, "deleted status comment error."),
     MAX_FEED_PIN(400, 8060, "max feed pin error."),
+    NOT_COMMENT_AUTHOR_ERROR(403, 8070, "not comment author error."),
+
 
     /**
      * Notice
@@ -151,6 +156,7 @@ public enum StatusCode {
     NOT_FOUND_NOTICE(404, 8500, "not found notice error."),
     NOT_NOTICE_AUTHOR_ERROR(403, 8510, "not notice author error."),
     DELETED_STATUS_NOTICE(400, 8520, "deleted status notice error."),
+
 
     ;
 

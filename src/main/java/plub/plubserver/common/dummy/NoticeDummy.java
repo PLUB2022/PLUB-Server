@@ -15,7 +15,7 @@ import javax.annotation.PostConstruct;
 
 @Slf4j
 @Component("noticeDummy")
-@DependsOn("calendarDummy")
+@DependsOn("todoDummy")
 @RequiredArgsConstructor
 public class NoticeDummy {
     private final NoticeService noticeService;
@@ -25,7 +25,7 @@ public class NoticeDummy {
     @PostConstruct
     public void init() {
         if (noticeRepository.count() > 0) {
-            log.info("[7] 공지가 존재하여 더미를 생성하지 않았습니다.");
+            log.info("[6] 공지가 존재하여 더미를 생성하지 않았습니다.");
             return;
         }
 

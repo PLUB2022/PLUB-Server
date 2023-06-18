@@ -68,6 +68,10 @@ public class Account extends BaseEntity {
     private LocalDateTime pausedStartDate;
     private LocalDateTime pausedEndDate;
 
+    private LocalDateTime lastInActiveDate;
+
+    private int reportCount;
+
     // 회원(1) - 차단 사용자(다)
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<BanAccount> bannedAccounts = new ArrayList<>();
@@ -251,5 +255,31 @@ public class Account extends BaseEntity {
     public void setPausedDate() {
         this.pausedStartDate = LocalDateTime.now();
         this.pausedEndDate = LocalDateTime.now().plusMonths(1);
+    }
+
+    public void deletedAccount() {
+        this.accountStatus = AccountStatus.DELETED;
+        this.email = null;
+        this.password = null;
+        this.nickname = null;
+        this.profileImage = null;
+        this.introduce = null;
+        this.birthday = null;
+        this.gender = null;
+        this.age = 0;
+        this.phone = null;
+        this.socialType = null;
+    }
+
+    public void updateLastInActiveDate() {
+        this.lastInActiveDate = LocalDateTime.now();
+    }
+
+    public void plusReportCount() {
+        this.reportCount++;
+    }
+
+    public void minusReportCount() {
+        if (this.reportCount > 0) this.reportCount--;
     }
 }

@@ -10,8 +10,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
 import plub.plubserver.common.model.SortType;
+import plub.plubserver.domain.plubbing.model.PlubbingStatus;
 import plub.plubserver.domain.recruit.model.Recruit;
 import plub.plubserver.domain.recruit.model.RecruitSearchType;
+import plub.plubserver.domain.recruit.model.RecruitStatus;
 import plub.plubserver.util.CursorUtils;
 
 import java.util.List;
@@ -35,6 +37,8 @@ public class RecruitRepositoryImpl implements RecruitRepositoryCustom {
                 .fetchJoin()
                 .leftJoin(plubbing.plubbingSubCategories, plubbingSubCategory)
                 .leftJoin(plubbingSubCategory.subCategory, subCategory)
+                .where(plubbing.status.eq(PlubbingStatus.ACTIVE),
+                        recruit.status.eq(RecruitStatus.RECRUITING))
                 .distinct();
 
         return switch (type) {
@@ -82,7 +86,10 @@ public class RecruitRepositoryImpl implements RecruitRepositoryCustom {
         return queryFactory.selectFrom(bookmark)
                 .leftJoin(bookmark.account, account)
                 .fetchJoin()
-                .where(bookmark.account.id.eq(accountId))
+                .where(
+                        bookmark.account.id.eq(accountId),
+                        bookmark.recruit.status.eq(RecruitStatus.RECRUITING)
+                )
                 .fetch()
                 .stream()
                 .map(it -> it.getRecruit().getId())
@@ -90,11 +97,16 @@ public class RecruitRepositoryImpl implements RecruitRepositoryCustom {
     }
 
     @Override
-    public List<Recruit> findAllPlubbingRecruitByAccountId(Long accountId) {
+    public List<Recruit> findAllPlubbingRecruitByAccountId(List<Long> plubbingIdList) {
         return queryFactory.selectFrom(recruit)
                 .leftJoin(recruit.plubbing, plubbing)
                 .fetchJoin()
-                .where(recruit.plubbing.accountPlubbingList.any().account.id.eq(accountId))
+                .where(
+                        recruit.plubbing.id.in(plubbingIdList),
+                        recruit.status.eq(RecruitStatus.RECRUITING),
+                        recruit.plubbing.curAccountNum.lt(recruit.plubbing.maxAccountNum),
+                        recruit.plubbing.status.eq(PlubbingStatus.ACTIVE)
+                )
                 .fetch();
     }
 }
