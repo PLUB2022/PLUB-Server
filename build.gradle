@@ -82,7 +82,9 @@ dependencies {
 	// jasypt
 	implementation 'com.github.ulisesbocchio:jasypt-spring-boot-starter:3.0.4'
 
-
+	// ncp
+	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+	implementation group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.13'
 }
 
 tasks.named('test') {

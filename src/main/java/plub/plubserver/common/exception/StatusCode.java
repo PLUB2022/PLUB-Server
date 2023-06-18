@@ -35,7 +35,9 @@ public enum StatusCode {
     SUSPENDED_ACCOUNT(400, 2070, "suspended account error."),
     NICKNAME_CHANGE_LIMIT(400, 2080, "nickname change limit error."),
     ALREADY_INACTIVE_ACCOUNT(400, 2090, "already inactive account error."),
-
+    NOT_FOUND_SMS_KEY(404, 2100, "not found sms key error."),
+    INVALID_SMS_KEY(400, 2110, "invalid sms key error."),
+  
     /**
      * Auth
      */

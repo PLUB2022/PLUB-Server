@@ -1,5 +1,6 @@
 package plub.plubserver.domain.account.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
@@ -11,6 +12,11 @@ import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.account.service.AccountService;
 
 import javax.validation.Valid;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URISyntaxException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 
 import static plub.plubserver.common.dto.ApiResponse.success;
 import static plub.plubserver.domain.account.dto.AccountDto.*;
@@ -115,6 +121,20 @@ public class AccountController {
     ) {
         Account currentAccount = accountService.getCurrentAccount();
         return success(accountService.unSuspendAccount(currentAccount, accountId));
+    }
+
+    @ApiOperation(value = "sms 인증번호 전송")
+    @PostMapping("/sms")
+    public ApiResponse<SmsResponse> sendSms(@RequestBody SmsRequest smsRequest) throws UnsupportedEncodingException, URISyntaxException, NoSuchAlgorithmException, InvalidKeyException, JsonProcessingException {
+        SmsResponse smsResponse = accountService.sendSms(smsRequest);
+        return success(smsResponse);
+    }
+
+    @ApiOperation(value = "sms 인증번호 확인")
+    @PostMapping("/sms/certification")
+    public ApiResponse<SmsMessage> certifySms(@RequestBody CertifySmsRequest certifySmsRequest){
+        SmsMessage smsMessage = accountService.certifySms(certifySmsRequest);
+        return success(smsMessage);
     }
 
     @ApiOperation(value = "회원 비활성화 설정/해제")

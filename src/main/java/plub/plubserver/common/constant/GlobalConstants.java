@@ -6,6 +6,8 @@ public class GlobalConstants {
      * Account
      */
     public static final int NICKNAME_CHANGE_LIMIT = 3;
+    public static final int LIMIT_TIME = 5 * 60;
+
 
     /**
      * Report

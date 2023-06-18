@@ -1,12 +1,23 @@
 package plub.plubserver.domain.account.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.api.client.util.Base64;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.RestTemplate;
 import plub.plubserver.common.exception.StatusCode;
+import plub.plubserver.config.redis.RedisService;
 import plub.plubserver.config.jwt.RefreshTokenRepository;
 import plub.plubserver.domain.account.exception.AccountException;
 import plub.plubserver.domain.account.model.*;
@@ -39,9 +50,17 @@ import plub.plubserver.domain.report.service.ReportService;
 import plub.plubserver.domain.todo.model.TodoTimeline;
 import plub.plubserver.domain.todo.repository.TodoTimelineRepository;
 
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+import java.io.UnsupportedEncodingException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
@@ -58,6 +77,17 @@ import static plub.plubserver.domain.report.config.ReportMessage.REPORT_TITLE_AD
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class AccountService {
+    @Value("${naver-cloud-sms.access-key}")
+    private String accessKey;
+
+    @Value("${naver-cloud-sms.secret-key}")
+    private String secretKey;
+
+    @Value("${naver-cloud-sms.service-id}")
+    private String serviceId;
+
+    @Value("${naver-cloud-sms.sender-phone}")
+    private String phone;
 
     private final AccountRepository accountRepository;
     private final SubCategoryRepository subCategoryRepository;
@@ -65,6 +95,7 @@ public class AccountService {
     private final GoogleService googleService;
     private final KakaoService kakaoService;
     private final ReportService reportService;
+    private final RedisService redisService;
     private final SuspendAccountRepository suspendAccountRepository;
     private final AccountNicknameHistoryRepository accountNicknameHistoryRepository;
     private final RevokeAccountRepository revokeAccountRepository;
@@ -82,9 +113,7 @@ public class AccountService {
 
     // 회원 정보 조회
     public AccountInfoResponse getMyAccount() {
-        return accountRepository.findByEmail(getCurrentAccountEmail())
-                .map(AccountInfoResponse::of)
-                .orElseThrow(() -> new AccountException(StatusCode.NOT_FOUND_ACCOUNT));
+        return accountRepository.findByEmail(getCurrentAccountEmail()).map(AccountInfoResponse::of).orElseThrow(() -> new AccountException(StatusCode.NOT_FOUND_ACCOUNT));
     }
 
     public AccountInfoResponse getAccount(String nickname) {
@@ -145,11 +174,7 @@ public class AccountService {
     }
 
     private void saveNicknameHistory(String oldNickname, Account account) {
-        AccountNicknameHistory history = AccountNicknameHistory.builder()
-                .account(account)
-                .nickname(oldNickname)
-                .changedAt(LocalDateTime.now())
-                .build();
+        AccountNicknameHistory history = AccountNicknameHistory.builder().account(account).nickname(oldNickname).changedAt(LocalDateTime.now()).build();
         accountNicknameHistoryRepository.save(history);
     }
 
@@ -236,8 +261,7 @@ public class AccountService {
         return AccountListResponse.of(accountList);
     }
 
-
-    // 회원 영구 정지 해제
+   // 회원 영구 정지 해제
     @Transactional
     public AccountIdResponse unSuspendAccount(Account loginAccount, Long accountId) {
         loginAccount.isAdmin();
@@ -262,8 +286,7 @@ public class AccountService {
     }
 
     private Account getAccountById(Long accountId) {
-        return accountRepository.findById(accountId)
-                .orElseThrow(() -> new AccountException(StatusCode.NOT_FOUND_ACCOUNT));
+        return accountRepository.findById(accountId).orElseThrow(() -> new AccountException(StatusCode.NOT_FOUND_ACCOUNT));
     }
 
     private void validateAccountNotPermanentlyBanned(Account reportedAccount) {
@@ -279,40 +302,19 @@ public class AccountService {
                 SuspendAccount suspendAccount = createSuspendAccount(reportedAccount);
                 suspendAccount.setSuspendedDate();
                 suspendAccountRepository.save(suspendAccount);
-                reportService.adminReportAccount(
-                        loginAccount,
-                        reportedAccount,
-                        REPORT_TITLE_ADMIN,
-                        ReportStatusMessage.PERMANENTLY_BANNED,
-                        BAN_PERMANENTLY
-                );
+                reportService.adminReportAccount(loginAccount, reportedAccount, REPORT_TITLE_ADMIN, ReportStatusMessage.PERMANENTLY_BANNED, BAN_PERMANENTLY);
             }
-            case BANNED -> reportService.adminReportAccount(
-                    loginAccount,
-                    reportedAccount,
-                    REPORT_TITLE_ADMIN,
-                    ReportStatusMessage.BANNED,
-                    BAN_ONE_MONTH
-            );
-            case PAUSED -> reportService.adminReportAccount(
-                    loginAccount,
-                    reportedAccount,
-                    REPORT_TITLE_ADMIN,
-                    ReportStatusMessage.PAUSED,
-                    BAN_ONE_MONTH
-            );
-            case NORMAL -> reportService.adminReportAccount(
-                    loginAccount,
-                    reportedAccount,
-                    REPORT_TITLE_ADMIN,
-                    ReportStatusMessage.NORMAL,
-                    UNBAN
-            );
+            case BANNED ->
+                    reportService.adminReportAccount(loginAccount, reportedAccount, REPORT_TITLE_ADMIN, ReportStatusMessage.BANNED, BAN_ONE_MONTH);
+            case PAUSED ->
+                    reportService.adminReportAccount(loginAccount, reportedAccount, REPORT_TITLE_ADMIN, ReportStatusMessage.PAUSED, BAN_ONE_MONTH);
+            case NORMAL ->
+                    reportService.adminReportAccount(loginAccount, reportedAccount, REPORT_TITLE_ADMIN, ReportStatusMessage.NORMAL, UNBAN);
             default -> throw new ReportException(StatusCode.INVALID_ACCOUNT_STATUS);
         }
     }
 
-    private SuspendAccount createSuspendAccount(Account account) {
+     private SuspendAccount createSuspendAccount(Account account) {
         return SuspendAccount.builder()
                 .accountId(account.getId())
                 .accountEmail(account.getEmail())
@@ -370,5 +372,71 @@ public class AccountService {
                 plubbingRepository.save(plubbing);
             }
         }
+    }
+  
+    public SmsResponse sendSms(SmsRequest smsRequest) throws JsonProcessingException, RestClientException, URISyntaxException, InvalidKeyException, NoSuchAlgorithmException, UnsupportedEncodingException {
+        Long time = System.currentTimeMillis();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.set("x-ncp-apigw-timestamp", time.toString());
+        headers.set("x-ncp-iam-access-key", accessKey);
+        headers.set("x-ncp-apigw-signature-v2", makeSignature(time));
+
+        List<SmsRequest> messages = new ArrayList<>();
+        messages.add(smsRequest);
+        String smsKey = createSmsKey();
+        String content = "[PLUB] 본인확인 인증번호는 [" + smsKey + "] 입니다.";
+        SmsRequestDTO request = SmsRequestDTO.of(phone, content, messages);
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        String body = objectMapper.writeValueAsString(request);
+        HttpEntity<String> httpBody = new HttpEntity<>(body, headers);
+
+        RestTemplate restTemplate = new RestTemplate();
+        restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory());
+        SmsResponse response = restTemplate.postForObject(new URI("https://sens.apigw.ntruss.com/sms/v2/services/" + serviceId + "/messages"), httpBody, SmsResponse.class);
+
+        redisService.createSmsCertification(smsRequest.to(), smsKey);
+        return response;
+    }
+
+    public SmsMessage certifySms(CertifySmsRequest certifySmsRequest) {
+        if (!redisService.hasKey(certifySmsRequest.phone()))
+            throw new AccountException(StatusCode.NOT_FOUND_SMS_KEY);
+        if (redisService.getSmsCertification(certifySmsRequest.phone()).equals(certifySmsRequest.certificationNum())) {
+            redisService.deleteSmsCertification(certifySmsRequest.phone());
+            return new SmsMessage("certify success");
+        }
+        throw new AccountException(StatusCode.INVALID_SMS_KEY);
+    }
+
+    public String makeSignature(Long time) throws NoSuchAlgorithmException, UnsupportedEncodingException, InvalidKeyException {
+        String space = " ";
+        String newLine = "\n";
+        String method = "POST";
+        String url = "/sms/v2/services/" + this.serviceId + "/messages";
+        String timestamp = time.toString();
+        String accessKey = this.accessKey;
+        String secretKey = this.secretKey;
+
+        String message = new StringBuilder().append(method).append(space).append(url).append(newLine).append(timestamp).append(newLine).append(accessKey).toString();
+
+        SecretKeySpec signingKey = new SecretKeySpec(secretKey.getBytes("UTF-8"), "HmacSHA256");
+        Mac mac = Mac.getInstance("HmacSHA256");
+        mac.init(signingKey);
+
+        byte[] rawHmac = mac.doFinal(message.getBytes("UTF-8"));
+        String encodeBase64String = Base64.encodeBase64String(rawHmac);
+
+        return encodeBase64String;
+    }
+
+    public static String createSmsKey() {
+        StringBuffer key = new StringBuffer();
+        Random rnd = new Random();
+        for (int i = 0; i < 6; i++)
+            key.append((rnd.nextInt(10)));
+        return key.toString();
     }
 }
