@@ -406,6 +406,8 @@ public class AccountService {
             throw new AccountException(StatusCode.NOT_FOUND_SMS_KEY);
         if (redisService.getSmsCertification(certifySmsRequest.phone()).equals(certifySmsRequest.certificationNum())) {
             redisService.deleteSmsCertification(certifySmsRequest.phone());
+            if (accountRepository.existsByPhone(certifySmsRequest.phone()))
+                throw new AccountException(StatusCode.ALREADY_EXIST_PHONE);
             return new SmsMessage("certify success");
         }
         throw new AccountException(StatusCode.INVALID_SMS_KEY);
