@@ -7,11 +7,12 @@ import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 
+import static plub.plubserver.common.constant.GlobalConstants.LIMIT_TIME;
+
 @RequiredArgsConstructor
 @Service
 public class RedisService {
 
-    private final int LIMIT_TIME = 5 * 60;
 
     private final StringRedisTemplate template;
 
