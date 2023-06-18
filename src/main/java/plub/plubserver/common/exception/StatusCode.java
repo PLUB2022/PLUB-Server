@@ -33,6 +33,8 @@ public enum StatusCode {
     SELF_REPORT_ERROR(400, 2060, "self report error."),
     SUSPENDED_ACCOUNT(400, 2070, "suspended account error."),
     NICKNAME_CHANGE_LIMIT(400, 2080, "nickname change limit error."),
+    NOT_FOUND_SMS_KEY(404, 2090, "not found sms key error."),
+    INVALID_SMS_KEY(400, 2100, "invalid sms key error."),
 
     /**
      * Auth

@@ -8,6 +8,7 @@ import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.account.model.SocialType;
 
 import javax.validation.constraints.Size;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
@@ -175,6 +176,52 @@ public class AccountDto {
         public static AccountIdResponse of(Account account) {
             return new AccountIdResponse(account.getId());
         }
+    }
+
+
+    public record SmsRequest(
+        String to
+    ) {
+    }
+
+    public record SmsResponse(
+            String requestId,
+            LocalDateTime requestTime,
+            String statusCode,
+            String statusName
+    ) {
+    }
+
+    public record SmsRequestDTO (
+        String type,
+        String contentType,
+        String countryCode,
+        String from,
+        String content,
+        List<SmsRequest> messages
+    ) {
+        @Builder
+        public SmsRequestDTO {
+        }
+        public static SmsRequestDTO of(String from, String content, List<SmsRequest> messages) {
+            return SmsRequestDTO.builder()
+                    .type("SMS")
+                    .contentType("COMM")
+                    .countryCode("82")
+                    .from(from)
+                    .content(content)
+                    .messages(messages)
+                    .build();
+        }
+    }
+
+    public record CertifySmsRequest(
+            String phone,
+            String certificationNum
+    ) {
+    }
+
+    public record SmsMessage(Object result) {
     }
 }
 
