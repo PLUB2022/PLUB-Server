@@ -31,6 +31,7 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static plub.plubserver.config.security.SecurityUtils.getCurrentAccountEmail;
+import static plub.plubserver.domain.account.dto.AccountDto.LogoutResponse;
 import static plub.plubserver.domain.account.dto.AuthDto.*;
 
 @Slf4j
@@ -168,16 +169,16 @@ public class AuthService {
 
     @Transactional
     public void checkSuspendedAccount(String email) {
-        Optional<SuspendAccount> suspendAccount = suspendAccountRepository.findByAccountEmail(email);
+        Optional<SuspendAccount> suspendAccount = suspendAccountRepository.findByAccountEmailAndCheckSuspendedIsTrue(email);
         if (suspendAccount.isEmpty()) return;
         boolean isAccountExpired = LocalDateTime.now().isAfter(suspendAccount.get().getEndedSuspendedDate());
-        if (isAccountExpired) suspendAccount.get().setSuspended(false);
+        if (isAccountExpired) suspendAccount.get().setCheckSuspended(false);
         else throw new AccountException(StatusCode.SUSPENDED_ACCOUNT);
     }
 
     public static void checkAccountStatus(Account account) {
         AccountStatus accountStatus = account.getAccountStatus();
-        // NORMAL, PAUSED, BANNED, PERMANENTLY_BANNED
+        // NORMAL, PAUSED, BANNED, PERMANENTLY_BANNED, INACTIVE, DORMANT
         switch (accountStatus) {
             case NORMAL:
                 break;
@@ -193,6 +194,10 @@ public class AuthService {
                 } else throw new AccountException(StatusCode.BANNED_ACCOUNT);
             case PERMANENTLY_BANNED:
                 throw new AccountException(StatusCode.PERMANENTLY_BANNED_ACCOUNT);
+            case INACTIVE:
+                account.updateAccountStatus(AccountStatus.NORMAL);
+            case DORMANT:
+                account.updateAccountStatus(AccountStatus.NORMAL);
         }
     }
 
@@ -212,16 +217,15 @@ public class AuthService {
     }
 
     @Transactional
-    public String logout() {
-        Account account = accountRepository
-                .findByEmail(getCurrentAccountEmail())
+    public LogoutResponse logout() {
+        Account account = accountRepository.findByEmail(getCurrentAccountEmail())
                 .orElseThrow(() -> new AccountException(StatusCode.NOT_FOUND_ACCOUNT));
-        RefreshToken refreshToken = refreshTokenRepository
-                .findByAccount(account)
+        RefreshToken refreshToken = refreshTokenRepository.findByAccount(account)
                 .orElseThrow(() -> new AuthException(StatusCode.NOT_FOUND_REFRESH_TOKEN));
         refreshTokenRepository.delete(refreshToken);
         refreshTokenRepository.flush();
-        return "로그아웃 완료";
+
+        return LogoutResponse.of(refreshTokenRepository.existsByAccount(account));
     }
 
     public AuthMessage loginAdmin(LoginRequest loginRequest) {

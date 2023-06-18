@@ -230,8 +230,14 @@ public class PlubbingService {
     public MyProfilePlubbingListResponse getMyPlubbingByStatus(String status) {
         Account currentAccount = accountService.getCurrentAccount();
         if (Objects.equals(status, RecruitStatus.RECRUITING.name())) {
+            List<Long> accountPlubbingList =
+                    accountPlubbingRepository.findAllByAccountIdAndAccountPlubbingStatusAndIsHost(
+                            currentAccount.getId(),
+                            AccountPlubbingStatus.ACTIVE,
+                            true
+                    ).stream().map(accountPlubbing -> accountPlubbing.getPlubbing().getId()).toList();
             List<MyProfilePlubbingResponse> myPlubbingResponses = recruitRepository
-                    .findAllPlubbingRecruitByAccountId(currentAccount.getId())
+                    .findAllPlubbingRecruitByAccountId(accountPlubbingList)
                     .stream()
                     .map((Recruit recruit) -> MyProfilePlubbingResponse.of(recruit.getPlubbing(), HOST)).toList();
             return MyProfilePlubbingListResponse.of(myPlubbingResponses, status);
@@ -245,19 +251,25 @@ public class PlubbingService {
         } else {
             AccountPlubbingStatus plubbingStatus = AccountPlubbingStatus.valueOf(status);
             List<MyProfilePlubbingResponse> myPlubbingResponses = accountPlubbingRepository
-                    .findAllByAccount(currentAccount, plubbingStatus).stream()
+                    .findAllByAccount(currentAccount, plubbingStatus)
+                    .stream()
                     .map((AccountPlubbing accountPlubbing) -> {
                         MyPlubbingStatus myPlubbingStatus =
-                                getMyPlubbingStatus(accountPlubbing.isHost(), plubbingStatus.name());
+                                getMyPlubbingStatus(accountPlubbing.isHost(), accountPlubbing.getAccountPlubbingStatus().name());
                         return MyProfilePlubbingResponse.of(accountPlubbing.getPlubbing(), myPlubbingStatus);
                     }).toList();
+
+            // 최근 리스트 5개만 보여주기
+            if (myPlubbingResponses.size() > 5) {
+                myPlubbingResponses = myPlubbingResponses.subList(0, 5);
+            }
             return MyProfilePlubbingListResponse.of(myPlubbingResponses, status);
         }
     }
 
     public MyPlubbingStatus getMyPlubbingStatus(boolean isHost, String status) {
         if (status.equals(PlubbingStatus.END.name())) return MyPlubbingStatus.END;
-        else if (status.equals(AccountPlubbingStatus.END.name())) return MyPlubbingStatus.EXIT;
+        else if (status.equals(AccountPlubbingStatus.EXIT.name())) return MyPlubbingStatus.EXIT;
         else if (isHost) return HOST;
         else return GUEST;
     }
@@ -377,9 +389,9 @@ public class PlubbingService {
         Plubbing plubbing = getPlubbing(plubbingId);
         checkHost(plubbing);
         Account kickAccount = accountService.getAccount(accountId);
-        accountPlubbingRepository.findAllByAccountAndPlubbingAndAccountPlubbingStatusAndIsHost(kickAccount, plubbing, AccountPlubbingStatus.ACTIVE, false)
-                .orElseThrow(() -> new PlubbingException(StatusCode.NOT_MEMBER_ERROR))
-                .exitPlubbing();
+        AccountPlubbing accountPlubbing = accountPlubbingRepository.findAllByAccountAndPlubbingAndAccountPlubbingStatusAndIsHost(kickAccount, plubbing, AccountPlubbingStatus.ACTIVE, false)
+                .orElseThrow(() -> new PlubbingException(StatusCode.NOT_MEMBER_ERROR));
+        accountService.exitPlubbing(accountPlubbing);
 
         // 강퇴자에게 푸시 알림
         NotifyParams params = NotifyParams.builder()
@@ -459,9 +471,9 @@ public class PlubbingService {
     public PlubbingResponse leavePlubbing(Long plubbingId) {
         Plubbing plubbing = getPlubbing(plubbingId);
         Account account = accountService.getCurrentAccount();
-        accountPlubbingRepository.findByAccountAndPlubbing(account, plubbing)
-                .orElseThrow(() -> new PlubbingException(StatusCode.NOT_MEMBER_ERROR))
-                .exitPlubbing();
+        AccountPlubbing accountPlubbing = accountPlubbingRepository.findByAccountAndPlubbing(account, plubbing)
+                .orElseThrow(() -> new PlubbingException(StatusCode.NOT_MEMBER_ERROR));
+        accountService.exitPlubbing(accountPlubbing);
 
         // 호스트에게 푸시 알림
         NotifyParams params = NotifyParams.builder()
@@ -477,13 +489,23 @@ public class PlubbingService {
         return PlubbingResponse.of(plubbing, isHost);
     }
 
-    public void checkMember(Account account, Plubbing plubbing) {
-        accountPlubbingRepository.findByAccountAndPlubbing(account, plubbing)
-                .orElseThrow(() -> new PlubbingException(StatusCode.NOT_MEMBER_ERROR));
+    public void checkMemberAndActive(Account account, Plubbing plubbing) {
+        checkActive(plubbing);
+        checkMember(account, plubbing);
     }
 
     public Boolean isBookmarked(Account account, Plubbing plubbing) {
         return bookmarkRepository.existsByAccountAndRecruit(account, plubbing.getRecruit());
+    }
+
+    public void checkActive(Plubbing plubbing) {
+        if (!plubbing.getStatus().equals(PlubbingStatus.ACTIVE))
+            throw new PlubbingException(StatusCode.DELETED_STATUS_PLUBBING);
+    }
+
+    public void checkMember(Account account, Plubbing plubbing) {
+        accountPlubbingRepository.findByAccountAndPlubbing(account, plubbing)
+                .orElseThrow(() -> new PlubbingException(StatusCode.NOT_MEMBER_ERROR));
     }
 
 }

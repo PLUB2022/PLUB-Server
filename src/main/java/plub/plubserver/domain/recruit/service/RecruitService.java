@@ -404,4 +404,16 @@ public class RecruitService {
 
         return JoinedAccountsInfoResponse.of(plubbing);
     }
+
+    /**
+     * 모집글 끌어올리기
+     */
+    @Transactional
+    public PullUpResponse pullUpRecruit(Long plubbingId) {
+        Recruit recruit = getRecruitByPlubbingId(plubbingId);
+        if (recruit.getPullUpCount() >= 2)
+            throw new RecruitException(StatusCode.PULL_UP_LIMIT_OVER);
+        recruit.pullUp();
+        return new PullUpResponse(plubbingId, recruit.getPullUpCount());
+    }
 }

@@ -41,7 +41,7 @@ public class PlubbingDummy {
         Account admin2 = accountService.getAccountByEmail("admin2");
         for (int i = 0; i < 5; i++) {
             CreatePlubbingRequest form = CreatePlubbingRequest.builder()
-                    .subCategoryIds(List.of(1L, 2L, 3L, 4L, 5L, 6L, 7L, 8L))
+                    .subCategoryIds(List.of(12L, 13L, 14L, 15L, 16L, 17L, 18L))
                     .title("운동" + i)
                     .name("운동 모임" + i)
                     .goal("3대300치기" + i)
@@ -64,7 +64,7 @@ public class PlubbingDummy {
 
         for (int i = 0; i < 15; i++) {
             CreatePlubbingRequest form = CreatePlubbingRequest.builder()
-                    .subCategoryIds(List.of(66L)) // 프로그래밍?
+                    .subCategoryIds(List.of(52L))
                     .title("프로그래밍 모임" + i)
                     .name("코딩 모임" + i)
                     .goal("코틀린 마스터" + i)

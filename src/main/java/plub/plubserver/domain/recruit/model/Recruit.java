@@ -26,6 +26,8 @@ public class Recruit extends BaseEntity {
     private String introduce; // 모임 소개글 - 모집 페이지에서 보여줄 내용
     private int questionNum;
 
+    private int pullUpCount; // 끌올 횟수
+
     private int views;
 
     @Enumerated(EnumType.STRING)
@@ -77,6 +79,10 @@ public class Recruit extends BaseEntity {
 
     public void plusView() {
         views++;
+    }
+
+    public void pullUp() {
+        this.pullUpCount++;
     }
 
 }

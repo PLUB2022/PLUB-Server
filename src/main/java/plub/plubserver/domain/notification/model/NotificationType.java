@@ -68,7 +68,7 @@ public enum NotificationType {
      * 받는 사람 : 멤버 전체
      * 리다이렉트 : 일정 상세페이지
      */
-    CREATE_UPDATE_CALENDAR(ReceiverType.MEMBERS, Calendar.class),
+    CREATE_UPDATE_CALENDAR(ReceiverType.MEMBERS, Plubbing.class),
 
 
     /**

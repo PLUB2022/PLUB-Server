@@ -18,17 +18,37 @@ import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import plub.plubserver.common.exception.StatusCode;
 import plub.plubserver.config.redis.RedisService;
+import plub.plubserver.config.jwt.RefreshTokenRepository;
 import plub.plubserver.domain.account.exception.AccountException;
 import plub.plubserver.domain.account.model.*;
 import plub.plubserver.domain.account.repository.AccountNicknameHistoryRepository;
 import plub.plubserver.domain.account.repository.AccountRepository;
+import plub.plubserver.domain.account.repository.RevokeAccountRepository;
 import plub.plubserver.domain.account.repository.SuspendAccountRepository;
+import plub.plubserver.domain.archive.model.Archive;
+import plub.plubserver.domain.archive.repository.ArchiveRepository;
+import plub.plubserver.domain.calendar.model.Calendar;
+import plub.plubserver.domain.calendar.repository.CalendarRepository;
 import plub.plubserver.domain.category.exception.CategoryException;
 import plub.plubserver.domain.category.model.SubCategory;
 import plub.plubserver.domain.category.repository.SubCategoryRepository;
+import plub.plubserver.domain.feed.model.Feed;
+import plub.plubserver.domain.feed.repository.FeedRepository;
+import plub.plubserver.domain.notice.model.Notice;
+import plub.plubserver.domain.notice.repository.NoticeRepository;
+import plub.plubserver.domain.plubbing.model.AccountPlubbing;
+import plub.plubserver.domain.plubbing.model.AccountPlubbingStatus;
+import plub.plubserver.domain.plubbing.model.Plubbing;
+import plub.plubserver.domain.plubbing.model.PlubbingStatus;
+import plub.plubserver.domain.plubbing.repository.AccountPlubbingRepository;
+import plub.plubserver.domain.plubbing.repository.PlubbingRepository;
+import plub.plubserver.domain.recruit.repository.AppliedAccountRepository;
+import plub.plubserver.domain.recruit.repository.BookmarkRepository;
 import plub.plubserver.domain.report.config.ReportStatusMessage;
 import plub.plubserver.domain.report.exception.ReportException;
 import plub.plubserver.domain.report.service.ReportService;
+import plub.plubserver.domain.todo.model.TodoTimeline;
+import plub.plubserver.domain.todo.repository.TodoTimelineRepository;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -41,6 +61,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.Optional;
 import java.util.regex.Pattern;
 
 import static plub.plubserver.common.constant.GlobalConstants.NICKNAME_CHANGE_LIMIT;
@@ -77,6 +98,18 @@ public class AccountService {
     private final RedisService redisService;
     private final SuspendAccountRepository suspendAccountRepository;
     private final AccountNicknameHistoryRepository accountNicknameHistoryRepository;
+    private final RevokeAccountRepository revokeAccountRepository;
+    private final RefreshTokenRepository refreshTokenRepository;
+
+    private final FeedRepository feedRepository;
+    private final TodoTimelineRepository todoTimelineRepository;
+    private final AccountPlubbingRepository accountPlubbingRepository;
+    private final AppliedAccountRepository appliedAccountRepository;
+    private final NoticeRepository noticeRepository;
+    private final ArchiveRepository archiveRepository;
+    private final BookmarkRepository bookmarkRepository;
+    private final CalendarRepository calendarRepository;
+    private final PlubbingRepository plubbingRepository;
 
     // 회원 정보 조회
     public AccountInfoResponse getMyAccount() {
@@ -100,7 +133,6 @@ public class AccountService {
     }
 
     public NicknameResponse isDuplicateNickname(String nickname) {
-        validateNicknameChangeLimit(getCurrentAccount());
         validateNicknameDuplication(nickname);
         return new NicknameResponse(true);
     }
@@ -135,6 +167,7 @@ public class AccountService {
 
     private void validateNicknameChangeLimit(Account account) {
         int nicknameChangeCount = accountNicknameHistoryRepository.countAllByAccount(account);
+        System.out.println("nicknameChangeCount = " + nicknameChangeCount);
         if (nicknameChangeCount >= NICKNAME_CHANGE_LIMIT) {
             throw new AccountException(StatusCode.NICKNAME_CHANGE_LIMIT);
         }
@@ -156,20 +189,41 @@ public class AccountService {
     @Transactional
     public AuthMessage revoke() {
         Account myAccount = getCurrentAccount();
-        String socialName = myAccount.getSocialType().getSocialName();
+        SocialType socialType = myAccount.getSocialType();
         String refreshToken = myAccount.getProviderRefreshToken();
         String[] split = myAccount.getEmail().split("@");
-        boolean result;
-        if (socialName.equalsIgnoreCase("Google")) {
-            result = googleService.revokeGoogle(refreshToken);
-        } else if (socialName.equalsIgnoreCase("Kakao")) {
-            result = kakaoService.revokeKakao(split[0]);
-        } else if (socialName.equalsIgnoreCase("Apple")) {
-            result = appleService.revokeApple(refreshToken);
-        } else {
-            throw new AccountException(StatusCode.SOCIAL_TYPE_ERROR);
+
+        boolean result = switch (socialType) {
+            case GOOGLE -> googleService.revokeGoogle(refreshToken);
+            case KAKAO -> kakaoService.revokeKakao(split[0]);
+            case APPLE -> appleService.revokeApple(refreshToken);
+            default -> throw new AccountException(StatusCode.SOCIAL_TYPE_ERROR);
+        };
+
+        if (result) {
+            RevokeAccount revokeAccount = RevokeAccount.builder()
+                    .email(myAccount.getEmail())
+                    .socialType(socialType)
+                    .phoneNumber(myAccount.getPhone())
+                    .nickname(myAccount.getNickname())
+                    .revokedAt(LocalDateTime.now())
+                    .build();
+            revokeAccountRepository.save(revokeAccount);
+
+            // refreshToken, 지원한 사용자, 가입된 모임, 피드, 투두, 공지, 아카이브, 북마크, 일정 삭제
+            refreshTokenRepository.deleteByAccount(myAccount);
+            appliedAccountRepository.findAllByAccount(myAccount).softDelete();
+            accountPlubbingRepository.findAllByAccount(myAccount).forEach(AccountPlubbing::softDelete);
+            feedRepository.findAllByAccount(myAccount).forEach(Feed::softDelete);
+            todoTimelineRepository.findAllByAccount(myAccount).forEach(TodoTimeline::softDelete);
+            noticeRepository.findAllByAccount(myAccount).forEach(Notice::softDelete);
+            archiveRepository.findAllByAccount(myAccount).forEach(Archive::softDelete);
+            bookmarkRepository.deleteAllByAccount(myAccount);
+            calendarRepository.findAllByAccount(myAccount).forEach(Calendar::softDelete);
+            myAccount.deletedAccount();
         }
-        return new AuthMessage(result, "revoke result.");
+
+        return new AuthMessage(result, "Revoke result: " + result);
     }
 
     @Transactional
@@ -207,14 +261,15 @@ public class AccountService {
         return AccountListResponse.of(accountList);
     }
 
-
-    // 회원 영구 정지 해제
+   // 회원 영구 정지 해제
     @Transactional
     public AccountIdResponse unSuspendAccount(Account loginAccount, Long accountId) {
         loginAccount.isAdmin();
-        SuspendAccount suspendAccount = suspendAccountRepository.findByAccountId(accountId).orElseThrow(() -> new ReportException(StatusCode.NOT_FOUND_SUSPEND_ACCOUNT));
-        suspendAccount.setSuspended(false);
-        Account account = accountRepository.findById(suspendAccount.getAccountId()).orElseThrow(() -> new ReportException(StatusCode.ALREADY_REVOKE_SUSPEND_ACCOUNT));
+        SuspendAccount suspendAccount = suspendAccountRepository.findByAccountIdAndCheckSuspendedIsTrue(accountId)
+                .orElseThrow(() -> new ReportException(StatusCode.NOT_FOUND_SUSPEND_ACCOUNT));
+        suspendAccount.setCheckSuspended(false);
+        Account account = accountRepository.findById(suspendAccount.getAccountId())
+                .orElseThrow(() -> new ReportException(StatusCode.ALREADY_REVOKE_SUSPEND_ACCOUNT));
         account.updateAccountStatus(NORMAL);
         return AccountIdResponse.of(account);
     }
@@ -259,10 +314,66 @@ public class AccountService {
         }
     }
 
-    private SuspendAccount createSuspendAccount(Account account) {
-        return SuspendAccount.builder().accountId(account.getId()).accountEmail(account.getEmail()).accountDI(account.getEmail().split("@")[0]).isSuspended(true).build();
+     private SuspendAccount createSuspendAccount(Account account) {
+        return SuspendAccount.builder()
+                .accountId(account.getId())
+                .accountEmail(account.getEmail())
+                .accountDI(account.getEmail().split("@")[0])
+                .checkSuspended(true)
+                .build();
     }
 
+    // 회원 비활성화 설정
+    @Transactional
+    public AccountIdResponse inActiveAccount(Account loginAccount, boolean isInactive) {
+        LocalDateTime lastInActiveDate = loginAccount.getLastInActiveDate();
+        if (isInactive && lastInActiveDate != null && !lastInActiveDate.plusDays(7).isBefore(LocalDateTime.now())) {
+            throw new AccountException(StatusCode.ALREADY_INACTIVE_ACCOUNT);
+        }
+        if (isInactive) {
+            // Active 된 모임 탈퇴 처리
+            List<AccountPlubbing> activeAccountPlubbings = accountPlubbingRepository.findAllByAccount(loginAccount, AccountPlubbingStatus.ACTIVE);
+            for (AccountPlubbing activeAccountPlubbing : activeAccountPlubbings) {
+                exitPlubbing(activeAccountPlubbing);
+            }
+            loginAccount.updateAccountStatus(AccountStatus.INACTIVE);
+            loginAccount.updateLastInActiveDate();
+            accountRepository.save(loginAccount);
+        } else {
+            loginAccount.updateAccountStatus(AccountStatus.NORMAL);
+            accountRepository.save(loginAccount);
+        }
+        return AccountIdResponse.of(loginAccount);
+    }
+
+
+    public void exitPlubbing(AccountPlubbing accountPlubbing) {
+        checkAdmin(accountPlubbing.getPlubbing(), accountPlubbing);
+        accountPlubbing.updateAccountPlubbingStatus(AccountPlubbingStatus.EXIT);
+        accountPlubbing.getPlubbing().removeAccountPlubbing(accountPlubbing);
+        accountPlubbingRepository.save(accountPlubbing);
+    }
+
+    private void checkAdmin(Plubbing plubbing, AccountPlubbing accountPlubbing) {
+        if (accountPlubbing.isHost()) {
+            accountPlubbing.changeHost();
+            accountPlubbingRepository.save(accountPlubbing);
+            accountPlubbingRepository.flush();
+
+            Optional<AccountPlubbing> first = plubbing.getAccountPlubbingList().stream()
+                    .filter(ap -> !ap.isHost() && ap.getAccountPlubbingStatus() == AccountPlubbingStatus.ACTIVE && ap.getAccount().getId() != accountPlubbing.getAccount().getId())
+                    .findFirst();
+
+            if (first.isPresent()) {
+                first.get().changeHost();
+                accountPlubbingRepository.save(accountPlubbing);
+            } else {
+                plubbing.endPlubbing(PlubbingStatus.END);
+                plubbingRepository.save(plubbing);
+            }
+        }
+    }
+  
     public SmsResponse sendSms(SmsRequest smsRequest) throws JsonProcessingException, RestClientException, URISyntaxException, InvalidKeyException, NoSuchAlgorithmException, UnsupportedEncodingException {
         Long time = System.currentTimeMillis();
 
@@ -299,7 +410,6 @@ public class AccountService {
         }
         throw new AccountException(StatusCode.INVALID_SMS_KEY);
     }
-
 
     public String makeSignature(Long time) throws NoSuchAlgorithmException, UnsupportedEncodingException, InvalidKeyException {
         String space = " ";

@@ -37,7 +37,7 @@ public class AnnouncementService {
     }
 
     // 공지 전체 조회
-    public PageResponse<AnnouncementResponse> getAnnouncementList(Pageable pageable, Long cursorId) {
+    public AnnouncementListResponse getAnnouncementList(Pageable pageable, Long cursorId) {
         Long nextCursorId = cursorId;
         if (cursorId != null && cursorId == 0) {
             nextCursorId = announcementRepository.findFirstByVisibilityIsTrueOrderByCreatedAtDesc()
@@ -50,7 +50,7 @@ public class AnnouncementService {
                 announcementRepository.findAllByOrderByCreatedAtDesc(pageable, cursorId, createdAt)
                 .map(AnnouncementResponse::of);
         Long totalElements = announcementRepository.countAllByVisibilityIsTrue();
-        return PageResponse.ofCursor(announcementPage, totalElements);
+        return  new AnnouncementListResponse(PageResponse.ofCursor(announcementPage, totalElements));
     }
 
 
@@ -62,10 +62,10 @@ public class AnnouncementService {
         return PageResponse.of(announcementPage);
     }
     // 공지 상세 조회
-    public AnnouncementResponse getAnnouncementDetails(Long announcementId) {
+    public AnnouncementDataResponse getAnnouncementDetails(Long announcementId) {
         Announcement announcement = announcementRepository.findById(announcementId)
                 .orElseThrow(() -> new AnnouncementException(StatusCode.NOT_FOUND_ANNOUNCEMENT));
-        return AnnouncementResponse.of(announcement);
+        return new AnnouncementDataResponse(AnnouncementResponse.of(announcement));
     }
 
     // 공지 수정

@@ -280,4 +280,10 @@ public class RecruitDto {
                     .build();
         }
     }
+
+    public record PullUpResponse(
+            Long plubbingId,
+            int currentPullUpCount
+    ) {
+    }
 }

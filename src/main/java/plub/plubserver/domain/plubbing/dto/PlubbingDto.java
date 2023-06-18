@@ -323,7 +323,9 @@ public class PlubbingDto {
             String placeName,
             Double placePositionX,
             Double placePositionY,
-            List<PlubbingAccountInfoResponse> accountInfo
+            List<PlubbingAccountInfoResponse> accountInfo,
+            Integer curAccountNum,
+            Integer maxAccountNum
     ) {
         @Builder
         public MainPlubbingResponse {
@@ -348,6 +350,8 @@ public class PlubbingDto {
                     .accountInfo(accounts.stream()
                             .map(PlubbingAccountInfoResponse::of)
                             .toList())
+                    .curAccountNum(plubbing.getCurAccountNum())
+                    .maxAccountNum(plubbing.getMaxAccountNum())
                     .build();
         }
     }

@@ -23,14 +23,14 @@ public class SuspendAccount extends BaseEntity {
     private String accountEmail;
     private String accountDI;
 
-    private boolean isSuspended;
+    private boolean checkSuspended;
 
     public void setSuspendedDate() {
         this.startedSuspendedDate = LocalDateTime.now();
         this.endedSuspendedDate = LocalDateTime.now().plusMonths(6);
     }
 
-    public void setSuspended(boolean suspended) {
-        isSuspended = suspended;
+    public void setCheckSuspended(boolean checkSuspended) {
+        this.checkSuspended = checkSuspended;
     }
 }

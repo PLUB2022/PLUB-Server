@@ -63,4 +63,12 @@ public class CategoryService {
         }
         return AllCategoryListResponse.of(allCategoryResponses);
     }
+
+    public SubCategoryImageResponse getSubCategoryImage(Long categoryId, Long subCategoryId) {
+        categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new CategoryException(StatusCode.NOT_FOUND_CATEGORY));
+        SubCategory subCategory = subCategoryRepository.findById(subCategoryId)
+                .orElseThrow(() -> new CategoryException(StatusCode.NOT_FOUND_SUB_CATEGORY));
+        return SubCategoryImageResponse.of(subCategory.getDefaultImage());
+    }
 }

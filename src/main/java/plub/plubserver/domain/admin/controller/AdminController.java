@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 import plub.plubserver.common.dto.ApiResponse;
 import plub.plubserver.domain.admin.dto.AdminDto;
 import plub.plubserver.domain.admin.dto.AdminDto.AccountPlubbingStatResponse;
+import plub.plubserver.domain.admin.dto.AdminDto.AccountPlubbingTotalCountResponse;
 import plub.plubserver.domain.admin.dto.AdminDto.LikePlubbingStatResponse;
 import plub.plubserver.domain.admin.dto.AdminDto.WeeklySummaryResponse;
 import plub.plubserver.domain.admin.service.AdminService;
@@ -46,6 +47,12 @@ public class AdminController {
     @GetMapping("/plubbing-ranking")
     public ApiResponse<List<LikePlubbingStatResponse>> getLikePlubbingRanking() {
         return success(adminService.getLikePlubbingRanking());
+    }
+
+    @ApiOperation(value = "모임, 회원 수 종합 조회")
+    @GetMapping("/total/accounts-plubbings")
+    public ApiResponse<AccountPlubbingTotalCountResponse> getAccountPlubbingTotalCount() {
+        return success(adminService.getAccountPlubbingTotalCount());
     }
 
 }

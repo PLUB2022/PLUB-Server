@@ -112,4 +112,17 @@ public class CategoryDto {
         }
     }
 
+    public record SubCategoryImageResponse(
+            String image
+    ) {
+        @Builder
+        public SubCategoryImageResponse {
+        }
+
+        public static SubCategoryImageResponse of(String image) {
+            return SubCategoryImageResponse.builder()
+                    .image(image).build();
+        }
+    }
+
 }

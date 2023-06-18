@@ -9,4 +9,6 @@ public interface BookmarkRepository extends JpaRepository<Bookmark, Long>, Bookm
     Boolean existsByAccountAndRecruit(Account account, Recruit recruit);
 
     void deleteByRecruit(Recruit recruit);
+
+    void deleteAllByAccount(Account account);
 }

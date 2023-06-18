@@ -150,4 +150,12 @@ public class RecruitController {
     ) {
         return success(recruitService.updateRecruitQuestionAnswers(plubbingId, newApplyRecruitRequest));
     }
+
+    @ApiOperation(value = "모집글 끌어올리기")
+    @PutMapping("/{plubbingId}/recruit/pull-up")
+    public ApiResponse<PullUpResponse> pullUpRecruit(
+            @PathVariable Long plubbingId
+    ) {
+        return success(recruitService.pullUpRecruit(plubbingId));
+    }
 }

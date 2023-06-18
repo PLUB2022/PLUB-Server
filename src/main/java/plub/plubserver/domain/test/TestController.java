@@ -74,4 +74,5 @@ public class TestController {
         notificationService.pushMessage(params);
         return success(notificationService.getMyNotifications(currentAccount));
     }
+    
 }
