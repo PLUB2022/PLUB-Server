@@ -26,7 +26,6 @@ import plub.plubserver.domain.plubbing.repository.AccountPlubbingRepository;
 import plub.plubserver.domain.plubbing.repository.PlubbingRepository;
 import plub.plubserver.domain.recruit.dto.RecruitDto.UpdateRecruitQuestionRequest;
 import plub.plubserver.domain.recruit.dto.RecruitDto.UpdateRecruitRequest;
-import plub.plubserver.domain.recruit.exception.RecruitException;
 import plub.plubserver.domain.recruit.model.*;
 import plub.plubserver.domain.recruit.repository.AppliedAccountRepository;
 import plub.plubserver.domain.recruit.repository.BookmarkRepository;
@@ -114,10 +113,10 @@ public class PlubbingService {
      */
     public PlubbingCreateCheckResponse checkCreatePlubbing(Account loginAccount) {
         // 지원자가 활동중인 모임이 3개 인지 확인
-        int activePlubbingNumber = loginAccount.getAccountPlubbingList().stream()
-                .filter(it -> it.getAccountPlubbingStatus().equals(AccountPlubbingStatus.ACTIVE))
-                .toList().size();
-        if (activePlubbingNumber >= 3
+        List<AccountPlubbing> activePlubbingNumber = accountPlubbingRepository
+                .findByAccountAndAccountPlubbingStatus(loginAccount, AccountPlubbingStatus.ACTIVE);
+
+        if (activePlubbingNumber.size() >= 3
                 // 어드민은 제외
                 && !loginAccount.getRole().equals(Role.ROLE_ADMIN))
             return new PlubbingCreateCheckResponse(false);
@@ -131,15 +130,7 @@ public class PlubbingService {
     @Transactional
     public PlubbingIdResponse createPlubbing(Account owner, CreatePlubbingRequest createPlubbingRequest) {
 
-        // 지원자가 활동중인 모임이 3개 인지 확인
-        int activePlubbingNumber = owner.getAccountPlubbingList().stream()
-                .filter(it -> it.getAccountPlubbingStatus().equals(AccountPlubbingStatus.ACTIVE))
-                .toList().size();
-        if (activePlubbingNumber >= 3
-                // 어드민은 제외
-                && !owner.getRole().equals(Role.ROLE_ADMIN))
-            throw new RecruitException(StatusCode.MAX_PLUBBING_LIMIT_OVER);
-
+        checkCreatePlubbing(owner);
 
         // Plubbing 엔티티 생성 및 저장
         Plubbing plubbing = plubbingRepository.save(createPlubbingRequest.toEntity());

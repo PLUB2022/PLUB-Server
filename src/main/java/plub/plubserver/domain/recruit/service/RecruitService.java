@@ -10,7 +10,6 @@ import plub.plubserver.common.dto.PageResponse;
 import plub.plubserver.common.exception.StatusCode;
 import plub.plubserver.common.model.SortType;
 import plub.plubserver.domain.account.model.Account;
-import plub.plubserver.domain.account.model.Role;
 import plub.plubserver.domain.account.service.AccountService;
 import plub.plubserver.domain.feed.service.FeedService;
 import plub.plubserver.domain.notification.dto.NotificationDto.NotifyParams;
@@ -217,14 +216,8 @@ public class RecruitService {
                         throw new RecruitException(StatusCode.HOST_RECRUIT_ERROR);
                 });
 
-        // 지원자가 활동중인 모임이 3개 인지 확인
-        int activePlubbingNumber = loginAccount.getAccountPlubbingList().stream()
-                .filter(it -> it.getAccountPlubbingStatus().equals(AccountPlubbingStatus.ACTIVE))
-                .toList().size();
-        if (activePlubbingNumber >= 3
-                // 어드민은 제외
-                && !loginAccount.getRole().equals(Role.ROLE_ADMIN))
-            throw new RecruitException(StatusCode.MAX_PLUBBING_LIMIT_OVER);
+
+        plubbingService.checkCreatePlubbing(loginAccount);
 
         // 이미 지원했는지 확인
         if (appliedAccountRepository.existsByAccountAndRecruit(loginAccount, recruit))

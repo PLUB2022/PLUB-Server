@@ -32,6 +32,8 @@ public interface AccountPlubbingRepository extends JpaRepository<AccountPlubbing
     void deleteByPlubbing(Plubbing plubbing);
 
     List<AccountPlubbing> findAllByAccount(Account account);
+
+    List<AccountPlubbing> findByAccountAndAccountPlubbingStatus(Account account, AccountPlubbingStatus accountPlubbingStatus);
 }
 
 
