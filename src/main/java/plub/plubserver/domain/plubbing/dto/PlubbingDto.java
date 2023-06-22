@@ -435,4 +435,12 @@ public class PlubbingDto {
                     .build();
         }
     }
+
+    public record PlubbingCreateCheckResponse(
+            boolean isCreate
+    ){
+        @Builder
+        public PlubbingCreateCheckResponse {
+        }
+    }
 }

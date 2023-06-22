@@ -29,6 +29,13 @@ public class PlubbingController {
     private final PlubbingService plubbingService;
     private final AccountService accountService;
 
+    @ApiOperation(value = "모임 생성 체크")
+    @GetMapping("/create/check")
+    public ApiResponse<PlubbingCreateCheckResponse> checkCreatePlubbing() {
+        Account loginAccount = accountService.getCurrentAccount();
+        return success(plubbingService.checkCreatePlubbing(loginAccount));
+    }
+
     @ApiOperation(value = "모임 생성")
     @PostMapping
     public ApiResponse<PlubbingIdResponse> createPlubbing(

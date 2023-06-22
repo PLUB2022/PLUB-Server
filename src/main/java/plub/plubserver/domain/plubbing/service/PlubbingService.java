@@ -10,6 +10,7 @@ import plub.plubserver.common.dto.PageResponse;
 import plub.plubserver.common.exception.StatusCode;
 import plub.plubserver.common.model.SortType;
 import plub.plubserver.domain.account.model.Account;
+import plub.plubserver.domain.account.model.Role;
 import plub.plubserver.domain.account.repository.AccountCategoryRepository;
 import plub.plubserver.domain.account.service.AccountService;
 import plub.plubserver.domain.category.model.PlubbingSubCategory;
@@ -25,6 +26,7 @@ import plub.plubserver.domain.plubbing.repository.AccountPlubbingRepository;
 import plub.plubserver.domain.plubbing.repository.PlubbingRepository;
 import plub.plubserver.domain.recruit.dto.RecruitDto.UpdateRecruitQuestionRequest;
 import plub.plubserver.domain.recruit.dto.RecruitDto.UpdateRecruitRequest;
+import plub.plubserver.domain.recruit.exception.RecruitException;
 import plub.plubserver.domain.recruit.model.*;
 import plub.plubserver.domain.recruit.repository.AppliedAccountRepository;
 import plub.plubserver.domain.recruit.repository.BookmarkRepository;
@@ -108,10 +110,37 @@ public class PlubbingService {
     }
 
     /**
+     * 모임 생성 체크
+     */
+    public PlubbingCreateCheckResponse checkCreatePlubbing(Account loginAccount) {
+        // 지원자가 활동중인 모임이 3개 인지 확인
+        int activePlubbingNumber = loginAccount.getAccountPlubbingList().stream()
+                .filter(it -> it.getAccountPlubbingStatus().equals(AccountPlubbingStatus.ACTIVE))
+                .toList().size();
+        if (activePlubbingNumber >= 3
+                // 어드민은 제외
+                && !loginAccount.getRole().equals(Role.ROLE_ADMIN))
+            return new PlubbingCreateCheckResponse(false);
+        return new PlubbingCreateCheckResponse(true);
+    }
+
+
+    /**
      * 모임 생성
      */
     @Transactional
     public PlubbingIdResponse createPlubbing(Account owner, CreatePlubbingRequest createPlubbingRequest) {
+
+        // 지원자가 활동중인 모임이 3개 인지 확인
+        int activePlubbingNumber = owner.getAccountPlubbingList().stream()
+                .filter(it -> it.getAccountPlubbingStatus().equals(AccountPlubbingStatus.ACTIVE))
+                .toList().size();
+        if (activePlubbingNumber >= 3
+                // 어드민은 제외
+                && !owner.getRole().equals(Role.ROLE_ADMIN))
+            throw new RecruitException(StatusCode.MAX_PLUBBING_LIMIT_OVER);
+
+
         // Plubbing 엔티티 생성 및 저장
         Plubbing plubbing = plubbingRepository.save(createPlubbingRequest.toEntity());
 
