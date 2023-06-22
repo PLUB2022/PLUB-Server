@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 
-import static plub.plubserver.common.constant.GlobalConstants.LIMIT_TIME;
+import static plub.plubserver.common.constant.GlobalConstants.SMS_LIMIT_TIME;
 
 @RequiredArgsConstructor
 @Service
@@ -27,7 +27,7 @@ public class RedisService {
 
     public void createSmsCertification(String phone, String certificationNum) {
         ValueOperations<String, String> valueOperations = template.opsForValue();
-        Duration expireDuration = Duration.ofSeconds(LIMIT_TIME);
+        Duration expireDuration = Duration.ofSeconds(SMS_LIMIT_TIME);
         valueOperations.set(phone, certificationNum, expireDuration);
     }
 

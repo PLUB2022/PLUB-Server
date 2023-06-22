@@ -64,6 +64,7 @@ import java.util.Random;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
+import static plub.plubserver.common.constant.GlobalConstants.SMS_LIMIT_TIME;
 import static plub.plubserver.common.constant.GlobalConstants.NICKNAME_CHANGE_LIMIT;
 import static plub.plubserver.config.security.SecurityUtils.getCurrentAccountEmail;
 import static plub.plubserver.domain.account.dto.AccountDto.*;
@@ -395,10 +396,10 @@ public class AccountService {
 
         RestTemplate restTemplate = new RestTemplate();
         restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory());
-        SmsResponse response = restTemplate.postForObject(new URI("https://sens.apigw.ntruss.com/sms/v2/services/" + serviceId + "/messages"), httpBody, SmsResponse.class);
-
-        redisService.createSmsCertification(smsRequest.to(), smsKey);
-        return response;
+        SmsResponseDTO response = restTemplate.postForObject(new URI("https://sens.apigw.ntruss.com/sms/v2/services/" + serviceId + "/messages"), httpBody, SmsResponseDTO.class);
+        SmsResponse smsResponse = SmsResponse.of(response, LocalDateTime.now().plusSeconds(SMS_LIMIT_TIME));
+        redisService.createSmsCertification(phone, smsKey);
+        return smsResponse;
     }
 
     public SmsMessage certifySms(CertifySmsRequest certifySmsRequest) {

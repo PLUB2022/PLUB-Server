@@ -183,12 +183,27 @@ public class AccountDto {
     ) {
     }
 
-    public record SmsResponse(
+    public record SmsResponseDTO(
             String requestId,
             LocalDateTime requestTime,
             String statusCode,
             String statusName
     ) {
+    }
+
+    public record SmsResponse(
+            SmsResponseDTO result,
+            LocalDateTime expirationTime
+    ) {
+        @Builder
+        public SmsResponse {
+        }
+        public static SmsResponse of(SmsResponseDTO result, LocalDateTime expirationTime) {
+            return SmsResponse.builder()
+                    .result(result)
+                    .expirationTime(expirationTime)
+                    .build();
+        }
     }
 
     public record SmsRequestDTO (
