@@ -123,6 +123,12 @@ public class PlubbingService {
         return new PlubbingCreateCheckResponse(true);
     }
 
+    public void checkPlubbing(Account loginAccount) {
+        if (!checkCreatePlubbing(loginAccount).isCreate()) {
+            throw new PlubbingException(StatusCode.MAX_PLUBBING_LIMIT_OVER);
+        }
+    }
+
 
     /**
      * 모임 생성
@@ -130,7 +136,7 @@ public class PlubbingService {
     @Transactional
     public PlubbingIdResponse createPlubbing(Account owner, CreatePlubbingRequest createPlubbingRequest) {
 
-        checkCreatePlubbing(owner);
+        checkPlubbing(owner);
 
         // Plubbing 엔티티 생성 및 저장
         Plubbing plubbing = plubbingRepository.save(createPlubbingRequest.toEntity());

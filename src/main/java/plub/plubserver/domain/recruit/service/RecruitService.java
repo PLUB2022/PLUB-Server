@@ -217,7 +217,7 @@ public class RecruitService {
                 });
 
 
-        plubbingService.checkCreatePlubbing(loginAccount);
+        plubbingService.checkPlubbing(loginAccount);
 
         // 이미 지원했는지 확인
         if (appliedAccountRepository.existsByAccountAndRecruit(loginAccount, recruit))
