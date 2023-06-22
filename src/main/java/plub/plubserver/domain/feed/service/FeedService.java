@@ -23,7 +23,6 @@ import plub.plubserver.domain.feed.repository.FeedRepository;
 import plub.plubserver.domain.notification.service.NotificationService;
 import plub.plubserver.domain.plubbing.model.Plubbing;
 import plub.plubserver.domain.plubbing.service.PlubbingService;
-import plub.plubserver.util.CursorUtils;
 
 import java.util.List;
 import java.util.Optional;
@@ -257,7 +256,7 @@ public class FeedService {
         Pageable sortedPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(Sort.Direction.DESC, "createdAt"));
         Page<FeedCardResponse> myFeedCardList = feedRepository.findAllByPlubbingAndAccountAndVisibilityAndViewType(plubbing, loginAccount, true, ViewType.NORMAL, sortedPageable, cursorId)
                 .map((Feed feed) -> FeedCardResponse.of(feed, true, true, getLikeCount(feed), getCommentCount(feed)));
-        Long totalElements = CursorUtils.getTotalElements(myFeedCardList.getTotalElements(), cursorId);
+        Long totalElements = feedRepository.countAllByPlubbingAndAccountAndVisibilityAndViewType(plubbing, loginAccount, true, ViewType.NORMAL);
         PageResponse<FeedCardResponse> response = PageResponse.ofCursor(myFeedCardList, totalElements);
         return MyFeedListResponse.of(plubbing, response);
     }

@@ -15,15 +15,4 @@ public class CursorUtils {
         }
         return nextCursorId;
     }
-
-    public static Long getTotalElements(Long totalElements, Long cursorElements) {
-        if(cursorElements == null) {
-            return totalElements;
-        }
-        Long total = totalElements + cursorElements;
-        if (total < totalElements) {
-            return totalElements;
-        }
-        return total;
-    }
 }

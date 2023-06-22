@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.feed.model.Feed;
+import plub.plubserver.domain.feed.model.ViewType;
 import plub.plubserver.domain.plubbing.model.Plubbing;
 
 import java.util.List;
@@ -24,4 +25,6 @@ public interface FeedRepository extends JpaRepository<Feed, Long>, FeedRepositor
     Optional<Feed> findByIdAndVisibility(Long feedId, boolean visibility);
 
     List<Feed> findAllByAccount(Account account);
+
+    Long countAllByPlubbingAndAccountAndVisibilityAndViewType(Plubbing plubbing, Account account, boolean visibility, ViewType viewType);
 }
