@@ -149,6 +149,7 @@ public enum StatusCode {
     DELETED_STATUS_COMMENT(400, 8050, "deleted status comment error."),
     MAX_FEED_PIN(400, 8060, "max feed pin error."),
     NOT_COMMENT_AUTHOR_ERROR(403, 8070, "not comment author error."),
+    CANNOT_PIN_FEED(400, 8080, "system feed cannot be pinned."),
 
 
     /**

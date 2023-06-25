@@ -123,6 +123,8 @@ public class FeedService {
         if (feedRepository.countByPin(true) > 20)
             throw new FeedException(StatusCode.MAX_FEED_PIN);
         plubbingService.checkHost(account, feed.getPlubbing());
+        if (feed.getViewType().equals(ViewType.SYSTEM))
+            throw new FeedException(StatusCode.CANNOT_PIN_FEED);
         feed.pin();
 
         // 핀된 게시글 사용자에게 푸시 알림
