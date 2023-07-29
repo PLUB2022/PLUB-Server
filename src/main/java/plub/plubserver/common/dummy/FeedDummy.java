@@ -43,8 +43,8 @@ public class FeedDummy {
                     .feedType("PHOTO_LINE")
                     .build();
             feedService.createFeed(1L, admin1, form);
-            if (i % 4 == 0)
-                feedService.pinFeed(admin1, 1L, (long) i);
+//            if (i % 4 == 0)
+//                feedService.pinFeed(admin1, 1L, (long) i);
         }
 
         for (int i = 11; i < 21; i++) {
@@ -55,8 +55,8 @@ public class FeedDummy {
                     .feedType("LINE")
                     .build();
             feedService.createFeed(1L, admin1, form);
-            if (i % 4 == 0)
-                feedService.pinFeed(admin1, 1L, (long) i);
+//            if (i % 4 == 0)
+//                feedService.pinFeed(admin1, 1L, (long) i);
         }
 
         for (int i = 21; i < 31; i++) {
@@ -67,8 +67,8 @@ public class FeedDummy {
                     .feedType("PHOTO")
                     .build();
             feedService.createFeed(1L, admin1, form);
-            if (i % 4 == 0)
-                feedService.pinFeed(admin1, 1L, (long) i);
+//            if (i % 4 == 0)
+//                feedService.pinFeed(admin1, 1L, (long) i);
         }
 
         for (int i = 1; i < 6; i++) {
