@@ -398,7 +398,7 @@ public class AccountService {
         restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory());
         SmsResponseDTO response = restTemplate.postForObject(new URI("https://sens.apigw.ntruss.com/sms/v2/services/" + serviceId + "/messages"), httpBody, SmsResponseDTO.class);
         SmsResponse smsResponse = SmsResponse.of(response, LocalDateTime.now().plusSeconds(SMS_LIMIT_TIME));
-        redisService.createSmsCertification(phone, smsKey);
+        redisService.createSmsCertification(smsRequest.to(), smsKey);
         return smsResponse;
     }
 
