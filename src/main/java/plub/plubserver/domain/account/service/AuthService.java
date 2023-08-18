@@ -113,6 +113,7 @@ public class AuthService {
         policyCheckList.put("usePolicy", usePolicy);
         policyCheckList.put("marketPolicy", marketPolicy);
 
+        checkDuplicationPhone(phone);
         checkDuplicationEmailAndNickName(email, nickname);
         Account account = signUpRequest.toAccount(email, socialType, phone, passwordEncoder);
 
@@ -157,6 +158,12 @@ public class AuthService {
                 jwtDto,
                 StatusCode.SIGNUP_COMPLETE.getMessage()
         );
+    }
+
+    private void checkDuplicationPhone(String phone) {
+        if (accountRepository.existsByPhone(phone)) {
+            throw new AccountException(StatusCode.ALREADY_EXIST_PHONE);
+        }
     }
 
     private void checkDuplicationEmailAndNickName(String email, String nickname) {

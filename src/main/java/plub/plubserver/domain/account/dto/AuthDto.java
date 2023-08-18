@@ -76,6 +76,7 @@ public class AuthDto {
             List<Long> categoryList,
             @ApiModelProperty(value = "FCM 토큰", example = "f7mGlaDUTNSx5NOJ8k39bW:APA91bEogtcJPEcYrk5JGxU9GTOB1vq38oI3Jkntu0RgIjSe5pjfr1tAS_oD75ihUBg8Fr2bJ-sy9b_eIzWlbb26MdcpM_dqGVEYzXoVjgXi3P1FlsgpzxbjKPq40iX4Vnxil3GH-7-b")
             String fcmToken,
+            @ApiModelProperty(value = "전화번호", example = "01012345678")
             String phone
     ) {
         @Builder
@@ -107,6 +108,7 @@ public class AuthDto {
                     .joinDate(LocalDateTime.now())
                     .profileImage(profileImage)
                     .isReceivedPushNotification(true)
+                    .phone(phone)
                     .build();
         }
 
