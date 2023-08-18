@@ -23,5 +23,4 @@ public interface AccountRepository extends JpaRepository<Account, Long>, Account
     @Query("select count(a) from Account a where a.createdAt like %:thisMonth%")
     Long countByCreatedAtMonthly(@Param("thisMonth") String thisMonth);
 
-    boolean existsByPhone(String phone);
 }
