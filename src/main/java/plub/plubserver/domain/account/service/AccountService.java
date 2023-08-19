@@ -213,7 +213,6 @@ public class AccountService {
 
             // refreshToken, 지원한 사용자, 가입된 모임, 피드, 투두, 공지, 아카이브, 북마크, 일정 삭제
             refreshTokenRepository.deleteByAccount(myAccount);
-            appliedAccountRepository.findAllByAccount(myAccount).softDelete();
             accountPlubbingRepository.findAllByAccount(myAccount).forEach(AccountPlubbing::softDelete);
             feedRepository.findAllByAccount(myAccount).forEach(Feed::softDelete);
             todoTimelineRepository.findAllByAccount(myAccount).forEach(TodoTimeline::softDelete);
@@ -221,6 +220,7 @@ public class AccountService {
             archiveRepository.findAllByAccount(myAccount).forEach(Archive::softDelete);
             bookmarkRepository.deleteAllByAccount(myAccount);
             calendarRepository.findAllByAccount(myAccount).forEach(Calendar::softDelete);
+            appliedAccountRepository.findAllByAccount(myAccount).softDelete();
             myAccount.deletedAccount();
         }
 
