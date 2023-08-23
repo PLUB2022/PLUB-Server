@@ -26,5 +26,5 @@ public interface AppliedAccountRepository extends JpaRepository<AppliedAccount, 
     List<AppliedAccount> findAllByAccountAndStatus(Account account, ApplicantStatus applicantStatus);
 
     void deleteAllByAccount(Account account);
-    AppliedAccount findAllByAccount(Account account);
+    List<AppliedAccount> findAllByAccount(Account account);
 }

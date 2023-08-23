@@ -17,8 +17,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import plub.plubserver.common.exception.StatusCode;
-import plub.plubserver.config.redis.RedisService;
 import plub.plubserver.config.jwt.RefreshTokenRepository;
+import plub.plubserver.config.redis.RedisService;
 import plub.plubserver.domain.account.exception.AccountException;
 import plub.plubserver.domain.account.model.*;
 import plub.plubserver.domain.account.repository.AccountNicknameHistoryRepository;
@@ -42,8 +42,10 @@ import plub.plubserver.domain.plubbing.model.Plubbing;
 import plub.plubserver.domain.plubbing.model.PlubbingStatus;
 import plub.plubserver.domain.plubbing.repository.AccountPlubbingRepository;
 import plub.plubserver.domain.plubbing.repository.PlubbingRepository;
+import plub.plubserver.domain.recruit.model.AppliedAccount;
 import plub.plubserver.domain.recruit.repository.AppliedAccountRepository;
 import plub.plubserver.domain.recruit.repository.BookmarkRepository;
+import plub.plubserver.domain.recruit.repository.RecruitRepository;
 import plub.plubserver.domain.report.config.ReportStatusMessage;
 import plub.plubserver.domain.report.exception.ReportException;
 import plub.plubserver.domain.report.service.ReportService;
@@ -60,12 +62,12 @@ import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 import java.util.Optional;
+import java.util.Random;
 import java.util.regex.Pattern;
 
-import static plub.plubserver.common.constant.GlobalConstants.SMS_LIMIT_TIME;
 import static plub.plubserver.common.constant.GlobalConstants.NICKNAME_CHANGE_LIMIT;
+import static plub.plubserver.common.constant.GlobalConstants.SMS_LIMIT_TIME;
 import static plub.plubserver.config.security.SecurityUtils.getCurrentAccountEmail;
 import static plub.plubserver.domain.account.dto.AccountDto.*;
 import static plub.plubserver.domain.account.dto.AuthDto.AuthMessage;
@@ -111,6 +113,7 @@ public class AccountService {
     private final BookmarkRepository bookmarkRepository;
     private final CalendarRepository calendarRepository;
     private final PlubbingRepository plubbingRepository;
+    private final RecruitRepository recruitRepository;
 
     // 회원 정보 조회
     public AccountInfoResponse getMyAccount() {
@@ -201,28 +204,27 @@ public class AccountService {
             default -> throw new AccountException(StatusCode.SOCIAL_TYPE_ERROR);
         };
 
-        if (result) {
-            RevokeAccount revokeAccount = RevokeAccount.builder()
-                    .email(myAccount.getEmail())
-                    .socialType(socialType)
-                    .phoneNumber(myAccount.getPhone())
-                    .nickname(myAccount.getNickname())
-                    .revokedAt(LocalDateTime.now())
-                    .build();
-            revokeAccountRepository.save(revokeAccount);
+        RevokeAccount revokeAccount = RevokeAccount.builder()
+                .email(myAccount.getEmail())
+                .socialType(socialType)
+                .phoneNumber(myAccount.getPhone())
+                .nickname(myAccount.getNickname())
+                .revokedAt(LocalDateTime.now())
+                .build();
+        revokeAccountRepository.save(revokeAccount);
 
-            // refreshToken, 지원한 사용자, 가입된 모임, 피드, 투두, 공지, 아카이브, 북마크, 일정 삭제
-            refreshTokenRepository.deleteByAccount(myAccount);
-            accountPlubbingRepository.findAllByAccount(myAccount).forEach(AccountPlubbing::softDelete);
-            feedRepository.findAllByAccount(myAccount).forEach(Feed::softDelete);
-            todoTimelineRepository.findAllByAccount(myAccount).forEach(TodoTimeline::softDelete);
-            noticeRepository.findAllByAccount(myAccount).forEach(Notice::softDelete);
-            archiveRepository.findAllByAccount(myAccount).forEach(Archive::softDelete);
-            bookmarkRepository.deleteAllByAccount(myAccount);
-            calendarRepository.findAllByAccount(myAccount).forEach(Calendar::softDelete);
-            appliedAccountRepository.findAllByAccount(myAccount).softDelete();
-            myAccount.deletedAccount();
-        }
+        // refreshToken, 지원한 사용자, 가입된 모임, 피드, 투두, 공지, 아카이브, 북마크, 일정 삭제
+        refreshTokenRepository.deleteByAccount(myAccount);
+        accountPlubbingRepository.findAllByAccount(myAccount).forEach(AccountPlubbing::softDelete);
+        feedRepository.findAllByAccount(myAccount).forEach(Feed::softDelete);
+        todoTimelineRepository.findAllByAccount(myAccount).forEach(TodoTimeline::softDelete);
+        noticeRepository.findAllByAccount(myAccount).forEach(Notice::softDelete);
+        archiveRepository.findAllByAccount(myAccount).forEach(Archive::softDelete);
+        bookmarkRepository.deleteAllByAccount(myAccount);
+        calendarRepository.findAllByAccount(myAccount).forEach(Calendar::softDelete);
+        appliedAccountRepository.findAllByAccount(myAccount).forEach(AppliedAccount::softDelete);
+        myAccount.deletedAccount();
+
 
         return new AuthMessage(result, "Revoke result: " + result);
     }
@@ -262,7 +264,7 @@ public class AccountService {
         return AccountListResponse.of(accountList);
     }
 
-   // 회원 영구 정지 해제
+    // 회원 영구 정지 해제
     @Transactional
     public AccountIdResponse unSuspendAccount(Account loginAccount, Long accountId) {
         loginAccount.isAdmin();
@@ -315,7 +317,7 @@ public class AccountService {
         }
     }
 
-     private SuspendAccount createSuspendAccount(Account account) {
+    private SuspendAccount createSuspendAccount(Account account) {
         return SuspendAccount.builder()
                 .accountId(account.getId())
                 .accountEmail(account.getEmail())
@@ -374,7 +376,7 @@ public class AccountService {
             }
         }
     }
-  
+
     public SmsResponse sendSms(SmsRequest smsRequest) throws JsonProcessingException, RestClientException, URISyntaxException, InvalidKeyException, NoSuchAlgorithmException, UnsupportedEncodingException {
         Long time = System.currentTimeMillis();
 
