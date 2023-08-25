@@ -22,10 +22,10 @@ public enum ReportType {
 
     public String getDetailContent() {
         return switch (this) {
-            case BAD_WORDS -> "비속어 / 폭언 / 비하 / 음란성 내용";
-            case FALSE_FACT -> "갈등 조장 및 허위사실 유포";
-            case ADVERTISEMENT -> "도배 / 광고성 내용 / 종교 권유";
-            case ETC -> "그 외 기타사유";
+            case BAD_WORDS -> "\uD83E\uDD2C 비속어 / 폭언 / 비하 / 음란성 내용";
+            case FALSE_FACT -> "\uD83E\uDD25 갈등 조장 및 허위사실 유포";
+            case ADVERTISEMENT -> "\uD83E\uDD2F 도배 / 광고성 내용 / 종교 권유";
+            case ETC -> "☹\uFE0F 그 외 기타사유";
         };
     }
 }
