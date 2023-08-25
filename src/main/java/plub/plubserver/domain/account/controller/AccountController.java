@@ -8,11 +8,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
 import plub.plubserver.common.dto.ApiResponse;
+import plub.plubserver.domain.account.dto.AuthDto;
 import plub.plubserver.domain.account.model.Account;
 import plub.plubserver.domain.account.service.AccountService;
 
 import javax.validation.Valid;
-
 import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
 import java.security.InvalidKeyException;
@@ -20,6 +20,7 @@ import java.security.NoSuchAlgorithmException;
 
 import static plub.plubserver.common.dto.ApiResponse.success;
 import static plub.plubserver.domain.account.dto.AccountDto.*;
+import static plub.plubserver.domain.account.dto.AuthDto.*;
 import static plub.plubserver.domain.account.dto.AuthDto.AuthMessage;
 
 
@@ -66,9 +67,9 @@ public class AccountController {
 
     @ApiOperation(value = "회원 탈퇴")
     @PostMapping("/revoke")
-    public ApiResponse<?> revoke() {
-        AuthMessage revoke = accountService.revoke();
-        return success(revoke.detailData());
+    public ApiResponse<RevokeResponse> revoke() {
+        RevokeResponse revoke = accountService.revoke();
+        return success(revoke);
     }
 
     @ApiOperation(value = "회원 관심사 등록")

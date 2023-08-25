@@ -178,4 +178,6 @@ public class AuthDto {
             return new OAuthIdAndRefreshTokenResponse(userId, refreshToken);
         }
     }
+    public record RevokeResponse(Boolean revoke) {
+    }
 }

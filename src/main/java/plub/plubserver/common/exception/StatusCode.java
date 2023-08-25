@@ -38,6 +38,7 @@ public enum StatusCode {
     NOT_FOUND_SMS_KEY(404, 2100, "not found sms key error."),
     INVALID_SMS_KEY(400, 2110, "invalid sms key error."),
     ALREADY_EXIST_PHONE(400, 2120, "already exist phone number error."),
+    REVOKE_ERROR(400, 2130, "revoke error."),
   
     /**
      * Auth

@@ -70,7 +70,7 @@ import static plub.plubserver.common.constant.GlobalConstants.NICKNAME_CHANGE_LI
 import static plub.plubserver.common.constant.GlobalConstants.SMS_LIMIT_TIME;
 import static plub.plubserver.config.security.SecurityUtils.getCurrentAccountEmail;
 import static plub.plubserver.domain.account.dto.AccountDto.*;
-import static plub.plubserver.domain.account.dto.AuthDto.AuthMessage;
+import static plub.plubserver.domain.account.dto.AuthDto.RevokeResponse;
 import static plub.plubserver.domain.account.model.AccountStatus.NORMAL;
 import static plub.plubserver.domain.notification.model.NotificationType.*;
 import static plub.plubserver.domain.report.config.ReportMessage.REPORT_TITLE_ADMIN;
@@ -191,18 +191,18 @@ public class AccountService {
     }
 
     @Transactional
-    public AuthMessage revoke() {
+    public RevokeResponse revoke() {
         Account myAccount = getCurrentAccount();
         SocialType socialType = myAccount.getSocialType();
         String refreshToken = myAccount.getProviderRefreshToken();
         String[] split = myAccount.getEmail().split("@");
 
-        boolean result = switch (socialType) {
-            case GOOGLE -> googleService.revokeGoogle(refreshToken);
-            case KAKAO -> kakaoService.revokeKakao(split[0]);
-            case APPLE -> appleService.revokeApple(refreshToken);
-            default -> throw new AccountException(StatusCode.SOCIAL_TYPE_ERROR);
-        };
+//        boolean result2 = switch (socialType) {
+//            case GOOGLE -> googleService.revokeGoogle(refreshToken);
+//            case KAKAO -> kakaoService.revokeKakao(split[0]);
+//            case APPLE -> appleService.revokeApple(refreshToken);
+//            default -> throw new AccountException(StatusCode.SOCIAL_TYPE_ERROR);
+//        };
 
         RevokeAccount revokeAccount = RevokeAccount.builder()
                 .email(myAccount.getEmail())
@@ -214,19 +214,24 @@ public class AccountService {
         revokeAccountRepository.save(revokeAccount);
 
         // refreshToken, 지원한 사용자, 가입된 모임, 피드, 투두, 공지, 아카이브, 북마크, 일정 삭제
-        refreshTokenRepository.deleteByAccount(myAccount);
-        accountPlubbingRepository.findAllByAccount(myAccount).forEach(AccountPlubbing::softDelete);
-        feedRepository.findAllByAccount(myAccount).forEach(Feed::softDelete);
-        todoTimelineRepository.findAllByAccount(myAccount).forEach(TodoTimeline::softDelete);
-        noticeRepository.findAllByAccount(myAccount).forEach(Notice::softDelete);
-        archiveRepository.findAllByAccount(myAccount).forEach(Archive::softDelete);
-        bookmarkRepository.deleteAllByAccount(myAccount);
-        calendarRepository.findAllByAccount(myAccount).forEach(Calendar::softDelete);
-        appliedAccountRepository.findAllByAccount(myAccount).forEach(AppliedAccount::softDelete);
-        myAccount.deletedAccount();
+        try {
 
+            refreshTokenRepository.deleteByAccount(myAccount);
+            accountPlubbingRepository.findAllByAccount(myAccount).forEach(AccountPlubbing::softDelete);
+            feedRepository.findAllByAccount(myAccount).forEach(Feed::softDelete);
+            todoTimelineRepository.findAllByAccount(myAccount).forEach(TodoTimeline::softDelete);
+            noticeRepository.findAllByAccount(myAccount).forEach(Notice::softDelete);
+            archiveRepository.findAllByAccount(myAccount).forEach(Archive::softDelete);
+            bookmarkRepository.deleteAllByAccount(myAccount);
+            calendarRepository.findAllByAccount(myAccount).forEach(Calendar::softDelete);
+            appliedAccountRepository.findAllByAccount(myAccount).forEach(AppliedAccount::softDelete);
+            myAccount.deletedAccount();
+            return new RevokeResponse(true);
 
-        return new AuthMessage(result, "Revoke result: " + result);
+        } catch (Exception e) {
+            log.error("회원 탈퇴 중 에러 발생", e);
+            throw new AccountException(StatusCode.REVOKE_ERROR);
+        }
     }
 
     @Transactional
