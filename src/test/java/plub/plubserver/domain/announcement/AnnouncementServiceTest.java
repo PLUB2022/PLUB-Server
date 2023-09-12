@@ -9,6 +9,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import plub.plubserver.domain.account.AccountTemplate;
 import plub.plubserver.domain.account.exception.AccountException;
 import plub.plubserver.domain.account.model.Account;
+import plub.plubserver.domain.announcement.dto.AnnouncementDto;
 import plub.plubserver.domain.announcement.model.Announcement;
 import plub.plubserver.domain.announcement.repository.AnnouncementRepository;
 import plub.plubserver.domain.announcement.service.AnnouncementService;
@@ -37,10 +38,10 @@ class AnnouncementServiceTest {
         given(announcementRepository.save(any()))
                 .willReturn(request.toEntity());
         // when
-        announcementService.createAnnouncement(account, request);
+        AnnouncementDto.AnnouncementIdResponse announcement = announcementService.createAnnouncement(account, request);
 
         // then
-        assertThat(request.title()).isEqualTo(request.title());
+        assertThat(announcement.announcementId()).isEqualTo(request.title());
     }
 
     @Test

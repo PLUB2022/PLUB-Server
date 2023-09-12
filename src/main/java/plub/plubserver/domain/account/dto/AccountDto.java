@@ -179,7 +179,7 @@ public class AccountDto {
     }
 
     public record SmsRequest(
-        String to
+            String to
     ) {
     }
 
@@ -198,6 +198,7 @@ public class AccountDto {
         @Builder
         public SmsResponse {
         }
+
         public static SmsResponse of(SmsResponseDTO result, LocalDateTime expirationTime) {
             return SmsResponse.builder()
                     .result(result)
@@ -206,17 +207,18 @@ public class AccountDto {
         }
     }
 
-    public record SmsRequestDTO (
-        String type,
-        String contentType,
-        String countryCode,
-        String from,
-        String content,
-        List<SmsRequest> messages
+    public record SmsRequestDTO(
+            String type,
+            String contentType,
+            String countryCode,
+            String from,
+            String content,
+            List<SmsRequest> messages
     ) {
         @Builder
         public SmsRequestDTO {
         }
+
         public static SmsRequestDTO of(String from, String content, List<SmsRequest> messages) {
             return SmsRequestDTO.builder()
                     .type("SMS")
@@ -235,8 +237,9 @@ public class AccountDto {
     ) {
     }
 
-    public record SmsMessage(Object result) {}
-  
+    public record SmsMessage(Object result) {
+    }
+
     public record LogoutResponse(
             boolean isLogout
     ) {

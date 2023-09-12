@@ -3,7 +3,6 @@ package plub.plubserver.domain.calendar.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import plub.plubserver.common.dto.PageResponse;
@@ -36,10 +35,9 @@ public class CalendarService {
     private final CalendarAttendRepository calendarAttendRepository;
     private final PlubbingService plubbingService;
     private final NotificationService notificationService;
-    private final SchedulerService schedulerService;
 
-    public Calendar getCalendar(Long CalendarId) {
-        return calendarRepository.findById(CalendarId).orElseThrow(
+    public Calendar getCalendar(Long calendarId) {
+        return calendarRepository.findById(calendarId).orElseThrow(
                 () -> new CalendarException(StatusCode.NOT_FOUNT_CALENDAR));
     }
 
@@ -132,11 +130,6 @@ public class CalendarService {
             );
         });
 
-        // 푸시 알림 스케줄러에 등록
-        ThreadPoolTaskScheduler scheduler = schedulerService.getScheduler();
-        if (calendar.getAlarmType() != CalendarAlarmType.NONE) {
-            schedulerService.addScheduler(calendar, scheduler);
-        }
         return CalendarIdResponse.of(calendar.getId());
     }
 
@@ -155,12 +148,6 @@ public class CalendarService {
                     NotifyParams.ofUpdateCalendar(member, plubbing, calendar)
             );
         });
-
-        // 푸시 알림 스케줄러에 변경
-        ThreadPoolTaskScheduler scheduler = schedulerService.getScheduler();
-        if (calendar.getAlarmType() != CalendarAlarmType.NONE) {
-            schedulerService.changeScheduler(calendar, scheduler);
-        }
 
         return CalendarIdResponse.of(calendar.getId());
     }
